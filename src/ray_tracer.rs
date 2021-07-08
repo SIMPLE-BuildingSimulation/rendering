@@ -1,5 +1,5 @@
 use crate::camera::{Camera, View};
-use crate::colour::RGBColour;
+use crate::colour::Spectrum;
 use crate::image::ImageBuffer;
 use crate::scene::Scene;
 use geometry3d::ray3d::Ray3D;
@@ -40,7 +40,7 @@ impl RayTracer {
                 if let None = scene.cast_ray(&shadow_ray) {
                     let cos_theta = (normal * light_direction).abs();
 
-                    buffer.push(RGBColour {
+                    buffer.push(Spectrum {
                         red: light_r
                             * omega
                             * cos_theta
@@ -59,7 +59,7 @@ impl RayTracer {
                     })
                 } else {
                     // It does not see the light
-                    buffer.push(RGBColour {
+                    buffer.push(Spectrum {
                         red: 0.,
                         green: 0.,
                         blue: 0.,
@@ -67,7 +67,7 @@ impl RayTracer {
                 }
             } else {
                 // Did not hit.
-                buffer.push(RGBColour {
+                buffer.push(Spectrum {
                     red: 0.,
                     green: 0.,
                     blue: 0.,

@@ -1,7 +1,14 @@
+use crate::colour::Spectrum;
+use geometry3d::vector3d::Vector3D;
+
 pub trait Material {
-    fn red(&self) -> f64;
-    fn green(&self) -> f64;
-    fn blue(&self) -> f64;
+    fn colour(&self)->Spectrum;
+
+    fn is_light_source(&self)->bool{
+        false
+    }
+
+    fn bsdf(&self, vin: Vector3D, normal:Vector3D, vout:Vector3D)->Spectrum;
 }
 
 pub struct Light {
@@ -10,15 +17,24 @@ pub struct Light {
     pub blue: f64,
 }
 impl Material for Light {
-    fn red(&self) -> f64 {
-        self.red
+    
+    fn colour(&self)->Spectrum{
+        Spectrum{
+            red: self.red,
+            green: self.green,
+            blue:self.blue,
+        }
     }
-    fn green(&self) -> f64 {
-        self.green
+
+    fn is_light_source(&self)->bool{
+        true
     }
-    fn blue(&self) -> f64 {
-        self.blue
+
+    // Lights don't reflect...?
+    fn bsdf(&self, _: Vector3D, _:Vector3D, _:Vector3D)->Spectrum{
+        Spectrum::black()
     }
+    
 }
 
 pub struct Metal {
@@ -30,14 +46,18 @@ pub struct Metal {
 }
 
 impl Material for Metal {
-    fn red(&self) -> f64 {
-        self.red
+    fn colour(&self)->Spectrum{
+        Spectrum{
+            red: self.red,
+            green: self.green,
+            blue:self.blue,
+        }
     }
-    fn green(&self) -> f64 {
-        self.green
-    }
-    fn blue(&self) -> f64 {
-        self.blue
+
+    // Assume lambertian, for now
+    fn bsdf(&self, _: Vector3D, _:Vector3D, _:Vector3D)->Spectrum{
+        const ONE_OVER_PI : f64 = 1./std::f64::consts::PI;
+        self.colour()*ONE_OVER_PI
     }
 }
 
@@ -50,13 +70,17 @@ pub struct Plastic {
 }
 
 impl Material for Plastic {
-    fn red(&self) -> f64 {
-        self.red
+    fn colour(&self)->Spectrum{
+        Spectrum{
+            red: self.red,
+            green: self.green,
+            blue:self.blue,
+        }
     }
-    fn green(&self) -> f64 {
-        self.green
-    }
-    fn blue(&self) -> f64 {
-        self.blue
+
+    // Assume lambertian, for now
+    fn bsdf(&self, _: Vector3D, _:Vector3D, _:Vector3D)->Spectrum{
+        const ONE_OVER_PI : f64 = 1./std::f64::consts::PI;
+        self.colour()*ONE_OVER_PI
     }
 }

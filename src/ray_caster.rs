@@ -1,9 +1,7 @@
 use crate::camera::{Camera, View};
-use crate::colour::RGBColour;
+use crate::colour::Spectrum;
 use crate::image::ImageBuffer;
 use crate::scene::Scene;
-use geometry3d::ray3d::Ray3D;
-use geometry3d::vector3d::Vector3D;
 
 pub struct RayCaster {}
 
@@ -14,60 +12,16 @@ impl RayCaster {
         let mut buffer = ImageBuffer::new(width, height);
 
         for ray in primary_rays.iter() {
+            // If hits an object
             if let Some((t, normal, material_index)) = scene.cast_ray(ray) {
                 debug_assert!((1.0 - normal.length()).abs() < f64::EPSILON);
-                // Normalize normal?
 
-                // shade.
-                //for (i,light) in scene.lights().iter().enumerate(){
+                let material = scene.borrow_material(material_index);
 
-                //}
-                let mut light_direction = Vector3D::new(0., 0., 1.);
-                light_direction.normalize();
-                let light_size = 0.5; // degrees
-                let light_size = light_size * std::f64::consts::PI / 180. / 2.;
-                let omega = light_size.tan() * light_size.tan() * std::f64::consts::PI;
-
-                let light_r = 1000.;
-                let light_g = 100.;
-                let light_b = 100.;
-
-                let shadow_ray = Ray3D {
-                    origin: ray.project(t) + normal * 0.0001,
-                    direction: light_direction,
-                };
-                
-                if let None = scene.cast_ray(&shadow_ray) {
-                    let cos_theta = (normal * light_direction).abs();
-
-                    buffer.push(RGBColour {
-                        red: light_r
-                            * omega
-                            * cos_theta
-                            * scene.borrow_material(material_index).red()
-                            / std::f64::consts::PI,
-                        green: light_g
-                            * omega
-                            * cos_theta
-                            * scene.borrow_material(material_index).green()
-                            / std::f64::consts::PI,
-                        blue: light_b
-                            * omega
-                            * cos_theta
-                            * scene.borrow_material(material_index).blue()
-                            / std::f64::consts::PI,
-                    })
-                } else {
-                    // It does not see the light
-                    buffer.push(RGBColour {
-                        red: 0.,
-                        green: 0.,
-                        blue: 0.,
-                    });
-                }
+                buffer.push(scene.get_local_illumination(material, ray.direction, ray.project(t), normal));
             } else {
                 // Did not hit.
-                buffer.push(RGBColour {
+                buffer.push(Spectrum {
                     red: 0.,
                     green: 0.,
                     blue: 0.,
@@ -81,7 +35,12 @@ impl RayCaster {
 #[cfg(test)]
 mod tests {
     use super::*;
+    // use geometry3d::ray3d::Ray3D;
+    use geometry3d::vector3d::Vector3D;
+
     use crate::material::Plastic;
+    use crate::material::Light;
+    use crate::distant_source::DistantSource3D;
     use geometry3d::plane3d::Plane3D;
     use geometry3d::point3d::Point3D;
     use geometry3d::sphere3d::Sphere3D;
@@ -106,6 +65,12 @@ mod tests {
             roughness: 0.,
         }));
 
+        let light = scene.push_material(Box::new(Light {
+            red: 1000.,
+            green: 100.,
+            blue: 100.,            
+        }));
+
         scene.push_object(
             red,
             green,
@@ -126,6 +91,36 @@ mod tests {
                 Vector3D::new(0., 0., 1.),
             )),
         );
+
+        scene.push_object(
+            light,
+            light,
+            Box::new(DistantSource3D::new(
+                Vector3D::new(0., 0., 1.),
+                0.5 * std::f64::consts::PI/180.,
+            ))
+        );
+
+        scene.push_object(
+            light,
+            light,
+            Box::new(DistantSource3D::new(
+                Vector3D::new(0., 1., 1.),
+                0.5 * std::f64::consts::PI/180.,
+            ))
+        );
+
+        // scene.push_object(
+        //     light,
+        //     light,
+        //     Box::new(Sphere3D::new(
+        //         1.5,
+        //         Point3D::new(1., -1., 15.)
+        //     ))
+        // );
+
+
+
         // Create camera
         let camera = Camera::Pinhole;
 
@@ -143,5 +138,6 @@ mod tests {
         let buffer = RayCaster::render(&scene, &camera, &view);
         buffer.save_jpeg("./test_imgs/ray_caster.jpeg".to_string());
         buffer.save_hdre("./test_imgs/ray_caster.hdr".to_string());
+        panic!("asd")
     }
 }
