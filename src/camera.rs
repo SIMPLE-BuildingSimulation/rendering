@@ -1,21 +1,29 @@
-use geometry3d::ray3d::Ray3D;
 use geometry3d::point3d::Point3D;
+use geometry3d::ray3d::Ray3D;
 use geometry3d::vector3d::Vector3D;
 
 pub struct View {
-    view_point: Point3D,
-    view_direction: Vector3D,
-    view_up: Vector3D,
+    pub view_point: Point3D,
+    pub view_direction: Vector3D,
+    pub view_up: Vector3D,
 
     /// Horizontal angle of the Field of View (i.e., frustum) in degrees
-    field_of_view: f64,
+    pub field_of_view: f64,
 
     /// Width of the image, in pixels
-    width: usize,
+    pub width: usize,
 
     /// Width/height
-    aspect_ratio: f64,
+    pub aspect_ratio: f64,
     // u,v,w? v=view_up; w=view_direction; u=w x v
+}
+
+impl View {
+    /// Returns the (width, height) values
+    pub fn dimensions(&self) -> (usize, usize) {
+        let height = (self.aspect_ratio * self.width as f64).round() as usize;
+        return (self.width, height);
+    }
 }
 
 impl Default for View {
@@ -36,26 +44,35 @@ pub enum Camera {
 }
 
 fn pinhole_primary_rays(view: &View) -> Vec<Ray3D> {
-    let height = (view.aspect_ratio * view.width as f64).round() as usize;
-    let mut rays = Vec::with_capacity(height * view.width);
+    let mut view_direction = view.view_direction;
+    view_direction.normalize();
+    let mut view_up = view.view_up;
+    view_up.normalize();
+
+    let (width, height) = view.dimensions();
+    let mut rays = Vec::with_capacity(height * width);
 
     let u = view.view_direction.cross(view.view_up);
     let distance_to_screen = 1. / (std::f64::consts::PI * view.field_of_view / 180.0 / 2.0).tan();
 
     // Calcuate the step
-    let dx = 2. / (view.width - 1) as f64;
-    let dy = 2. / (height - 1) as f64;
+    let dx = 2. / width as f64;
+    let dy = 2. / height as f64;
     // Iterate all pixels
-    let mut y = 1.;
+    let mut y = 1. - dy / 2.;
     while y >= -1. {
-        let mut x = -1.;
+        let mut x = -1. + dx / 2.;
         while x <= 1. {
             // Calculate direction
             let mut direction = view.view_direction * distance_to_screen + u * x + view.view_up * y;
+
             direction.normalize();
 
             // push
-            rays.push(Ray3D::new(view.view_point, direction));
+            rays.push(Ray3D {
+                origin: view.view_point,
+                direction,
+            });
 
             // Move right
             x += dx;
@@ -89,6 +106,6 @@ mod tests {
             aspect_ratio,
             ..View::default()
         });
-        assert!((rays.len() as f64 -  width as f64 * width as f64).abs() < 2.);
+        assert_eq!(rays.len(), width * width);
     }
 }

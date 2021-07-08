@@ -1,0 +1,168 @@
+/*
+ PART OF THIS FILE contains code to write four byte rgbe file format
+ developed by Greg Ward. It handles the conversions between rgbe and
+ pixels consisting of floats.
+
+ This code was translated into Rust... The original work is available
+ at http://www.graphics.cornell.edu/~bjw/
+ written by Bruce Walter  (bjw@graphics.cornell.edu)  5/26/95
+ based on code written by Greg Ward
+*/
+use crate::colour::RGBColour;
+use image::{Rgb, RgbImage};
+use std::io::Write;
+
+/// A buffer with all the physical values in the image
+/// (i.e., Radiance, Irradiance or whatever being calculated)
+///
+pub struct ImageBuffer {
+    /// Number of columns
+    pub width: usize,
+    /// Number of rows
+    pub height: usize,
+    /// All the pixels, iterating from top
+    /// to bottom, left to right
+    pixels: Vec<RGBColour>,
+}
+
+fn rusty_frexp(s: f64) -> (f64, i32) {
+    if 0.0 == s {
+        return (s, 0);
+    } else {
+        let lg = s.abs().log2();
+        let x = (lg - lg.floor() - 1.0).exp2();
+        let exp = lg.floor() + 1.0;
+        (s.signum() * x, exp as i32)
+    }
+}
+
+fn float_to_rgbe(red: f64, green:f64, blue:f64) -> [u8; 4] {
+        
+        
+    let mut v: f64;
+
+    v = red;
+    if green > v {
+        v = green;
+    }
+    if blue > v {
+        v = blue;
+    }
+    if v < f64::EPSILON {
+        [0, 0, 0, 0]
+    } else {
+        let (mut mantissa, e) = rusty_frexp(v);
+        mantissa *= 256.0 / v;        
+        let r = (red * mantissa).floor() as u8;
+        let g = (green * mantissa).floor() as u8;
+        let b = (blue * mantissa).floor() as u8;
+        
+        debug_assert!( e+128 >= 0);
+        debug_assert!( e+128 <= u8::MAX as i32);
+
+        let e = (e + 128) as u8;
+
+        [r, g, b, e]
+    }
+}
+
+impl ImageBuffer {
+    /// Creates a new empty [`ImageBuffer`]
+    pub fn new(width: usize, height: usize) -> Self {
+        Self {
+            width,
+            height,
+            pixels: Vec::with_capacity(width * height),
+        }
+    }
+
+    /// Pushes an [`RGBColour`] to the [`ImageBuffer`]
+    pub fn push(&mut self, pixel: RGBColour) {
+        self.pixels.push(pixel)
+    }
+
+    /// Save the image as a JPEG
+    pub fn save_jpeg(&self, filename: String) {
+        let mut img = RgbImage::new(self.width as u32, self.width as u32);
+        let mut pixel = 0;
+        for i in 0..self.height {
+            for j in 0..self.width {
+                let r = (800.*255. * self.pixels[pixel].red).round() as u8;
+                let g = (800.*255. * self.pixels[pixel].green).round() as u8;
+                let b = (800.*255. * self.pixels[pixel].blue).round() as u8;
+                img.put_pixel(j as u32, i as u32, Rgb([r, g, b]));
+                pixel += 1;
+            }
+        }
+        img.save(filename).unwrap();
+    }
+
+    
+
+    /// Saves the image in HDRE format
+    pub fn save_hdre(&self, filename: String) {
+        // Create the file
+        let mut file = std::fs::File::create(filename).unwrap();
+        // Write header
+        // let gamma = 1.0;
+        // let exposure = 1.0;
+        file.write_all(b"#?RGBE\n").unwrap();
+        // file.write_all(format!("GAMMA={}\n", gamma).as_bytes()).unwrap();
+        // file.write_all(format!("EXPOSURE={}\n", exposure).as_bytes()).unwrap();
+        file.write_all(b"FORMAT=32-bit_rle_rgbe\n\n").unwrap();
+        file.write(format!("-Y {} +X {}\n", self.height, self.width).as_bytes())
+            .unwrap();
+
+        for pixel in self.pixels.iter() {
+            file.write(&float_to_rgbe(pixel.red, pixel.green, pixel.blue)).unwrap();
+        }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::os::raw::{c_double, c_int};
+    
+    extern "C" {
+        fn frexp(x: c_double, exp: *mut c_int) -> c_double;        
+    }
+
+    
+    fn c_frexp(x:f64)->(f64, i32){
+        let mut exp: c_int = 0;
+        let res = unsafe { frexp(x, &mut exp) };
+        (res, exp as i32)
+    }
+
+    #[test]
+    fn test_frexp(){
+        let xs : Vec<f64> = vec![1e6, 2., std::f64::consts::PI, 123987., 0., 99., 2.3123, 1024.,0.1];
+        for x in xs.iter(){
+            let (c_mantissa, c_exp) = c_frexp(*x);
+            let (mantissa, exp) = rusty_frexp(*x);
+            println!("... x={} | c_mant: {}, c_exp: {}; mant: {}, exp: {}", x, c_mantissa, c_exp, mantissa, exp);
+            assert_eq!(exp, c_exp);
+            assert!((mantissa-c_mantissa).abs()<0.000000001);
+        }
+                
+    }
+
+    #[test]
+    fn test_float_to_rgbe(){
+        
+        // Produced automatically
+        assert_eq!(float_to_rgbe(807., 249., 73.), [201,62,18,138]);
+        assert_eq!(float_to_rgbe(984943658.000000, 1144108930.000000, 470211272.000000), [117,136,56,159]);
+        assert_eq!(float_to_rgbe(101027544.000000, 1457850878.000000, 1458777923.000000), [12,173,173,159]);
+        assert_eq!(float_to_rgbe(2007237709.000000, 823564440.000000, 1115438165.000000), [239,98,132,159]);
+        assert_eq!(float_to_rgbe(1784484492.000000, 74243042.000000, 114807987.000000), [212,8,13,159]);
+        assert_eq!(float_to_rgbe(1137522503.000000, 1441282327.000000, 16531729.000000), [135,171,1,159]);
+        assert_eq!(float_to_rgbe(823378840.000000, 143542612.000000, 896544303.000000), [196,34,213,158]);
+        assert_eq!(float_to_rgbe(1474833169.000000, 1264817709.000000, 1998097157.000000), [175,150,238,159]);
+        assert_eq!(float_to_rgbe(1817129560.000000, 1131570933.000000, 197493099.000000), [216,134,23,159]);
+        assert_eq!(float_to_rgbe(1404280278.000000, 893351816.000000, 1505795335.000000), [167,106,179,159]);
+
+    }
+}
