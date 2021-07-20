@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 geometry3d = {path = "../geometry3d"}
 image = "0.23.14"
+rand = "0.8.4"
 
 [dev-dependencies]
 criterion = "0.3.4"

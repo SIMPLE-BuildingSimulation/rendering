@@ -22,6 +22,12 @@ impl RGBSpectrum {
     }
 }
 
+impl std::fmt::Display for RGBSpectrum {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RGBSpectrum({:.5},{:.5},{:.5})", self.red, self.green, self.blue)
+    }
+}
+
 impl std::ops::Add for RGBSpectrum {
     type Output = Self;
 
@@ -79,6 +85,26 @@ impl std::ops::MulAssign<f64> for RGBSpectrum {
         self.red *= other;
         self.green *= other;
         self.blue *= other;
+    }
+}
+
+impl std::ops::Div<f64> for RGBSpectrum {
+    type Output = Self;
+
+    fn div(self, other: f64) -> Self {
+        Self {
+            red: self.red / other,
+            green: self.green / other,
+            blue: self.blue / other,
+        }
+    }
+}
+
+impl std::ops::DivAssign<f64> for RGBSpectrum {
+    fn div_assign(&mut self, other: f64) {
+        self.red /= other;
+        self.green /= other;
+        self.blue /= other;
     }
 }
 

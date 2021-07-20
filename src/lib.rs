@@ -5,5 +5,7 @@ pub mod image;
 pub mod material;
 pub mod ray_caster;
 // pub mod ray_tracer;
+pub mod from_radiance;
 pub mod sampleable_trait;
 pub mod scene;
+pub mod samplers;
