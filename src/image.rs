@@ -9,21 +9,7 @@
  based on code written by Greg Ward
 */
 use crate::colour::Spectrum;
-use image::{Rgb, RgbImage};
 use std::io::Write;
-
-/// A buffer with all the physical values in the image
-/// (i.e., Radiance, Irradiance or whatever being calculated)
-///
-pub struct ImageBuffer {
-    /// Number of columns
-    pub width: usize,
-    /// Number of rows
-    pub height: usize,
-    /// All the pixels, iterating from top
-    /// to bottom, left to right
-    pixels: Vec<Spectrum>,
-}
 
 fn rusty_frexp(s: f64) -> (f64, i32) {
     if 0.0 == s {
@@ -64,35 +50,45 @@ fn float_to_rgbe(red: f64, green: f64, blue: f64) -> [u8; 4] {
     }
 }
 
+/// A buffer with all the physical values in the image
+/// (i.e., Radiance, Irradiance or whatever being calculated)
+///
+pub struct ImageBuffer {
+    /// Number of columns
+    pub width: usize,
+    /// Number of rows
+    pub height: usize,
+    /// All the pixels, iterating from top
+    /// to bottom, left to right
+    pixels: Vec<Spectrum>,
+}
+
+impl std::ops::IndexMut<(usize, usize)> for ImageBuffer {
+    fn index_mut(&mut self, pixel: (usize, usize)) -> &mut Self::Output {
+        let (x, y) = pixel;
+        let i = y * self.width + x;
+        &mut self.pixels[i]
+    }
+}
+
+impl std::ops::Index<(usize, usize)> for ImageBuffer {
+    type Output = Spectrum;
+
+    fn index(&self, pixel: (usize, usize)) -> &Self::Output {
+        let (x, y) = pixel;
+        let i = y * self.width + x;
+        &self.pixels[i]
+    }
+}
+
 impl ImageBuffer {
     /// Creates a new empty [`ImageBuffer`]
     pub fn new(width: usize, height: usize) -> Self {
         Self {
             width,
             height,
-            pixels: Vec::with_capacity(width * height),
+            pixels: vec![Spectrum::black(); width * height],
         }
-    }
-
-    /// Pushes an [`Spectrum`] to the [`ImageBuffer`]
-    pub fn push(&mut self, pixel: Spectrum) {
-        self.pixels.push(pixel)
-    }
-
-    /// Save the image as a JPEG
-    pub fn save_jpeg(&self, filename: String) {
-        let mut img = RgbImage::new(self.width as u32, self.width as u32);
-        let mut pixel = 0;
-        for i in 0..self.height {
-            for j in 0..self.width {
-                let r = (800. * 255. * self.pixels[pixel].red).round() as u8;
-                let g = (800. * 255. * self.pixels[pixel].green).round() as u8;
-                let b = (800. * 255. * self.pixels[pixel].blue).round() as u8;
-                img.put_pixel(j as u32, i as u32, Rgb([r, g, b]));
-                pixel += 1;
-            }
-        }
-        img.save(filename).unwrap();
     }
 
     /// Saves the image in HDRE format

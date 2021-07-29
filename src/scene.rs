@@ -8,9 +8,9 @@ use geometry3d::vector3d::Vector3D;
 use crate::colour::Spectrum;
 
 struct Object {
-    primitive: Box<dyn Sampleable>,
-    front_material_index: usize,
-    back_material_index: usize,
+    pub primitive: Box<dyn Sampleable>,
+    pub front_material_index: usize,
+    pub back_material_index: usize,
 }
 
 #[derive(Default)]
@@ -34,38 +34,67 @@ impl Scene {
         Self::default()
     }
 
-    pub fn n_materials(&self)->usize{
+    pub fn n_materials(&self) -> usize {
         self.materials.len()
     }
 
+    pub fn n_lights(&self) -> usize {
+        self.lights.len()
+    }
 
     /// Recursively traces a ray
-    pub fn trace_ray(&self, ray: &Ray3D, depth: usize /*OPTIONS */)->Spectrum{
+    pub fn trace_ray(&self, ray: &Ray3D, depth: usize /*OPTIONS */) -> Spectrum {
         // Limit bounces
-        const MAX_DEPTH:usize=3;
-        if depth > MAX_DEPTH{
+        const MAX_DEPTH: usize = 2;
+        if depth > MAX_DEPTH {
             return Spectrum::black();
         }
-        const N_SHADOW_SAMPLES:usize=10;
+        const N_SHADOW_SAMPLES: usize = 10;
+        const N_AMBIENT_SAMPLES: usize = 10;
 
         // If hits an object
         if let Some((t, normal, material_index)) = self.cast_ray(ray) {
-            debug_assert!((1.0 - normal.length()).abs() < f64::EPSILON);
+            debug_assert!((1.0 - normal.length()).abs() < 0.000001);
 
             let material = self.borrow_material(material_index);
+            let intersection_pt = ray.project(t);
 
-            // Direct light contributions
+            /* SAMPLE LIGHTS */
             let local = self.get_local_illumination(
                 material,
                 ray.direction,
-                ray.project(t),
+                intersection_pt,
                 normal,
                 N_SHADOW_SAMPLES,
+                N_AMBIENT_SAMPLES,
             );
 
-            // Check if there is any specular
+            /* SAMPLE BSDF */
+            let mut global = Spectrum::black();
+            if !material.emits_direct_light() {
+                let n_lights = self.lights.len();
+                let total_samples = N_AMBIENT_SAMPLES + n_lights * N_SHADOW_SAMPLES;
+                let bsdf_c = N_AMBIENT_SAMPLES as f64 / total_samples as f64;
+                for _ in 0..N_AMBIENT_SAMPLES {
+                    // Choose a direction.
+                    let direction = material.sample_bsdf(ray.direction, normal);
+                    let new_ray = Ray3D {
+                        direction,
+                        origin: intersection_pt + normal * 0.0001, // avoid self shading
+                    };
+                    let cos_theta = (normal * direction).abs();
+                    let li = self.trace_ray(&new_ray, depth + 1);
+                    let material_pdf = material.bsdf(ray.direction, normal, new_ray.direction);
 
-            let global = Spectrum::black();
+                    let fx = (li * cos_theta) * (material.colour() * material_pdf);
+
+                    let denominator = material_pdf * bsdf_c;
+
+                    // add contribution
+                    global += fx / denominator;
+                }
+                global /= total_samples as f64;
+            }
 
             local + global
         } else {
@@ -86,17 +115,22 @@ impl Scene {
         vin: Vector3D,
         point: Point3D,
         normal: Vector3D,
-        n_samples: usize
+        n_light_samples: usize,
+        n_ambient_samples: usize,
     ) -> Spectrum {
         // prevent self-shading
         let origin = point + normal * 0.0001;
         let mut ret = Spectrum::black();
 
+        let n_lights = self.lights.len();
+        let total_samples = n_ambient_samples + n_lights * n_light_samples;
+        let bsdf_c = n_ambient_samples as f64 / total_samples as f64;
+        let light_c = n_light_samples as f64 / total_samples as f64;
+
         for light_index in &self.lights {
             let primitive = &self.objects[*light_index].primitive;
-            let sampler = primitive.direction_sampler(point, n_samples);
-            for light_direction in sampler { 
-                
+            let sampler = primitive.direction_sampler(point, n_light_samples);
+            for light_direction in sampler {
                 // Expect direction to be normalized
                 debug_assert!((1. - light_direction.length()).abs() < 0.0001);
 
@@ -105,15 +139,20 @@ impl Scene {
                     direction: light_direction,
                 };
 
-                let (light_distance,_normal, side) = match primitive.intersect(&shadow_ray){
-                    Some(d)=>d,
-                    None => panic!("Missed light {}", light_index)
+                let light_distance = match primitive.intersect(&shadow_ray) {
+                    Some(d) => d,
+                    None => {
+                        eprintln!("Missed light {}", light_index);
+                        continue;
+                    }
                 };
-                
+
                 // If the light is visible
                 if self.unobstructed_distance(&shadow_ray, light_distance) {
+                    let (_normal_at_light, side) =
+                        primitive.normal_at_intersection(&shadow_ray, light_distance);
                     let cos_theta = (normal * light_direction).abs();
-    
+
                     let light_material = match side {
                         SurfaceSide::Front => {
                             &self.materials[self.objects[*light_index].front_material_index]
@@ -123,18 +162,22 @@ impl Scene {
                         }
                     };
                     let light_colour = light_material.colour();
-                                        
-                    ret += light_colour
-                        * cos_theta
-                        * material.bsdf(vin, normal, shadow_ray.direction)
-                        * primitive.omega(origin);
-                }// end of unobstructed distance
-                
 
-            }// end of iterating samples
+                    // Denominator of the Balance Heuristic... I am assuming that
+                    // when one light has a pdf>0, then all the rest are Zero... is this
+                    // correct?
+                    let light_pdf = 1. / primitive.omega(origin);
+                    let material_pdf = material.bsdf(vin, normal, shadow_ray.direction * -1.);
+                    let denominator = material_pdf * bsdf_c + light_pdf * light_c;
+                    let fx = (light_colour * cos_theta) * (material.colour() * material_pdf);
+
+                    // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
+                    ret += fx / denominator;
+                } // end of unobstructed distance
+            } // end of iterating samples
         } // end of iterating lights
-        // return
-        ret / n_samples as f64
+          // return
+        ret / total_samples as f64
     }
 
     /// Casts a [`Ray3D`] and returns an `Option<(f64,Vector3D,usize)>` in which the
@@ -149,10 +192,12 @@ impl Scene {
         let mut normal = Vector3D::new(0., 0., 0.);
 
         for object in self.objects.iter() {
-            if let Some((new_t, new_normal, new_surface_side)) = object.primitive.intersect(&ray) {
+            if let Some(new_t) = object.primitive.intersect(&ray) {
                 // Is it a valid hit and it is earlier than the rest?
                 if t > MIN_T && new_t < t {
                     // Update info.
+                    let (new_normal, new_surface_side) =
+                        object.primitive.normal_at_intersection(ray, new_t);
                     t = new_t;
                     normal = new_normal;
                     material_index = match new_surface_side {
@@ -163,7 +208,6 @@ impl Scene {
                 }
             }
         }
-        
 
         // Return
         if !intersected {
@@ -179,12 +223,11 @@ impl Scene {
         debug_assert!((1. - ray.direction.length()).abs() < 0.00000001);
 
         // Check all objects
-        for object in self.objects.iter(){            
-                        
+        for object in self.objects.iter() {
             // If it intersects an object,
-            if let Some((t, ..)) = object.primitive.intersect(&ray) {
+            if let Some(t) = object.primitive.intersect(&ray) {
                 // Is it a valid hit and it is earlier than the rest?
-                if  t > MIN_T && t + MIN_T < distance && (distance - t).abs() > 0.0001 {
+                if t > MIN_T && t + MIN_T < distance && (distance - t).abs() > 0.0001 {
                     return false;
                 }
             }
@@ -217,8 +260,8 @@ impl Scene {
         let this_index = self.objects.len();
 
         // Mark as source
-        if self.materials[front_material_index].is_light_source()
-            || self.materials[back_material_index].is_light_source()
+        if self.materials[front_material_index].emits_direct_light()
+            || self.materials[back_material_index].emits_direct_light()
         {
             self.lights.push(this_index)
         }
@@ -232,9 +275,19 @@ impl Scene {
         this_index
     }
 
-    /// Borrows a material
+    /// Borrows a [`Material`]
     pub fn borrow_material(&self, i: usize) -> &Box<dyn Material> {
         &self.materials[i]
+    }
+
+    /// Borrows an [`Object`]
+    pub fn borrow_object(&self, i: usize) -> &Box<dyn Sampleable> {
+        &self.objects[i].primitive
+    }
+
+    /// Borrows a light
+    pub fn light(&self, i:usize)->usize{
+        self.lights[i]
     }
 }
 

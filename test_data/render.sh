@@ -2,7 +2,7 @@
 
 VIEW="-vp 0 -13 0 -vd 0 1 0 -vh 60 -vv 60"
 FILES=$(ls | grep .rad) 
-AMBIENTS=( 0 )
+AMBIENTS=( 0 1 2)
 
 
 OCTREE=octree.oct

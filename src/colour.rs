@@ -20,11 +20,23 @@ impl RGBSpectrum {
             blue: 0.,
         }
     }
+
+    pub fn gray(v: f64) -> Self {
+        Self {
+            red: v,
+            green: v,
+            blue: v,
+        }
+    }
 }
 
 impl std::fmt::Display for RGBSpectrum {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "RGBSpectrum({:.5},{:.5},{:.5})", self.red, self.green, self.blue)
+        write!(
+            f,
+            "RGBSpectrum({:.5},{:.5},{:.5})",
+            self.red, self.green, self.blue
+        )
     }
 }
 
