@@ -1,7 +1,9 @@
+use crate::Float;
 use crate::film::Film;
 use geometry3d::point3d::Point3D;
 use geometry3d::ray3d::Ray3D;
 use geometry3d::vector3d::Vector3D;
+use crate::ray::Ray;
 
 pub struct View {
     pub view_point: Point3D,
@@ -9,7 +11,7 @@ pub struct View {
     pub view_up: Vector3D,
 
     /// Horizontal angle of the Field of View (i.e., frustum) in degrees
-    pub field_of_view: f64,
+    pub field_of_view: Float,
 }
 
 impl Default for View {
@@ -29,15 +31,15 @@ pub struct CameraSample {
     pub p_film: (usize, usize),
 
     /// The position within the Lens of the camera
-    pub p_lens: (f64, f64),
+    pub p_lens: (Float, Float),
 
     /// Time at which the ray will be emmited
-    pub time: f64,
+    pub time: Float,
 }
 
 pub trait Camera {
     /// Generates a ray and
-    fn gen_ray(&self, sample: &CameraSample) -> (Ray3D, f64);
+    fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float);
 
     /// Gets the film resolution (width,height) in pixels
     fn film_resolution(&self) -> (usize, usize);
@@ -49,7 +51,7 @@ pub trait Camera {
 pub struct PinholeCam {
     view: View,
     film: Film,
-    film_distance: f64,
+    film_distance: Float,
 
     /// A [`Vector3D`] which is the result of view_direction.cross(view_up)
     u: Vector3D,
@@ -57,7 +59,7 @@ pub struct PinholeCam {
 
 impl PinholeCam {
     pub fn new(view: View, film: Film) -> Self {
-        let film_distance = 1. / (std::f64::consts::PI * view.field_of_view / 180.0 / 2.0).tan();
+        let film_distance = 1. / (view.field_of_view.to_radians() / 2.0).tan();
         let u = view.view_direction.cross(view.view_up);
         Self {
             view,
@@ -69,21 +71,24 @@ impl PinholeCam {
 }
 
 impl Camera for PinholeCam {
-    fn gen_ray(&self, sample: &CameraSample) -> (Ray3D, f64) {
+    fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float) {
         let (width, height) = self.film.resolution;
         let (x_pixel, y_pixel) = sample.p_film;
-        let dx = 2. / width as f64;
-        let dy = 2. / height as f64;
+        let dx = 2. / width as Float;
+        let dy = 2. / height as Float;
 
-        let x = dx / 2. + x_pixel as f64 * dx - 1.;
-        let y = dy / 2. + y_pixel as f64 * dy - 1.;
+        let x = dx / 2. + x_pixel as Float * dx - 1.;
+        let y = dy / 2. + y_pixel as Float * dy - 1.;
 
         let direction =
             self.view.view_direction * self.film_distance + self.u * x - self.view.view_up * y;
 
-        let ray = Ray3D {
-            direction: direction.get_normalized(),
-            origin: self.view.view_point,
+        let ray = Ray{
+            geometry: Ray3D {
+                direction: direction.get_normalized(),
+                origin: self.view.view_point,
+            }, 
+            time: sample.time,
         };
 
         // return

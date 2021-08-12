@@ -1,3 +1,4 @@
+use crate::Float;
 // pub enum LightingQuantity {
 //     PixelColour(RGBSpectrum),
 //     Radiance(RGBSpectrum),
@@ -5,11 +6,11 @@
 
 pub type Spectrum = RGBSpectrum;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub struct RGBSpectrum {
-    pub red: f64,
-    pub green: f64,
-    pub blue: f64,
+    pub red: Float,
+    pub green: Float,
+    pub blue: Float,
 }
 
 impl RGBSpectrum {
@@ -21,12 +22,16 @@ impl RGBSpectrum {
         }
     }
 
-    pub fn gray(v: f64) -> Self {
+    pub fn gray(v: Float) -> Self {
         Self {
             red: v,
             green: v,
             blue: v,
         }
+    }
+
+    pub fn is_black(&self)->bool{
+        self.red == 0. && self.green == 0. && self.blue == 0.
     }
 }
 
@@ -80,10 +85,10 @@ impl std::ops::MulAssign for RGBSpectrum {
     }
 }
 
-impl std::ops::Mul<f64> for RGBSpectrum {
+impl std::ops::Mul<Float> for RGBSpectrum {
     type Output = Self;
 
-    fn mul(self, other: f64) -> Self {
+    fn mul(self, other: Float) -> Self {
         Self {
             red: self.red * other,
             green: self.green * other,
@@ -92,18 +97,18 @@ impl std::ops::Mul<f64> for RGBSpectrum {
     }
 }
 
-impl std::ops::MulAssign<f64> for RGBSpectrum {
-    fn mul_assign(&mut self, other: f64) {
+impl std::ops::MulAssign<Float> for RGBSpectrum {
+    fn mul_assign(&mut self, other: Float) {
         self.red *= other;
         self.green *= other;
         self.blue *= other;
     }
 }
 
-impl std::ops::Div<f64> for RGBSpectrum {
+impl std::ops::Div<Float> for RGBSpectrum {
     type Output = Self;
 
-    fn div(self, other: f64) -> Self {
+    fn div(self, other: Float) -> Self {
         Self {
             red: self.red / other,
             green: self.green / other,
@@ -112,8 +117,8 @@ impl std::ops::Div<f64> for RGBSpectrum {
     }
 }
 
-impl std::ops::DivAssign<f64> for RGBSpectrum {
-    fn div_assign(&mut self, other: f64) {
+impl std::ops::DivAssign<Float> for RGBSpectrum {
+    fn div_assign(&mut self, other: Float) {
         self.red /= other;
         self.green /= other;
         self.blue /= other;

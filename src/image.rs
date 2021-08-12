@@ -1,3 +1,4 @@
+
 /*
  PART OF THIS FILE contains code to write four byte rgbe file format
  developed by Greg Ward. It handles the conversions between rgbe and
@@ -8,10 +9,11 @@
  written by Bruce Walter  (bjw@graphics.cornell.edu)  5/26/95
  based on code written by Greg Ward
 */
+use crate::Float;
 use crate::colour::Spectrum;
 use std::io::Write;
 
-fn rusty_frexp(s: f64) -> (f64, i32) {
+fn rusty_frexp(s: Float) -> (Float, i32) {
     if 0.0 == s {
         return (s, 0);
     } else {
@@ -22,8 +24,8 @@ fn rusty_frexp(s: f64) -> (f64, i32) {
     }
 }
 
-fn float_to_rgbe(red: f64, green: f64, blue: f64) -> [u8; 4] {
-    let mut v: f64;
+fn float_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
+    let mut v: Float;
 
     v = red;
     if green > v {
@@ -32,7 +34,7 @@ fn float_to_rgbe(red: f64, green: f64, blue: f64) -> [u8; 4] {
     if blue > v {
         v = blue;
     }
-    if v < f64::EPSILON {
+    if v < Float::EPSILON {
         [0, 0, 0, 0]
     } else {
         let (mut mantissa, e) = rusty_frexp(v);
@@ -114,6 +116,7 @@ impl ImageBuffer {
 
 #[cfg(test)]
 mod tests {
+    use crate::PI;
     use super::*;
     use std::os::raw::{c_double, c_int};
 
@@ -121,7 +124,7 @@ mod tests {
         fn frexp(x: c_double, exp: *mut c_int) -> c_double;
     }
 
-    fn c_frexp(x: f64) -> (f64, i32) {
+    fn c_frexp(x: Float) -> (Float, i32) {
         let mut exp: c_int = 0;
         let res = unsafe { frexp(x, &mut exp) };
         (res, exp as i32)
@@ -129,10 +132,10 @@ mod tests {
 
     #[test]
     fn test_frexp() {
-        let xs: Vec<f64> = vec![
+        let xs: Vec<Float> = vec![
             1e6,
             2.,
-            std::f64::consts::PI,
+            PI,
             123987.,
             0.,
             99.,

@@ -1,3 +1,5 @@
+use crate::Float;
+
 pub struct Film {
     /// Contains the number of Pixels in Width and Height
     pub resolution: (usize, usize),
@@ -5,8 +7,8 @@ pub struct Film {
 
 impl Film {
     /// return the Width/height ratio
-    pub fn aspect_ratio(&self) -> f64 {
+    pub fn aspect_ratio(&self) -> Float {
         let (width, height) = self.resolution;
-        width as f64 / height as f64
+        width as Float / height as Float
     }
 }

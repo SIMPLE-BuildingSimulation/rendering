@@ -34,15 +34,26 @@ green polygon floor
 
 
 
+void light lightbulb
+0
+0
+3 10 10 10
+
+
+
+
+lightbulb sphere bright_sphere
+0
+0
+4   1 -1 15 1.5
+
+
 void light up
 0
 0
 3 10000 10000 10000
 
-void light lightbulb
-0
-0
-3 10 10 10
+
 
 up source some_light
 0
@@ -53,11 +64,4 @@ up source other_light
 0
 0
 4 0 1 1 0.5
-
-
-
-lightbulb sphere bright_sphere
-0
-0
-4   1 -1 15 1.5
 

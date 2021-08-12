@@ -1,31 +1,46 @@
+use std::rc::Rc;
+use crate::Float;
 use crate::material::Material;
 use crate::sampleable_trait::Sampleable;
-use geometry3d::intersect_trait::SurfaceSide;
-use geometry3d::point3d::Point3D;
+use crate::interaction::{Interaction,SurfaceInteractionData, ShadingInfo};
+use geometry3d::intersect_trait::{SurfaceSide,IntersectionInfo};
 use geometry3d::ray3d::Ray3D;
 use geometry3d::vector3d::Vector3D;
+use geometry3d::transform::Transform;
+use geometry3d::point3d::Point3D;
+use crate::ray::Ray;
 
-use crate::colour::Spectrum;
+type Texture = fn(Float,Float)->Float;
 
-struct Object {
+pub struct Object {
     pub primitive: Box<dyn Sampleable>,
     pub front_material_index: usize,
     pub back_material_index: usize,
+    pub texture: Option<Rc<Transform>>,
 }
+
 
 #[derive(Default)]
 pub struct Scene {
     /// Objects in the scene that are not tested
     /// directly for shadow (e.g., non-luminous objects
     /// and diffuse light)
-    objects: Vec<Object>,
-
+    pub objects: Vec<Rc<Object>>,
+    
     /// The materials in the scene
-    materials: Vec<Box<dyn Material>>,
+    pub materials: Vec<Rc<dyn Material>>,
 
-    /// A vector indicating which [`Object`] in the `object` field
+    /// A vector of [`Light`] objects that
     /// are considered sources of direct light
-    lights: Vec<usize>,
+    pub lights: Vec<Rc<Object>>,
+
+    /// A vector of [`Light`] objects that
+    /// are considered sources of direct light
+    pub distant_lights: Vec<Rc<Object>>,
+
+    pub transforms: Vec<Rc<Transform>>,
+
+    pub textures: Vec<Rc<Texture>>,
 }
 
 impl Scene {
@@ -34,178 +49,82 @@ impl Scene {
         Self::default()
     }
 
-    pub fn n_materials(&self) -> usize {
-        self.materials.len()
+    /// Returns the number of total lights; that is, 
+    /// those in the `lighs` field and those in the `distant_lights` 
+    /// one
+    pub fn count_all_lights(&self)->usize{
+        self.lights.len() + self.distant_lights.len()
     }
 
-    pub fn n_lights(&self) -> usize {
-        self.lights.len()
-    }
-
-    /// Recursively traces a ray
-    pub fn trace_ray(&self, ray: &Ray3D, depth: usize /*OPTIONS */) -> Spectrum {
-        // Limit bounces
-        const MAX_DEPTH: usize = 2;
-        if depth > MAX_DEPTH {
-            return Spectrum::black();
-        }
-        const N_SHADOW_SAMPLES: usize = 10;
-        const N_AMBIENT_SAMPLES: usize = 10;
-
-        // If hits an object
-        if let Some((t, normal, material_index)) = self.cast_ray(ray) {
-            debug_assert!((1.0 - normal.length()).abs() < 0.000001);
-
-            let material = self.borrow_material(material_index);
-            let intersection_pt = ray.project(t);
-
-            /* SAMPLE LIGHTS */
-            let local = self.get_local_illumination(
-                material,
-                ray.direction,
-                intersection_pt,
-                normal,
-                N_SHADOW_SAMPLES,
-                N_AMBIENT_SAMPLES,
-            );
-
-            /* SAMPLE BSDF */
-            let mut global = Spectrum::black();
-            if !material.emits_direct_light() {
-                let n_lights = self.lights.len();
-                let total_samples = N_AMBIENT_SAMPLES + n_lights * N_SHADOW_SAMPLES;
-                let bsdf_c = N_AMBIENT_SAMPLES as f64 / total_samples as f64;
-                for _ in 0..N_AMBIENT_SAMPLES {
-                    // Choose a direction.
-                    let direction = material.sample_bsdf(ray.direction, normal);
-                    let new_ray = Ray3D {
-                        direction,
-                        origin: intersection_pt + normal * 0.0001, // avoid self shading
-                    };
-                    let cos_theta = (normal * direction).abs();
-                    let li = self.trace_ray(&new_ray, depth + 1);
-                    let material_pdf = material.bsdf(ray.direction, normal, new_ray.direction);
-
-                    let fx = (li * cos_theta) * (material.colour() * material_pdf);
-
-                    let denominator = material_pdf * bsdf_c;
-
-                    // add contribution
-                    global += fx / denominator;
-                }
-                global /= total_samples as f64;
-            }
-
-            local + global
-        } else {
-            // Did not hit.
-            Spectrum {
-                red: 0.,
-                green: 0.,
-                blue: 0.,
-            }
-        }
-    }
-
-    /// Calculates the luminance produced by the direct sources in the
-    /// scene
-    pub fn get_local_illumination(
-        &self,
-        material: &Box<dyn Material>,
-        vin: Vector3D,
-        point: Point3D,
-        normal: Vector3D,
-        n_light_samples: usize,
-        n_ambient_samples: usize,
-    ) -> Spectrum {
-        // prevent self-shading
-        let origin = point + normal * 0.0001;
-        let mut ret = Spectrum::black();
-
-        let n_lights = self.lights.len();
-        let total_samples = n_ambient_samples + n_lights * n_light_samples;
-        let bsdf_c = n_ambient_samples as f64 / total_samples as f64;
-        let light_c = n_light_samples as f64 / total_samples as f64;
-
-        for light_index in &self.lights {
-            let primitive = &self.objects[*light_index].primitive;
-            let sampler = primitive.direction_sampler(point, n_light_samples);
-            for light_direction in sampler {
-                // Expect direction to be normalized
-                debug_assert!((1. - light_direction.length()).abs() < 0.0001);
-
-                let shadow_ray = Ray3D {
-                    origin,
-                    direction: light_direction,
-                };
-
-                let light_distance = match primitive.intersect(&shadow_ray) {
-                    Some(d) => d,
-                    None => {
-                        eprintln!("Missed light {}", light_index);
-                        continue;
-                    }
-                };
-
-                // If the light is visible
-                if self.unobstructed_distance(&shadow_ray, light_distance) {
-                    let (_normal_at_light, side) =
-                        primitive.normal_at_intersection(&shadow_ray, light_distance);
-                    let cos_theta = (normal * light_direction).abs();
-
-                    let light_material = match side {
-                        SurfaceSide::Front => {
-                            &self.materials[self.objects[*light_index].front_material_index]
-                        }
-                        SurfaceSide::Back => {
-                            &self.materials[self.objects[*light_index].back_material_index]
-                        }
-                    };
-                    let light_colour = light_material.colour();
-
-                    // Denominator of the Balance Heuristic... I am assuming that
-                    // when one light has a pdf>0, then all the rest are Zero... is this
-                    // correct?
-                    let light_pdf = 1. / primitive.omega(origin);
-                    let material_pdf = material.bsdf(vin, normal, shadow_ray.direction * -1.);
-                    let denominator = material_pdf * bsdf_c + light_pdf * light_c;
-                    let fx = (light_colour * cos_theta) * (material.colour() * material_pdf);
-
-                    // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
-                    ret += fx / denominator;
-                } // end of unobstructed distance
-            } // end of iterating samples
-        } // end of iterating lights
-          // return
-        ret / total_samples as f64
-    }
-
-    /// Casts a [`Ray3D`] and returns an `Option<(f64,Vector3D,usize)>` in which the
+   
+    /// Casts a [`Ray3D`] and returns an `Option<(Float,Vector3D,usize)>` in which the
     /// [`Vector3D`] is the normal at the point of intersection, the `usize`
-    /// is the index of the [`Material`] encountered, and the `f64` is the distance to it.    
-    pub fn cast_ray(&self, ray: &Ray3D) -> Option<(f64, Vector3D, usize)> {
-        const MIN_T: f64 = 0.000001;
+    /// is the index of the [`Material`] encountered, and the `Float` is the distance 
+    /// that the [`Ray3D`] travelled to it.    
+    pub fn cast_ray(&self, ray: &Ray) -> Option<(Float,Interaction)> {
+        const MIN_T: Float = 0.000001;
 
-        let mut t = f64::MAX;
-        let mut material_index = usize::MAX;
+        let mut t_squared = Float::MAX;
+        // let mut material_index = usize::MAX;
         let mut intersected = false;
-        let mut normal = Vector3D::new(0., 0., 0.);
+        let mut info : Option<IntersectionInfo> = None;
+        let mut object: Option<Rc<Object>> = None;
+        
+        let mut is_object = false;
+        let mut is_light = false;
+        let mut is_distant_light = false;
 
-        for object in self.objects.iter() {
-            if let Some(new_t) = object.primitive.intersect(&ray) {
+        // Test objects
+        for this_object in self.objects.iter() {
+            if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
+                
+                let this_t_squared = (intersection_info.p - ray.origin()).length_squared();
+
                 // Is it a valid hit and it is earlier than the rest?
-                if t > MIN_T && new_t < t {
-                    // Update info.
-                    let (new_normal, new_surface_side) =
-                        object.primitive.normal_at_intersection(ray, new_t);
-                    t = new_t;
-                    normal = new_normal;
-                    material_index = match new_surface_side {
-                        SurfaceSide::Front => object.front_material_index,
-                        SurfaceSide::Back => object.back_material_index,
-                    };
+                if this_t_squared > MIN_T && this_t_squared < t_squared {                    
+                    t_squared = this_t_squared;
+                    object = Some(Rc::clone(this_object));                    
+                    info = Some(intersection_info);
                     intersected = true;
+                    is_object = true;
                 }
+            }
+        }
+
+        // Test lights
+        for this_object in self.lights.iter() {
+            if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
+                let this_t_squared = (intersection_info.p - ray.origin()).length_squared();
+                // Is it a valid hit and it is earlier than the rest?
+                if this_t_squared > MIN_T && this_t_squared < t_squared {
+                    // Update info.
+                    
+                    t_squared = this_t_squared;
+                    info = Some(intersection_info);
+                    object = Some(Rc::clone(this_object));                    
+                    intersected = true;
+                    is_light = true;
+                }
+            }
+        }
+
+        // if no intersection yet
+        if !intersected{
+            for this_object in self.distant_lights.iter() {
+                if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
+                    let this_t_squared = (intersection_info.p - ray.origin()).length_squared();
+                    // Is it a valid hit and it is earlier than the rest?
+                    if this_t_squared > MIN_T && this_t_squared < t_squared {
+                        // Update info.
+                        
+                        t_squared = this_t_squared;
+                        info = Some(intersection_info);
+                        object = Some(Rc::clone(this_object));                        
+                        intersected = true;
+                        is_distant_light = true;
+                    }
+                }
+                
             }
         }
 
@@ -213,21 +132,61 @@ impl Scene {
         if !intersected {
             None
         } else {
-            Some((t, normal, material_index))
+            let info = info.unwrap();
+            let object = object.unwrap();
+            let t = t_squared.sqrt();  
+                    
+            let point = ray.geometry.project(t);
+            let data = SurfaceInteractionData{
+                point,
+                // perror: info.perror,
+                time: ray.time,
+                wo: ray.geometry.direction * -1.,
+                geometry_shading: ShadingInfo{
+                    u: info.u,
+                    v: info.v,
+                    normal: info.normal,
+                    dpdu: info.dpdu,
+                    dpdv: info.dpdv,
+                    dndu: info.dndu,
+                    dndv: info.dndv,
+                    side: info.side
+                },
+                texture_shading: None,
+                object,
+            };
+
+            Some((t,Interaction::Surface(data)))
         }
     }
 
-    fn unobstructed_distance(&self, ray: &Ray3D, distance: f64) -> bool {
-        const MIN_T: f64 = 0.000001;
+    /// Checks whether a [`Ray3D`] can travel a certain distance without being obstructed
+    pub fn unobstructed_distance(&self, ray: &Ray3D, distance: Float) -> bool {
+        const MIN_T: Float = 1e-20;
+        let d_squared = distance * distance;
 
         debug_assert!((1. - ray.direction.length()).abs() < 0.00000001);
 
         // Check all objects
         for object in self.objects.iter() {
             // If it intersects an object,
-            if let Some(t) = object.primitive.intersect(&ray) {
+            if let Some(pt) = object.primitive.simple_intersect(&ray) {                
+                let this_d_squared = (pt - ray.origin).length_squared();
+
                 // Is it a valid hit and it is earlier than the rest?
-                if t > MIN_T && t + MIN_T < distance && (distance - t).abs() > 0.0001 {
+                if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
+                    return false;
+                }
+            }
+        }
+
+        // Check lights as well
+        for object in self.lights.iter() {
+            // If it intersects an object,
+            if let Some(pt) = object.primitive.simple_intersect(&ray) {
+                let this_d_squared = (pt - ray.origin).length_squared();
+                // Is it a valid hit and it is earlier than the rest?
+                if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
                     return false;
                 }
             }
@@ -237,12 +196,16 @@ impl Scene {
         true
     }
 
-    pub fn push_material(&mut self, material: Box<dyn Material>) -> usize {
+    /// Pushes a [`Material`] to the [`Scene`]
+    pub fn push_material(&mut self, material: Rc<dyn Material>) -> usize {
         self.materials.push(material);
         // return
         self.materials.len() - 1
     }
 
+
+    
+    /// Pushes an [`Object`] into the [`Scene`]
     pub fn push_object(
         &mut self,
         front_material_index: usize,
@@ -258,37 +221,41 @@ impl Scene {
         }
 
         let this_index = self.objects.len();
+        let ob_id = object.id();
+        let object = Object {
+            front_material_index,
+            back_material_index,
+            primitive: object,
+            
+            texture: None,            
+        };
 
+        
         // Mark as source
         if self.materials[front_material_index].emits_direct_light()
             || self.materials[back_material_index].emits_direct_light()
         {
-            self.lights.push(this_index)
+            
+            // I know this is not very fast... but we will
+            // only do this while creating the scene, not while
+            // rendering
+            if ob_id == "source"{                 
+                self.distant_lights.push(Rc::new(object));
+            }else{
+                self.lights.push(Rc::new(object))
+            }        
+        }else{
+            // Push
+            self.objects.push(Rc::new(object));
         }
-        // Push
-        self.objects.push(Object {
-            front_material_index,
-            back_material_index,
-            primitive: object,
-        });
+
         // return
         this_index
     }
 
-    /// Borrows a [`Material`]
-    pub fn borrow_material(&self, i: usize) -> &Box<dyn Material> {
-        &self.materials[i]
-    }
+    
 
-    /// Borrows an [`Object`]
-    pub fn borrow_object(&self, i: usize) -> &Box<dyn Sampleable> {
-        &self.objects[i].primitive
-    }
-
-    /// Borrows a light
-    pub fn light(&self, i:usize)->usize{
-        self.lights[i]
-    }
+    
 }
 
 #[cfg(test)]

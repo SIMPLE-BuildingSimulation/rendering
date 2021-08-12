@@ -1,13 +1,26 @@
-use rand::prelude::*;
 
+use rand::prelude::*;
+use crate::{Float,PI};
 use geometry3d::point3d::Point3D;
 use geometry3d::vector3d::Vector3D;
 
-fn uniform_sample_horizontal_disc(rng: &mut ThreadRng, radius: f64) -> (f64, f64) {
-    let r: f64 = rng.gen();
+pub fn uniform_sample_triangle(rng: &mut ThreadRng,a:Point3D,b:Point3D,c:Point3D)->Point3D{
+    let rand1 : Float = rng.gen();
+    let rand2 : Float = rng.gen();
+    let aux = rand1.sqrt();
+    let u = 1. - aux;
+    let v = rand2*aux;
+    let v1 = b-a;
+    let v2 = c-a;
+    // return
+    a + v1 * u + v2 * v
+}
+
+fn uniform_sample_horizontal_disc(rng: &mut ThreadRng, radius: Float) -> (Float, Float) {
+    let r: Float = rng.gen();
     let r = radius * r.sqrt();
-    let theta: f64 = rng.gen();
-    let theta = 2. * std::f64::consts::PI * theta;
+    let theta: Float = rng.gen();
+    let theta = 2. * PI * theta;
 
     let local_x = r * theta.sin();
     let local_y = r * theta.cos();
@@ -17,11 +30,11 @@ fn uniform_sample_horizontal_disc(rng: &mut ThreadRng, radius: f64) -> (f64, f64
 fn local_to_world(
     normal: Vector3D,
     centre: Point3D,
-    x_local: f64,
-    y_local: f64,
-    z_local: f64,
-) -> (f64, f64, f64) {
-    debug_assert!((1. - normal.length()).abs() < 100. * f64::EPSILON);
+    x_local: Float,
+    y_local: Float,
+    z_local: Float,
+) -> (Float, Float, Float) {
+    debug_assert!((1. - normal.length()).abs() < 100. * Float::EPSILON);
     let local_e3 = normal; //.get_normalized();
     let local_e2 = normal.get_perpendicular().unwrap();
     let local_e1 = local_e2.cross(local_e3);
@@ -45,10 +58,10 @@ pub fn cosine_weighted_sample_hemisphere(rng: &mut ThreadRng, normal: Vector3D) 
 
 pub fn uniform_sample_hemisphere(rng: &mut ThreadRng, normal: Vector3D) -> Vector3D {
     // Calculate in
-    let rand1: f64 = rng.gen();
-    let rand2: f64 = rng.gen();
-    let sq: f64 = (1.0 - rand1 * rand1).sqrt();
-    let pie2: f64 = 2.0 * std::f64::consts::PI * rand2;
+    let rand1: Float = rng.gen();
+    let rand2: Float = rng.gen();
+    let sq: Float = (1.0 - rand1 * rand1).sqrt();
+    let pie2: Float = 2.0 * PI * rand2;
     let local_x = pie2.cos() * sq;
     let local_y = pie2.sin() * sq;
     let local_z = rand1;
@@ -61,7 +74,7 @@ pub fn uniform_sample_hemisphere(rng: &mut ThreadRng, normal: Vector3D) -> Vecto
 
 pub fn uniform_sample_disc(
     rng: &mut ThreadRng,
-    radius: f64,
+    radius: Float,
     centre: Point3D,
     normal: Vector3D,
 ) -> Point3D {
@@ -78,11 +91,11 @@ mod tests {
 
     #[test]
     fn test_uniform_sample_disc() {
-        fn check(radius: f64, centre: Point3D, normal: Vector3D) -> Result<(), String> {
+        fn check(radius: Float, centre: Point3D, normal: Vector3D) -> Result<(), String> {
             let mut rng = rand::thread_rng();
             let normal = normal.get_normalized();
             let p = uniform_sample_disc(&mut rng, radius, centre, normal);
-            if ((p - centre) * normal).abs() > 100. * f64::EPSILON {
+            if ((p - centre) * normal).abs() > 100. * Float::EPSILON {
                 return Err(format!(
                     "Point is not coplanar with circle. ((p-centre)*normal).abs() == {}",
                     ((p - centre) * normal).abs()
@@ -116,7 +129,7 @@ mod tests {
             let mut rng = rand::thread_rng();
             let dir = uniform_sample_hemisphere(&mut rng, normal);
 
-            if (1. - dir.length()).abs() > 100. * f64::EPSILON {
+            if (1. - dir.length()).abs() > 100. * Float::EPSILON {
                 return Err(format!("Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})", dir, dir.length()));
             }
             if dir * normal < 0. {

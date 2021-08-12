@@ -1,7 +1,9 @@
+use crate::Float;
 use crate::colour::Spectrum;
 use crate::scene::Scene;
 use geometry3d::point3d::Point3D;
 use geometry3d::vector3d::Vector3D;
+use geometry3d::ray3d::Ray3D;
 
 /// # Note
 /// THESE ROUTINES ARE GREATLY INFLUENCED BY ERIC VEACH'S PHD THESIS AND BY
@@ -11,7 +13,7 @@ use geometry3d::vector3d::Vector3D;
 #[derive(Clone, Copy)]
 pub struct VertexData {
     /// The normal at the interaction point
-    pub normal: Vector3D,
+    pub normal: Option<Vector3D>,
 
     /// The position of the [`Vertex`] in the [`Scene`]
     pub position: Point3D,
@@ -26,6 +28,10 @@ pub struct VertexData {
 
     /// A flag indicating whether the [`Vertex`] (from page 315 of Veach's PhD Thesis)
     pub is_specular: bool,
+
+    // beta:Spectrum//, alpha?
+    // forward_pdf:Float
+    // backward_pdf:Float
 }
 
 /// The kind of [`Vertex`], useful for
@@ -54,12 +60,32 @@ impl Vertex {
         }
     }
 
+    pub fn new_in_camera(ray:Ray3D,view_direction: Vector3D,beta:Spectrum)->Self{
+        Self::Camera(VertexData{
+            normal: Some(view_direction),
+            position: ray.origin,
+            material_index: None,
+            object_index: None,
+            is_specular: false,
+        })
+    }
+
+    pub fn new_in_light(ray:Ray3D,position: Point3D, beta:Spectrum)->Self{
+        Self::Camera(VertexData{
+            normal: Some(view_direction),
+            position: ray.origin,
+            material_index: None,
+            object_index: None,
+            is_specular: false,
+        })
+    }
+
     /// get position
     pub fn position(&self) -> Point3D {
         self.open_data().position
     }
     /// get normal
-    pub fn normal(&self) -> Vector3D {
+    pub fn normal(&self) -> Option<Vector3D> {
         self.open_data().normal
     }
 

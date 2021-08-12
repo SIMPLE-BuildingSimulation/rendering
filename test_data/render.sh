@@ -2,7 +2,7 @@
 
 VIEW="-vp 0 -13 0 -vd 0 1 0 -vh 60 -vv 60"
 FILES=$(ls | grep .rad) 
-AMBIENTS=( 0 1 2)
+AMBIENTS=( 2 )
 
 
 OCTREE=octree.oct
@@ -16,7 +16,7 @@ do
         IMAGE="images/radiance_${file}_ab-$ab"
         rpict $OPTIONS $VIEW $OCTREE > "$IMAGE.hdr"
         falsecolor -i "$IMAGE.hdr" -s a > "${IMAGE}_fc.hdr"
-        pcond -h "$IMAGE.hdr" "${IMAGE}_humancond.hdr"
+        #pcond -h "$IMAGE.hdr" "${IMAGE}_humancond.hdr"
 
     done # end ambients
     rm $OCTREE

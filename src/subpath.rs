@@ -1,3 +1,4 @@
+use crate::Float;
 use crate::scene::Scene;
 use crate::vertex::Vertex;
 
@@ -39,7 +40,7 @@ impl SubPath {
         }
     }
 
-    pub fn random_walk(&mut self, scene: &Scene, max_depth: usize, rroulet: f64) {
+    pub fn random_walk(&mut self, scene: &Scene, max_depth: usize, rroulet: Float) {
         unimplemented!();
     }
 
@@ -54,7 +55,7 @@ impl SubPath {
     }
 
     // Extends both sides of the path
-    // fn alternate_walk(light_subpath:&mut Self, max_source_subpath_steps: usize, eye_subpath:&mut Self, max_eye_subpath_steps: usize, rroulete: f64){
+    // fn alternate_walk(light_subpath:&mut Self, max_source_subpath_steps: usize, eye_subpath:&mut Self, max_eye_subpath_steps: usize, rroulete: Float){
     //     let this_source_ver = light_subpath.last();
     //     let this_eye_vert
 

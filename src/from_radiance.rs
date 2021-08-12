@@ -1,3 +1,6 @@
+use std::rc::Rc;
+use crate::Float;
+
 use crate::material::{Light, Metal, Mirror, Plastic};
 // use crate::sampleable_trait::Sampleable;
 use crate::scene::Scene;
@@ -8,6 +11,7 @@ use geometry3d::point3d::Point3D;
 use geometry3d::polygon3d::Polygon3D;
 use geometry3d::sphere3d::Sphere3D;
 use geometry3d::vector3d::Vector3D;
+use geometry3d::triangulation3d::Triangulation3D;
 
 use std::fs;
 
@@ -155,11 +159,11 @@ impl Scanner {
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
         assert_eq!(t, "5".to_string());
-        let red = self.consume_token(source).parse::<f64>().unwrap();
-        let green = self.consume_token(source).parse::<f64>().unwrap();
-        let blue = self.consume_token(source).parse::<f64>().unwrap();
-        let specularity = self.consume_token(source).parse::<f64>().unwrap();
-        let roughness = self.consume_token(source).parse::<f64>().unwrap();
+        let red = self.consume_token(source).parse::<Float>().unwrap();
+        let green = self.consume_token(source).parse::<Float>().unwrap();
+        let blue = self.consume_token(source).parse::<Float>().unwrap();
+        let specularity = self.consume_token(source).parse::<Float>().unwrap();
+        let roughness = self.consume_token(source).parse::<Float>().unwrap();
 
         self.modifiers.push(name.clone());
 
@@ -170,7 +174,7 @@ impl Scanner {
             specularity,
             roughness,
         };
-        scene.push_material(Box::new(metal));
+        scene.push_material(Rc::new(metal));
     }
 
     /// Consumes a Plastic material
@@ -187,11 +191,11 @@ impl Scanner {
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
         assert_eq!(t, "5".to_string());
-        let red = self.consume_token(source).parse::<f64>().unwrap();
-        let green = self.consume_token(source).parse::<f64>().unwrap();
-        let blue = self.consume_token(source).parse::<f64>().unwrap();
-        let specularity = self.consume_token(source).parse::<f64>().unwrap();
-        let roughness = self.consume_token(source).parse::<f64>().unwrap();
+        let red = self.consume_token(source).parse::<Float>().unwrap();
+        let green = self.consume_token(source).parse::<Float>().unwrap();
+        let blue = self.consume_token(source).parse::<Float>().unwrap();
+        let specularity = self.consume_token(source).parse::<Float>().unwrap();
+        let roughness = self.consume_token(source).parse::<Float>().unwrap();
 
         self.modifiers.push(name.clone());
 
@@ -202,7 +206,7 @@ impl Scanner {
             specularity,
             roughness,
         };
-        scene.push_material(Box::new(plastic));
+        scene.push_material(Rc::new(plastic));
     }
 
     /// Consumes a Light material
@@ -219,14 +223,14 @@ impl Scanner {
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
         assert_eq!(t, "3".to_string());
-        let red = self.consume_token(source).parse::<f64>().unwrap();
-        let green = self.consume_token(source).parse::<f64>().unwrap();
-        let blue = self.consume_token(source).parse::<f64>().unwrap();
+        let red = self.consume_token(source).parse::<Float>().unwrap();
+        let green = self.consume_token(source).parse::<Float>().unwrap();
+        let blue = self.consume_token(source).parse::<Float>().unwrap();
 
         self.modifiers.push(name.clone());
 
         let light = Light { red, green, blue };
-        scene.push_material(Box::new(light));
+        scene.push_material(Rc::new(light));
     }
 
     /// Consumes a Light material
@@ -243,14 +247,14 @@ impl Scanner {
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
         assert_eq!(t, "3".to_string());
-        let red = self.consume_token(source).parse::<f64>().unwrap();
-        let green = self.consume_token(source).parse::<f64>().unwrap();
-        let blue = self.consume_token(source).parse::<f64>().unwrap();
+        let red = self.consume_token(source).parse::<Float>().unwrap();
+        let green = self.consume_token(source).parse::<Float>().unwrap();
+        let blue = self.consume_token(source).parse::<Float>().unwrap();
 
         self.modifiers.push(name.clone());
 
         let mirror = Mirror { red, green, blue };
-        scene.push_material(Box::new(mirror));
+        scene.push_material(Rc::new(mirror));
     }
 
     /// Consumes a sphere
@@ -267,10 +271,10 @@ impl Scanner {
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
         assert_eq!(t, "4".to_string());
-        let center_x = self.consume_token(source).parse::<f64>().unwrap();
-        let center_y = self.consume_token(source).parse::<f64>().unwrap();
-        let center_z = self.consume_token(source).parse::<f64>().unwrap();
-        let radius = self.consume_token(source).parse::<f64>().unwrap();
+        let center_x = self.consume_token(source).parse::<Float>().unwrap();
+        let center_y = self.consume_token(source).parse::<Float>().unwrap();
+        let center_z = self.consume_token(source).parse::<Float>().unwrap();
+        let radius = self.consume_token(source).parse::<Float>().unwrap();
 
         let sphere = Sphere3D::new(radius, Point3D::new(center_x, center_y, center_z));
 
@@ -292,11 +296,10 @@ impl Scanner {
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
         assert_eq!(t, "4".to_string());
-        let dir_x = self.consume_token(source).parse::<f64>().unwrap();
-        let dir_y = self.consume_token(source).parse::<f64>().unwrap();
-        let dir_z = self.consume_token(source).parse::<f64>().unwrap();
-        let mut angle = self.consume_token(source).parse::<f64>().unwrap();
-        angle *= std::f64::consts::PI / 180.; // into radians
+        let dir_x = self.consume_token(source).parse::<Float>().unwrap();
+        let dir_y = self.consume_token(source).parse::<Float>().unwrap();
+        let dir_z = self.consume_token(source).parse::<Float>().unwrap();
+        let mut angle = self.consume_token(source).parse::<Float>().unwrap().to_radians();        
         let distant_source = DistantSource3D::new(Vector3D::new(dir_x, dir_y, dir_z), angle);
 
         let mod_index = self.get_modifier_index(modifier);
@@ -322,17 +325,21 @@ impl Scanner {
         let mut the_loop = Loop3D::new();
 
         while vertex_n > 0 {
-            let x = self.consume_token(source).parse::<f64>().unwrap();
-            let y = self.consume_token(source).parse::<f64>().unwrap();
-            let z = self.consume_token(source).parse::<f64>().unwrap();
+            let x = self.consume_token(source).parse::<Float>().unwrap();
+            let y = self.consume_token(source).parse::<Float>().unwrap();
+            let z = self.consume_token(source).parse::<Float>().unwrap();
             the_loop.push(Point3D::new(x, y, z)).unwrap();
             vertex_n -= 3;
         }
+        let mod_index = self.get_modifier_index(modifier);
+
         the_loop.close().unwrap();
         let polygon = Polygon3D::new(the_loop).unwrap();
+        let triangles = Triangulation3D::from_polygon(&polygon).unwrap().into_trilist();
 
-        let mod_index = self.get_modifier_index(modifier);
-        scene.push_object(mod_index, mod_index, Box::new(polygon));
+        for tri in triangles{
+            scene.push_object(mod_index, mod_index, Box::new(tri));
+        }
     }
 }
 
@@ -412,7 +419,7 @@ mod tests {
         let mut scene = Scene::new();
         let mut scanner = Scanner::default();
         scanner.consume_object(src, &mut scene);
-        assert_eq!(scene.n_materials(), 1);
+        assert_eq!(scene.materials.len(), 1);
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));

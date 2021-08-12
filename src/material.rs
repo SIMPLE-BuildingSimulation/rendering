@@ -1,10 +1,11 @@
+use crate::{Float,PI};
 use crate::colour::Spectrum;
 use crate::samplers::cosine_weighted_sample_hemisphere;
 use geometry3d::vector3d::Vector3D;
 
 fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
-    debug_assert!((vin.length() - 1.).abs() < 100. * f64::EPSILON);
-    debug_assert!((normal.length() - 1.).abs() < 100. * f64::EPSILON);
+    debug_assert!((vin.length() - 1.).abs() < 100. * Float::EPSILON);
+    debug_assert!((normal.length() - 1.).abs() < 100. * Float::EPSILON);
     let mut ret = vin - normal * (2. * (vin * normal));
     ret.normalize();
     ret
@@ -32,7 +33,7 @@ pub trait Material {
 
     /// Gets the BSDF's value for a certain combination of Vin, Vout and Normal
     /// [`Vector3D`]s.
-    fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> f64;
+    fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> Float;
 
     /// Gets a sample associated to the bsdf
     fn sample_bsdf(&self, vout: Vector3D, normal: Vector3D) -> Vector3D;
@@ -47,9 +48,9 @@ pub trait Material {
 }
 
 pub struct Light {
-    pub red: f64,
-    pub green: f64,
-    pub blue: f64,
+    pub red: Float,
+    pub green: Float,
+    pub blue: Float,
 }
 impl Material for Light {
     fn colour(&self) -> Spectrum {
@@ -69,7 +70,7 @@ impl Material for Light {
     }
 
     // Lights don't reflect...?
-    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> f64 {
+    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> Float {
         0.0
     }
 
@@ -79,11 +80,11 @@ impl Material for Light {
 }
 
 pub struct Metal {
-    pub red: f64,
-    pub green: f64,
-    pub blue: f64,
-    pub specularity: f64,
-    pub roughness: f64,
+    pub red: Float,
+    pub green: Float,
+    pub blue: Float,
+    pub specularity: Float,
+    pub roughness: Float,
 }
 
 impl Material for Metal {
@@ -96,8 +97,8 @@ impl Material for Metal {
     }
 
     // Assume lambertian, for now
-    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> f64 {
-        const ONE_OVER_PI: f64 = 1. / std::f64::consts::PI;
+    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> Float {
+        const ONE_OVER_PI: Float = 1. / PI;
         ONE_OVER_PI
     }
 
@@ -108,11 +109,11 @@ impl Material for Metal {
 }
 
 pub struct Plastic {
-    pub red: f64,
-    pub green: f64,
-    pub blue: f64,
-    pub specularity: f64,
-    pub roughness: f64,
+    pub red: Float,
+    pub green: Float,
+    pub blue: Float,
+    pub specularity: Float,
+    pub roughness: Float,
 }
 
 impl Material for Plastic {
@@ -125,8 +126,8 @@ impl Material for Plastic {
     }
 
     // Assume lambertian, for now
-    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> f64 {
-        const ONE_OVER_PI: f64 = 1. / std::f64::consts::PI;
+    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> Float {
+        const ONE_OVER_PI: Float = 1. / PI;
         ONE_OVER_PI
     }
 
@@ -137,9 +138,9 @@ impl Material for Plastic {
 }
 
 pub struct Mirror {
-    pub red: f64,
-    pub green: f64,
-    pub blue: f64,
+    pub red: Float,
+    pub green: Float,
+    pub blue: Float,
 }
 
 impl Material for Mirror {
@@ -151,7 +152,7 @@ impl Material for Mirror {
         }
     }
 
-    fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> f64 {
+    fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> Float {
         let mirror = mirror_direction(vin, normal);
         // All of it goes to the mirror direction
         if vout.is_parallel(mirror) {
@@ -167,10 +168,10 @@ impl Material for Mirror {
 }
 
 // pub struct Dielectric{
-//     pub red: f64,
-//     pub green: f64,
-//     pub blue: f64,
-//     pub refraction_coefficient: f64,
+//     pub red: Float,
+//     pub green: Float,
+//     pub blue: Float,
+//     pub refraction_coefficient: Float,
 // }
 
 // impl Dielectric {
