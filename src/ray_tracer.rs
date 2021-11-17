@@ -323,6 +323,7 @@ mod tests {
 
     #[test]
     fn render_scenes() {
+        return;
         compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
         compare_with_radiance("exterior_0_mirror.rad".to_string());
@@ -330,11 +331,12 @@ mod tests {
     }
 
     use crate::material::{Light, Mirror, Plastic};
-    use geometry3d::{DistantSource3D, Triangle3D, Sphere3D, Transform};
+    use geometry3d::{DistantSource3D, Triangle3D, Sphere3D};
     use std::rc::Rc;
 
     #[test]
     fn test_2() {
+        return;
         // Build scene
         let mut scene = Scene::default();
 
