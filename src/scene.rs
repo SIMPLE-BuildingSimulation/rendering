@@ -281,8 +281,8 @@ impl Scene {
 #[cfg(test)]
 mod tests {
 
-    #[test]
-    fn test_shadow_ray() {
-        // assert!(false)
-    }
+    // #[test]
+    // fn test_shadow_ray() {
+    //     // assert!(false)
+    // }
 }
