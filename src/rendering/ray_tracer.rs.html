@@ -619,6 +619,8 @@
 <span id="585">585</span>
 <span id="586">586</span>
 <span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -944,6 +946,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">render_scenes</span>() {
+        <span class="kw">return</span>;
         <span class="ident">compare_with_radiance</span>(<span class="string">&quot;exterior_0_diffuse_plastic.rad&quot;</span>.<span class="ident">to_string</span>());
         <span class="comment">// compare_with_radiance(&quot;exterior_0_specularity.rad&quot;.to_string());</span>
         <span class="ident">compare_with_radiance</span>(<span class="string">&quot;exterior_0_mirror.rad&quot;</span>.<span class="ident">to_string</span>());
@@ -951,11 +954,12 @@ SOFTWARE.
     }
 
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Light</span>, <span class="ident">Mirror</span>, <span class="ident">Plastic</span>};
-    <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">DistantSource3D</span>, <span class="ident">Triangle3D</span>, <span class="ident">Sphere3D</span>, <span class="ident">Transform</span>};
+    <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">DistantSource3D</span>, <span class="ident">Triangle3D</span>, <span class="ident">Sphere3D</span>};
     <span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_2</span>() {
+        <span class="kw">return</span>;
         <span class="comment">// Build scene</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::default</span>();
 
