@@ -21,8 +21,7 @@ SOFTWARE.
 
 use rand::prelude::*;
 use crate::{Float,PI};
-use geometry3d::point3d::Point3D;
-use geometry3d::vector3d::Vector3D;
+use geometry3d::{Point3D, Vector3D};
 
 pub fn uniform_sample_triangle(rng: &mut ThreadRng,a:Point3D,b:Point3D,c:Point3D)->Point3D{
     let rand1 : Float = rng.gen();

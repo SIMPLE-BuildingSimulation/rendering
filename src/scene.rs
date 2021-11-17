@@ -24,10 +24,7 @@ use crate::material::Material;
 use crate::sampleable_trait::Sampleable;
 use crate::interaction::{Interaction,SurfaceInteractionData, ShadingInfo};
 use geometry3d::intersect_trait::{SurfaceSide,IntersectionInfo};
-use geometry3d::ray3d::Ray3D;
-use geometry3d::vector3d::Vector3D;
-use geometry3d::transform::Transform;
-use geometry3d::point3d::Point3D;
+use geometry3d::{Ray3D, Vector3D, Transform, Point3D};
 use crate::ray::Ray;
 
 type Texture = fn(Float,Float)->Float;

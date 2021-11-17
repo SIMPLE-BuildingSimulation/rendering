@@ -20,9 +20,7 @@ SOFTWARE.
 
 use std::rc::Rc;
 use crate::Float;
-use geometry3d::point3d::Point3D;
-use geometry3d::vector3d::Vector3D;
-use geometry3d::transform::Transform;
+use geometry3d::{Point3D, Vector3D, Transform};
 use geometry3d::intersect_trait::SurfaceSide;
 
 use crate::scene::Object;

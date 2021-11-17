@@ -22,16 +22,19 @@ use std::rc::Rc;
 use crate::Float;
 
 use crate::material::{Light, Metal, Mirror, Plastic};
-// use crate::sampleable_trait::Sampleable;
+
 use crate::scene::Scene;
 
-use geometry3d::distant_source3d::DistantSource3D;
-use geometry3d::loop3d::Loop3D;
-use geometry3d::point3d::Point3D;
-use geometry3d::polygon3d::Polygon3D;
-use geometry3d::sphere3d::Sphere3D;
-use geometry3d::vector3d::Vector3D;
-use geometry3d::triangulation3d::Triangulation3D;
+use geometry3d::{
+    DistantSource3D,
+    Loop3D,
+    Point3D,
+    Polygon3D,
+    Sphere3D,
+    Vector3D,
+    Triangulation3D
+};
+
 
 use std::fs;
 
@@ -385,6 +388,7 @@ impl Scene {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::sampleable_trait::Sampleable;
 
     #[test]
     fn test_default() {

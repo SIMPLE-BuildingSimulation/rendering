@@ -20,9 +20,7 @@ SOFTWARE.
 
 use crate::Float;
 use crate::film::Film;
-use geometry3d::point3d::Point3D;
-use geometry3d::ray3d::Ray3D;
-use geometry3d::vector3d::Vector3D;
+use geometry3d::{Point3D, Ray3D, Vector3D};
 use crate::ray::Ray;
 
 pub struct View {

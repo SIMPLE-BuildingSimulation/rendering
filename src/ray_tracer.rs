@@ -23,9 +23,7 @@ use crate::Float;
 use crate::camera::{Camera, CameraSample};
 use crate::image::ImageBuffer;
 use crate::scene::{Scene, Object};
-use geometry3d::ray3d::Ray3D;
-use geometry3d::point3d::Point3D;
-use geometry3d::vector3d::Vector3D;
+use geometry3d::{Ray3D, Point3D, Vector3D};
 use crate::colour::Spectrum;
 use geometry3d::intersect_trait::SurfaceSide;
 use crate::material::Material;
@@ -281,9 +279,7 @@ mod tests {
     // use std::process::Command;
 
     // use geometry3d::ray3d::Ray3D;
-    use geometry3d::vector3d::Vector3D;
-
-    use geometry3d::point3d::Point3D;
+    use geometry3d::{Vector3D, Point3D};
 
     use crate::camera::{PinholeCam, View};
     use crate::film::Film;
@@ -334,10 +330,7 @@ mod tests {
     }
 
     use crate::material::{Light, Mirror, Plastic};
-    use geometry3d::distant_source3d::DistantSource3D;
-    use geometry3d::triangle3d::Triangle3D;
-    use geometry3d::sphere3d::Sphere3D;
-    use geometry3d::transform::Transform;
+    use geometry3d::{DistantSource3D, Triangle3D, Sphere3D, Transform};
     use std::rc::Rc;
 
     #[test]

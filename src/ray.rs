@@ -19,10 +19,7 @@ SOFTWARE.
 */
 
 use crate::Float;
-use geometry3d::transform::Transform;
-use geometry3d::ray3d::Ray3D;
-use geometry3d::point3d::Point3D;
-use geometry3d::vector3d::Vector3D;
+use geometry3d::{Transform, Ray3D, Point3D, Vector3D};
 
 pub struct Ray{
     pub geometry: Ray3D,

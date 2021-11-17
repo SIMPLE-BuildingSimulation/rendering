@@ -23,12 +23,8 @@ use rand::prelude::*;
 use crate::{Float,PI};
 use crate::samplers::*;
 use geometry3d::intersect_trait::Intersect;
-use geometry3d::point3d::Point3D;
-use geometry3d::triangle3d::Triangle3D;
-use geometry3d::vector3d::Vector3D;
-use geometry3d::sphere3d::Sphere3D;
-// use geometry3d::ray3d::Ray3D;
-use geometry3d::distant_source3d::DistantSource3D;
+use geometry3d::{Point3D, Triangle3D, Vector3D, Sphere3D, DistantSource3D};
+
 
 pub trait Sampleable: Intersect {
     /// Receives a [`Point3D`] and returns the distance `t`

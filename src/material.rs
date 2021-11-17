@@ -21,7 +21,7 @@ SOFTWARE.
 use crate::{Float,PI};
 use crate::colour::Spectrum;
 use crate::samplers::cosine_weighted_sample_hemisphere;
-use geometry3d::vector3d::Vector3D;
+use geometry3d::Vector3D;
 
 fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
     debug_assert!((vin.length() - 1.).abs() < 100. * Float::EPSILON);
