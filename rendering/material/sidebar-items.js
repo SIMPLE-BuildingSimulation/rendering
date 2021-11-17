@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["mirror_direction",""]],"struct":[["Light",""],["Metal",""],["Mirror",""],["Plastic",""]],"trait":[["Material",""]]});

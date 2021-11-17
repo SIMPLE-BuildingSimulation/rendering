@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["RGBSpectrum",""]],"type":[["Spectrum",""]]});

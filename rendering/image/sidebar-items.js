@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["float_to_rgbe",""],["rusty_frexp",""]],"struct":[["ImageBuffer","A buffer with all the physical values in the image (i.e., Radiance, Irradiance or whatever being calculated)"]]});

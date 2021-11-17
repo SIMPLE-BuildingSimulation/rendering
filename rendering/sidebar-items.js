@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["PI",""]],"mod":[["camera",""],["colour",""],["film",""],["from_radiance",""],["image",""],["interaction",""],["material",""],["ray",""],["ray_tracer",""],["sampleable_trait",""],["samplers",""],["scene",""]],"type":[["Float",""]]});
