@@ -322,7 +322,7 @@ impl Scanner {
         let dir_x = self.consume_token(source).parse::<Float>().unwrap();
         let dir_y = self.consume_token(source).parse::<Float>().unwrap();
         let dir_z = self.consume_token(source).parse::<Float>().unwrap();
-        let mut angle = self.consume_token(source).parse::<Float>().unwrap().to_radians();        
+        let angle = self.consume_token(source).parse::<Float>().unwrap().to_radians();        
         let distant_source = DistantSource3D::new(Vector3D::new(dir_x, dir_y, dir_z), angle);
 
         let mod_index = self.get_modifier_index(modifier);
@@ -388,7 +388,7 @@ impl Scene {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::sampleable_trait::Sampleable;
+    
 
     #[test]
     fn test_default() {

@@ -23,8 +23,8 @@ use crate::Float;
 use crate::material::Material;
 use crate::sampleable_trait::Sampleable;
 use crate::interaction::{Interaction,SurfaceInteractionData, ShadingInfo};
-use geometry3d::intersect_trait::{SurfaceSide,IntersectionInfo};
-use geometry3d::{Ray3D, Vector3D, Transform, Point3D};
+use geometry3d::intersect_trait::{IntersectionInfo};
+use geometry3d::{Ray3D,  Transform };
 use crate::ray::Ray;
 
 type Texture = fn(Float,Float)->Float;
@@ -87,9 +87,9 @@ impl Scene {
         let mut info : Option<IntersectionInfo> = None;
         let mut object: Option<Rc<Object>> = None;
         
-        let mut is_object = false;
-        let mut is_light = false;
-        let mut is_distant_light = false;
+        // let mut is_object = false;
+        // let mut is_light = false;
+        // let mut is_distant_light = false;
 
         // Test objects
         for this_object in self.objects.iter() {
@@ -103,7 +103,7 @@ impl Scene {
                     object = Some(Rc::clone(this_object));                    
                     info = Some(intersection_info);
                     intersected = true;
-                    is_object = true;
+                    // is_object = true;
                 }
             }
         }
@@ -120,7 +120,7 @@ impl Scene {
                     info = Some(intersection_info);
                     object = Some(Rc::clone(this_object));                    
                     intersected = true;
-                    is_light = true;
+                    // is_light = true;
                 }
             }
         }
@@ -138,7 +138,7 @@ impl Scene {
                         info = Some(intersection_info);
                         object = Some(Rc::clone(this_object));                        
                         intersected = true;
-                        is_distant_light = true;
+                        // is_distant_light = true;
                     }
                 }
                 

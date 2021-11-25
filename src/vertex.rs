@@ -49,9 +49,9 @@ pub struct VertexData {
     /// A flag indicating whether the [`Vertex`] (from page 315 of Veach's PhD Thesis)
     pub is_specular: bool,
 
-    // beta:Spectrum//, alpha?
-    // forward_pdf:Float
-    // backward_pdf:Float
+    pub beta:Spectrum, //, alpha?
+    pub forward_pdf:Float,
+    pub backward_pdf:Float,
 }
 
 /// The kind of [`Vertex`], useful for
@@ -91,7 +91,7 @@ impl Vertex {
     }
 
     pub fn new_in_light(ray:Ray3D,position: Point3D, beta:Spectrum)->Self{
-        Self::Camera(VertexData{
+        Self::Light(VertexData{
             normal: Some(view_direction),
             position: ray.origin,
             material_index: None,
@@ -99,6 +99,8 @@ impl Vertex {
             is_specular: false,
         })
     }
+
+    pub fn new_in_surface()
 
     /// get position
     pub fn position(&self) -> Point3D {

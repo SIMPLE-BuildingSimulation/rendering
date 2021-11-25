@@ -62,6 +62,7 @@ impl RayTracer {
 
             let object = interaction.object();
             match &interaction {
+                Interaction::Endpoint(_)=>{panic!("Found an Endpoint while ray-tracing!")},
                 Interaction::Surface(data)=>{         
                     // get the normal... can be textured.           
                     let normal = data.normal();

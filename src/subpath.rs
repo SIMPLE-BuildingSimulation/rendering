@@ -22,6 +22,13 @@ use crate::Float;
 use crate::scene::Scene;
 use crate::vertex::Vertex;
 
+#[derive(Eq, PartialEq)]
+#[repr(u8)]
+pub enum TransportMode{
+    Importance,
+    Radiance,
+}
+
 const MAX_VERTICES: usize = 12;
 
 #[derive(Clone, Copy)]
@@ -60,8 +67,94 @@ impl SubPath {
         }
     }
 
-    pub fn random_walk(&mut self, scene: &Scene, max_depth: usize, rroulet: Float) {
-        unimplemented!();
+    pub fn random_walk(&mut self, scene: &Scene, max_depth: usize, rroulet: Float, pdf: Float, beta: Spectrum, transport_mode: TransportMode, ray: Ray) {
+        if max_depth == 0{
+            return
+        }
+        let mut bounces : u8 = 0;
+        let pdf_fwd = pdf;
+        let mut any_non_specular_bounce = false;
+        
+        loop {
+            // if !beta {break;}// I am not sure what this means.
+
+            let mut scattered = false;
+            let mut terminated = false;
+            let vertex = &self[bounces];
+            let prev = &self[bounces - 1];
+
+            if let Some((thit, interaction)) = scene.cast_ray(&ray){
+                // If we hit, 
+                // if (ray.medium) {
+                    /* SKIPPED... no mediums yet */
+                // }
+                if terminated { return }
+                if scattered { continue }
+
+                match interaction {
+                    Interaction::Surface(data)=>{                        
+                        // get the normal... can be textured.           
+                        let normal = data.normal();
+
+                        debug_assert!((1.0 - normal.length()).abs() < 0.000001);
+
+                        // let object = interaction.object();
+
+                        let material_index = match data.geometry_shading.side {
+                            SurfaceSide::Front => {
+                                object.front_material_index
+                            },
+                            SurfaceSide::Back =>{
+                                object.back_material_index
+                            }                        
+                        };
+                        let material = &scene.materials[material_index];
+
+                        let intersection_pt = ray.geometry.project(t);
+                        let vertex_data = VertexData{
+                            normal: Some(normal),
+                            position: data.point,
+                            material_index: Some(material_index),
+                            object_index: Some(object.index),
+                            is_specular:material.specular_only,
+                            beta,
+                            forward_pdf:pdf_fwd,
+                            backward_pdf:0.,//?
+                        };
+                        self[bounces + 1] = Vertex::new_in_surface(vertex_data);
+
+                        
+
+                        let ray_dir = ray.geometry.direction;
+                        let new_ray_dir = material.sample_bsdf(ray_dir, normal);
+                        debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
+                        let new_ray = Ray{
+                            time: ray.time,
+                            geometry: Ray3D {
+                                direction : new_ray_dir,
+                                origin: intersection_pt,// + normal * 0.0001, // avoid self shading
+                            }
+                        };
+                        
+                    },
+                    // Interaction::Medium()=>{}
+                    Interaction::Endpoint(data)=>{panic!("Encountered an Endpoint Interaction when doing a random walk")}
+                }
+                
+
+
+
+            }else{
+                // Capture escaped rays when tracing from the camera
+                // if (mode == TransportMode::Radiance) {
+                //     vertex = Vertex::CreateLight(EndpointInteraction(ray), beta, pdfFwd);
+                //     ++bounces;
+                // }
+                
+                break;
+            }
+
+        }
     }
 
     /// Pushes a new [`Vertex`]; returns the index of that [`Vertex`]

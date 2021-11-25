@@ -104,7 +104,7 @@ impl Sampleable for Triangle3D {
         (t, direction / t)
     }
 
-    fn omega(&self, point: Point3D) -> Float {
+    fn omega(&self, _point: Point3D) -> Float {
         unimplemented!();
         // let direction = self.outer_centroid() - point;
         // let t = direction.length_squared();

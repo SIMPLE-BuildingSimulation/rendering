@@ -150,7 +150,8 @@ impl SurfaceInteractionData {
 
 
 pub enum Interaction{
-    Surface(SurfaceInteractionData)    
+    Surface(SurfaceInteractionData), 
+    Endpoint(Option<Rc<Object>>) 
 }
 
 impl std::fmt::Debug for Interaction {
@@ -158,6 +159,14 @@ impl std::fmt::Debug for Interaction {
         match self{
             Self::Surface(_)=>{
                 f.debug_struct("SurfaceInteraction(..)").finish()
+            },    
+            Self::Endpoint(light)=>{
+                let kind = if light.is_some(){
+                    "Light"
+                }else{
+                    "Camera"
+                };
+                f.debug_struct(&format!("EndpointInteraction({})", kind)).finish()
             },            
         }
         
