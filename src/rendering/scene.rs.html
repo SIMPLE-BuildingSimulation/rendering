@@ -342,8 +342,8 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sampleable_trait::Sampleable</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>,<span class="ident">SurfaceInteractionData</span>, <span class="ident">ShadingInfo</span>};
-<span class="kw">use</span> <span class="ident">geometry3d::intersect_trait</span>::{<span class="ident">SurfaceSide</span>,<span class="ident">IntersectionInfo</span>};
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Transform</span>, <span class="ident">Point3D</span>};
+<span class="kw">use</span> <span class="ident">geometry3d::intersect_trait</span>::{<span class="ident">IntersectionInfo</span>};
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>,  <span class="ident">Transform</span> };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 
 <span class="kw">type</span> <span class="ident">Texture</span> <span class="op">=</span> <span class="kw">fn</span>(<span class="ident">Float</span>,<span class="ident">Float</span>)<span class="op">-</span><span class="op">&gt;</span><span class="ident">Float</span>;
@@ -406,9 +406,9 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">info</span> : <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">object</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_object</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_light</span> <span class="op">=</span> <span class="bool-val">false</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">is_distant_light</span> <span class="op">=</span> <span class="bool-val">false</span>;
+        <span class="comment">// let mut is_object = false;</span>
+        <span class="comment">// let mut is_light = false;</span>
+        <span class="comment">// let mut is_distant_light = false;</span>
 
         <span class="comment">// Test objects</span>
         <span class="kw">for</span> <span class="ident">this_object</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">objects</span>.<span class="ident">iter</span>() {
@@ -422,7 +422,7 @@ SOFTWARE.
                     <span class="ident">object</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::clone</span>(<span class="ident">this_object</span>));                    
                     <span class="ident">info</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">intersection_info</span>);
                     <span class="ident">intersected</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">is_object</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="comment">// is_object = true;</span>
                 }
             }
         }
@@ -439,7 +439,7 @@ SOFTWARE.
                     <span class="ident">info</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">intersection_info</span>);
                     <span class="ident">object</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::clone</span>(<span class="ident">this_object</span>));                    
                     <span class="ident">intersected</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                    <span class="ident">is_light</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                    <span class="comment">// is_light = true;</span>
                 }
             }
         }
@@ -457,7 +457,7 @@ SOFTWARE.
                         <span class="ident">info</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">intersection_info</span>);
                         <span class="ident">object</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">Rc::clone</span>(<span class="ident">this_object</span>));                        
                         <span class="ident">intersected</span> <span class="op">=</span> <span class="bool-val">true</span>;
-                        <span class="ident">is_distant_light</span> <span class="op">=</span> <span class="bool-val">true</span>;
+                        <span class="comment">// is_distant_light = true;</span>
                     }
                 }
                 
