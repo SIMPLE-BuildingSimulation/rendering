@@ -367,11 +367,14 @@ impl Scanner {
 }
 
 impl Scene {
+    /// Reads a Radiance file and builds a scene.
     pub fn from_radiance(filename: String) -> Self {
         let src = fs::read(filename).unwrap();
         Scene::from_radiance_source(&src)
     }
 
+    /// Creates a scene from a slice of bytes read from a 
+    /// Radiance file
     pub fn from_radiance_source(source: &[u8]) -> Self {
         let mut ret = Self::default();
 

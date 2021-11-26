@@ -21,6 +21,7 @@ SOFTWARE.
 use crate::Float;
 use geometry3d::{Transform, Ray3D, Point3D, Vector3D};
 
+#[derive(Clone, Copy)]
 pub struct Ray{
     pub geometry: Ray3D,
     pub time: Float,
