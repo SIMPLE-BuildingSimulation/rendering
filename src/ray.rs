@@ -28,7 +28,7 @@ pub struct Ray{
     // medium.
 }
 
-impl Ray{
+impl Ray {
 
     pub fn apply_transformation(&self, t:&Transform)->Self{
         let (geometry,_o_error, _d_error)= t.transform_ray(&self.geometry);
