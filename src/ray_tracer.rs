@@ -29,12 +29,12 @@ use geometry3d::intersect_trait::SurfaceSide;
 use crate::material::Material;
 use crate::ray::Ray;
 use crate::interaction::Interaction;
-
+use rand::prelude::*;
 
 pub struct RayTracer {
     pub max_depth: usize,
     pub n_shadow_samples: usize,
-    pub n_ambient_samples: usize,
+    pub n_ambient_samples: usize,    
 }
 
 impl Default for RayTracer{
@@ -42,7 +42,7 @@ impl Default for RayTracer{
         Self{
             max_depth: 2,
             n_shadow_samples: 10,
-            n_ambient_samples: 10,
+            n_ambient_samples: 10,            
         }
     }
 }
@@ -50,7 +50,7 @@ impl Default for RayTracer{
 impl RayTracer {
 
      /// Recursively traces a ray
-     pub fn trace_ray(&self, scene: &Scene, ray: &Ray, current_depth: usize) -> Spectrum {
+     pub fn trace_ray(&self, rng: &mut ThreadRng, scene: &Scene, ray: &Ray, current_depth: usize) -> Spectrum {
         
         // Limit bounces        
         if current_depth > self.max_depth {
@@ -103,7 +103,7 @@ impl RayTracer {
                         let bsdf_c = self.n_ambient_samples as Float / total_samples as Float;
                         for _ in 0..self.n_ambient_samples {
                             // Choose a direction.
-                            let new_ray_dir = material.sample_bsdf(ray_dir, normal);
+                            let new_ray_dir = material.sample_bsdf(rng, ray_dir, normal);
                             debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
                             let new_ray = Ray{
                                 time: ray.time,
@@ -113,7 +113,7 @@ impl RayTracer {
                                 }
                             };
                             let cos_theta = (normal * new_ray_dir).abs();
-                            let li = self.trace_ray(scene, &new_ray, current_depth + 1);
+                            let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1);
                             let material_pdf = material.bsdf(ray_dir, normal, new_ray_dir);
 
                             let fx = (li * cos_theta) * (material.colour() * material_pdf);
@@ -258,7 +258,8 @@ impl RayTracer {
                     p_lens: (0., 0.), // we will not use this
                     time: 1.,         // we will not use
                 });
-                buffer[(x, y)] = self.trace_ray(scene,&ray, 0) * weight;
+                let mut rng = rand::thread_rng();
+                buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0) * weight;
                 // report
                 let progress = (100 * i) as Float / total_pixels as Float;
                 if (progress - progress.floor()) < 0.1 && (progress - last_progress).abs() > 1. {

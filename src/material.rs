@@ -17,7 +17,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
+use rand::prelude::*;
 use crate::{Float,PI};
 use crate::colour::Spectrum;
 use crate::samplers::cosine_weighted_sample_hemisphere;
@@ -56,7 +56,7 @@ pub trait Material {
     fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> Float;
 
     /// Gets a sample associated to the bsdf
-    fn sample_bsdf(&self, vout: Vector3D, normal: Vector3D) -> Vector3D;
+    fn sample_bsdf(&self, rng: &mut ThreadRng, vout: Vector3D, normal: Vector3D) -> Vector3D;
 
     /// Does this material scatter (e.g., like [`Plastic`]) or does it
     /// only transmit/reflects specularly (e.g., like [`Mirror`])?
@@ -94,7 +94,7 @@ impl Material for Light {
         0.0
     }
 
-    fn sample_bsdf(&self, _vout: Vector3D, _normal: Vector3D) -> Vector3D {
+    fn sample_bsdf(&self, _rng: &mut ThreadRng, _vout: Vector3D, _normal: Vector3D) -> Vector3D {
         panic!("Trying to sample the BSDF of a Light material")
     }
 }
@@ -122,9 +122,9 @@ impl Material for Metal {
         ONE_OVER_PI
     }
 
-    fn sample_bsdf(&self, _vout: Vector3D, normal: Vector3D) -> Vector3D {
-        let mut rng = rand::thread_rng();
-        cosine_weighted_sample_hemisphere(&mut rng, normal)
+    fn sample_bsdf(&self, rng: &mut ThreadRng,_vout: Vector3D, normal: Vector3D) -> Vector3D {
+        // let mut rng = rand::thread_rng();
+        cosine_weighted_sample_hemisphere(rng, normal)
     }
 }
 
@@ -151,9 +151,9 @@ impl Material for Plastic {
         ONE_OVER_PI
     }
 
-    fn sample_bsdf(&self, _vout: Vector3D, normal: Vector3D) -> Vector3D {
-        let mut rng = rand::thread_rng();
-        cosine_weighted_sample_hemisphere(&mut rng, normal)
+    fn sample_bsdf(&self, rng: &mut ThreadRng, _vout: Vector3D, normal: Vector3D) -> Vector3D {
+        // let mut rng = rand::thread_rng();
+        cosine_weighted_sample_hemisphere(rng, normal)
     }
 }
 
@@ -182,7 +182,7 @@ impl Material for Mirror {
         }
     }
 
-    fn sample_bsdf(&self, vout: Vector3D, normal: Vector3D) -> Vector3D {
+    fn sample_bsdf(&self, _rng: &mut ThreadRng, vout: Vector3D, normal: Vector3D) -> Vector3D {
         mirror_direction(vout, normal)
     }
 }
