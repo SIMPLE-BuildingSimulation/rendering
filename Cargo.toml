@@ -11,6 +11,12 @@ geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git
 rand = "0.8.4"
 
 [dev-dependencies]
+criterion = "0.3"
+
+[[bench]]
+name = "benchmark"
+path = "./benches/benchmark.rs"
+harness = false
 
 [features]
 default = []
