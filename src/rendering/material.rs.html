@@ -310,7 +310,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
-
+<span class="kw">use</span> <span class="ident">rand::prelude</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Float</span>,<span class="ident">PI</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::samplers::cosine_weighted_sample_hemisphere</span>;
@@ -349,7 +349,7 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Float</span>;
 
     <span class="doccomment">/// Gets a sample associated to the bsdf</span>
-    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span>;
+    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span>;
 
     <span class="doccomment">/// Does this material scatter (e.g., like [`Plastic`]) or does it</span>
     <span class="doccomment">/// only transmit/reflects specularly (e.g., like [`Mirror`])?</span>
@@ -387,7 +387,7 @@ SOFTWARE.
         <span class="number">0.0</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span>, <span class="ident">_normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
+    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span>, <span class="ident">_normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
         <span class="macro">panic!</span>(<span class="string">&quot;Trying to sample the BSDF of a Light material&quot;</span>)
     }
 }
@@ -415,9 +415,9 @@ SOFTWARE.
         <span class="ident">ONE_OVER_PI</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
-        <span class="ident">cosine_weighted_sample_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">normal</span>)
+    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>,<span class="ident">_vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
+        <span class="comment">// let mut rng = rand::thread_rng();</span>
+        <span class="ident">cosine_weighted_sample_hemisphere</span>(<span class="ident">rng</span>, <span class="ident">normal</span>)
     }
 }
 
@@ -444,9 +444,9 @@ SOFTWARE.
         <span class="ident">ONE_OVER_PI</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
-        <span class="ident">cosine_weighted_sample_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">normal</span>)
+    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
+        <span class="comment">// let mut rng = rand::thread_rng();</span>
+        <span class="ident">cosine_weighted_sample_hemisphere</span>(<span class="ident">rng</span>, <span class="ident">normal</span>)
     }
 }
 
@@ -475,7 +475,7 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
+    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
         <span class="ident">mirror_direction</span>(<span class="ident">vout</span>, <span class="ident">normal</span>)
     }
 }
