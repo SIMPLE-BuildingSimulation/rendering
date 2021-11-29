@@ -211,7 +211,7 @@ impl Iterator for SphereSurfaceSampler {
         self.i += 1;
                 
         // Get a direction on a unit Northern hemisphere
-        let mut vec = uniform_sample_hemisphere(&mut self.rng, Vector3D::new(0., 0., 1.));
+        let mut vec = uniform_sample_hemisphere(&mut self.rng, Vector3D::new(1., 0., 0.), Vector3D::new(0., 1., 0.), Vector3D::new(0., 0., 1.));
 
         // 50% chance of flipping it
         let coin : Float = self.rng.gen();
@@ -284,33 +284,6 @@ impl Sampleable for Sphere3D {
 }
 /* END SPHERE */
 
-/* PLANE */
-// impl Sampleable for Plane3D {
-//     fn direction(&self, point: Point3D) -> (Float, Vector3D) {
-//         let centre = if self.d.abs() < Float::EPSILON {
-//             Point3D::new(0., 0., 0.)
-//         } else if self.normal.z.abs() > Float::EPSILON {
-//             Point3D::new(0., 0., self.d / self.normal.z)
-//         } else if self.normal.y.abs() > Float::EPSILON {
-//             Point3D::new(0., self.d / self.normal.y, 0.)
-//         } else if self.normal.x.abs() > Float::EPSILON {
-//             Point3D::new(self.d / self.normal.x, 0., 0.)
-//         } else {
-//             unreachable!();
-//         };
-
-//         let direction = centre - point;
-//         let t = direction.length();
-//         (t, direction / t)
-//     }
-
-//     fn omega(&self, _: Point3D) -> Float {
-//         // planes are infinite... they always light the same
-//         2. * std::Float::consts::PI
-//     }
-// }
-
-/* END PLANE */
 
 
 /* DISTANT SOURCE */

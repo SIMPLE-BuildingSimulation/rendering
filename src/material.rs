@@ -22,6 +22,7 @@ use crate::{Float,PI};
 use crate::colour::Spectrum;
 use crate::samplers::cosine_weighted_sample_hemisphere;
 use geometry3d::Vector3D;
+use crate::interaction::ShadingInfo;
 
 fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
     debug_assert!((vin.length() - 1.).abs() < 100. * Float::EPSILON);
@@ -56,7 +57,7 @@ pub trait Material {
     fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> Float;
 
     /// Gets a sample associated to the bsdf
-    fn sample_bsdf(&self, rng: &mut ThreadRng, vout: Vector3D, normal: Vector3D) -> Vector3D;
+    fn sample_bsdf(&self, rng: &mut ThreadRng, vout: Vector3D, shading_info: ShadingInfo) -> Vector3D;
 
     /// Does this material scatter (e.g., like [`Plastic`]) or does it
     /// only transmit/reflects specularly (e.g., like [`Mirror`])?
@@ -94,7 +95,7 @@ impl Material for Light {
         0.0
     }
 
-    fn sample_bsdf(&self, _rng: &mut ThreadRng, _vout: Vector3D, _normal: Vector3D) -> Vector3D {
+    fn sample_bsdf(&self, _rng: &mut ThreadRng, _vout: Vector3D, _shading_info: ShadingInfo) -> Vector3D {
         panic!("Trying to sample the BSDF of a Light material")
     }
 }
@@ -122,9 +123,12 @@ impl Material for Metal {
         ONE_OVER_PI
     }
 
-    fn sample_bsdf(&self, rng: &mut ThreadRng,_vout: Vector3D, normal: Vector3D) -> Vector3D {
+    fn sample_bsdf(&self, rng: &mut ThreadRng,_vout: Vector3D, shading_info: ShadingInfo) -> Vector3D {
         // let mut rng = rand::thread_rng();
-        cosine_weighted_sample_hemisphere(rng, normal)
+        let normal = shading_info.normal;
+        let e1 = shading_info.dpdu;
+        let e2 = shading_info.dpdv;
+        cosine_weighted_sample_hemisphere(rng, e1, e2, normal)
     }
 }
 
@@ -151,9 +155,12 @@ impl Material for Plastic {
         ONE_OVER_PI
     }
 
-    fn sample_bsdf(&self, rng: &mut ThreadRng, _vout: Vector3D, normal: Vector3D) -> Vector3D {
+    fn sample_bsdf(&self, rng: &mut ThreadRng, _vout: Vector3D, shading_info: ShadingInfo) -> Vector3D {
         // let mut rng = rand::thread_rng();
-        cosine_weighted_sample_hemisphere(rng, normal)
+        let normal = shading_info.normal;
+        let e1 = shading_info.dpdu;
+        let e2 = shading_info.dpdv;
+        cosine_weighted_sample_hemisphere(rng, e1, e2, normal)
     }
 }
 
@@ -182,8 +189,8 @@ impl Material for Mirror {
         }
     }
 
-    fn sample_bsdf(&self, _rng: &mut ThreadRng, vout: Vector3D, normal: Vector3D) -> Vector3D {
-        mirror_direction(vout, normal)
+    fn sample_bsdf(&self, _rng: &mut ThreadRng, vout: Vector3D, shading_info: ShadingInfo) -> Vector3D {
+        mirror_direction(vout, shading_info.normal)
     }
 }
 

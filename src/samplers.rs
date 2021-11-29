@@ -48,35 +48,38 @@ fn uniform_sample_horizontal_disc(rng: &mut ThreadRng, radius: Float) -> (Float,
 
 pub fn local_to_world(
     normal: Vector3D,
+    local_e1: Vector3D,
+    local_e2: Vector3D,
     centre: Point3D,
     x_local: Float,
     y_local: Float,
-    z_local: Float,
+    z_local: Float,    
+
 ) -> (Float, Float, Float) {
 
     debug_assert!((1. - normal.length()).abs() < 100. * Float::EPSILON);
-    let local_e3 = normal; //.get_normalized();
-    let local_e2 = normal.get_perpendicular().unwrap();
-    let local_e1 = local_e2.cross(local_e3);
-
     debug_assert!((local_e1.length() - 1.).abs() < 0.0000001);
     debug_assert!((local_e2.length() - 1.).abs() < 0.0000001);
-    debug_assert!((local_e3.length() - 1.).abs() < 0.0000001);
+    // let local_e3 = normal; //.get_normalized();
+    // let local_e2 = normal.get_perpendicular().unwrap();
+    // let local_e1 = local_e2.cross(local_e3);
 
-    let ret = centre + local_e1 * x_local + local_e2 * y_local + local_e3 * z_local;
+    let ret = centre + local_e1 * x_local + local_e2 * y_local + normal * z_local;
 
     (ret.x, ret.y, ret.z)
 }
 
-pub fn cosine_weighted_sample_hemisphere(rng: &mut ThreadRng, normal: Vector3D) -> Vector3D {
+pub fn cosine_weighted_sample_hemisphere(rng: &mut ThreadRng, e1: Vector3D, e2: Vector3D, normal: Vector3D) -> Vector3D {
     let (local_x, local_y) = uniform_sample_horizontal_disc(rng, 1.);
     let local_z = (1. - local_x * local_x - local_y * local_y).sqrt();
-    let (x, y, z) = local_to_world(normal, Point3D::new(0., 0., 0.), local_x, local_y, local_z);
+    // let e2 = normal.get_perpendicular().unwrap();
+    // let e1 = e2.cross(normal);
+    let (x, y, z) = local_to_world( e1, e2,normal, Point3D::new(0., 0., 0.), local_x, local_y, local_z);
     debug_assert!((Vector3D::new(x, y, z).length() - 1.).abs() < 0.0000001);
     Vector3D::new(x, y, z)
 }
 
-pub fn uniform_sample_hemisphere(rng: &mut ThreadRng, normal: Vector3D) -> Vector3D {
+pub fn uniform_sample_hemisphere(rng: &mut ThreadRng, e1: Vector3D, e2: Vector3D, normal: Vector3D) -> Vector3D {
     // Calculate in
     let rand1: Float = rng.gen();
     let rand2: Float = rng.gen();
@@ -86,8 +89,8 @@ pub fn uniform_sample_hemisphere(rng: &mut ThreadRng, normal: Vector3D) -> Vecto
     let local_y = pie2.sin() * sq;
     let local_z = rand1;
 
-    // Take back to world normal
-    let (x, y, z) = local_to_world(normal, Point3D::new(0., 0., 0.), local_x, local_y, local_z);
+    // Take back to world normal    
+    let (x, y, z) = local_to_world(e1, e2, normal,Point3D::new(0., 0., 0.), local_x, local_y, local_z);
     debug_assert!((Vector3D::new(x, y, z).length() - 1.).abs() < 0.0000001);
     Vector3D::new(x, y, z)
 }
@@ -101,7 +104,9 @@ pub fn uniform_sample_disc(
     let (x_local, y_local) = uniform_sample_horizontal_disc(rng, radius);
 
     // Form the basis
-    let (x, y, z) = local_to_world(normal, centre, x_local, y_local, 0.);
+    let e2 = normal.get_perpendicular().unwrap();
+    let e1 = e2.cross(normal);
+    let (x, y, z) = local_to_world( e1,e2,normal,centre, x_local, y_local, 0.);
     Point3D::new(x, y, z)
 }
 
@@ -146,8 +151,11 @@ mod tests {
     fn test_uniform_sample_hemisphere() {
         fn check(normal: Vector3D) -> Result<(), String> {
             let normal = normal.get_normalized();
+            let e2 = normal.get_perpendicular().unwrap();
+            let e1 = e2.cross(normal);
+            
             let mut rng = rand::thread_rng();
-            let dir = uniform_sample_hemisphere(&mut rng, normal);
+            let dir = uniform_sample_hemisphere(&mut rng, e1, e2, normal);
 
             if (1. - dir.length()).abs() > 100. * Float::EPSILON {
                 return Err(format!("Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})", dir, dir.length()));

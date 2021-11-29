@@ -66,6 +66,7 @@ impl RayTracer {
                 Interaction::Surface(data)=>{         
                     // get the normal... can be textured.           
                     let normal = data.normal();
+                    
 
                     debug_assert!((1.0 - normal.length()).abs() < 0.000001);
 
@@ -103,7 +104,7 @@ impl RayTracer {
                         let bsdf_c = self.n_ambient_samples as Float / total_samples as Float;
                         for _ in 0..self.n_ambient_samples {
                             // Choose a direction.
-                            let new_ray_dir = material.sample_bsdf(rng, ray_dir, normal);
+                            let new_ray_dir = material.sample_bsdf(rng, ray_dir, data.geometry_shading);
                             debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
                             let new_ray = Ray{
                                 time: ray.time,
@@ -338,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_2() {
-        return;
+        // return;
         // Build scene
         let mut scene = Scene::default();
 
