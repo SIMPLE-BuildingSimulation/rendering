@@ -339,7 +339,7 @@ mod tests {
 
     #[test]
     fn test_2() {
-        // return;
+        return;
         // Build scene
         let mut scene = Scene::default();
 

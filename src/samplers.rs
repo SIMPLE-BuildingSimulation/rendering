@@ -47,9 +47,9 @@ fn uniform_sample_horizontal_disc(rng: &mut ThreadRng, radius: Float) -> (Float,
 }
 
 pub fn local_to_world(
+    mut local_e1: Vector3D,
+    mut local_e2: Vector3D,
     normal: Vector3D,
-    local_e1: Vector3D,
-    local_e2: Vector3D,
     centre: Point3D,
     x_local: Float,
     y_local: Float,
@@ -57,12 +57,14 @@ pub fn local_to_world(
 
 ) -> (Float, Float, Float) {
 
+    // let local_e3 = normal; //.get_normalized();
+    // let local_e2 = normal.get_perpendicular().unwrap();
+    local_e2.normalize();
+    let local_e1 = local_e2.cross(normal);
+    // local_e2.normalize();
     debug_assert!((1. - normal.length()).abs() < 100. * Float::EPSILON);
     debug_assert!((local_e1.length() - 1.).abs() < 0.0000001);
     debug_assert!((local_e2.length() - 1.).abs() < 0.0000001);
-    // let local_e3 = normal; //.get_normalized();
-    // let local_e2 = normal.get_perpendicular().unwrap();
-    // let local_e1 = local_e2.cross(local_e3);
 
     let ret = centre + local_e1 * x_local + local_e2 * y_local + normal * z_local;
 
