@@ -210,6 +210,8 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -259,9 +261,9 @@ SOFTWARE.
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_to_world</span>(
+    <span class="kw-2">mut</span> <span class="ident">local_e1</span>: <span class="ident">Vector3D</span>,
+    <span class="kw-2">mut</span> <span class="ident">local_e2</span>: <span class="ident">Vector3D</span>,
     <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
-    <span class="ident">local_e1</span>: <span class="ident">Vector3D</span>,
-    <span class="ident">local_e2</span>: <span class="ident">Vector3D</span>,
     <span class="ident">centre</span>: <span class="ident">Point3D</span>,
     <span class="ident">x_local</span>: <span class="ident">Float</span>,
     <span class="ident">y_local</span>: <span class="ident">Float</span>,
@@ -269,12 +271,14 @@ SOFTWARE.
 
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>) {
 
+    <span class="comment">// let local_e3 = normal; //.get_normalized();</span>
+    <span class="comment">// let local_e2 = normal.get_perpendicular().unwrap();</span>
+    <span class="ident">local_e2</span>.<span class="ident">normalize</span>();
+    <span class="kw">let</span> <span class="ident">local_e1</span> <span class="op">=</span> <span class="ident">local_e2</span>.<span class="ident">cross</span>(<span class="ident">normal</span>);
+    <span class="comment">// local_e2.normalize();</span>
     <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">normal</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">100.</span> <span class="op">*</span> <span class="ident">Float::EPSILON</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">local_e1</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">local_e2</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
-    <span class="comment">// let local_e3 = normal; //.get_normalized();</span>
-    <span class="comment">// let local_e2 = normal.get_perpendicular().unwrap();</span>
-    <span class="comment">// let local_e1 = local_e2.cross(local_e3);</span>
 
     <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">centre</span> <span class="op">+</span> <span class="ident">local_e1</span> <span class="op">*</span> <span class="ident">x_local</span> <span class="op">+</span> <span class="ident">local_e2</span> <span class="op">*</span> <span class="ident">y_local</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="ident">z_local</span>;
 
