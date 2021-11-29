@@ -404,33 +404,6 @@
 <span id="370">370</span>
 <span id="371">371</span>
 <span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -644,7 +617,7 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                 
         <span class="comment">// Get a direction on a unit Northern hemisphere</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">rng</span>, <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">vec</span> <span class="op">=</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>.<span class="ident">rng</span>, <span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>), <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>));
 
         <span class="comment">// 50% chance of flipping it</span>
         <span class="kw">let</span> <span class="ident">coin</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">rng</span>.<span class="ident">gen</span>();
@@ -717,33 +690,6 @@ SOFTWARE.
 }
 <span class="comment">/* END SPHERE */</span>
 
-<span class="comment">/* PLANE */</span>
-<span class="comment">// impl Sampleable for Plane3D {</span>
-<span class="comment">//     fn direction(&amp;self, point: Point3D) -&gt; (Float, Vector3D) {</span>
-<span class="comment">//         let centre = if self.d.abs() &lt; Float::EPSILON {</span>
-<span class="comment">//             Point3D::new(0., 0., 0.)</span>
-<span class="comment">//         } else if self.normal.z.abs() &gt; Float::EPSILON {</span>
-<span class="comment">//             Point3D::new(0., 0., self.d / self.normal.z)</span>
-<span class="comment">//         } else if self.normal.y.abs() &gt; Float::EPSILON {</span>
-<span class="comment">//             Point3D::new(0., self.d / self.normal.y, 0.)</span>
-<span class="comment">//         } else if self.normal.x.abs() &gt; Float::EPSILON {</span>
-<span class="comment">//             Point3D::new(self.d / self.normal.x, 0., 0.)</span>
-<span class="comment">//         } else {</span>
-<span class="comment">//             unreachable!();</span>
-<span class="comment">//         };</span>
-
-<span class="comment">//         let direction = centre - point;</span>
-<span class="comment">//         let t = direction.length();</span>
-<span class="comment">//         (t, direction / t)</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     fn omega(&amp;self, _: Point3D) -&gt; Float {</span>
-<span class="comment">//         // planes are infinite... they always light the same</span>
-<span class="comment">//         2. * std::Float::consts::PI</span>
-<span class="comment">//     }</span>
-<span class="comment">// }</span>
-
-<span class="comment">/* END PLANE */</span>
 
 
 <span class="comment">/* DISTANT SOURCE */</span>

@@ -623,6 +623,7 @@
 <span id="589">589</span>
 <span id="590">590</span>
 <span id="591">591</span>
+<span id="592">592</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -691,6 +692,7 @@ SOFTWARE.
                 <span class="ident">Interaction::Surface</span>(<span class="ident">data</span>)<span class="op">=</span><span class="op">&gt;</span>{         
                     <span class="comment">// get the normal... can be textured.           </span>
                     <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">normal</span>();
+                    
 
                     <span class="macro">debug_assert!</span>((<span class="number">1.0</span> <span class="op">-</span> <span class="ident">normal</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.000001</span>);
 
@@ -728,7 +730,7 @@ SOFTWARE.
                         <span class="kw">let</span> <span class="ident">bsdf_c</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">total_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
                         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">n_ambient_samples</span> {
                             <span class="comment">// Choose a direction.</span>
-                            <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">rng</span>, <span class="ident">ray_dir</span>, <span class="ident">normal</span>);
+                            <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">rng</span>, <span class="ident">ray_dir</span>, <span class="ident">data</span>.<span class="ident">geometry_shading</span>);
                             <span class="macro">debug_assert!</span>((<span class="number">1.</span><span class="op">-</span><span class="ident">new_ray_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
                             <span class="kw">let</span> <span class="ident">new_ray</span> <span class="op">=</span> <span class="ident">Ray</span>{
                                 <span class="ident">time</span>: <span class="ident">ray</span>.<span class="ident">time</span>,
@@ -963,7 +965,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_2</span>() {
-        <span class="kw">return</span>;
+        <span class="comment">// return;</span>
         <span class="comment">// Build scene</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::default</span>();
 

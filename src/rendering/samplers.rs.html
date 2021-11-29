@@ -202,6 +202,14 @@
 <span id="168">168</span>
 <span id="169">169</span>
 <span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -252,35 +260,38 @@ SOFTWARE.
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_to_world</span>(
     <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">local_e1</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">local_e2</span>: <span class="ident">Vector3D</span>,
     <span class="ident">centre</span>: <span class="ident">Point3D</span>,
     <span class="ident">x_local</span>: <span class="ident">Float</span>,
     <span class="ident">y_local</span>: <span class="ident">Float</span>,
-    <span class="ident">z_local</span>: <span class="ident">Float</span>,
+    <span class="ident">z_local</span>: <span class="ident">Float</span>,    
+
 ) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>) {
 
     <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">normal</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">100.</span> <span class="op">*</span> <span class="ident">Float::EPSILON</span>);
-    <span class="kw">let</span> <span class="ident">local_e3</span> <span class="op">=</span> <span class="ident">normal</span>; <span class="comment">//.get_normalized();</span>
-    <span class="kw">let</span> <span class="ident">local_e2</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_perpendicular</span>().<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="ident">local_e1</span> <span class="op">=</span> <span class="ident">local_e2</span>.<span class="ident">cross</span>(<span class="ident">local_e3</span>);
-
     <span class="macro">debug_assert!</span>((<span class="ident">local_e1</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">local_e2</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
-    <span class="macro">debug_assert!</span>((<span class="ident">local_e3</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
+    <span class="comment">// let local_e3 = normal; //.get_normalized();</span>
+    <span class="comment">// let local_e2 = normal.get_perpendicular().unwrap();</span>
+    <span class="comment">// let local_e1 = local_e2.cross(local_e3);</span>
 
-    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">centre</span> <span class="op">+</span> <span class="ident">local_e1</span> <span class="op">*</span> <span class="ident">x_local</span> <span class="op">+</span> <span class="ident">local_e2</span> <span class="op">*</span> <span class="ident">y_local</span> <span class="op">+</span> <span class="ident">local_e3</span> <span class="op">*</span> <span class="ident">z_local</span>;
+    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">centre</span> <span class="op">+</span> <span class="ident">local_e1</span> <span class="op">*</span> <span class="ident">x_local</span> <span class="op">+</span> <span class="ident">local_e2</span> <span class="op">*</span> <span class="ident">y_local</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="ident">z_local</span>;
 
     (<span class="ident">ret</span>.<span class="ident">x</span>, <span class="ident">ret</span>.<span class="ident">y</span>, <span class="ident">ret</span>.<span class="ident">z</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cosine_weighted_sample_hemisphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cosine_weighted_sample_hemisphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
     <span class="kw">let</span> (<span class="ident">local_x</span>, <span class="ident">local_y</span>) <span class="op">=</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>, <span class="number">1.</span>);
     <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">local_x</span> <span class="op">*</span> <span class="ident">local_x</span> <span class="op">-</span> <span class="ident">local_y</span> <span class="op">*</span> <span class="ident">local_y</span>).<span class="ident">sqrt</span>();
-    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">normal</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_x</span>, <span class="ident">local_y</span>, <span class="ident">local_z</span>);
+    <span class="comment">// let e2 = normal.get_perpendicular().unwrap();</span>
+    <span class="comment">// let e1 = e2.cross(normal);</span>
+    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>( <span class="ident">e1</span>, <span class="ident">e2</span>,<span class="ident">normal</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_x</span>, <span class="ident">local_y</span>, <span class="ident">local_z</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
     <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
     <span class="comment">// Calculate in</span>
     <span class="kw">let</span> <span class="ident">rand1</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
     <span class="kw">let</span> <span class="ident">rand2</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
@@ -290,8 +301,8 @@ SOFTWARE.
     <span class="kw">let</span> <span class="ident">local_y</span> <span class="op">=</span> <span class="ident">pie2</span>.<span class="ident">sin</span>() <span class="op">*</span> <span class="ident">sq</span>;
     <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> <span class="ident">rand1</span>;
 
-    <span class="comment">// Take back to world normal</span>
-    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">normal</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_x</span>, <span class="ident">local_y</span>, <span class="ident">local_z</span>);
+    <span class="comment">// Take back to world normal    </span>
+    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>,<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_x</span>, <span class="ident">local_y</span>, <span class="ident">local_z</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
     <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
@@ -305,7 +316,9 @@ SOFTWARE.
     <span class="kw">let</span> (<span class="ident">x_local</span>, <span class="ident">y_local</span>) <span class="op">=</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>, <span class="ident">radius</span>);
 
     <span class="comment">// Form the basis</span>
-    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">normal</span>, <span class="ident">centre</span>, <span class="ident">x_local</span>, <span class="ident">y_local</span>, <span class="number">0.</span>);
+    <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_perpendicular</span>().<span class="ident">unwrap</span>();
+    <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">e2</span>.<span class="ident">cross</span>(<span class="ident">normal</span>);
+    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>( <span class="ident">e1</span>,<span class="ident">e2</span>,<span class="ident">normal</span>,<span class="ident">centre</span>, <span class="ident">x_local</span>, <span class="ident">y_local</span>, <span class="number">0.</span>);
     <span class="ident">Point3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
@@ -350,8 +363,11 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">test_uniform_sample_hemisphere</span>() {
         <span class="kw">fn</span> <span class="ident">check</span>(<span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_normalized</span>();
+            <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_perpendicular</span>().<span class="ident">unwrap</span>();
+            <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">e2</span>.<span class="ident">cross</span>(<span class="ident">normal</span>);
+            
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
-            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">normal</span>);
+            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>);
 
             <span class="kw">if</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">100.</span> <span class="op">*</span> <span class="ident">Float::EPSILON</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})&quot;</span>, <span class="ident">dir</span>, <span class="ident">dir</span>.<span class="ident">length</span>()));
