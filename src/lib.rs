@@ -35,6 +35,9 @@ type Float = f64;
 const PI: Float = std::f64::consts::PI;
 
 
+// type RefCount<T> = std::rc::Rc<T>;
+
+
 // Core
 pub mod ray;
 pub mod interaction;

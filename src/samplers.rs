@@ -36,14 +36,14 @@ pub fn uniform_sample_triangle(rng: &mut ThreadRng,a:Point3D,b:Point3D,c:Point3D
 }
 
 fn uniform_sample_horizontal_disc(rng: &mut ThreadRng, radius: Float) -> (Float, Float) {
-    let r: Float = rng.gen();
-    let r = radius * r.sqrt();
-    let theta: Float = rng.gen();
-    let theta = 2. * PI * theta;
+    let r: f32 = rng.gen();
+    let r = radius as f32 * r.sqrt();
+    let theta: f32 = rng.gen();
+    let theta = 2. * std::f32::consts::PI * theta;
 
     let local_x = r * theta.sin();
     let local_y = r * theta.cos();
-    (local_x, local_y)
+    (local_x as Float, local_y as Float)
 }
 
 pub fn local_to_world(
@@ -83,16 +83,16 @@ pub fn cosine_weighted_sample_hemisphere(rng: &mut ThreadRng, e1: Vector3D, e2: 
 
 pub fn uniform_sample_hemisphere(rng: &mut ThreadRng, e1: Vector3D, e2: Vector3D, normal: Vector3D) -> Vector3D {
     // Calculate in
-    let rand1: Float = rng.gen();
-    let rand2: Float = rng.gen();
-    let sq: Float = (1.0 - rand1 * rand1).sqrt();
-    let pie2: Float = 2.0 * PI * rand2;
+    let rand1: f32 = rng.gen();
+    let rand2: f32 = rng.gen();
+    let sq  = (1.0 - rand1 * rand1).sqrt();
+    let pie2  = 2.0 * std::f32::consts::PI * rand2;
     let local_x = pie2.cos() * sq;
     let local_y = pie2.sin() * sq;
     let local_z = rand1;
 
     // Take back to world normal    
-    let (x, y, z) = local_to_world(e1, e2, normal,Point3D::new(0., 0., 0.), local_x, local_y, local_z);
+    let (x, y, z) = local_to_world(e1, e2, normal,Point3D::new(0., 0., 0.), local_x as Float, local_y as Float, local_z as Float);
     debug_assert!((Vector3D::new(x, y, z).length() - 1.).abs() < 0.0000001);
     Vector3D::new(x, y, z)
 }

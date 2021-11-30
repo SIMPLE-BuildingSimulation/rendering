@@ -65,6 +65,10 @@ impl Scanner {
     }
 
     fn consume_whitespace(&mut self, source: &[u8]) -> bool {
+        if source.len() == 0{
+            self.is_done = true;
+        }
+        
         if self.is_done {
             return false;
         }

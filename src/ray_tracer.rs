@@ -34,7 +34,11 @@ use rand::prelude::*;
 pub struct RayTracer {
     pub max_depth: usize,
     pub n_shadow_samples: usize,
-    pub n_ambient_samples: usize,    
+    pub n_ambient_samples: usize, 
+    
+    
+    pub limit_weight: Float,
+    pub limit_reflections: usize,
 }
 
 impl Default for RayTracer{
@@ -42,7 +46,11 @@ impl Default for RayTracer{
         Self{
             max_depth: 2,
             n_shadow_samples: 10,
-            n_ambient_samples: 10,            
+            n_ambient_samples: 10,      
+            
+            
+            limit_weight: 1e-5,
+            limit_reflections: 0,
         }
     }
 }
@@ -50,11 +58,21 @@ impl Default for RayTracer{
 impl RayTracer {
 
      /// Recursively traces a ray
-     pub fn trace_ray(&self, rng: &mut ThreadRng, scene: &Scene, ray: &Ray, current_depth: usize) -> Spectrum {
+     pub fn trace_ray(&self, rng: &mut ThreadRng, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float) -> Spectrum {
         
         // Limit bounces        
         if current_depth > self.max_depth {
             return Spectrum::black();
+        }
+        // Check reflection limits... as described in RTRACE's man
+        if current_value < self.limit_weight && self.limit_reflections > 0 {
+            return Spectrum::black();
+        }else{
+            // russian roulette
+            let q : Float = rng.gen();
+            if q > current_value/self.limit_weight {
+                return Spectrum::black();
+            }
         }
 
         // If hits an object
@@ -114,11 +132,11 @@ impl RayTracer {
                                 }
                             };
                             let cos_theta = (normal * new_ray_dir).abs();
-                            let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1);
                             let material_pdf = material.bsdf(ray_dir, normal, new_ray_dir);
+                            let new_value = material.colour().red * material_pdf * cos_theta;
+                            let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1, new_value);
 
                             let fx = (li * cos_theta) * (material.colour() * material_pdf);
-
                             let denominator = material_pdf * bsdf_c;
 
                             // add contribution
@@ -260,7 +278,7 @@ impl RayTracer {
                     time: 1.,         // we will not use
                 });
                 let mut rng = rand::thread_rng();
-                buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0) * weight;
+                buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0, 1.) * weight;
                 // report
                 let progress = (100 * i) as Float / total_pixels as Float;
                 if (progress - progress.floor()) < 0.1 && (progress - last_progress).abs() > 1. {
@@ -310,6 +328,7 @@ mod tests {
 
         let integrator = RayTracer{
             n_shadow_samples: 3,
+            limit_weight: 0.001,
             .. RayTracer::default()   
         };
 
@@ -326,7 +345,7 @@ mod tests {
 
     #[test]
     fn render_scenes() {
-        return;
+        // return;
         compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
         compare_with_radiance("exterior_0_mirror.rad".to_string());
@@ -339,7 +358,7 @@ mod tests {
 
     #[test]
     fn test_2() {
-        return;
+        // return;
         // Build scene
         let mut scene = Scene::default();
 
@@ -463,7 +482,8 @@ mod tests {
         let integrator = RayTracer{
             n_ambient_samples: 3,
             n_shadow_samples: 1,
-            max_depth: 2
+            max_depth: 2,
+            .. RayTracer::default()
         };
 
         let buffer = integrator.render(&scene, &camera);

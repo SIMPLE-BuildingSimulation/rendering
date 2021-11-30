@@ -138,10 +138,20 @@ impl ImageBuffer {
 mod tests {
     use crate::PI;
     use super::*;
-    use std::os::raw::{c_double, c_int};
+    use std::os::raw::{c_int};
+    #[cfg(not(feature = "float"))]
+    use std::os::raw::{c_double};
+    #[cfg(feature = "float")]
+    use std::os::raw::{c_float};
 
+    #[cfg(not(feature = "float"))]
     extern "C" {
         fn frexp(x: c_double, exp: *mut c_int) -> c_double;
+    }
+
+    #[cfg(feature = "float")]
+    extern "C" {
+        fn frexp(x: c_float, exp: *mut c_int) -> c_float;
     }
 
     fn c_frexp(x: Float) -> (Float, i32) {
