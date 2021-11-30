@@ -664,7 +664,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-<span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RefCount</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Camera</span>, <span class="ident">CameraSample</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::image::ImageBuffer</span>;
@@ -856,7 +856,7 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">get_local_illumination</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
-        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">Rc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span><span class="op">&gt;</span>,
+        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">RefCount</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span><span class="op">&gt;</span>,
         <span class="ident">vin</span>: <span class="ident">Vector3D</span>,
         <span class="ident">point</span>: <span class="ident">Point3D</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,        
@@ -873,7 +873,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">bsdf_c</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">total_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
         <span class="kw">let</span> <span class="ident">light_c</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">total_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sample_light_array</span> <span class="op">=</span> <span class="op">|</span><span class="ident">lights</span>: <span class="kw-2">&amp;</span>[<span class="ident">Rc</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>]<span class="op">|</span>{            
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">sample_light_array</span> <span class="op">=</span> <span class="op">|</span><span class="ident">lights</span>: <span class="kw-2">&amp;</span>[<span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>]<span class="op">|</span>{            
             <span class="kw">for</span> <span class="ident">light</span> <span class="kw">in</span> <span class="ident">lights</span>.<span class="ident">iter</span>() {
                 <span class="kw">let</span> <span class="ident">sampler</span> <span class="op">=</span> <span class="ident">light</span>.<span class="ident">primitive</span>.<span class="ident">direction_sampler</span>(<span class="ident">origin</span>, <span class="self">self</span>.<span class="ident">n_shadow_samples</span>);
                 <span class="kw">for</span> <span class="ident">light_direction</span> <span class="kw">in</span> <span class="ident">sampler</span> {            
@@ -991,7 +991,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">render_scenes</span>() {
-        <span class="comment">// return;</span>
+        <span class="kw">return</span>;
         <span class="ident">compare_with_radiance</span>(<span class="string">&quot;exterior_0_diffuse_plastic.rad&quot;</span>.<span class="ident">to_string</span>());
         <span class="comment">// compare_with_radiance(&quot;exterior_0_specularity.rad&quot;.to_string());</span>
         <span class="ident">compare_with_radiance</span>(<span class="string">&quot;exterior_0_mirror.rad&quot;</span>.<span class="ident">to_string</span>());
@@ -1000,15 +1000,15 @@ SOFTWARE.
 
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Light</span>, <span class="ident">Mirror</span>, <span class="ident">Plastic</span>};
     <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">DistantSource3D</span>, <span class="ident">Triangle3D</span>, <span class="ident">Sphere3D</span>};
-    <span class="kw">use</span> <span class="ident">std::rc::Rc</span>;
+    
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_2</span>() {
-        <span class="comment">// return;</span>
+        <span class="kw">return</span>;
         <span class="comment">// Build scene</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::default</span>();
 
-        <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Rc::new</span>(<span class="ident">Plastic</span> {
+        <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">RefCount::new</span>(<span class="ident">Plastic</span> {
             <span class="ident">red</span>: <span class="number">0.55</span>,
             <span class="ident">green</span>: <span class="number">0.15</span>,
             <span class="ident">blue</span>: <span class="number">0.15</span>,
@@ -1016,7 +1016,7 @@ SOFTWARE.
             <span class="ident">roughness</span>: <span class="number">0.</span>,
         }));
 
-        <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Rc::new</span>(<span class="ident">Plastic</span> {
+        <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">RefCount::new</span>(<span class="ident">Plastic</span> {
             <span class="ident">red</span>: <span class="number">0.15</span>,
             <span class="ident">green</span>: <span class="number">0.15</span>,
             <span class="ident">blue</span>: <span class="number">0.15</span>,
@@ -1024,7 +1024,7 @@ SOFTWARE.
             <span class="ident">roughness</span>: <span class="number">0.</span>,
         }));
 
-        <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Rc::new</span>(<span class="ident">Mirror</span> {
+        <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">RefCount::new</span>(<span class="ident">Mirror</span> {
             <span class="ident">red</span>: <span class="number">0.8</span>,
             <span class="ident">green</span>: <span class="number">0.99</span>,
             <span class="ident">blue</span>: <span class="number">0.8</span>,
@@ -1073,7 +1073,7 @@ SOFTWARE.
             ).<span class="ident">unwrap</span>()),
         );
 
-        <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Rc::new</span>(<span class="ident">Light</span> {
+        <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">RefCount::new</span>(<span class="ident">Light</span> {
             <span class="ident">red</span>: <span class="number">10000.</span>,
             <span class="ident">green</span>: <span class="number">10000.</span>,
             <span class="ident">blue</span>: <span class="number">10000.</span>,
@@ -1097,7 +1097,7 @@ SOFTWARE.
             )),
         );
 
-        <span class="kw">let</span> <span class="ident">lightbulb</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Rc::new</span>(<span class="ident">Light</span> {
+        <span class="kw">let</span> <span class="ident">lightbulb</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">RefCount::new</span>(<span class="ident">Light</span> {
             <span class="ident">red</span>: <span class="number">100.</span>,
             <span class="ident">green</span>: <span class="number">100.</span>,
             <span class="ident">blue</span>: <span class="number">100.</span>,
@@ -1143,7 +1143,7 @@ SOFTWARE.
          <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::default</span>();
         
          <span class="comment">// Add a Light</span>
-         <span class="kw">let</span> <span class="ident">lightbulb</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Rc::new</span>(<span class="ident">Light</span> {
+         <span class="kw">let</span> <span class="ident">lightbulb</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">RefCount::new</span>(<span class="ident">Light</span> {
              <span class="ident">red</span>: <span class="number">100.</span>,
              <span class="ident">green</span>: <span class="number">100.</span>,
              <span class="ident">blue</span>: <span class="number">100.</span>,
@@ -1156,7 +1156,7 @@ SOFTWARE.
          );
  
          <span class="comment">// Add a material and an object</span>
-         <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Rc::new</span>(<span class="ident">Plastic</span> {
+         <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">RefCount::new</span>(<span class="ident">Plastic</span> {
              <span class="ident">red</span>: <span class="number">0.15</span>,
              <span class="ident">green</span>: <span class="number">0.15</span>,
              <span class="ident">blue</span>: <span class="number">0.15</span>,

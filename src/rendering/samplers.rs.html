@@ -373,7 +373,7 @@ SOFTWARE.
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
             <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>);
 
-            <span class="kw">if</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">100.</span> <span class="op">*</span> <span class="ident">Float::EPSILON</span> {
+            <span class="kw">if</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">1e-5</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})&quot;</span>, <span class="ident">dir</span>, <span class="ident">dir</span>.<span class="ident">length</span>()));
             }
             <span class="kw">if</span> <span class="ident">dir</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&lt;</span> <span class="number">0.</span> {
