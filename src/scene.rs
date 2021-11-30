@@ -18,7 +18,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use std::rc::Rc;
+// use std::rc::RefCount;
+use crate::RefCount;
 use crate::Float;
 use crate::material::Material;
 use crate::sampleable_trait::Sampleable;
@@ -33,7 +34,7 @@ pub struct Object {
     pub primitive: Box<dyn Sampleable>,
     pub front_material_index: usize,
     pub back_material_index: usize,
-    pub texture: Option<Rc<Transform>>,
+    pub texture: Option<RefCount<Transform>>,
 }
 
 
@@ -42,22 +43,22 @@ pub struct Scene {
     /// Objects in the scene that are not tested
     /// directly for shadow (e.g., non-luminous objects
     /// and diffuse light)
-    pub objects: Vec<Rc<Object>>,
+    pub objects: Vec<RefCount<Object>>,
     
     /// The materials in the scene
-    pub materials: Vec<Rc<dyn Material>>,
+    pub materials: Vec<RefCount<dyn Material>>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light
-    pub lights: Vec<Rc<Object>>,
+    pub lights: Vec<RefCount<Object>>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light
-    pub distant_lights: Vec<Rc<Object>>,
+    pub distant_lights: Vec<RefCount<Object>>,
 
-    pub transforms: Vec<Rc<Transform>>,
+    pub transforms: Vec<RefCount<Transform>>,
 
-    pub textures: Vec<Rc<Texture>>,
+    pub textures: Vec<RefCount<Texture>>,
 }
 
 impl Scene {
@@ -85,7 +86,7 @@ impl Scene {
         // let mut material_index = usize::MAX;
         let mut intersected = false;
         let mut info : Option<IntersectionInfo> = None;
-        let mut object: Option<Rc<Object>> = None;
+        let mut object: Option<RefCount<Object>> = None;
         
         // let mut is_object = false;
         // let mut is_light = false;
@@ -100,7 +101,7 @@ impl Scene {
                 // Is it a valid hit and it is earlier than the rest?
                 if this_t_squared > MIN_T && this_t_squared < t_squared {                    
                     t_squared = this_t_squared;
-                    object = Some(Rc::clone(this_object));                    
+                    object = Some(RefCount::clone(this_object));                    
                     info = Some(intersection_info);
                     intersected = true;
                     // is_object = true;
@@ -118,7 +119,7 @@ impl Scene {
                     
                     t_squared = this_t_squared;
                     info = Some(intersection_info);
-                    object = Some(Rc::clone(this_object));                    
+                    object = Some(RefCount::clone(this_object));                    
                     intersected = true;
                     // is_light = true;
                 }
@@ -136,7 +137,7 @@ impl Scene {
                         
                         t_squared = this_t_squared;
                         info = Some(intersection_info);
-                        object = Some(Rc::clone(this_object));                        
+                        object = Some(RefCount::clone(this_object));                        
                         intersected = true;
                         // is_distant_light = true;
                     }
@@ -214,7 +215,7 @@ impl Scene {
     }
 
     /// Pushes a [`Material`] to the [`Scene`]
-    pub fn push_material(&mut self, material: Rc<dyn Material>) -> usize {
+    pub fn push_material(&mut self, material: RefCount<dyn Material>) -> usize {
         self.materials.push(material);
         // return
         self.materials.len() - 1
@@ -257,13 +258,13 @@ impl Scene {
             // only do this while creating the scene, not while
             // rendering
             if ob_id == "source"{                 
-                self.distant_lights.push(Rc::new(object));
+                self.distant_lights.push(RefCount::new(object));
             }else{
-                self.lights.push(Rc::new(object))
+                self.lights.push(RefCount::new(object))
             }        
         }else{
             // Push
-            self.objects.push(Rc::new(object));
+            self.objects.push(RefCount::new(object));
         }
 
         // return

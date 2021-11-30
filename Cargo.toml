@@ -21,6 +21,7 @@ harness = false
 [features]
 default = []
 float = ["geometry3d/float"]
+parallel = []
 
 
 [profile.release]

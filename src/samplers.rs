@@ -159,7 +159,7 @@ mod tests {
             let mut rng = rand::thread_rng();
             let dir = uniform_sample_hemisphere(&mut rng, e1, e2, normal);
 
-            if (1. - dir.length()).abs() > 100. * Float::EPSILON {
+            if (1. - dir.length()).abs() > 1e-5 {
                 return Err(format!("Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})", dir, dir.length()));
             }
             if dir * normal < 0. {

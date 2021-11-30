@@ -34,9 +34,10 @@ type Float = f64;
 #[cfg(not(feature = "float"))]
 const PI: Float = std::f64::consts::PI;
 
-
-// type RefCount<T> = std::rc::Rc<T>;
-
+#[cfg(feature = "float")]
+type RefCount<T> = std::sync::Arc<T>;
+#[cfg(not(feature = "float"))]
+type RefCount<T> = std::rc::Rc<T>;
 
 // Core
 pub mod ray;

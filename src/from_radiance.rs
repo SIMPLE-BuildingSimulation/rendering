@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use std::rc::Rc;
+use crate::RefCount;
 use crate::Float;
 
 use crate::material::{Light, Metal, Mirror, Plastic};
@@ -68,7 +68,7 @@ impl Scanner {
         if source.len() == 0{
             self.is_done = true;
         }
-        
+
         if self.is_done {
             return false;
         }
@@ -201,7 +201,7 @@ impl Scanner {
             specularity,
             roughness,
         };
-        scene.push_material(Rc::new(metal));
+        scene.push_material(RefCount::new(metal));
     }
 
     /// Consumes a Plastic material
@@ -233,7 +233,7 @@ impl Scanner {
             specularity,
             roughness,
         };
-        scene.push_material(Rc::new(plastic));
+        scene.push_material(RefCount::new(plastic));
     }
 
     /// Consumes a Light material
@@ -257,7 +257,7 @@ impl Scanner {
         self.modifiers.push(name.clone());
 
         let light = Light { red, green, blue };
-        scene.push_material(Rc::new(light));
+        scene.push_material(RefCount::new(light));
     }
 
     /// Consumes a Light material
@@ -281,7 +281,7 @@ impl Scanner {
         self.modifiers.push(name.clone());
 
         let mirror = Mirror { red, green, blue };
-        scene.push_material(Rc::new(mirror));
+        scene.push_material(RefCount::new(mirror));
     }
 
     /// Consumes a sphere

@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use std::rc::Rc;
+use crate::RefCount;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D, Transform};
 use geometry3d::intersect_trait::SurfaceSide;
@@ -108,7 +108,7 @@ pub struct SurfaceInteractionData{
     pub texture_shading: Option<ShadingInfo>,
 
     /// The [`Object`] in the scene 
-    pub object: Rc<Object>,    
+    pub object: RefCount<Object>,    
 }
 
 
@@ -133,7 +133,7 @@ impl SurfaceInteractionData {
             time,
             geometry_shading,
             texture_shading,            
-            object: Rc::clone(&self.object)
+            object: RefCount::clone(&self.object)
         }
     }
 
@@ -151,7 +151,7 @@ impl SurfaceInteractionData {
 
 pub enum Interaction{
     Surface(SurfaceInteractionData), 
-    Endpoint(Option<Rc<Object>>) 
+    Endpoint(Option<RefCount<Object>>) 
 }
 
 impl std::fmt::Debug for Interaction {
@@ -199,7 +199,7 @@ impl Interaction{
         }
     }
 
-    pub fn object(&self)->&Rc<Object>{
+    pub fn object(&self)->&RefCount<Object>{
         match self{
             Self::Surface(d)=>&d.object,
             _ => panic!("{:?} has no normals", self)

@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use std::rc::Rc;
+use crate::RefCount;
 use crate::Float;
 use crate::camera::{Camera, CameraSample};
 use crate::image::ImageBuffer;
@@ -210,7 +210,7 @@ impl RayTracer {
     fn get_local_illumination(
         &self,
         scene: &Scene,
-        material: &Rc<dyn Material>,
+        material: &RefCount<dyn Material>,
         vin: Vector3D,
         point: Point3D,
         normal: Vector3D,        
@@ -227,7 +227,7 @@ impl RayTracer {
         let bsdf_c = self.n_ambient_samples as Float / total_samples as Float;
         let light_c = self.n_shadow_samples as Float / total_samples as Float;
 
-        let mut sample_light_array = |lights: &[Rc<Object>]|{            
+        let mut sample_light_array = |lights: &[RefCount<Object>]|{            
             for light in lights.iter() {
                 let sampler = light.primitive.direction_sampler(origin, self.n_shadow_samples);
                 for light_direction in sampler {            
@@ -345,7 +345,7 @@ mod tests {
 
     #[test]
     fn render_scenes() {
-        // return;
+        return;
         compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
         compare_with_radiance("exterior_0_mirror.rad".to_string());
@@ -354,15 +354,15 @@ mod tests {
 
     use crate::material::{Light, Mirror, Plastic};
     use geometry3d::{DistantSource3D, Triangle3D, Sphere3D};
-    use std::rc::Rc;
+    
 
     #[test]
     fn test_2() {
-        // return;
+        return;
         // Build scene
         let mut scene = Scene::default();
 
-        let red = scene.push_material(Rc::new(Plastic {
+        let red = scene.push_material(RefCount::new(Plastic {
             red: 0.55,
             green: 0.15,
             blue: 0.15,
@@ -370,7 +370,7 @@ mod tests {
             roughness: 0.,
         }));
 
-        let green = scene.push_material(Rc::new(Plastic {
+        let green = scene.push_material(RefCount::new(Plastic {
             red: 0.15,
             green: 0.15,
             blue: 0.15,
@@ -378,7 +378,7 @@ mod tests {
             roughness: 0.,
         }));
 
-        let mirror = scene.push_material(Rc::new(Mirror {
+        let mirror = scene.push_material(RefCount::new(Mirror {
             red: 0.8,
             green: 0.99,
             blue: 0.8,
@@ -427,7 +427,7 @@ mod tests {
             ).unwrap()),
         );
 
-        let up = scene.push_material(Rc::new(Light {
+        let up = scene.push_material(RefCount::new(Light {
             red: 10000.,
             green: 10000.,
             blue: 10000.,
@@ -451,7 +451,7 @@ mod tests {
             )),
         );
 
-        let lightbulb = scene.push_material(Rc::new(Light {
+        let lightbulb = scene.push_material(RefCount::new(Light {
             red: 100.,
             green: 100.,
             blue: 100.,
@@ -497,7 +497,7 @@ mod tests {
          let mut scene = Scene::default();
         
          // Add a Light
-         let lightbulb = scene.push_material(Rc::new(Light {
+         let lightbulb = scene.push_material(RefCount::new(Light {
              red: 100.,
              green: 100.,
              blue: 100.,
@@ -510,7 +510,7 @@ mod tests {
          );
  
          // Add a material and an object
-         let green = scene.push_material(Rc::new(Plastic {
+         let green = scene.push_material(RefCount::new(Plastic {
              red: 0.15,
              green: 0.15,
              blue: 0.15,
