@@ -22,3 +22,21 @@ jobs:
     - uses: actions/checkout@v1   
     - name: Build Float
       run: cargo build --verbose --features float 
+  build:
+    runs-on: ubuntu-latest    
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build
+      run: cargo build --verbose
+  build_parallel:    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build Float
+      run: cargo build --verbose --features parallel
+  build_parallel_float:    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build Float
+      run: cargo build --verbose --features parallel --features float

@@ -18,15 +18,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use rand::prelude::*;
+// use rand::prelude::*;
+
+use crate::rand::*;
 
 use crate::{Float,PI};
 use crate::samplers::*;
 use geometry3d::intersect_trait::Intersect;
 use geometry3d::{Point3D, Triangle3D, Vector3D, Sphere3D, DistantSource3D};
 
+#[cfg(feature = "parallel")]
+pub trait SampleableRequirements: Intersect + Sync + Send {}
 
-pub trait Sampleable: Intersect {
+#[cfg(feature = "parallel")]
+impl<T: Intersect + Sync + Send> SampleableRequirements for T {}
+
+#[cfg(not(feature = "parallel"))]
+pub trait SampleableRequirements: Intersect {}
+
+#[cfg(not(feature = "parallel"))]
+impl<T: Intersect> SampleableRequirements for T {}
+
+
+pub trait Sampleable : SampleableRequirements {
     /// Receives a [`Point3D`] and returns the distance `t`
     /// and a NORMALIZEd [`Vector3D`] pointing towards it
     fn direction(&self, point: Point3D) -> (Float, Vector3D);
@@ -77,7 +91,7 @@ pub struct TriangleSurfaceSampler {
     pub c: Point3D,
     pub n_samples: usize,
     pub i: usize,
-    pub rng: ThreadRng,
+    pub rng: RandGen,
 }
 
 impl Iterator for TriangleSurfaceSampler {
@@ -124,7 +138,7 @@ impl Sampleable for Triangle3D {
                 c: self.c(),
                 n_samples,
                 i: 0,
-                rng: rand::thread_rng(),
+                rng: get_rng(),
             }
         })
     }
@@ -136,7 +150,7 @@ impl Sampleable for Triangle3D {
             c: self.c(),
             n_samples,
             i: 0,
-            rng: rand::thread_rng(),
+            rng: get_rng(),
         })
     }
 }
@@ -167,7 +181,7 @@ pub struct SphereDirectionSampler {
     pub radius: Float,
     pub n_samples: usize,
     pub i: usize,
-    pub rng: ThreadRng,
+    pub rng: RandGen,
 }
 
 impl Iterator for SphereDirectionSampler {
@@ -199,8 +213,10 @@ pub struct SphereSurfaceSampler {
     pub radius: Float,
     pub n_samples: usize,
     pub i: usize,
-    pub rng: ThreadRng,
+    pub rng: RandGen,
 }
+
+
 
 impl Iterator for SphereSurfaceSampler {
     type Item = Point3D;
@@ -255,7 +271,7 @@ impl Sampleable for Sphere3D {
                 radius: self.radius,
                 centre: centre,
                 i: 0,
-                rng: rand::thread_rng(),
+                rng: get_rng(),
             })
         }else{
             Box::new(InsideSphereDirectionSampler {    
@@ -265,7 +281,7 @@ impl Sampleable for Sphere3D {
                     radius: self.radius,
                     n_samples,
                     i: 0,
-                    rng: rand::thread_rng(),
+                    rng: get_rng(),
                 }
             })
         }
@@ -278,7 +294,7 @@ impl Sampleable for Sphere3D {
             radius: self.radius,
             n_samples,
             i: 0,
-            rng: rand::thread_rng(),
+            rng: get_rng(),
         })
     }
 }
@@ -295,7 +311,7 @@ pub struct DistantSourceSampler {
     pub radius: Float,
     pub n_samples: usize,
     pub i: usize,
-    pub rng: ThreadRng,
+    pub rng: RandGen,
 }
 
 impl Iterator for DistantSourceSampler {
@@ -342,7 +358,7 @@ impl Sampleable for DistantSource3D {
             ray_origin: point,
             centre: point + normal,
             i: 0,
-            rng: rand::thread_rng(),
+            rng: get_rng(),
         })
     }
 }

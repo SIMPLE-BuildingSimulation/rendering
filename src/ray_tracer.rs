@@ -26,10 +26,9 @@ use crate::scene::{Scene, Object};
 use geometry3d::{Ray3D, Point3D, Vector3D};
 use crate::colour::Spectrum;
 use geometry3d::intersect_trait::SurfaceSide;
-use crate::material::Material;
 use crate::ray::Ray;
 use crate::interaction::Interaction;
-use rand::prelude::*;
+use crate::rand::*;
 
 pub struct RayTracer {
     pub max_depth: usize,
@@ -58,7 +57,7 @@ impl Default for RayTracer{
 impl RayTracer {
 
      /// Recursively traces a ray
-     pub fn trace_ray(&self, rng: &mut ThreadRng, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float) -> Spectrum {
+     pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float) -> Spectrum {
         
         // Limit bounces        
         if current_depth > self.max_depth {
@@ -96,18 +95,26 @@ impl RayTracer {
                         },
                         SurfaceSide::Back =>{
                             &scene.materials[object.back_material_index]
-                        }                        
+                        },
+                        SurfaceSide::NonApplicable => {
+                            // Hit parallel to the surface
+                            return Spectrum::black()
+                        }                    
                     };
+                    
                     
                     let intersection_pt = ray.geometry.project(t);
                     
                     let ray_dir = ray.geometry.direction;
 
-                   
+
+                    let materal_colour = material.colour();
+                    let bsdf_eval = material.bsdf_evaluator(data.geometry_shading);
                     /* SAMPLE LIGHTS */
                     let local = self.get_local_illumination(
                         scene,
-                        material,
+                        materal_colour,
+                        bsdf_eval,                        
                         ray_dir,
                         intersection_pt,
                         normal                
@@ -120,10 +127,14 @@ impl RayTracer {
                         let n_lights = scene.count_all_lights();
                         let total_samples = self.n_ambient_samples + n_lights * self.n_shadow_samples;
                         let bsdf_c = self.n_ambient_samples as Float / total_samples as Float;
-                        for _ in 0..self.n_ambient_samples {
+                        let bsdf_sampler = material.bsdf_sampler(data.geometry_shading);
+                        
+                        
+                        for _ in 0..self.n_ambient_samples {                           
                             // Choose a direction.
-                            let new_ray_dir = material.sample_bsdf(rng, ray_dir, data.geometry_shading);
-                            debug_assert!((1.-new_ray_dir.length()).abs() < 0.0000001);
+                            let (new_ray_dir, material_pdf) = bsdf_sampler(ray_dir, rng);                            
+                            debug_assert!((1. - new_ray_dir.length()).abs() < 0.0000001);
+
                             let new_ray = Ray{
                                 time: ray.time,
                                 geometry: Ray3D {
@@ -132,7 +143,7 @@ impl RayTracer {
                                 }
                             };
                             let cos_theta = (normal * new_ray_dir).abs();
-                            let material_pdf = material.bsdf(ray_dir, normal, new_ray_dir);
+                            // let material_pdf = material.bsdf(ray_dir, normal, new_ray_dir);
                             let new_value = material.colour().red * material_pdf * cos_theta;
                             let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1, new_value);
 
@@ -192,6 +203,10 @@ impl RayTracer {
             }
             SurfaceSide::Back => {
                 &scene.materials[light.back_material_index]
+            },
+            SurfaceSide::NonApplicable => {
+                // Hit parallel to the surface
+                return (Spectrum::black(), 0.0) ;
             }
         };
 
@@ -210,7 +225,8 @@ impl RayTracer {
     fn get_local_illumination(
         &self,
         scene: &Scene,
-        material: &RefCount<dyn Material>,
+        mat_colour: Spectrum,
+        bsdf_eval: Box<dyn Fn(Vector3D, Vector3D)->Float>,        
         vin: Vector3D,
         point: Point3D,
         normal: Vector3D,        
@@ -245,9 +261,9 @@ impl RayTracer {
                     // Denominator of the Balance Heuristic... I am assuming that
                     // when one light has a pdf>0, then all the rest are Zero... is this
                     // correct?
-                    let material_pdf = material.bsdf(shadow_ray.direction * -1., normal, vin );
+                    let material_pdf = bsdf_eval(shadow_ray.direction * -1., vin );
                     let denominator = material_pdf * bsdf_c + light_pdf * light_c;
-                    let fx = (light_colour * cos_theta) * (material.colour() * material_pdf);
+                    let fx = (light_colour * cos_theta) * (mat_colour * material_pdf);
     
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
                     ret += fx / denominator;
@@ -270,6 +286,7 @@ impl RayTracer {
 
         let mut last_progress: Float = 0.0;
         let mut i = 0;
+        let rng_src = get_rng();
         for y in 0..height {
             for x in 0..width {
                 let (ray, weight) = camera.gen_ray(&CameraSample {
@@ -277,7 +294,7 @@ impl RayTracer {
                     p_lens: (0., 0.), // we will not use this
                     time: 1.,         // we will not use
                 });
-                let mut rng = rand::thread_rng();
+                let mut rng = clone_rng(&rng_src);
                 buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0, 1.) * weight;
                 // report
                 let progress = (100 * i) as Float / total_pixels as Float;
@@ -345,7 +362,7 @@ mod tests {
 
     #[test]
     fn render_scenes() {
-        return;
+        // return;
         compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
         compare_with_radiance("exterior_0_mirror.rad".to_string());
@@ -358,7 +375,7 @@ mod tests {
 
     #[test]
     fn test_2() {
-        return;
+        // return;
         // Build scene
         let mut scene = Scene::default();
 
@@ -565,16 +582,22 @@ mod tests {
                         },
                         SurfaceSide::Back =>{
                             return Err(format!("Z = {} | Expecting intersection to be at the Front of the sphere", given_z_origin))
-                        }                        
+                        },
+                        SurfaceSide::NonApplicable => {
+                            return Ok(())
+                        }                     
                     };
 
                     let intersection_pt = ray.geometry.project(t);
                     
                     let ray_dir = ray.geometry.direction;
 
+                    let mat_colour = material.colour();
+                    let bsdf_eval = material.bsdf_evaluator(data.geometry_shading);
                     let local_light = integrator.get_local_illumination(
                         &scene,
-                        material,
+                        mat_colour,
+                        bsdf_eval,
                         ray_dir,
                         intersection_pt,
                         normal                

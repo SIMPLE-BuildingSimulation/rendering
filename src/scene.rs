@@ -80,35 +80,41 @@ impl Scene {
     /// is the index of the [`Material`] encountered, and the `Float` is the distance 
     /// that the [`Ray3D`] travelled to it.    
     pub fn cast_ray(&self, ray: &Ray) -> Option<(Float,Interaction)> {
+        // eprintln!("cast ray 1");
         const MIN_T: Float = 0.000001;
 
         let mut t_squared = Float::MAX;
-        // let mut material_index = usize::MAX;
+        
         let mut intersected = false;
         let mut info : Option<IntersectionInfo> = None;
         let mut object: Option<RefCount<Object>> = None;
-        
+        // eprintln!("cast ray 2");
         // let mut is_object = false;
         // let mut is_light = false;
         // let mut is_distant_light = false;
 
         // Test objects
         for this_object in self.objects.iter() {
+            // eprintln!("cast ray 2.0");
             if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
-                
+                // eprintln!("cast ray 2.1");
                 let this_t_squared = (intersection_info.p - ray.origin()).length_squared();
-
+                // eprintln!("cast ray 2.2");
                 // Is it a valid hit and it is earlier than the rest?
                 if this_t_squared > MIN_T && this_t_squared < t_squared {                    
+                    // eprintln!("cast ray 2.2.1");
                     t_squared = this_t_squared;
                     object = Some(RefCount::clone(this_object));                    
                     info = Some(intersection_info);
                     intersected = true;
                     // is_object = true;
                 }
+                // eprintln!("cast ray 2.3");
+            }else{
+                // eprintln!("cast_ray ;;;; did not intersect?")
             }
         }
-
+        // eprintln!("cast ray 3");
         // Test lights
         for this_object in self.lights.iter() {
             if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
@@ -125,7 +131,7 @@ impl Scene {
                 }
             }
         }
-
+        // eprintln!("cast ray 4");
         // if no intersection yet
         if !intersected{
             for this_object in self.distant_lights.iter() {
@@ -145,16 +151,20 @@ impl Scene {
                 
             }
         }
+        // eprintln!("cast ray 5");
 
         // Return
         if !intersected {
+            // eprintln!("cast ray ... return None");
             None
         } else {
+            // eprintln!("cast ray 6");
             let info = info.unwrap();
             let object = object.unwrap();
             let t = t_squared.sqrt();  
                     
             let point = ray.geometry.project(t);
+            // eprintln!("cast ray 7");
             let data = SurfaceInteractionData{
                 point,
                 // perror: info.perror,
@@ -174,6 +184,7 @@ impl Scene {
                 object,
             };
 
+            // eprintln!("cast ray 8");
             Some((t,Interaction::Surface(data)))
         }
     }

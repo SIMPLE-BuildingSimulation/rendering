@@ -1,18 +1,31 @@
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use rendering::samplers::local_to_world;
-use geometry3d::{Point3D,Vector3D};
+type Float = f64;
+use rendering::rand::*;
+const PI : Float = std::f64::consts::PI;
 
 
+
+
+
+
+
+
+// use rand::distributions::{Distribution, Uniform};
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let normal = black_box(Vector3D::new(0., 1., 0.));
-    let pt = black_box(Point3D::new(0., 0., 0.));
-    let e2 = normal.get_perpendicular().unwrap();
-    let e1 = e2.cross(normal);
-    c.bench_function("local_to_world", |b| b.iter(|| local_to_world(
-        normal, e1, e2, pt,
-        black_box(9.), black_box(19.), black_box(11.), 
-    )));
+    
+    
+    // let mut rng = black_box(rand::thread_rng());
+    let rng_src = black_box(get_rng());
+    let mut rng = clone_rng(&rng_src);
+
+    
+    c.bench_function("uniform_sample_horizontal_disc", |b| b.iter(|| 
+        rendering::samplers::uniform_sample_horizontal_disc(&mut rng, black_box(1.))        
+    ));
+    c.bench_function("sample_cosine_weighted_horizontal_hemisphere", |b| b.iter(|| 
+        rendering::samplers::sample_cosine_weighted_horizontal_hemisphere(&mut rng)        
+    ));
 }
 
 criterion_group!(benches, criterion_benchmark);

@@ -17,22 +17,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-use rand::prelude::*;
+
 use crate::{Float,PI};
 use crate::colour::Spectrum;
-use crate::samplers::cosine_weighted_sample_hemisphere;
-use geometry3d::Vector3D;
+use crate::samplers::{sample_cosine_weighted_horizontal_hemisphere, local_to_world};
+use geometry3d::{Vector3D, Point3D};
 use crate::interaction::ShadingInfo;
+use crate::rand::RandGen;
 
 fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
-    debug_assert!((vin.length() - 1.).abs() < 100. * Float::EPSILON);
-    debug_assert!((normal.length() - 1.).abs() < 100. * Float::EPSILON);
+    debug_assert!((vin.length() - 1.).abs() < 1e-6);
+    debug_assert!((normal.length() - 1.).abs() < 1e-6);
     let mut ret = vin - normal * (2. * (vin * normal));
     ret.normalize();
     ret
 }
 
-pub trait Material {
+
+pub trait Material : Sync + Send{
     /// Retrieves the Colour of the material. This will usually
     /// represent the values that will multiply the different
     /// elements of the [`Spectrum`]. E.g., the reflectance values.
@@ -52,13 +54,29 @@ pub trait Material {
         false
     }
 
-    /// Gets the BSDF's value for a certain combination of Vin, Vout and Normal
-    /// [`Vector3D`]s.
-    fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> Float;
+    /// Gets a closure that allows calculating and sampling the BSDF of the material
+    /// according to a certain `ShadingInfo`. The closure receives a `Vector3D` corresponding
+    /// to the incident direction in world's coordinates, and returns the outgoing direction
+    /// as well as the probability of going in that direction.
+    /// 
+    /// # Note
+    /// 
+    /// When implementing forward/backard ray-tracing, modifications will have to be made 
+    /// to this function.
+    fn bsdf_sampler(&self, shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, &mut RandGen)->(Vector3D,Float)>;
 
-    /// Gets a sample associated to the bsdf
-    fn sample_bsdf(&self, rng: &mut ThreadRng, vout: Vector3D, shading_info: ShadingInfo) -> Vector3D;
+    /// Gets a closure that allows calculating and sampling the BSDF of the material
+    /// according to a certain `ShadingInfo`. The closure receives two `Vector3D`s, corresponding
+    /// to the incident and outgoing directions in world's coordinates, and returns the 
+    /// value of the BSDF accordingly.
+    /// 
+    /// # Note
+    /// 
+    /// When implementing forward/backard ray-tracing, modifications will have to be made 
+    /// to this function.
+    fn bsdf_evaluator(&self, shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, Vector3D)->Float>;
 
+    
     /// Does this material scatter (e.g., like [`Plastic`]) or does it
     /// only transmit/reflects specularly (e.g., like [`Mirror`])?
     ///
@@ -67,6 +85,7 @@ pub trait Material {
         false
     }
 }
+
 
 pub struct Light {
     pub red: Float,
@@ -91,14 +110,21 @@ impl Material for Light {
     }
 
     // Lights don't reflect...?
-    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> Float {
-        0.0
+    fn bsdf_sampler(&self, _: ShadingInfo) -> Box<dyn Fn(Vector3D, &mut RandGen)-> (Vector3D,Float)> {
+        Box::new(|_vin: Vector3D, _rng: &mut RandGen|{
+            panic!("Trying to build a BSDF for a Light material")
+        })
     }
 
-    fn sample_bsdf(&self, _rng: &mut ThreadRng, _vout: Vector3D, _shading_info: ShadingInfo) -> Vector3D {
-        panic!("Trying to sample the BSDF of a Light material")
+    fn bsdf_evaluator(&self, _: ShadingInfo) -> Box<dyn Fn(Vector3D, Vector3D)-> Float> {
+        Box::new(|_vin: Vector3D, _vout: Vector3D|{
+            0.0
+        })
     }
+
+    
 }
+
 
 pub struct Metal {
     pub red: Float,
@@ -118,19 +144,42 @@ impl Material for Metal {
     }
 
     // Assume lambertian, for now
-    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> Float {
-        const ONE_OVER_PI: Float = 1. / PI;
-        ONE_OVER_PI
+    fn bsdf_sampler(&self, shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, &mut RandGen)-> (Vector3D, Float)> {
+        
+        let normal = shading_info.normal.get_normalized();
+        let e1 = shading_info.dpdu.get_normalized();
+        let e2 = e1.cross(normal).get_normalized();
+        Box::new(move |_vin: Vector3D, rng: &mut RandGen|{    
+            // Probability
+            const ONE_OVER_PI: Float = 1. / PI;
+            let prob = ONE_OVER_PI;
+
+            let local_dir = sample_cosine_weighted_horizontal_hemisphere(rng);
+            debug_assert!( (local_dir.length() - 1.).abs() < 1e-8);
+            debug_assert!( (e1*e2).abs() < 1e-8);
+            debug_assert!( (e1*normal).abs() < 1e-8);
+            debug_assert!( (e2*normal).abs() < 1e-8);
+
+            let (x,y,z) = local_to_world(e1, e2, normal, Point3D::new(0., 0., 0.), local_dir.x, local_dir.y, local_dir.z);
+            let dir = Vector3D::new(x,y,z);
+            // debug_assert!( (dir.length() - 1.).abs() < 1e-4);
+            (dir, prob)
+        })
     }
 
-    fn sample_bsdf(&self, rng: &mut ThreadRng,_vout: Vector3D, shading_info: ShadingInfo) -> Vector3D {
-        // let mut rng = rand::thread_rng();
-        let normal = shading_info.normal;
-        let e1 = shading_info.dpdu;
-        let e2 = shading_info.dpdv;
-        cosine_weighted_sample_hemisphere(rng, e1, e2, normal)
+    
+    fn bsdf_evaluator(&self, _shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, Vector3D)-> Float> {
+        Box::new(|_vin: Vector3D, _vout: Vector3D|{            
+            // Probability
+            const ONE_OVER_PI: Float = 1. / PI;
+            ONE_OVER_PI
+        })
     }
+    
+
+    
 }
+
 
 pub struct Plastic {
     pub red: Float,
@@ -150,19 +199,39 @@ impl Material for Plastic {
     }
 
     // Assume lambertian, for now
-    fn bsdf(&self, _: Vector3D, _: Vector3D, _: Vector3D) -> Float {
-        const ONE_OVER_PI: Float = 1. / PI;
-        ONE_OVER_PI
+    fn bsdf_sampler(&self, shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, &mut RandGen)-> (Vector3D, Float)> {
+        
+        let normal = shading_info.normal.get_normalized();
+        let e1 = shading_info.dpdu.get_normalized();
+        let e2 = e1.cross(normal).get_normalized();
+        Box::new(move |_vin: Vector3D, rng: &mut RandGen|{    
+            // Probability
+            const ONE_OVER_PI: Float = 1. / PI;
+            let prob = ONE_OVER_PI;
+
+            let local_dir = sample_cosine_weighted_horizontal_hemisphere(rng);            
+            debug_assert!( (local_dir.length() - 1.).abs() < 1e-5);
+            debug_assert!( (e1*e2).abs() < 1e-8);
+            debug_assert!( (e1*normal).abs() < 1e-8);
+            debug_assert!( (e2*normal).abs() < 1e-8);
+
+            let (x,y,z) = local_to_world(e1, e2, normal, Point3D::new(0., 0., 0.), local_dir.x, local_dir.y, local_dir.z);
+            let dir = Vector3D::new(x,y,z);
+            // debug_assert!( (dir.length() - 1.).abs() < 1e-4);
+            (dir, prob)
+        })
     }
 
-    fn sample_bsdf(&self, rng: &mut ThreadRng, _vout: Vector3D, shading_info: ShadingInfo) -> Vector3D {
-        // let mut rng = rand::thread_rng();
-        let normal = shading_info.normal;
-        let e1 = shading_info.dpdu;
-        let e2 = shading_info.dpdv;
-        cosine_weighted_sample_hemisphere(rng, e1, e2, normal)
+    fn bsdf_evaluator(&self, _shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, Vector3D)-> Float> {
+        Box::new(|_vin: Vector3D, _vout: Vector3D|{            
+            // Probability
+            const ONE_OVER_PI: Float = 1. / PI;
+            ONE_OVER_PI
+        })
     }
+    
 }
+
 
 pub struct Mirror {
     pub red: Float,
@@ -179,19 +248,33 @@ impl Material for Mirror {
         }
     }
 
-    fn bsdf(&self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -> Float {
-        let mirror = mirror_direction(vin, normal);
-        // All of it goes to the mirror direction
-        if vout.is_parallel(mirror) {
-            1.
-        } else {
-            0.
-        }
+    
+    fn bsdf_sampler(&self, shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, &mut RandGen)-> (Vector3D,Float)> {
+        let normal = shading_info.normal.get_normalized();
+        Box::new(move |vin: Vector3D, _rng: &mut RandGen|{                    
+            let dir = mirror_direction(vin, normal);
+            
+            debug_assert!( (dir.length() - 1.).abs() < 1e-8);            
+            (dir, 1.)
+        })
     }
 
-    fn sample_bsdf(&self, _rng: &mut ThreadRng, vout: Vector3D, shading_info: ShadingInfo) -> Vector3D {
-        mirror_direction(vout, shading_info.normal)
+    
+    fn bsdf_evaluator(&self, shading_info: ShadingInfo) -> Box<dyn Fn(Vector3D, Vector3D)-> Float> {
+        let normal = shading_info.normal.get_normalized();
+        Box::new(move |vin: Vector3D, vout: Vector3D|{            
+            let mirror = mirror_direction(vin, normal);
+            // All of it goes to the mirror direction
+            if vout.is_parallel(mirror) {
+                1.
+            } else {
+                0.
+            }
+        })
     }
+    
+
+    
 }
 
 // pub struct Dielectric{

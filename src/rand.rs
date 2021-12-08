@@ -18,46 +18,25 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Define whether we are working with
-// doubles (i.e., f64) or floats (i.e., f32)
+pub use rand::prelude::*;
+use rand_xoshiro::rand_core::SeedableRng;
+use rand_xoshiro::Xoshiro256Plus;
 
-/// The kind of Floating point number used in the
-/// library... the `"float"` feature means it becomes `f32`
-/// and `f64` is used otherwise.
-#[cfg(feature = "float")]
-type Float = f32;
-#[cfg(feature = "float")]
-const PI: Float = std::f32::consts::PI;
 
-#[cfg(not(feature = "float"))]
-type Float = f64;
-#[cfg(not(feature = "float"))]
-const PI: Float = std::f64::consts::PI;
+pub type RandGen = Xoshiro256Plus;//ThreadRng;
 
-#[cfg(feature = "parallel")]
-type RefCount<T> = std::sync::Arc<T>;
-#[cfg(not(feature = "parallel"))]
-type RefCount<T> = std::rc::Rc<T>;
+/// Gets a random number generator for Montecarlo estimations
+pub fn get_rng()->RandGen{    
+    let seed : u64 = rand::random();
+    RandGen::seed_from_u64(seed)
+    // rand::thread_rng()
+}
 
-// Core
-pub mod ray;
-pub mod interaction;
-pub mod sampleable_trait;
-pub mod samplers;
-pub mod camera;
-pub mod colour;
-pub mod film;
-pub mod from_radiance;
-pub mod image;
-pub mod material;
-pub mod scene;
-pub mod rand;
-// pub mod lights;
 
-// Ray-tracer
-pub mod ray_tracer;
-
-// Bidirectional Path Tracing modules
-// pub mod bidirectional_path_tracer;
-// pub mod subpath;
-// pub mod vertex;
+/// Clones the random number generator and ensures that 
+/// the clone and the source are not correlated.
+pub fn clone_rng(rng: &RandGen)->RandGen{
+    let mut ret = rng.clone();
+    ret.jump();
+    ret
+}
