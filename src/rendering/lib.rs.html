@@ -94,6 +94,7 @@
 <span id="60">60</span>
 <span id="61">61</span>
 <span id="62">62</span>
+<span id="63">63</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -130,9 +131,9 @@ SOFTWARE.
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>))]</span>
 <span class="kw">const</span> <span class="ident">PI</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">std::f64::consts::PI</span>;
 
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>)]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parallel&quot;</span>)]</span>
 <span class="kw">type</span> <span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::sync::Arc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
-<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>))]</span>
+<span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parallel&quot;</span>))]</span>
 <span class="kw">type</span> <span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::rc::Rc</span><span class="op">&lt;</span><span class="ident">T</span><span class="op">&gt;</span>;
 
 <span class="comment">// Core</span>
@@ -147,6 +148,7 @@ SOFTWARE.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">image</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">material</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">scene</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">rand</span>;
 <span class="comment">// pub mod lights;</span>
 
 <span class="comment">// Ray-tracer</span>

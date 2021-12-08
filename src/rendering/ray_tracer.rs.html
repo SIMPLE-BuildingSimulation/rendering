@@ -644,6 +644,29 @@
 <span id="610">610</span>
 <span id="611">611</span>
 <span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
+<span id="627">627</span>
+<span id="628">628</span>
+<span id="629">629</span>
+<span id="630">630</span>
+<span id="631">631</span>
+<span id="632">632</span>
+<span id="633">633</span>
+<span id="634">634</span>
+<span id="635">635</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -672,10 +695,9 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>, <span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident">geometry3d::intersect_trait::SurfaceSide</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction::Interaction</span>;
-<span class="kw">use</span> <span class="ident">rand::prelude</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RayTracer</span> {
     <span class="kw">pub</span> <span class="ident">max_depth</span>: <span class="ident">usize</span>,
@@ -704,7 +726,7 @@ SOFTWARE.
 <span class="kw">impl</span> <span class="ident">RayTracer</span> {
 
      <span class="doccomment">/// Recursively traces a ray</span>
-     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">ThreadRng</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">current_depth</span>: <span class="ident">usize</span>, <span class="ident">current_value</span>: <span class="ident">Float</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {
+     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">current_depth</span>: <span class="ident">usize</span>, <span class="ident">current_value</span>: <span class="ident">Float</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {
         
         <span class="comment">// Limit bounces        </span>
         <span class="kw">if</span> <span class="ident">current_depth</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">max_depth</span> {
@@ -742,18 +764,26 @@ SOFTWARE.
                         },
                         <span class="ident">SurfaceSide::Back</span> <span class="op">=</span><span class="op">&gt;</span>{
                             <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">object</span>.<span class="ident">back_material_index</span>]
-                        }                        
+                        },
+                        <span class="ident">SurfaceSide::NonApplicable</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="comment">// Hit parallel to the surface</span>
+                            <span class="kw">return</span> <span class="ident">Spectrum::black</span>()
+                        }                    
                     };
+                    
                     
                     <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">project</span>(<span class="ident">t</span>);
                     
                     <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
 
-                   
+
+                    <span class="kw">let</span> <span class="ident">materal_colour</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">colour</span>();
+                    <span class="kw">let</span> <span class="ident">bsdf_eval</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">bsdf_evaluator</span>(<span class="ident">data</span>.<span class="ident">geometry_shading</span>);
                     <span class="comment">/* SAMPLE LIGHTS */</span>
                     <span class="kw">let</span> <span class="ident">local</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_local_illumination</span>(
                         <span class="ident">scene</span>,
-                        <span class="ident">material</span>,
+                        <span class="ident">materal_colour</span>,
+                        <span class="ident">bsdf_eval</span>,                        
                         <span class="ident">ray_dir</span>,
                         <span class="ident">intersection_pt</span>,
                         <span class="ident">normal</span>                
@@ -766,10 +796,14 @@ SOFTWARE.
                         <span class="kw">let</span> <span class="ident">n_lights</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">count_all_lights</span>();
                         <span class="kw">let</span> <span class="ident">total_samples</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="op">+</span> <span class="ident">n_lights</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">n_shadow_samples</span>;
                         <span class="kw">let</span> <span class="ident">bsdf_c</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">total_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
-                        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">n_ambient_samples</span> {
+                        <span class="kw">let</span> <span class="ident">bsdf_sampler</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">bsdf_sampler</span>(<span class="ident">data</span>.<span class="ident">geometry_shading</span>);
+                        
+                        
+                        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">n_ambient_samples</span> {                           
                             <span class="comment">// Choose a direction.</span>
-                            <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">rng</span>, <span class="ident">ray_dir</span>, <span class="ident">data</span>.<span class="ident">geometry_shading</span>);
-                            <span class="macro">debug_assert!</span>((<span class="number">1.</span><span class="op">-</span><span class="ident">new_ray_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
+                            <span class="kw">let</span> (<span class="ident">new_ray_dir</span>, <span class="ident">material_pdf</span>) <span class="op">=</span> <span class="ident">bsdf_sampler</span>(<span class="ident">ray_dir</span>, <span class="ident">rng</span>);                            
+                            <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_ray_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
+
                             <span class="kw">let</span> <span class="ident">new_ray</span> <span class="op">=</span> <span class="ident">Ray</span>{
                                 <span class="ident">time</span>: <span class="ident">ray</span>.<span class="ident">time</span>,
                                 <span class="ident">geometry</span>: <span class="ident">Ray3D</span> {
@@ -778,7 +812,7 @@ SOFTWARE.
                                 }
                             };
                             <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">new_ray_dir</span>).<span class="ident">abs</span>();
-                            <span class="kw">let</span> <span class="ident">material_pdf</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">bsdf</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>, <span class="ident">new_ray_dir</span>);
+                            <span class="comment">// let material_pdf = material.bsdf(ray_dir, normal, new_ray_dir);</span>
                             <span class="kw">let</span> <span class="ident">new_value</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">colour</span>().<span class="ident">red</span> <span class="op">*</span> <span class="ident">material_pdf</span> <span class="op">*</span> <span class="ident">cos_theta</span>;
                             <span class="kw">let</span> <span class="ident">li</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">trace_ray</span>(<span class="ident">rng</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">new_ray</span>, <span class="ident">current_depth</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">new_value</span>);
 
@@ -838,6 +872,10 @@ SOFTWARE.
             }
             <span class="ident">SurfaceSide::Back</span> <span class="op">=</span><span class="op">&gt;</span> {
                 <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">back_material_index</span>]
+            },
+            <span class="ident">SurfaceSide::NonApplicable</span> <span class="op">=</span><span class="op">&gt;</span> {
+                <span class="comment">// Hit parallel to the surface</span>
+                <span class="kw">return</span> (<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>) ;
             }
         };
 
@@ -856,7 +894,8 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">get_local_illumination</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
-        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">RefCount</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span><span class="op">&gt;</span>,
+        <span class="ident">mat_colour</span>: <span class="ident">Spectrum</span>,
+        <span class="ident">bsdf_eval</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)<span class="op">-</span><span class="op">&gt;</span><span class="ident">Float</span><span class="op">&gt;</span>,        
         <span class="ident">vin</span>: <span class="ident">Vector3D</span>,
         <span class="ident">point</span>: <span class="ident">Point3D</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,        
@@ -891,9 +930,9 @@ SOFTWARE.
                     <span class="comment">// Denominator of the Balance Heuristic... I am assuming that</span>
                     <span class="comment">// when one light has a pdf&gt;0, then all the rest are Zero... is this</span>
                     <span class="comment">// correct?</span>
-                    <span class="kw">let</span> <span class="ident">material_pdf</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">bsdf</span>(<span class="ident">shadow_ray</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>, <span class="ident">normal</span>, <span class="ident">vin</span> );
+                    <span class="kw">let</span> <span class="ident">material_pdf</span> <span class="op">=</span> <span class="ident">bsdf_eval</span>(<span class="ident">shadow_ray</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>, <span class="ident">vin</span> );
                     <span class="kw">let</span> <span class="ident">denominator</span> <span class="op">=</span> <span class="ident">material_pdf</span> <span class="op">*</span> <span class="ident">bsdf_c</span> <span class="op">+</span> <span class="ident">light_pdf</span> <span class="op">*</span> <span class="ident">light_c</span>;
-                    <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> (<span class="ident">light_colour</span> <span class="op">*</span> <span class="ident">cos_theta</span>) <span class="op">*</span> (<span class="ident">material</span>.<span class="ident">colour</span>() <span class="op">*</span> <span class="ident">material_pdf</span>);
+                    <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> (<span class="ident">light_colour</span> <span class="op">*</span> <span class="ident">cos_theta</span>) <span class="op">*</span> (<span class="ident">mat_colour</span> <span class="op">*</span> <span class="ident">material_pdf</span>);
     
                     <span class="comment">// Return... light sources have a pdf equal to their 1/Omega (i.e. their size)</span>
                     <span class="ident">ret</span> <span class="op">+</span><span class="op">=</span> <span class="ident">fx</span> <span class="op">/</span> <span class="ident">denominator</span>;
@@ -916,6 +955,7 @@ SOFTWARE.
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_progress</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.0</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="ident">rng_src</span> <span class="op">=</span> <span class="ident">get_rng</span>();
         <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">height</span> {
             <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">width</span> {
                 <span class="kw">let</span> (<span class="ident">ray</span>, <span class="ident">weight</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">gen_ray</span>(<span class="kw-2">&amp;</span><span class="ident">CameraSample</span> {
@@ -923,7 +963,7 @@ SOFTWARE.
                     <span class="ident">p_lens</span>: (<span class="number">0.</span>, <span class="number">0.</span>), <span class="comment">// we will not use this</span>
                     <span class="ident">time</span>: <span class="number">1.</span>,         <span class="comment">// we will not use</span>
                 });
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">rand::thread_rng</span>();
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">clone_rng</span>(<span class="kw-2">&amp;</span><span class="ident">rng_src</span>);
                 <span class="ident">buffer</span>[(<span class="ident">x</span>, <span class="ident">y</span>)] <span class="op">=</span> <span class="self">self</span>.<span class="ident">trace_ray</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">scene</span>,<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="number">0</span>, <span class="number">1.</span>) <span class="op">*</span> <span class="ident">weight</span>;
                 <span class="comment">// report</span>
                 <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> (<span class="number">100</span> <span class="op">*</span> <span class="ident">i</span>) <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">total_pixels</span> <span class="kw">as</span> <span class="ident">Float</span>;
@@ -991,7 +1031,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">render_scenes</span>() {
-        <span class="kw">return</span>;
+        <span class="comment">// return;</span>
         <span class="ident">compare_with_radiance</span>(<span class="string">&quot;exterior_0_diffuse_plastic.rad&quot;</span>.<span class="ident">to_string</span>());
         <span class="comment">// compare_with_radiance(&quot;exterior_0_specularity.rad&quot;.to_string());</span>
         <span class="ident">compare_with_radiance</span>(<span class="string">&quot;exterior_0_mirror.rad&quot;</span>.<span class="ident">to_string</span>());
@@ -1004,7 +1044,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_2</span>() {
-        <span class="kw">return</span>;
+        <span class="comment">// return;</span>
         <span class="comment">// Build scene</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::default</span>();
 
@@ -1211,16 +1251,22 @@ SOFTWARE.
                         },
                         <span class="ident">SurfaceSide::Back</span> <span class="op">=</span><span class="op">&gt;</span>{
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Z = {} | Expecting intersection to be at the Front of the sphere&quot;</span>, <span class="ident">given_z_origin</span>))
-                        }                        
+                        },
+                        <span class="ident">SurfaceSide::NonApplicable</span> <span class="op">=</span><span class="op">&gt;</span> {
+                            <span class="kw">return</span> <span class="prelude-val">Ok</span>(())
+                        }                     
                     };
 
                     <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">project</span>(<span class="ident">t</span>);
                     
                     <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
 
+                    <span class="kw">let</span> <span class="ident">mat_colour</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">colour</span>();
+                    <span class="kw">let</span> <span class="ident">bsdf_eval</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">bsdf_evaluator</span>(<span class="ident">data</span>.<span class="ident">geometry_shading</span>);
                     <span class="kw">let</span> <span class="ident">local_light</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">get_local_illumination</span>(
                         <span class="kw-2">&amp;</span><span class="ident">scene</span>,
-                        <span class="ident">material</span>,
+                        <span class="ident">mat_colour</span>,
+                        <span class="ident">bsdf_eval</span>,
                         <span class="ident">ray_dir</span>,
                         <span class="ident">intersection_pt</span>,
                         <span class="ident">normal</span>                
