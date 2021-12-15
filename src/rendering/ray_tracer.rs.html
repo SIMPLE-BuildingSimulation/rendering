@@ -667,6 +667,62 @@
 <span id="633">633</span>
 <span id="634">634</span>
 <span id="635">635</span>
+<span id="636">636</span>
+<span id="637">637</span>
+<span id="638">638</span>
+<span id="639">639</span>
+<span id="640">640</span>
+<span id="641">641</span>
+<span id="642">642</span>
+<span id="643">643</span>
+<span id="644">644</span>
+<span id="645">645</span>
+<span id="646">646</span>
+<span id="647">647</span>
+<span id="648">648</span>
+<span id="649">649</span>
+<span id="650">650</span>
+<span id="651">651</span>
+<span id="652">652</span>
+<span id="653">653</span>
+<span id="654">654</span>
+<span id="655">655</span>
+<span id="656">656</span>
+<span id="657">657</span>
+<span id="658">658</span>
+<span id="659">659</span>
+<span id="660">660</span>
+<span id="661">661</span>
+<span id="662">662</span>
+<span id="663">663</span>
+<span id="664">664</span>
+<span id="665">665</span>
+<span id="666">666</span>
+<span id="667">667</span>
+<span id="668">668</span>
+<span id="669">669</span>
+<span id="670">670</span>
+<span id="671">671</span>
+<span id="672">672</span>
+<span id="673">673</span>
+<span id="674">674</span>
+<span id="675">675</span>
+<span id="676">676</span>
+<span id="677">677</span>
+<span id="678">678</span>
+<span id="679">679</span>
+<span id="680">680</span>
+<span id="681">681</span>
+<span id="682">682</span>
+<span id="683">683</span>
+<span id="684">684</span>
+<span id="685">685</span>
+<span id="686">686</span>
+<span id="687">687</span>
+<span id="688">688</span>
+<span id="689">689</span>
+<span id="690">690</span>
+<span id="691">691</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -710,7 +766,7 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RayTracer</span>{
-    <span class="kw">fn</span> <span class="ident">default</span>()<span class="op">-</span><span class="op">&gt;</span><span class="self">Self</span>{
+    <span class="kw">fn</span> <span class="ident">default</span>()-&gt;<span class="self">Self</span>{
         <span class="self">Self</span>{
             <span class="ident">max_depth</span>: <span class="number">2</span>,
             <span class="ident">n_shadow_samples</span>: <span class="number">10</span>,
@@ -726,8 +782,10 @@ SOFTWARE.
 <span class="kw">impl</span> <span class="ident">RayTracer</span> {
 
      <span class="doccomment">/// Recursively traces a ray</span>
-     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">current_depth</span>: <span class="ident">usize</span>, <span class="ident">current_value</span>: <span class="ident">Float</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {
+     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">trace_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">current_depth</span>: <span class="ident">usize</span>, <span class="ident">current_value</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Spectrum</span> {
         
+        <span class="kw">let</span> <span class="ident">one_over_ambient_samples</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
+
         <span class="comment">// Limit bounces        </span>
         <span class="kw">if</span> <span class="ident">current_depth</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">max_depth</span> {
             <span class="kw">return</span> <span class="ident">Spectrum::black</span>();
@@ -748,8 +806,8 @@ SOFTWARE.
 
             <span class="kw">let</span> <span class="ident">object</span> <span class="op">=</span> <span class="ident">interaction</span>.<span class="ident">object</span>();
             <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">interaction</span> {
-                <span class="ident">Interaction::Endpoint</span>(<span class="kw">_</span>)<span class="op">=</span><span class="op">&gt;</span>{<span class="macro">panic!</span>(<span class="string">&quot;Found an Endpoint while ray-tracing!&quot;</span>)},
-                <span class="ident">Interaction::Surface</span>(<span class="ident">data</span>)<span class="op">=</span><span class="op">&gt;</span>{         
+                <span class="ident">Interaction::Endpoint</span>(<span class="kw">_</span>)=&gt;{<span class="macro">panic!</span>(<span class="string">&quot;Found an Endpoint while ray-tracing!&quot;</span>)},
+                <span class="ident">Interaction::Surface</span>(<span class="ident">data</span>)=&gt;{         
                     <span class="comment">// get the normal... can be textured.           </span>
                     <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">normal</span>();
                     
@@ -759,13 +817,13 @@ SOFTWARE.
                     <span class="comment">// let object = interaction.object();</span>
 
                     <span class="kw">let</span> <span class="ident">material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span>.<span class="ident">geometry_shading</span>.<span class="ident">side</span> {
-                        <span class="ident">SurfaceSide::Front</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">SurfaceSide::Front</span> =&gt; {
                             <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">object</span>.<span class="ident">front_material_index</span>]
                         },
-                        <span class="ident">SurfaceSide::Back</span> <span class="op">=</span><span class="op">&gt;</span>{
+                        <span class="ident">SurfaceSide::Back</span> =&gt;{
                             <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">object</span>.<span class="ident">back_material_index</span>]
                         },
-                        <span class="ident">SurfaceSide::NonApplicable</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">SurfaceSide::NonApplicable</span> =&gt; {
                             <span class="comment">// Hit parallel to the surface</span>
                             <span class="kw">return</span> <span class="ident">Spectrum::black</span>()
                         }                    
@@ -798,8 +856,19 @@ SOFTWARE.
                         <span class="kw">let</span> <span class="ident">bsdf_c</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">total_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
                         <span class="kw">let</span> <span class="ident">bsdf_sampler</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">bsdf_sampler</span>(<span class="ident">data</span>.<span class="ident">geometry_shading</span>);
                         
+                        <span class="comment">/* Adapted From Radiance&#39;s samp_hemi() at src/rt/ambcomp.c */</span>
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wt</span> <span class="op">=</span> <span class="number">1.</span>;
                         
-                        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="self">self</span>.<span class="ident">n_ambient_samples</span> {                           
+                        <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="number">0.8</span><span class="op">*</span> <span class="ident">current_value</span> <span class="op">*</span> <span class="ident">current_value</span> <span class="op">*</span> <span class="ident">one_over_ambient_samples</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">limit_weight</span>;
+                        <span class="kw">if</span> <span class="ident">wt</span> <span class="op">&gt;</span> <span class="ident">d</span> {
+                            <span class="ident">wt</span> <span class="op">=</span> <span class="ident">d</span>;
+                        }
+                        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> ((<span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">wt</span>).<span class="ident">sqrt</span>() <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>;                    
+                        <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="number">1</span> {
+                            <span class="ident">n</span> <span class="op">=</span> <span class="number">1</span>;
+                        }
+                        
+                        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {                           
                             <span class="comment">// Choose a direction.</span>
                             <span class="kw">let</span> (<span class="ident">new_ray_dir</span>, <span class="ident">material_pdf</span>) <span class="op">=</span> <span class="ident">bsdf_sampler</span>(<span class="ident">ray_dir</span>, <span class="ident">rng</span>);                            
                             <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_ray_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
@@ -836,7 +905,7 @@ SOFTWARE.
     }
 
     
-    <span class="kw">fn</span> <span class="ident">sample_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">light</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>, <span class="ident">shadow_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>)<span class="op">-</span><span class="op">&gt;</span>(<span class="ident">Spectrum</span>, <span class="ident">Float</span>){
+    <span class="kw">fn</span> <span class="ident">sample_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">light</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>, <span class="ident">shadow_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>)-&gt;(<span class="ident">Spectrum</span>, <span class="ident">Float</span>){
         
         <span class="kw">let</span> <span class="ident">light_direction</span> <span class="op">=</span> <span class="ident">shadow_ray</span>.<span class="ident">direction</span>;
         
@@ -849,8 +918,8 @@ SOFTWARE.
 
 
         <span class="kw">let</span> <span class="ident">intersection_info</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">light</span>.<span class="ident">primitive</span>.<span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="ident">shadow_ray</span>) {
-            <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">info</span>,
-            <span class="prelude-val">None</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">info</span>) =&gt; <span class="ident">info</span>,
+            <span class="prelude-val">None</span> =&gt; {
                 <span class="macro">eprintln!</span>(<span class="string">&quot;... Missed light...&quot;</span>);
                 <span class="kw">return</span> (<span class="ident">Spectrum::black</span>(),<span class="number">0.0</span>)
             }
@@ -867,13 +936,13 @@ SOFTWARE.
         
 
         <span class="kw">let</span> <span class="ident">light_material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">side</span> {
-            <span class="ident">SurfaceSide::Front</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SurfaceSide::Front</span> =&gt; {
                 <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">front_material_index</span>]
             }
-            <span class="ident">SurfaceSide::Back</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SurfaceSide::Back</span> =&gt; {
                 <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">back_material_index</span>]
             },
-            <span class="ident">SurfaceSide::NonApplicable</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">SurfaceSide::NonApplicable</span> =&gt; {
                 <span class="comment">// Hit parallel to the surface</span>
                 <span class="kw">return</span> (<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>) ;
             }
@@ -895,11 +964,11 @@ SOFTWARE.
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
         <span class="ident">mat_colour</span>: <span class="ident">Spectrum</span>,
-        <span class="ident">bsdf_eval</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)<span class="op">-</span><span class="op">&gt;</span><span class="ident">Float</span><span class="op">&gt;</span>,        
+        <span class="ident">bsdf_eval</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)-&gt;<span class="ident">Float</span><span class="op">&gt;</span>,        
         <span class="ident">vin</span>: <span class="ident">Vector3D</span>,
         <span class="ident">point</span>: <span class="ident">Point3D</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,        
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {        
+    ) -&gt; <span class="ident">Spectrum</span> {        
         <span class="comment">// prevent self-shading</span>
         <span class="kw">let</span> <span class="ident">origin</span> <span class="op">=</span> <span class="ident">point</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.0001</span>;
         
@@ -948,14 +1017,14 @@ SOFTWARE.
     }
 
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,<span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">camera</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Camera</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ImageBuffer</span> {        
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>, <span class="ident">camera</span>: <span class="kw-2">&amp;</span><span class="kw">dyn</span> <span class="ident">Camera</span>) -&gt; <span class="ident">ImageBuffer</span> {        
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">film_resolution</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">ImageBuffer::new</span>(<span class="ident">width</span>, <span class="ident">height</span>);
         <span class="kw">let</span> <span class="ident">total_pixels</span> <span class="op">=</span> <span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>;
 
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">last_progress</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="ident">rng_src</span> <span class="op">=</span> <span class="ident">get_rng</span>();
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;        
         <span class="kw">for</span> <span class="ident">y</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">height</span> {
             <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">width</span> {
                 <span class="kw">let</span> (<span class="ident">ray</span>, <span class="ident">weight</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">gen_ray</span>(<span class="kw-2">&amp;</span><span class="ident">CameraSample</span> {
@@ -963,7 +1032,7 @@ SOFTWARE.
                     <span class="ident">p_lens</span>: (<span class="number">0.</span>, <span class="number">0.</span>), <span class="comment">// we will not use this</span>
                     <span class="ident">time</span>: <span class="number">1.</span>,         <span class="comment">// we will not use</span>
                 });
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">clone_rng</span>(<span class="kw-2">&amp;</span><span class="ident">rng_src</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
                 <span class="ident">buffer</span>[(<span class="ident">x</span>, <span class="ident">y</span>)] <span class="op">=</span> <span class="self">self</span>.<span class="ident">trace_ray</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>, <span class="ident">scene</span>,<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="number">0</span>, <span class="number">1.</span>) <span class="op">*</span> <span class="ident">weight</span>;
                 <span class="comment">// report</span>
                 <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> (<span class="number">100</span> <span class="op">*</span> <span class="ident">i</span>) <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">total_pixels</span> <span class="kw">as</span> <span class="ident">Float</span>;
@@ -993,9 +1062,10 @@ SOFTWARE.
     <span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
     <span class="kw">fn</span> <span class="ident">compare_with_radiance</span>(<span class="ident">filename</span>: <span class="ident">String</span>) {
-        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+        
 
-        <span class="kw">let</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="macro">format!</span>(<span class="string">&quot;./test_data/{}&quot;</span>, <span class="ident">filename</span>));
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="macro">format!</span>(<span class="string">&quot;./test_data/{}&quot;</span>, <span class="ident">filename</span>));
+        <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
         <span class="comment">// Create film</span>
         <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
@@ -1017,7 +1087,7 @@ SOFTWARE.
             <span class="ident">limit_weight</span>: <span class="number">0.001</span>,
             .. <span class="ident">RayTracer::default</span>()   
         };
-
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
 
         <span class="macro">println!</span>(
@@ -1028,7 +1098,7 @@ SOFTWARE.
 
         <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="macro">format!</span>(<span class="string">&quot;./test_data/images/self_{}.hdr&quot;</span>, <span class="ident">filename</span>));
     }
-
+ 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">render_scenes</span>() {
         <span class="comment">// return;</span>
@@ -1036,6 +1106,44 @@ SOFTWARE.
         <span class="comment">// compare_with_radiance(&quot;exterior_0_specularity.rad&quot;.to_string());</span>
         <span class="ident">compare_with_radiance</span>(<span class="string">&quot;exterior_0_mirror.rad&quot;</span>.<span class="ident">to_string</span>());
         <span class="comment">// compare_with_radiance(&quot;exterior_0_dielectric.rad&quot;.to_string());</span>
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">render_room</span>() {
+        <span class="comment">// return;</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="string">&quot;./test_data/room.rad&quot;</span>.<span class="ident">to_string</span>());
+        
+        <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
+
+        <span class="comment">// Create camera</span>
+        <span class="comment">// Create film</span>
+        <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
+            <span class="ident">resolution</span>: (<span class="number">512</span>, <span class="number">512</span>),
+        };
+
+        <span class="comment">// Create view</span>
+        <span class="kw">let</span> <span class="ident">view</span> <span class="op">=</span> <span class="ident">View</span> {
+            <span class="ident">view_direction</span>: <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>).<span class="ident">get_normalized</span>(),
+            <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">1.</span>, <span class="number">1.</span>),
+            ..<span class="ident">View::default</span>()
+        };
+        <span class="comment">// Create camera</span>
+        <span class="kw">let</span> <span class="ident">camera</span> <span class="op">=</span> <span class="ident">PinholeCam::new</span>(<span class="ident">view</span>, <span class="ident">film</span>);
+
+        <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer</span>{
+            <span class="ident">n_ambient_samples</span>: <span class="number">128</span>,
+            <span class="ident">n_shadow_samples</span>: <span class="number">1</span>,
+            <span class="ident">max_depth</span>: <span class="number">2</span>,
+            .. <span class="ident">RayTracer::default</span>()
+        };
+
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+
+        <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
+        <span class="macro">println!</span>(<span class="string">&quot;Room took {} seconds to render&quot;</span>, <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_secs</span>());
+        <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="string">&quot;./test_data/images/room.hdr&quot;</span>.<span class="ident">to_string</span>());
+
+        
     }
 
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Light</span>, <span class="ident">Mirror</span>, <span class="ident">Plastic</span>};
@@ -1149,6 +1257,8 @@ SOFTWARE.
             <span class="ident">Box::new</span>(<span class="ident">Sphere3D::new</span>(<span class="number">1.5</span>, <span class="ident">Point3D::new</span>(<span class="number">1.</span>, <span class="op">-</span><span class="number">1.</span>, <span class="number">15.</span>))),
         );
 
+        <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
+
         <span class="comment">// Create camera</span>
         <span class="comment">// Create film</span>
         <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
@@ -1171,9 +1281,9 @@ SOFTWARE.
             <span class="ident">max_depth</span>: <span class="number">2</span>,
             .. <span class="ident">RayTracer::default</span>()
         };
-
+        <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
-
+        <span class="macro">println!</span>(<span class="string">&quot;Scene took {} seconds to render&quot;</span>, <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_secs</span>());
         <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="string">&quot;./test_data/images/ray_tracer.hdr&quot;</span>.<span class="ident">to_string</span>());
     }
 
@@ -1212,10 +1322,12 @@ SOFTWARE.
              <span class="ident">Box::new</span>(<span class="ident">Sphere3D::new</span>(<span class="ident">radius</span>, <span class="ident">centre</span>))            
          );
  
+         <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
+
          <span class="comment">// Crate this so we can test methods</span>
          <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer::default</span>();
              
-         <span class="kw">let</span> <span class="ident">test_ray</span> <span class="op">=</span> <span class="op">|</span><span class="ident">given_z_origin</span>: <span class="ident">Float</span><span class="op">|</span><span class="op">-</span><span class="op">&gt;</span><span class="prelude-ty">Result</span><span class="op">&lt;</span>(),<span class="ident">String</span><span class="op">&gt;</span>{
+         <span class="kw">let</span> <span class="ident">test_ray</span> <span class="op">=</span> <span class="op">|</span><span class="ident">given_z_origin</span>: <span class="ident">Float</span><span class="op">|</span>-&gt;<span class="prelude-ty">Result</span><span class="op">&lt;</span>(),<span class="ident">String</span><span class="op">&gt;</span>{
             <span class="kw">let</span> <span class="ident">z_origin</span> <span class="op">=</span> <span class="ident">given_z_origin</span><span class="kw-2">*</span><span class="ident">radius</span>;
             <span class="kw">let</span> <span class="ident">expect_hit</span> <span class="op">=</span> <span class="ident">z_origin</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="ident">radius</span>;
             <span class="kw">let</span> <span class="ident">expect_visible_light</span> <span class="op">=</span> <span class="ident">z_origin</span> <span class="op">&gt;</span> <span class="ident">centre</span>.<span class="ident">z</span>;
@@ -1239,20 +1351,20 @@ SOFTWARE.
 
                     <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">normal</span>();
                     <span class="comment">// normal.z must have the same sign as (z_origin - centre.z)</span>
-                    <span class="kw">if</span> <span class="ident">normal</span>.<span class="ident">z</span>.<span class="ident">signum</span>()<span class="kw-2">*</span>(<span class="ident">z_origin</span> <span class="op">-</span> <span class="ident">centre</span>.<span class="ident">z</span>).<span class="ident">signum</span>() <span class="op">=</span><span class="op">=</span> <span class="op">-</span><span class="number">1.</span>{
+                    <span class="kw">if</span> <span class="ident">normal</span>.<span class="ident">z</span>.<span class="ident">signum</span>()<span class="kw-2">*</span>(<span class="ident">z_origin</span> <span class="op">-</span> <span class="ident">centre</span>.<span class="ident">z</span>).<span class="ident">signum</span>() <span class="op">==</span> <span class="op">-</span><span class="number">1.</span>{
                         <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Z = {} | The sign of normal.z is {}, while the sign of (z_origin - centre.z) is {}&quot;</span>, <span class="ident">given_z_origin</span>, <span class="ident">normal</span>.<span class="ident">z</span>.<span class="ident">signum</span>(), (<span class="ident">z_origin</span> <span class="op">-</span> <span class="ident">centre</span>.<span class="ident">z</span>).<span class="ident">signum</span>()))
                     }
                     <span class="macro">debug_assert!</span>((<span class="number">1.0</span> <span class="op">-</span> <span class="ident">normal</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.000001</span>);
 
 
                     <span class="kw">let</span> <span class="ident">material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span>.<span class="ident">geometry_shading</span>.<span class="ident">side</span> {
-                        <span class="ident">SurfaceSide::Front</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">SurfaceSide::Front</span> =&gt; {
                             <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">object</span>.<span class="ident">front_material_index</span>]
                         },
-                        <span class="ident">SurfaceSide::Back</span> <span class="op">=</span><span class="op">&gt;</span>{
+                        <span class="ident">SurfaceSide::Back</span> =&gt;{
                             <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Z = {} | Expecting intersection to be at the Front of the sphere&quot;</span>, <span class="ident">given_z_origin</span>))
                         },
-                        <span class="ident">SurfaceSide::NonApplicable</span> <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="ident">SurfaceSide::NonApplicable</span> =&gt; {
                             <span class="kw">return</span> <span class="prelude-val">Ok</span>(())
                         }                     
                     };

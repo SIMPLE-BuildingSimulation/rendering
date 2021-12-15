@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["FlatNode",""],["Node",""]],"fn":[["get_bucket_index",""]],"struct":[["BoundingVolumeTree",""],["BucketInfo",""],["FlatInterior",""],["Interior",""],["Leaf",""],["ObjectInfo","A struct that is instrumental for building the  `BoundingVolumeTree`"]],"type":[["FlatLeaf",""]]});

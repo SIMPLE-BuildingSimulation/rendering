@@ -543,9 +543,9 @@ SOFTWARE.
         <span class="macro">panic!</span>(<span class="string">&quot;Error at line {}: {}&quot;</span>, <span class="self">self</span>.<span class="ident">line</span>, <span class="ident">msg</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">get_modifier_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">usize</span> {
+    <span class="kw">fn</span> <span class="ident">get_modifier_index</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">String</span>) -&gt; <span class="ident">usize</span> {
         <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">mod_name</span>) <span class="kw">in</span> <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-            <span class="kw">if</span> <span class="ident">name</span> <span class="op">=</span><span class="op">=</span> <span class="ident">mod_name</span> {
+            <span class="kw">if</span> <span class="ident">name</span> <span class="op">==</span> <span class="ident">mod_name</span> {
                 <span class="kw">return</span> <span class="ident">i</span>;
             }
         }
@@ -556,8 +556,8 @@ SOFTWARE.
         <span class="macro">unreachable!</span>();
     }
 
-    <span class="kw">fn</span> <span class="ident">consume_whitespace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="ident">source</span>.<span class="ident">len</span>() <span class="op">=</span><span class="op">=</span> <span class="number">0</span>{
+    <span class="kw">fn</span> <span class="ident">consume_whitespace</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="ident">source</span>.<span class="ident">len</span>() <span class="op">==</span> <span class="number">0</span>{
             <span class="self">self</span>.<span class="ident">is_done</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
 
@@ -572,7 +572,7 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">consume_non_white</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">consume_non_white</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_done</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
@@ -583,15 +583,15 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">consume_char</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">consume_char</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_done</span> {
             <span class="kw">return</span> <span class="bool-val">false</span>;
         }
-        <span class="kw">if</span> <span class="ident">source</span>[<span class="self">self</span>.<span class="ident">current_char_index</span>] <span class="op">=</span><span class="op">=</span> <span class="string">b&#39;\n&#39;</span> {
+        <span class="kw">if</span> <span class="ident">source</span>[<span class="self">self</span>.<span class="ident">current_char_index</span>] <span class="op">==</span> <span class="string">b&#39;\n&#39;</span> {
             <span class="self">self</span>.<span class="ident">line</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         }
         <span class="self">self</span>.<span class="ident">current_char_index</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_char_index</span> <span class="op">=</span><span class="op">=</span> <span class="ident">source</span>.<span class="ident">len</span>() {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">current_char_index</span> <span class="op">==</span> <span class="ident">source</span>.<span class="ident">len</span>() {
             <span class="self">self</span>.<span class="ident">is_done</span> <span class="op">=</span> <span class="bool-val">true</span>;
         }
         <span class="bool-val">true</span>
@@ -607,7 +607,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Retrieves a token and advances.</span>
-    <span class="kw">fn</span> <span class="ident">consume_token</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">consume_token</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">reach_next_token</span>(<span class="ident">source</span>);
 
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">current_char_index</span>;
@@ -617,7 +617,7 @@ SOFTWARE.
             }
         }
 
-        <span class="kw">if</span> <span class="ident">start</span> <span class="op">=</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">current_char_index</span> {
+        <span class="kw">if</span> <span class="ident">start</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">current_char_index</span> {
             <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="kw-2">&amp;</span><span class="ident">source</span>[<span class="ident">start</span>..<span class="self">self</span>.<span class="ident">current_char_index</span>])
@@ -648,16 +648,16 @@ SOFTWARE.
         }
         <span class="kw">match</span> <span class="ident">object_type</span>.<span class="ident">as_bytes</span>() {
             <span class="comment">// modifiers</span>
-            <span class="string">b&quot;plastic&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">consume_plastic</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="string">b&quot;metal&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">consume_metal</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="string">b&quot;light&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">consume_light</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="string">b&quot;mirror&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">consume_mirror</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="string">b&quot;plastic&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">consume_plastic</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="string">b&quot;metal&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">consume_metal</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="string">b&quot;light&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">consume_light</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="string">b&quot;mirror&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">consume_mirror</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
 
             <span class="comment">// objects</span>
-            <span class="string">b&quot;sphere&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">consume_sphere</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="string">b&quot;source&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">consume_source</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="string">b&quot;polygon&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">consume_polygon</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
-            <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="string">b&quot;sphere&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">consume_sphere</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="string">b&quot;source&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">consume_source</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="string">b&quot;polygon&quot;</span> =&gt; <span class="self">self</span>.<span class="ident">consume_polygon</span>(<span class="ident">source</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">modifier</span>, <span class="kw-2">&amp;</span><span class="ident">name</span>),
+            <span class="kw">_</span> =&gt; {
                 <span class="self">self</span>.<span class="ident">error_here</span>(<span class="macro">format!</span>(<span class="string">&quot;Unsupported/unknown object_type &#39;{}&#39;&quot;</span>, <span class="ident">object_type</span>));
                 <span class="macro">unreachable!</span>();
             }
@@ -864,14 +864,14 @@ SOFTWARE.
 
 <span class="kw">impl</span> <span class="ident">Scene</span> {
     <span class="doccomment">/// Reads a Radiance file and builds a scene.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_radiance</span>(<span class="ident">filename</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_radiance</span>(<span class="ident">filename</span>: <span class="ident">String</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">src</span> <span class="op">=</span> <span class="ident">fs::read</span>(<span class="ident">filename</span>).<span class="ident">unwrap</span>();
         <span class="ident">Scene::from_radiance_source</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>)
     }
 
     <span class="doccomment">/// Creates a scene from a slice of bytes read from a </span>
     <span class="doccomment">/// Radiance file</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_radiance_source</span>(<span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_radiance_source</span>(<span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::default</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scanner</span> <span class="op">=</span> <span class="ident">Scanner::default</span>();

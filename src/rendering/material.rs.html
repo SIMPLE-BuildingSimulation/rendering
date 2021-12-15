@@ -408,7 +408,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction::ShadingInfo</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand::RandGen</span>;
 
-<span class="kw">fn</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vector3D</span> {
+<span class="kw">fn</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Vector3D</span> {
     <span class="macro">debug_assert!</span>((<span class="ident">vin</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">normal</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> (<span class="number">2.</span> <span class="op">*</span> (<span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>));
@@ -421,23 +421,23 @@ SOFTWARE.
     <span class="doccomment">/// Retrieves the Colour of the material. This will usually</span>
     <span class="doccomment">/// represent the values that will multiply the different</span>
     <span class="doccomment">/// elements of the [`Spectrum`]. E.g., the reflectance values.</span>
-    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span>;
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span>;
 
     <span class="doccomment">/// Should this material be tested for direct illumination?</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Defaults to `false`</span>
-    <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
 
     <span class="doccomment">/// Should this material emits light</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Defaults to `false`</span>
-    <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
 
-    <span class="doccomment">/// Gets a closure that allows calculating and sampling the BSDF of the material</span>
+    <span class="doccomment">/// Gets an iterator that samples the BSDF of the material</span>
     <span class="doccomment">/// according to a certain `ShadingInfo`. The closure receives a `Vector3D` corresponding</span>
     <span class="doccomment">/// to the incident direction in world&#39;s coordinates, and returns the outgoing direction</span>
     <span class="doccomment">/// as well as the probability of going in that direction.</span>
@@ -446,7 +446,7 @@ SOFTWARE.
     <span class="doccomment">/// </span>
     <span class="doccomment">/// When implementing forward/backard ray-tracing, modifications will have to be made </span>
     <span class="doccomment">/// to this function.</span>
-    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)<span class="op">-</span><span class="op">&gt;</span>(<span class="ident">Vector3D</span>,<span class="ident">Float</span>)<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt;(<span class="ident">Vector3D</span>,<span class="ident">Float</span>)<span class="op">&gt;</span>;
 
     <span class="doccomment">/// Gets a closure that allows calculating and sampling the BSDF of the material</span>
     <span class="doccomment">/// according to a certain `ShadingInfo`. The closure receives two `Vector3D`s, corresponding</span>
@@ -457,14 +457,14 @@ SOFTWARE.
     <span class="doccomment">/// </span>
     <span class="doccomment">/// When implementing forward/backard ray-tracing, modifications will have to be made </span>
     <span class="doccomment">/// to this function.</span>
-    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)<span class="op">-</span><span class="op">&gt;</span><span class="ident">Float</span><span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)-&gt;<span class="ident">Float</span><span class="op">&gt;</span>;
 
     
     <span class="doccomment">/// Does this material scatter (e.g., like [`Plastic`]) or does it</span>
     <span class="doccomment">/// only transmit/reflects specularly (e.g., like [`Mirror`])?</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Defaults to `false`</span>
-    <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
 }
@@ -476,7 +476,7 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">blue</span>: <span class="ident">Float</span>,
 }
 <span class="kw">impl</span> <span class="ident">Material</span> <span class="kw">for</span> <span class="ident">Light</span> {
-    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span> {
         <span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="self">self</span>.<span class="ident">red</span>,
             <span class="ident">green</span>: <span class="self">self</span>.<span class="ident">green</span>,
@@ -484,22 +484,22 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
 
     <span class="comment">// Lights don&#39;t reflect...?</span>
-    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)<span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vector3D</span>,<span class="ident">Float</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt; (<span class="ident">Vector3D</span>,<span class="ident">Float</span>)<span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">_vin</span>: <span class="ident">Vector3D</span>, <span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span><span class="op">|</span>{
             <span class="macro">panic!</span>(<span class="string">&quot;Trying to build a BSDF for a Light material&quot;</span>)
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)<span class="op">-</span><span class="op">&gt;</span> <span class="ident">Float</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw">_</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)-&gt; <span class="ident">Float</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">_vin</span>: <span class="ident">Vector3D</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span><span class="op">|</span>{
             <span class="number">0.0</span>
         })
@@ -518,7 +518,7 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">Material</span> <span class="kw">for</span> <span class="ident">Metal</span> {
-    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span> {
         <span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="self">self</span>.<span class="ident">red</span>,
             <span class="ident">green</span>: <span class="self">self</span>.<span class="ident">green</span>,
@@ -527,7 +527,7 @@ SOFTWARE.
     }
 
     <span class="comment">// Assume lambertian, for now</span>
-    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)<span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vector3D</span>, <span class="ident">Float</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt; (<span class="ident">Vector3D</span>, <span class="ident">Float</span>)<span class="op">&gt;</span> {
         
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">shading_info</span>.<span class="ident">normal</span>.<span class="ident">get_normalized</span>();
         <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">shading_info</span>.<span class="ident">dpdu</span>.<span class="ident">get_normalized</span>();
@@ -551,7 +551,7 @@ SOFTWARE.
     }
 
     
-    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)<span class="op">-</span><span class="op">&gt;</span> <span class="ident">Float</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)-&gt; <span class="ident">Float</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">_vin</span>: <span class="ident">Vector3D</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span><span class="op">|</span>{            
             <span class="comment">// Probability</span>
             <span class="kw">const</span> <span class="ident">ONE_OVER_PI</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">/</span> <span class="ident">PI</span>;
@@ -573,7 +573,7 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">Material</span> <span class="kw">for</span> <span class="ident">Plastic</span> {
-    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span> {
         <span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="self">self</span>.<span class="ident">red</span>,
             <span class="ident">green</span>: <span class="self">self</span>.<span class="ident">green</span>,
@@ -582,7 +582,7 @@ SOFTWARE.
     }
 
     <span class="comment">// Assume lambertian, for now</span>
-    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)<span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vector3D</span>, <span class="ident">Float</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt; (<span class="ident">Vector3D</span>, <span class="ident">Float</span>)<span class="op">&gt;</span> {
         
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">shading_info</span>.<span class="ident">normal</span>.<span class="ident">get_normalized</span>();
         <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">shading_info</span>.<span class="ident">dpdu</span>.<span class="ident">get_normalized</span>();
@@ -605,7 +605,7 @@ SOFTWARE.
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)<span class="op">-</span><span class="op">&gt;</span> <span class="ident">Float</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">_shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)-&gt; <span class="ident">Float</span><span class="op">&gt;</span> {
         <span class="ident">Box::new</span>(<span class="op">|</span><span class="ident">_vin</span>: <span class="ident">Vector3D</span>, <span class="ident">_vout</span>: <span class="ident">Vector3D</span><span class="op">|</span>{            
             <span class="comment">// Probability</span>
             <span class="kw">const</span> <span class="ident">ONE_OVER_PI</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">/</span> <span class="ident">PI</span>;
@@ -623,7 +623,7 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">Material</span> <span class="kw">for</span> <span class="ident">Mirror</span> {
-    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Spectrum</span> {
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span> {
         <span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="self">self</span>.<span class="ident">red</span>,
             <span class="ident">green</span>: <span class="self">self</span>.<span class="ident">green</span>,
@@ -632,7 +632,7 @@ SOFTWARE.
     }
 
     
-    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)<span class="op">-</span><span class="op">&gt;</span> (<span class="ident">Vector3D</span>,<span class="ident">Float</span>)<span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_sampler</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt; (<span class="ident">Vector3D</span>,<span class="ident">Float</span>)<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">shading_info</span>.<span class="ident">normal</span>.<span class="ident">get_normalized</span>();
         <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">_rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span><span class="op">|</span>{                    
             <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>, <span class="ident">normal</span>);
@@ -643,7 +643,7 @@ SOFTWARE.
     }
 
     
-    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)<span class="op">-</span><span class="op">&gt;</span> <span class="ident">Float</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">bsdf_evaluator</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">shading_info</span>: <span class="ident">ShadingInfo</span>) -&gt; <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)-&gt; <span class="ident">Float</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">shading_info</span>.<span class="ident">normal</span>.<span class="ident">get_normalized</span>();
         <span class="ident">Box::new</span>(<span class="kw">move</span> <span class="op">|</span><span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span><span class="op">|</span>{            
             <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>, <span class="ident">normal</span>);
@@ -695,7 +695,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_mirror_direction</span>() {
-        <span class="kw">fn</span> <span class="ident">check</span>(<span class="ident">v</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">mirror</span>: <span class="ident">Vector3D</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
+        <span class="kw">fn</span> <span class="ident">check</span>(<span class="ident">v</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">mirror</span>: <span class="ident">Vector3D</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
             <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">get_normalized</span>();
             <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_normalized</span>();
             <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">mirror</span>.<span class="ident">get_normalized</span>();

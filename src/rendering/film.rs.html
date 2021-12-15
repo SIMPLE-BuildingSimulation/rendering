@@ -95,7 +95,7 @@ SOFTWARE.
 
 <span class="kw">impl</span> <span class="ident">Film</span> {
     <span class="doccomment">/// return the Width/height ratio</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aspect_ratio</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Float</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">aspect_ratio</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Float</span> {
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">resolution</span>;
         <span class="ident">width</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">height</span> <span class="kw">as</span> <span class="ident">Float</span>
     }
