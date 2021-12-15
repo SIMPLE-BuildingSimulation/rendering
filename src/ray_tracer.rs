@@ -59,6 +59,8 @@ impl RayTracer {
      /// Recursively traces a ray
      pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float) -> Spectrum {
         
+        let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
+
         // Limit bounces        
         if current_depth > self.max_depth {
             return Spectrum::black();
@@ -129,8 +131,19 @@ impl RayTracer {
                         let bsdf_c = self.n_ambient_samples as Float / total_samples as Float;
                         let bsdf_sampler = material.bsdf_sampler(data.geometry_shading);
                         
+                        /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
+                        let mut wt = 1.;
                         
-                        for _ in 0..self.n_ambient_samples {                           
+                        let d = 0.8* current_value * current_value * one_over_ambient_samples / self.limit_weight;
+                        if wt > d {
+                            wt = d;
+                        }
+                        let mut n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;                    
+                        if n < 1 {
+                            n = 1;
+                        }
+                        
+                        for _ in 0..n {                           
                             // Choose a direction.
                             let (new_ray_dir, material_pdf) = bsdf_sampler(ray_dir, rng);                            
                             debug_assert!((1. - new_ray_dir.length()).abs() < 0.0000001);
@@ -279,14 +292,14 @@ impl RayTracer {
     }
 
 
-    pub fn render(&self,scene: &Scene, camera: &dyn Camera) -> ImageBuffer {        
+    pub fn render(&self, scene: &Scene, camera: &dyn Camera) -> ImageBuffer {        
         let (width, height) = camera.film_resolution();
         let mut buffer = ImageBuffer::new(width, height);
         let total_pixels = width * height;
 
+
         let mut last_progress: Float = 0.0;
-        let mut i = 0;
-        let rng_src = get_rng();
+        let mut i = 0;        
         for y in 0..height {
             for x in 0..width {
                 let (ray, weight) = camera.gen_ray(&CameraSample {
@@ -294,7 +307,7 @@ impl RayTracer {
                     p_lens: (0., 0.), // we will not use this
                     time: 1.,         // we will not use
                 });
-                let mut rng = clone_rng(&rng_src);
+                let mut rng = get_rng();
                 buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0, 1.) * weight;
                 // report
                 let progress = (100 * i) as Float / total_pixels as Float;
@@ -324,9 +337,10 @@ mod tests {
     use std::time::Instant;
 
     fn compare_with_radiance(filename: String) {
-        let now = Instant::now();
+        
 
-        let scene = Scene::from_radiance(format!("./test_data/{}", filename));
+        let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
+        scene.build_accelerator();
 
         // Create film
         let film = Film {
@@ -348,7 +362,7 @@ mod tests {
             limit_weight: 0.001,
             .. RayTracer::default()   
         };
-
+        let now = Instant::now();
         let buffer = integrator.render(&scene, &camera);
 
         println!(
@@ -359,7 +373,7 @@ mod tests {
 
         buffer.save_hdre(format!("./test_data/images/self_{}.hdr", filename));
     }
-
+ 
     #[test]
     fn render_scenes() {
         // return;
@@ -367,6 +381,44 @@ mod tests {
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
         compare_with_radiance("exterior_0_mirror.rad".to_string());
         // compare_with_radiance("exterior_0_dielectric.rad".to_string());
+    }
+
+    #[test]
+    fn render_room() {
+        // return;
+        let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
+        
+        scene.build_accelerator();
+
+        // Create camera
+        // Create film
+        let film = Film {
+            resolution: (512, 512),
+        };
+
+        // Create view
+        let view = View {
+            view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
+            view_point: Point3D::new(2., 1., 1.),
+            ..View::default()
+        };
+        // Create camera
+        let camera = PinholeCam::new(view, film);
+
+        let integrator = RayTracer{
+            n_ambient_samples: 128,
+            n_shadow_samples: 1,
+            max_depth: 2,
+            .. RayTracer::default()
+        };
+
+        let now = Instant::now();
+
+        let buffer = integrator.render(&scene, &camera);
+        println!("Room took {} seconds to render", now.elapsed().as_secs());
+        buffer.save_hdre("./test_data/images/room.hdr".to_string());
+
+        
     }
 
     use crate::material::{Light, Mirror, Plastic};
@@ -480,6 +532,8 @@ mod tests {
             Box::new(Sphere3D::new(1.5, Point3D::new(1., -1., 15.))),
         );
 
+        scene.build_accelerator();
+
         // Create camera
         // Create film
         let film = Film {
@@ -502,9 +556,9 @@ mod tests {
             max_depth: 2,
             .. RayTracer::default()
         };
-
+        let now = Instant::now();
         let buffer = integrator.render(&scene, &camera);
-
+        println!("Scene took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre("./test_data/images/ray_tracer.hdr".to_string());
     }
 
@@ -543,6 +597,8 @@ mod tests {
              Box::new(Sphere3D::new(radius, centre))            
          );
  
+         scene.build_accelerator();
+
          // Crate this so we can test methods
          let integrator = RayTracer::default();
              

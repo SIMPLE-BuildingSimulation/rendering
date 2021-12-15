@@ -52,12 +52,9 @@ pub mod image;
 pub mod material;
 pub mod scene;
 pub mod rand;
+pub mod bvh;
 // pub mod lights;
 
 // Ray-tracer
 pub mod ray_tracer;
 
-// Bidirectional Path Tracing modules
-// pub mod bidirectional_path_tracer;
-// pub mod subpath;
-// pub mod vertex;

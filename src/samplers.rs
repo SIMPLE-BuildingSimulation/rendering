@@ -19,52 +19,14 @@ SOFTWARE.
 */
 
 
-// use rand::prelude::*;
-use crate::{Float,PI};
+
+use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 use crate::rand::*;
 
-/// Works from 0 to 2*PI
-pub fn approx_sin(mut x: Float)->Float{
-    let mut mult = 1.0;
-    if x < 0.0{
-        unimplemented!()
-    }else if x > PI {
-        x -= PI;
-        mult = -1.;
-    }
+#[cfg(feature = "parallel")]
+use rayon::iter::ParallelIterator;
 
-    const SMALL_ANGLE : Float = PI/5.;
-    let ret = if x < SMALL_ANGLE {
-        -0.1493*x*x + 1.0356*x - 0.0017
-    }else if x > PI - SMALL_ANGLE {
-        -0.1493*x*x - 0.0975*x + 1.7781
-    }else{
-        -0.4685*x*x + 1.4718*x - 0.1588
-    };
-    mult * (ret - 0.00316996)
-}
-
-/// Works from 0 to 2*PI
-pub fn approx_cos(mut x: Float)->Float{
-    let mut mult = 1.0;
-    if x < 0.0{
-        unimplemented!()
-    }else if x > PI {
-        x -= PI;
-        mult = -1.;
-    }
-
-    const SMALL_ANGLE : Float = PI/5.;
-    let ret = if x < SMALL_ANGLE {
-        -0.4735*x*x - 0.0085*x + 1.0005
-    }else if x > PI - SMALL_ANGLE {
-        0.4735*x*x - 2.9837*x + 3.6997
-    } else {
-        0.1585*x*x*x - 0.7467*x*x + 0.1746*x + 0.9541
-    };
-    mult * (ret - 0.0016)
-}
 
 pub fn uniform_sample_triangle(rng: &mut RandGen,a:Point3D,b:Point3D,c:Point3D)->Point3D{
     let (rand1, rand2): (Float, Float) = rng.gen();
@@ -79,18 +41,48 @@ pub fn uniform_sample_triangle(rng: &mut RandGen,a:Point3D,b:Point3D,c:Point3D)-
     a + v1 * u + v2 * v
 }
 
+pub struct HorizontalDiskUniformSampler{
+    n_samples: usize,
+    i: usize,
+    rng: RandGen,
+    radius: Float,
+}
+
+impl HorizontalDiskUniformSampler {
+    pub fn new(radius: Float, n_samples: usize)->Self{
+        Self{
+            i: 0,
+            rng: get_rng(),
+            radius,
+            n_samples,
+        }
+    }
+}
+
+impl Iterator for HorizontalDiskUniformSampler{
+    type Item = (f32, f32);
+    fn next(&mut self)->Option<Self::Item>{
+        if self.n_samples == self.i {
+            return None
+        }
+        self.i += 1;
+        Some(uniform_sample_horizontal_disc(&mut self.rng, self.radius))
+    }
+}
+
+
+
 pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32, f32) {
     // sqrt() and cos() and sin() are 
     // much faster in f32... that is why I am doing 
     // this.
     let (r, theta): (f32, f32) = rng.gen();
-    // let theta : f32 = rng.gen();
+    
     let r = radius as f32 * r.sqrt();
     let theta = 2. * std::f32::consts::PI * theta;
-
-    let local_x = r * theta.sin();
-    let local_y = r * theta.cos();
-    // println!("radius = {} | local_x = {} | local_y = {} | R = {}", radius, local_x, local_y, (local_x*local_x + local_y*local_y).sqrt());
+    let (theta_sin, theta_cos) = theta.sin_cos();
+    let local_x = r * theta_sin;
+    let local_y = r * theta_cos;
     (local_x , local_y)
 }
 
@@ -118,6 +110,33 @@ pub fn local_to_world(
     (x, y, z)
 }
 
+
+pub struct HorizontalCosineWeightedHemisphereSampler{            
+    disk_sampler: HorizontalDiskUniformSampler,
+}
+
+impl HorizontalCosineWeightedHemisphereSampler {
+    pub fn new(n_samples: usize)->Self{
+        Self{            
+            disk_sampler: HorizontalDiskUniformSampler::new(1., n_samples),
+        }
+    }
+}
+
+impl Iterator for HorizontalCosineWeightedHemisphereSampler{
+    type Item = Vector3D;
+    fn next(&mut self)->Option<Self::Item>{
+        if let Some((local_x, local_y)) = self.disk_sampler.next() {
+            let local_z = (1. - local_x * local_x - local_y * local_y).sqrt();
+            let ret = Vector3D::new(local_x as Float, local_y as Float, local_z as Float);
+            Some(ret)
+        }else{
+            None
+        }
+    }
+}
+
+
 /// Gets a random `Vector3D`, distributed according to `cos(theta)` according
 /// to a normal `Vector3D(0,0,1)`
 pub fn sample_cosine_weighted_horizontal_hemisphere(rng: &mut RandGen) -> Vector3D {
@@ -127,6 +146,8 @@ pub fn sample_cosine_weighted_horizontal_hemisphere(rng: &mut RandGen) -> Vector
     Vector3D::new(local_x as Float, local_y as Float, local_z as Float)
 }
 
+
+
 pub fn uniform_sample_hemisphere(rng: &mut RandGen, e1: Vector3D, e2: Vector3D, normal: Vector3D) -> Vector3D {
     // Calculate in
     
@@ -134,8 +155,9 @@ pub fn uniform_sample_hemisphere(rng: &mut RandGen, e1: Vector3D, e2: Vector3D, 
     // let rand2: f32 = rng.gen();
     let sq  = (1.0 - rand1 * rand1).sqrt();
     let pie2  = 2.0 * std::f32::consts::PI * rand2;
-    let local_x = pie2.cos() * sq;
-    let local_y = pie2.sin() * sq;
+    let (pie2_sin, pie2_cos) = pie2.sin_cos();
+    let local_x = pie2_cos * sq;
+    let local_y = pie2_sin * sq;
     let local_z = rand1;
 
     // Take back to world normal    
@@ -225,6 +247,15 @@ mod tests {
         }
     }
 
+    #[test]
+    #[cfg(feature = "parallel")]
+    fn test_par_sampler(){
+        let sampler = HorizontalDiskUniformSampler::new(1., 123);
+        let _ = sampler.par_map(|(x,y)|{
+            println!("x={}, y={}",x,y);
+        }).collect::<()>();
+        
+    }   
     // #[test]
     // fn test_approx_sin(){
     //     const MAX_ERR : Float = 0.0105;

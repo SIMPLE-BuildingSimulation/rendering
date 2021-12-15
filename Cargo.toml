@@ -8,8 +8,9 @@ license = "MIT"
 
 [dependencies]
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git"}
+# geometry3d = {path = "../geometry3d"}
 rand = {version = "0.8.4"}
-rand_xoshiro = "0.6.0"
+rayon = {version = "1.5", optional = true}
 
 [dev-dependencies]
 criterion = "0.3"
@@ -22,7 +23,7 @@ harness = false
 [features]
 default = []
 float = ["geometry3d/float"]
-parallel = ["geometry3d/parallel"]
+parallel = ["geometry3d/parallel", "rayon"]
 
 
 [profile.release]

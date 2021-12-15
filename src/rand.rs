@@ -19,24 +19,12 @@ SOFTWARE.
 */
 
 pub use rand::prelude::*;
-use rand_xoshiro::rand_core::SeedableRng;
-use rand_xoshiro::Xoshiro256Plus;
 
-
-pub type RandGen = Xoshiro256Plus;//ThreadRng;
+pub type RandGen = ThreadRng;
 
 /// Gets a random number generator for Montecarlo estimations
 pub fn get_rng()->RandGen{    
-    let seed : u64 = rand::random();
-    RandGen::seed_from_u64(seed)
-    // rand::thread_rng()
+    rand::thread_rng()
 }
 
 
-/// Clones the random number generator and ensures that 
-/// the clone and the source are not correlated.
-pub fn clone_rng(rng: &RandGen)->RandGen{
-    let mut ret = rng.clone();
-    ret.jump();
-    ret
-}

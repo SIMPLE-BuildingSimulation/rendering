@@ -54,7 +54,7 @@ pub trait Material : Sync + Send{
         false
     }
 
-    /// Gets a closure that allows calculating and sampling the BSDF of the material
+    /// Gets an iterator that samples the BSDF of the material
     /// according to a certain `ShadingInfo`. The closure receives a `Vector3D` corresponding
     /// to the incident direction in world's coordinates, and returns the outgoing direction
     /// as well as the probability of going in that direction.

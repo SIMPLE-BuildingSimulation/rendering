@@ -24,11 +24,12 @@ use crate::Float;
 use crate::material::Material;
 use crate::sampleable_trait::Sampleable;
 use crate::interaction::{Interaction,SurfaceInteractionData, ShadingInfo};
-use geometry3d::intersect_trait::{IntersectionInfo};
 use geometry3d::{Ray3D,  Transform };
 use crate::ray::Ray;
+use crate::bvh::BoundingVolumeTree;
 
 type Texture = fn(Float,Float)->Float;
+
 
 pub struct Object {
     pub primitive: Box<dyn Sampleable>,
@@ -36,6 +37,8 @@ pub struct Object {
     pub back_material_index: usize,
     pub texture: Option<RefCount<Transform>>,
 }
+
+
 
 
 #[derive(Default)]
@@ -49,22 +52,31 @@ pub struct Scene {
     pub materials: Vec<RefCount<dyn Material>>,
 
     /// A vector of [`Light`] objects that
-    /// are considered sources of direct light
+    /// are considered sources of direct light.
+    /// The objects here are also in the objects part.
     pub lights: Vec<RefCount<Object>>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light
     pub distant_lights: Vec<RefCount<Object>>,
 
-    pub transforms: Vec<RefCount<Transform>>,
+    // pub transforms: Vec<RefCount<Transform>>,
 
     pub textures: Vec<RefCount<Texture>>,
+
+    pub accelerator: Option<BoundingVolumeTree>
 }
 
 impl Scene {
     /// Creates an empty scene
     pub fn new() -> Self {
         Self::default()
+    }
+
+    /// Builds the accelerator
+    pub fn build_accelerator(&mut self){
+        let accelerator = BoundingVolumeTree::new(self);
+        self.accelerator = Some(accelerator);
     }
 
     /// Returns the number of total lights; that is, 
@@ -75,154 +87,101 @@ impl Scene {
     }
 
    
-    /// Casts a [`Ray3D`] and returns an `Option<(Float,Vector3D,usize)>` in which the
-    /// [`Vector3D`] is the normal at the point of intersection, the `usize`
-    /// is the index of the [`Material`] encountered, and the `Float` is the distance 
-    /// that the [`Ray3D`] travelled to it.    
+    /// Casts a [`Ray3D`] and returns an `Option<(Float,SurfaceInteraction)>` in which the
+    /// the `Float` is the distance  that the [`Ray3D`] travelled to it.    
     pub fn cast_ray(&self, ray: &Ray) -> Option<(Float,Interaction)> {
-        // eprintln!("cast ray 1");
-        const MIN_T: Float = 0.000001;
-
-        let mut t_squared = Float::MAX;
         
-        let mut intersected = false;
-        let mut info : Option<IntersectionInfo> = None;
-        let mut object: Option<RefCount<Object>> = None;
-        // eprintln!("cast ray 2");
-        // let mut is_object = false;
-        // let mut is_light = false;
-        // let mut is_distant_light = false;
+        let accelerator = match &self.accelerator{
+            Some(s)=>s,
+            None =>{panic!("Trying to cast ray in a Scene without an accelerator");}            
+        };
 
-        // Test objects
-        for this_object in self.objects.iter() {
-            // eprintln!("cast ray 2.0");
-            if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
-                // eprintln!("cast ray 2.1");
-                let this_t_squared = (intersection_info.p - ray.origin()).length_squared();
-                // eprintln!("cast ray 2.2");
-                // Is it a valid hit and it is earlier than the rest?
-                if this_t_squared > MIN_T && this_t_squared < t_squared {                    
-                    // eprintln!("cast ray 2.2.1");
-                    t_squared = this_t_squared;
-                    object = Some(RefCount::clone(this_object));                    
-                    info = Some(intersection_info);
-                    intersected = true;
-                    // is_object = true;
-                }
-                // eprintln!("cast ray 2.3");
-            }else{
-                // eprintln!("cast_ray ;;;; did not intersect?")
-            }
-        }
-        // eprintln!("cast ray 3");
-        // Test lights
-        for this_object in self.lights.iter() {
-            if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
-                let this_t_squared = (intersection_info.p - ray.origin()).length_squared();
-                // Is it a valid hit and it is earlier than the rest?
-                if this_t_squared > MIN_T && this_t_squared < t_squared {
-                    // Update info.
+        // Check if we intersect something... otherwise, check distant sources
+        let res = accelerator.intersect(&self.objects, &ray.geometry);
+        if res.is_some(){
+            return res
+        }else{
+            // Did not intersec anything... Check distant sources
+            for source in self.distant_lights.iter() {
+                if let Some(info) = source.primitive.intersect(&ray.geometry) {                    
+                    let object = RefCount::clone(&source);
+                    let t = Float::MAX;// Just a huge distance                            
+                    let point = ray.geometry.project(t);
+                    // eprintln!("cast ray 7");
+                    let data = SurfaceInteractionData{
+                        point,
+                        // perror: info.perror,
+                        time: ray.time,
+                        wo: ray.geometry.direction * -1.,
+                        geometry_shading: ShadingInfo{
+                            u: info.u,
+                            v: info.v,
+                            normal: info.normal,
+                            dpdu: info.dpdu,
+                            dpdv: info.dpdv,
+                            dndu: info.dndu,
+                            dndv: info.dndv,
+                            side: info.side
+                        },
+                        texture_shading: None,
+                        object,
+                    };
+
                     
-                    t_squared = this_t_squared;
-                    info = Some(intersection_info);
-                    object = Some(RefCount::clone(this_object));                    
-                    intersected = true;
-                    // is_light = true;
-                }
+                    return Some((t,Interaction::Surface(data)))
+                }                
             }
-        }
-        // eprintln!("cast ray 4");
-        // if no intersection yet
-        if !intersected{
-            for this_object in self.distant_lights.iter() {
-                if let Some(intersection_info) = this_object.primitive.intersect(&ray.geometry) {
-                    let this_t_squared = (intersection_info.p - ray.origin()).length_squared();
-                    // Is it a valid hit and it is earlier than the rest?
-                    if this_t_squared > MIN_T && this_t_squared < t_squared {
-                        // Update info.
-                        
-                        t_squared = this_t_squared;
-                        info = Some(intersection_info);
-                        object = Some(RefCount::clone(this_object));                        
-                        intersected = true;
-                        // is_distant_light = true;
-                    }
-                }
-                
-            }
-        }
-        // eprintln!("cast ray 5");
-
-        // Return
-        if !intersected {
-            // eprintln!("cast ray ... return None");
+            // Did not intersect distant sources either.
             None
-        } else {
-            // eprintln!("cast ray 6");
-            let info = info.unwrap();
-            let object = object.unwrap();
-            let t = t_squared.sqrt();  
-                    
-            let point = ray.geometry.project(t);
-            // eprintln!("cast ray 7");
-            let data = SurfaceInteractionData{
-                point,
-                // perror: info.perror,
-                time: ray.time,
-                wo: ray.geometry.direction * -1.,
-                geometry_shading: ShadingInfo{
-                    u: info.u,
-                    v: info.v,
-                    normal: info.normal,
-                    dpdu: info.dpdu,
-                    dpdv: info.dpdv,
-                    dndu: info.dndu,
-                    dndv: info.dndv,
-                    side: info.side
-                },
-                texture_shading: None,
-                object,
-            };
-
-            // eprintln!("cast ray 8");
-            Some((t,Interaction::Surface(data)))
-        }
+        }       
     }
+
+    
 
     /// Checks whether a [`Ray3D`] can travel a certain distance without being obstructed
     pub fn unobstructed_distance(&self, ray: &Ray3D, distance: Float) -> bool {
-        const MIN_T: Float = 1e-20;
-        let d_squared = distance * distance;
+        let accelerator = match &self.accelerator{
+            Some(s)=>s,
+            None =>{panic!("Trying to cast ray in a Scene without an accelerator");}            
+        };
 
-        debug_assert!((1. - ray.direction.length()).abs() < 0.00000001);
+        // Check if we intersect something... otherwise, check distant sources
+        accelerator.unobstructed_distance(&self.objects, ray, distance)
+        
 
-        // Check all objects
-        for object in self.objects.iter() {
-            // If it intersects an object,
-            if let Some(pt) = object.primitive.simple_intersect(&ray) {                
-                let this_d_squared = (pt - ray.origin).length_squared();
 
-                // Is it a valid hit and it is earlier than the rest?
-                if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
-                    return false;
-                }
-            }
-        }
+        // const MIN_T: Float = 1e-20;
+        // let d_squared = distance * distance;
 
-        // Check lights as well
-        for object in self.lights.iter() {
-            // If it intersects an object,
-            if let Some(pt) = object.primitive.simple_intersect(&ray) {
-                let this_d_squared = (pt - ray.origin).length_squared();
-                // Is it a valid hit and it is earlier than the rest?
-                if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
-                    return false;
-                }
-            }
-        }
+        // debug_assert!((1. - ray.direction.length()).abs() < 0.00000001);
 
-        // it is unobstructed
-        true
+        // // Check all objects
+        // for object in self.objects.iter() {
+        //     // If it intersects an object,
+        //     if let Some(pt) = object.primitive.simple_intersect(&ray) {                
+        //         let this_d_squared = (pt - ray.origin).length_squared();
+
+        //         // Is it a valid hit and it is earlier than the rest?
+        //         if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
+        //             return false;
+        //         }
+        //     }
+        // }
+
+        // // // Check lights as well
+        // // for object in self.lights.iter() {
+        // //     // If it intersects an object,
+        // //     if let Some(pt) = object.primitive.simple_intersect(&ray) {
+        // //         let this_d_squared = (pt - ray.origin).length_squared();
+        // //         // Is it a valid hit and it is earlier than the rest?
+        // //         if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
+        // //             return false;
+        // //         }
+        // //     }
+        // // }
+
+        // // it is unobstructed
+        // true
     }
 
     /// Pushes a [`Material`] to the [`Scene`]
@@ -271,7 +230,11 @@ impl Scene {
             if ob_id == "source"{                 
                 self.distant_lights.push(RefCount::new(object));
             }else{
-                self.lights.push(RefCount::new(object))
+                let addition = RefCount::new(object);
+                // register object as light
+                self.lights.push(RefCount::clone(&addition));
+                // Push object
+                self.objects.push(addition)
             }        
         }else{
             // Push

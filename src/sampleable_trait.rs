@@ -191,8 +191,9 @@ impl Iterator for SphereDirectionSampler {
             return None;
         }
         self.i += 1;
+        let r2 = self.radius * self.radius;
         let direction = self.centre - self.ray_origin;
-        if direction.length() < self.radius {
+        if direction.length_squared() <= r2 {
             // if we are inside of the sphere
             panic!("Trying to sample sphere from inside it.")
         }
@@ -263,6 +264,7 @@ impl Sampleable for Sphere3D {
         let centre = self.centre();
         let this_r_sqrd = (point - centre).length_squared();
         if this_r_sqrd > self.radius * self.radius{
+            debug_assert!((centre - point).length_squared() >= 1e-9);
             // if we are outside of the sphere
             Box::new(SphereDirectionSampler {
                 n_samples,
