@@ -317,7 +317,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::sampleable_trait::Sampleable</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>,<span class="ident">SurfaceInteractionData</span>, <span class="ident">ShadingInfo</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>};
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>,  <span class="ident">Transform</span> };
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bvh::BoundingVolumeTree</span>;
@@ -395,36 +395,36 @@ SOFTWARE.
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_some</span>(){
             <span class="kw">return</span> <span class="ident">res</span>
         }<span class="kw">else</span>{
-            <span class="comment">// Did not intersec anything... Check distant sources</span>
-            <span class="kw">for</span> <span class="ident">source</span> <span class="kw">in</span> <span class="self">self</span>.<span class="ident">distant_lights</span>.<span class="ident">iter</span>() {
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">source</span>.<span class="ident">primitive</span>.<span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>.<span class="ident">geometry</span>) {                    
-                    <span class="kw">let</span> <span class="ident">object</span> <span class="op">=</span> <span class="ident">RefCount::clone</span>(<span class="kw-2">&amp;</span><span class="ident">source</span>);
-                    <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">Float::MAX</span>;<span class="comment">// Just a huge distance                            </span>
-                    <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">project</span>(<span class="ident">t</span>);
-                    <span class="comment">// eprintln!(&quot;cast ray 7&quot;);</span>
-                    <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">SurfaceInteractionData</span>{
-                        <span class="ident">point</span>,
-                        <span class="comment">// perror: info.perror,</span>
-                        <span class="ident">time</span>: <span class="ident">ray</span>.<span class="ident">time</span>,
-                        <span class="ident">wo</span>: <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>,
-                        <span class="ident">geometry_shading</span>: <span class="ident">ShadingInfo</span>{
-                            <span class="ident">u</span>: <span class="ident">info</span>.<span class="ident">u</span>,
-                            <span class="ident">v</span>: <span class="ident">info</span>.<span class="ident">v</span>,
-                            <span class="ident">normal</span>: <span class="ident">info</span>.<span class="ident">normal</span>,
-                            <span class="ident">dpdu</span>: <span class="ident">info</span>.<span class="ident">dpdu</span>,
-                            <span class="ident">dpdv</span>: <span class="ident">info</span>.<span class="ident">dpdv</span>,
-                            <span class="ident">dndu</span>: <span class="ident">info</span>.<span class="ident">dndu</span>,
-                            <span class="ident">dndv</span>: <span class="ident">info</span>.<span class="ident">dndv</span>,
-                            <span class="ident">side</span>: <span class="ident">info</span>.<span class="ident">side</span>
-                        },
-                        <span class="ident">texture_shading</span>: <span class="prelude-val">None</span>,
-                        <span class="ident">object</span>,
-                    };
+            <span class="comment">// // Did not intersec anything... Check distant sources</span>
+            <span class="comment">// for source in self.distant_lights.iter() {</span>
+            <span class="comment">//     if let Some(info) = source.primitive.intersect(&amp;ray.geometry) {                    </span>
+            <span class="comment">//         let object = RefCount::clone(&amp;source);</span>
+            <span class="comment">//         let t = Float::MAX;// Just a huge distance                            </span>
+            <span class="comment">//         let point = ray.geometry.project(t);</span>
+            <span class="comment">//         // eprintln!(&quot;cast ray 7&quot;);</span>
+            <span class="comment">//         let data = SurfaceInteractionData{</span>
+            <span class="comment">//             point,</span>
+            <span class="comment">//             // perror: info.perror,</span>
+            <span class="comment">//             time: ray.time,</span>
+            <span class="comment">//             wo: ray.geometry.direction * -1.,</span>
+            <span class="comment">//             geometry_shading: ShadingInfo{</span>
+            <span class="comment">//                 u: info.u,</span>
+            <span class="comment">//                 v: info.v,</span>
+            <span class="comment">//                 normal: info.normal,</span>
+            <span class="comment">//                 dpdu: info.dpdu,</span>
+            <span class="comment">//                 dpdv: info.dpdv,</span>
+            <span class="comment">//                 dndu: info.dndu,</span>
+            <span class="comment">//                 dndv: info.dndv,</span>
+            <span class="comment">//                 side: info.side</span>
+            <span class="comment">//             },</span>
+            <span class="comment">//             texture_shading: None,</span>
+            <span class="comment">//             object,</span>
+            <span class="comment">//         };</span>
 
                     
-                    <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">t</span>,<span class="ident">Interaction::Surface</span>(<span class="ident">data</span>)))
-                }                
-            }
+            <span class="comment">//         return Some((t,Interaction::Surface(data)))</span>
+            <span class="comment">//     }                </span>
+            <span class="comment">// }</span>
             <span class="comment">// Did not intersect distant sources either.</span>
             <span class="prelude-val">None</span>
         }       
