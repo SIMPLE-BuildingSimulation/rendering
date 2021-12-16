@@ -1,5 +1,6 @@
 /target
 Cargo.lock
-test_data/images/*
+test_data/images/*.hdr
+test_data/images/*.tiff
 .DS_Store
 .vscode

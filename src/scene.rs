@@ -23,7 +23,7 @@ use crate::RefCount;
 use crate::Float;
 use crate::material::Material;
 use crate::sampleable_trait::Sampleable;
-use crate::interaction::{Interaction,SurfaceInteractionData, ShadingInfo};
+use crate::interaction::{Interaction};
 use geometry3d::{Ray3D,  Transform };
 use crate::ray::Ray;
 use crate::bvh::BoundingVolumeTree;
@@ -101,36 +101,36 @@ impl Scene {
         if res.is_some(){
             return res
         }else{
-            // Did not intersec anything... Check distant sources
-            for source in self.distant_lights.iter() {
-                if let Some(info) = source.primitive.intersect(&ray.geometry) {                    
-                    let object = RefCount::clone(&source);
-                    let t = Float::MAX;// Just a huge distance                            
-                    let point = ray.geometry.project(t);
-                    // eprintln!("cast ray 7");
-                    let data = SurfaceInteractionData{
-                        point,
-                        // perror: info.perror,
-                        time: ray.time,
-                        wo: ray.geometry.direction * -1.,
-                        geometry_shading: ShadingInfo{
-                            u: info.u,
-                            v: info.v,
-                            normal: info.normal,
-                            dpdu: info.dpdu,
-                            dpdv: info.dpdv,
-                            dndu: info.dndu,
-                            dndv: info.dndv,
-                            side: info.side
-                        },
-                        texture_shading: None,
-                        object,
-                    };
+            // // Did not intersec anything... Check distant sources
+            // for source in self.distant_lights.iter() {
+            //     if let Some(info) = source.primitive.intersect(&ray.geometry) {                    
+            //         let object = RefCount::clone(&source);
+            //         let t = Float::MAX;// Just a huge distance                            
+            //         let point = ray.geometry.project(t);
+            //         // eprintln!("cast ray 7");
+            //         let data = SurfaceInteractionData{
+            //             point,
+            //             // perror: info.perror,
+            //             time: ray.time,
+            //             wo: ray.geometry.direction * -1.,
+            //             geometry_shading: ShadingInfo{
+            //                 u: info.u,
+            //                 v: info.v,
+            //                 normal: info.normal,
+            //                 dpdu: info.dpdu,
+            //                 dpdv: info.dpdv,
+            //                 dndu: info.dndu,
+            //                 dndv: info.dndv,
+            //                 side: info.side
+            //             },
+            //             texture_shading: None,
+            //             object,
+            //         };
 
                     
-                    return Some((t,Interaction::Surface(data)))
-                }                
-            }
+            //         return Some((t,Interaction::Surface(data)))
+            //     }                
+            // }
             // Did not intersect distant sources either.
             None
         }       

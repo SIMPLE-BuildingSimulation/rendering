@@ -48,7 +48,7 @@ impl Default for RayTracer{
             n_ambient_samples: 10,      
             
             
-            limit_weight: 1e-5,
+            limit_weight: 1e-3,
             limit_reflections: 0,
         }
     }
@@ -65,18 +65,9 @@ impl RayTracer {
         if current_depth > self.max_depth {
             return Spectrum::black();
         }
-        // Check reflection limits... as described in RTRACE's man
-        if current_value < self.limit_weight && self.limit_reflections > 0 {
-            return Spectrum::black();
-        }else{
-            // russian roulette
-            let q : Float = rng.gen();
-            if q > current_value/self.limit_weight {
-                return Spectrum::black();
-            }
-        }
+        
 
-        // If hits an object
+        // If hits an object (we test directly from the accelerator )
         if let Some((t, interaction)) = scene.cast_ray(ray) {
 
             let object = interaction.object();
@@ -126,22 +117,32 @@ impl RayTracer {
                     let mut global = Spectrum::black();
                     // for now, emmiting materials don't reflect
                     if !material.emits_direct_light() {
-                        let n_lights = scene.count_all_lights();
-                        let total_samples = self.n_ambient_samples + n_lights * self.n_shadow_samples;
-                        let bsdf_c = self.n_ambient_samples as Float / total_samples as Float;
+                        let n_lights = scene.count_all_lights();                        
                         let bsdf_sampler = material.bsdf_sampler(data.geometry_shading);
                         
-                        /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
-                        let mut wt = 1.;
-                        
-                        let d = 0.8* current_value * current_value * one_over_ambient_samples / self.limit_weight;
-                        if wt > d {
-                            wt = d;
-                        }
-                        let mut n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;                    
-                        if n < 1 {
-                            n = 1;
-                        }
+                        let mut wt = current_value;
+                        let n = if current_depth == 0 {
+                            self.n_ambient_samples
+                        }else{
+
+                            /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */                        
+                            
+                            let d = 0.8 * current_value /*intens(rcol)*/* current_value * one_over_ambient_samples / self.limit_weight;
+                            if wt > d {
+                                wt = d;
+                            }
+                            let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;                    
+                            const MIN_AMBS : usize = 1;
+                            if n < MIN_AMBS {
+                                MIN_AMBS
+                            }else{
+                                n
+                            }            
+                        };
+                        // // println!("Rays reduced to {}", n)            ;
+                        // let n = self.n_ambient_samples;
+                        let total_samples = n + n_lights * self.n_shadow_samples;
+                        let bsdf_c = n as Float / total_samples as Float;
                         
                         for _ in 0..n {                           
                             // Choose a direction.
@@ -156,16 +157,25 @@ impl RayTracer {
                                 }
                             };
                             let cos_theta = (normal * new_ray_dir).abs();
-                            // let material_pdf = material.bsdf(ray_dir, normal, new_ray_dir);
-                            let new_value = material.colour().red * material_pdf * cos_theta;
-                            let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1, new_value);
+                            // let new_value = material.colour().red * material_pdf * cos_theta;
+                            // Check reflection limits... as described in RTRACE's man
+                            // if self.limit_weight > 0. && /*new_value*/wt < self.limit_weight {
+                            //     // russian roulette
+                            //     let q : Float = rng.gen();
+                            //     if q > /*new_value*/wt/self.limit_weight {
+                            //         return Spectrum::black();
+                            //     }
+                            // }
+                            
+                            let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1, wt * material_pdf * cos_theta);
 
-                            let fx = (li * cos_theta) * (material.colour() * material_pdf);
+                            let fx =  (li * cos_theta) * (material.colour() * material_pdf);
                             let denominator = material_pdf * bsdf_c;
 
                             // add contribution
                             global += fx / denominator;
                         }
+                        
                         global /= total_samples as Float;
                     }
 
@@ -258,14 +268,15 @@ impl RayTracer {
 
         let mut sample_light_array = |lights: &[RefCount<Object>]|{            
             for light in lights.iter() {
+                let origin = origin + normal * 0.001;
                 let sampler = light.primitive.direction_sampler(origin, self.n_shadow_samples);
-                for light_direction in sampler {            
+                for direction in sampler {            
                     let shadow_ray = Ray3D {
-                        origin : origin + normal*0.000000001,
-                        direction: light_direction,
+                        origin,
+                        direction,
                     };
             
-                    let cos_theta = (normal * light_direction).abs();
+                    let cos_theta = (normal * direction).abs();
     
                     let (light_colour, light_pdf) = self.sample_light(scene, light, &shadow_ray);            
                     if light_pdf.abs() < 100.*Float::EPSILON{                        
@@ -308,7 +319,7 @@ impl RayTracer {
                     time: 1.,         // we will not use
                 });
                 let mut rng = get_rng();
-                buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0, 1.) * weight;
+                buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0, weight);
                 // report
                 let progress = (100 * i) as Float / total_pixels as Float;
                 if (progress - progress.floor()) < 0.1 && (progress - last_progress).abs() > 1. {
@@ -384,7 +395,7 @@ mod tests {
     }
 
     #[test]
-    fn render_room() {
+    fn test_render_room() {
         // return;
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
         
@@ -406,7 +417,7 @@ mod tests {
         let camera = PinholeCam::new(view, film);
 
         let integrator = RayTracer{
-            n_ambient_samples: 128,
+            n_ambient_samples: 6,//128,
             n_shadow_samples: 1,
             max_depth: 2,
             .. RayTracer::default()
