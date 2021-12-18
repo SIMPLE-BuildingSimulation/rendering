@@ -15,8 +15,8 @@ use rendering::samplers::{HorizontalDiskUniformSampler, HorizontalCosineWeighted
 pub fn criterion_benchmark(c: &mut Criterion) {
     
     
-    // let rng_src = black_box(get_rng());
-    // let mut rng = clone_rng(&rng_src);
+
+
     
     let mut sampler = black_box(HorizontalDiskUniformSampler::new(1., std::usize::MAX));
     

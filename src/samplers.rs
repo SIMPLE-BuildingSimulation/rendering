@@ -20,12 +20,32 @@ SOFTWARE.
 
 
 
+
+
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 use crate::rand::*;
 
 #[cfg(feature = "parallel")]
 use rayon::iter::ParallelIterator;
+
+
+// // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/
+// The problem with these functions is that, due to their errors, they 
+// produce a lot of "Missed light" situations and the renders
+// become all weird.
+// // /// Approximates `cos(x)` in radians with a maximum error of `0.002`.
+// fn fast_cos(mut x: Float) -> Float {    
+//     x *= 1./ (2. * PI);
+//     x -= 0.25 + (x + 0.25).floor();
+//     x *= 16.0 * (x.abs() - 0.5);
+//     x += 0.225 * x * (x.abs() - 1.0);
+//     x
+// }
+
+// fn fast_sin(x: Float) -> Float {
+//     fast_cos(x - PI / 2.0)
+// }
 
 
 pub fn uniform_sample_triangle(rng: &mut RandGen,a:Point3D,b:Point3D,c:Point3D)->Point3D{
@@ -81,9 +101,10 @@ pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32,
     let r = radius as f32 * r.sqrt();
     let theta = 2. * std::f32::consts::PI * theta;
     let (theta_sin, theta_cos) = theta.sin_cos();
+    
     let local_x = r * theta_sin;
     let local_y = r * theta_cos;
-    (local_x , local_y)
+    (local_x, local_y)
 }
 
 pub fn local_to_world(
@@ -247,15 +268,7 @@ mod tests {
         }
     }
 
-    #[test]
-    #[cfg(feature = "parallel")]
-    fn test_par_sampler(){
-        let sampler = HorizontalDiskUniformSampler::new(1., 123);
-        let _ = sampler.par_map(|(x,y)|{
-            println!("x={}, y={}",x,y);
-        }).collect::<()>();
-        
-    }   
+       
     // #[test]
     // fn test_approx_sin(){
     //     const MAX_ERR : Float = 0.0105;

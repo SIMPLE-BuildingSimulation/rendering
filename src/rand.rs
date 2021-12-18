@@ -20,11 +20,24 @@ SOFTWARE.
 
 pub use rand::prelude::*;
 
-pub type RandGen = ThreadRng;
+pub type RandGen = SmallRng;
 
 /// Gets a random number generator for Montecarlo estimations
 pub fn get_rng()->RandGen{    
-    rand::thread_rng()
+    // rand::thread_rng()
+    SmallRng::from_entropy()
 }
 
-
+// THis function was copied from https://bheisler.github.io/post/writing-gpu-accelerated-path-tracer-part-2/
+// But it does not seem to improve performance compared with
+// the `rand::SmallRng`
+// pub fn random_float(seed: &mut u32) -> f32 {
+//     let mut x = *seed;
+//     x ^= x >> 13;
+//     x ^= x << 17;
+//     x ^= x >> 5;
+//     *seed = x;
+//     let float_bits = (x & 0x007FFFFF) | 0x3F800000;
+//     let float: f32 = unsafe { ::core::mem::transmute(float_bits) };
+//     float - 1.0
+// }
