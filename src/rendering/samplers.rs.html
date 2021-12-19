@@ -334,6 +334,50 @@
 <span id="300">300</span>
 <span id="301">301</span>
 <span id="302">302</span>
+<span id="303">303</span>
+<span id="304">304</span>
+<span id="305">305</span>
+<span id="306">306</span>
+<span id="307">307</span>
+<span id="308">308</span>
+<span id="309">309</span>
+<span id="310">310</span>
+<span id="311">311</span>
+<span id="312">312</span>
+<span id="313">313</span>
+<span id="314">314</span>
+<span id="315">315</span>
+<span id="316">316</span>
+<span id="317">317</span>
+<span id="318">318</span>
+<span id="319">319</span>
+<span id="320">320</span>
+<span id="321">321</span>
+<span id="322">322</span>
+<span id="323">323</span>
+<span id="324">324</span>
+<span id="325">325</span>
+<span id="326">326</span>
+<span id="327">327</span>
+<span id="328">328</span>
+<span id="329">329</span>
+<span id="330">330</span>
+<span id="331">331</span>
+<span id="332">332</span>
+<span id="333">333</span>
+<span id="334">334</span>
+<span id="335">335</span>
+<span id="336">336</span>
+<span id="337">337</span>
+<span id="338">338</span>
+<span id="339">339</span>
+<span id="340">340</span>
+<span id="341">341</span>
+<span id="342">342</span>
+<span id="343">343</span>
+<span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -356,12 +400,32 @@ SOFTWARE.
 
 
 
+
+
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parallel&quot;</span>)]</span>
 <span class="kw">use</span> <span class="ident">rayon::iter::ParallelIterator</span>;
+
+
+<span class="comment">// from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/</span>
+<span class="comment">// The problem with these functions is that, due to their errors, they </span>
+<span class="comment">// produce a lot of &quot;Missed light&quot; situations and the renders</span>
+<span class="comment">// become all weird.</span>
+<span class="comment">// /// Approximates `cos(x)` in radians with a maximum error of `0.002`.</span>
+<span class="kw">fn</span> <span class="ident">fast_cos</span>(<span class="kw-2">mut</span> <span class="ident">x</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {    
+    <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">1.</span><span class="op">/</span> (<span class="number">2.</span> <span class="op">*</span> <span class="ident"><span class="kw">crate</span>::PI</span>);
+    <span class="ident">x</span> <span class="op">-</span><span class="op">=</span> <span class="number">0.25</span> <span class="op">+</span> (<span class="ident">x</span> <span class="op">+</span> <span class="number">0.25</span>).<span class="ident">floor</span>();
+    <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">16.0</span> <span class="op">*</span> (<span class="ident">x</span>.<span class="ident">abs</span>() <span class="op">-</span> <span class="number">0.5</span>);
+    <span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="number">0.225</span> <span class="op">*</span> <span class="ident">x</span> <span class="op">*</span> (<span class="ident">x</span>.<span class="ident">abs</span>() <span class="op">-</span> <span class="number">1.0</span>);
+    <span class="ident">x</span>
+}
+
+<span class="kw">fn</span> <span class="ident">fast_sin</span>(<span class="ident">x</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {
+    <span class="ident">fast_cos</span>(<span class="ident">x</span> <span class="op">-</span> <span class="ident"><span class="kw">crate</span>::PI</span> <span class="op">/</span> <span class="number">2.0</span>)
+}
 
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_triangle</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>,<span class="ident">a</span>:<span class="ident">Point3D</span>,<span class="ident">b</span>:<span class="ident">Point3D</span>,<span class="ident">c</span>:<span class="ident">Point3D</span>)-&gt;<span class="ident">Point3D</span>{
@@ -409,17 +473,49 @@ SOFTWARE.
 
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>, <span class="ident">radius</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">f32</span>, <span class="ident">f32</span>) {
+    <span class="comment">// Fast, non-rejection</span>
     <span class="comment">// sqrt() and cos() and sin() are </span>
     <span class="comment">// much faster in f32... that is why I am doing </span>
     <span class="comment">// this.</span>
-    <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">theta</span>): (<span class="ident">f32</span>, <span class="ident">f32</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+    <span class="comment">// let (r, theta): (Float, Float) = rng.gen();</span>
     
-    <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">radius</span> <span class="kw">as</span> <span class="ident">f32</span> <span class="op">*</span> <span class="ident">r</span>.<span class="ident">sqrt</span>();
-    <span class="kw">let</span> <span class="ident">theta</span> <span class="op">=</span> <span class="number">2.</span> <span class="op">*</span> <span class="ident">std::f32::consts::PI</span> <span class="op">*</span> <span class="ident">theta</span>;
-    <span class="kw">let</span> (<span class="ident">theta_sin</span>, <span class="ident">theta_cos</span>) <span class="op">=</span> <span class="ident">theta</span>.<span class="ident">sin_cos</span>();
-    <span class="kw">let</span> <span class="ident">local_x</span> <span class="op">=</span> <span class="ident">r</span> <span class="op">*</span> <span class="ident">theta_sin</span>;
-    <span class="kw">let</span> <span class="ident">local_y</span> <span class="op">=</span> <span class="ident">r</span> <span class="op">*</span> <span class="ident">theta_cos</span>;
-    (<span class="ident">local_x</span> , <span class="ident">local_y</span>)
+    <span class="comment">// let r = radius * r.sqrt();</span>
+    <span class="comment">// let theta = 2. * std::f64::consts::PI * theta;</span>
+    <span class="comment">// // let (theta_sin, theta_cos) = theta.sin_cos();</span>
+    <span class="comment">// let theta_sin = fast_sin(theta);</span>
+    <span class="comment">// let theta_cos = fast_cos(theta);</span>
+
+    
+    <span class="comment">// let local_x = r * theta_sin;</span>
+    <span class="comment">// let local_y = r * theta_cos;</span>
+    <span class="comment">// (local_x as f32, local_y as f32)</span>
+
+    <span class="comment">// Accurate, non-rejection</span>
+    <span class="comment">// sqrt() and cos() and sin() are </span>
+    <span class="comment">// much faster in f32... that is why I am doing </span>
+    <span class="comment">// this.</span>
+    <span class="comment">// let (r, theta): (f32, f32) = rng.gen();</span>
+    
+    <span class="comment">// let r = radius as f32 * r.sqrt();</span>
+    <span class="comment">// let theta = 2. * std::f32::consts::PI * theta;</span>
+    <span class="comment">// let (theta_sin, theta_cos) = theta.sin_cos();</span>
+    
+    <span class="comment">// let local_x = r * theta_sin;</span>
+    <span class="comment">// let local_y = r * theta_cos;</span>
+    <span class="comment">// (local_x, local_y)</span>
+
+    <span class="comment">// rejection sampling</span>
+    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x</span>, <span class="kw-2">mut</span> <span class="ident">y</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>(); 
+    <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
+    <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
+    <span class="kw">let</span> <span class="ident">found_rsq</span> <span class="op">=</span> <span class="ident">x</span><span class="kw-2">*</span><span class="ident">x</span><span class="op">+</span><span class="ident">y</span><span class="kw-2">*</span><span class="ident">y</span>;
+    <span class="kw">if</span> <span class="ident">found_rsq</span> <span class="op">&lt;</span> <span class="ident">radius</span><span class="kw-2">*</span><span class="ident">radius</span> {
+        (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>,<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f32</span>)
+    }<span class="kw">else</span>{
+        <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>, <span class="ident">radius</span>)
+    }
+
+
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_to_world</span>(
@@ -583,15 +679,7 @@ SOFTWARE.
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parallel&quot;</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">test_par_sampler</span>(){
-        <span class="kw">let</span> <span class="ident">sampler</span> <span class="op">=</span> <span class="ident">HorizontalDiskUniformSampler::new</span>(<span class="number">1.</span>, <span class="number">123</span>);
-        <span class="kw">let</span> <span class="kw">_</span> <span class="op">=</span> <span class="ident">sampler</span>.<span class="ident">par_map</span>(<span class="op">|</span>(<span class="ident">x</span>,<span class="ident">y</span>)<span class="op">|</span>{
-            <span class="macro">println!</span>(<span class="string">&quot;x={}, y={}&quot;</span>,<span class="ident">x</span>,<span class="ident">y</span>);
-        }).<span class="ident">collect</span>::<span class="op">&lt;</span>()<span class="op">&gt;</span>();
-        
-    }   
+       
     <span class="comment">// #[test]</span>
     <span class="comment">// fn test_approx_sin(){</span>
     <span class="comment">//     const MAX_ERR : Float = 0.0105;</span>
