@@ -205,7 +205,7 @@ impl RayTracer {
         let intersection_info = match light.primitive.intersect(&shadow_ray) {
             Some(info) => info,
             None => {
-                eprintln!("... Missed light...");
+                // eprintln!("... Missed light...");
                 return (Spectrum::black(),0.0)
             }
         };

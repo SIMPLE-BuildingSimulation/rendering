@@ -30,22 +30,22 @@ use crate::rand::*;
 use rayon::iter::ParallelIterator;
 
 
-// // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/
+// from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/
 // The problem with these functions is that, due to their errors, they 
 // produce a lot of "Missed light" situations and the renders
 // become all weird.
-// // /// Approximates `cos(x)` in radians with a maximum error of `0.002`.
-// fn fast_cos(mut x: Float) -> Float {    
-//     x *= 1./ (2. * PI);
-//     x -= 0.25 + (x + 0.25).floor();
-//     x *= 16.0 * (x.abs() - 0.5);
-//     x += 0.225 * x * (x.abs() - 1.0);
-//     x
-// }
+// /// Approximates `cos(x)` in radians with a maximum error of `0.002`.
+fn fast_cos(mut x: Float) -> Float {    
+    x *= 1./ (2. * crate::PI);
+    x -= 0.25 + (x + 0.25).floor();
+    x *= 16.0 * (x.abs() - 0.5);
+    x += 0.225 * x * (x.abs() - 1.0);
+    x
+}
 
-// fn fast_sin(x: Float) -> Float {
-//     fast_cos(x - PI / 2.0)
-// }
+fn fast_sin(x: Float) -> Float {
+    fast_cos(x - crate::PI / 2.0)
+}
 
 
 pub fn uniform_sample_triangle(rng: &mut RandGen,a:Point3D,b:Point3D,c:Point3D)->Point3D{
@@ -93,18 +93,49 @@ impl Iterator for HorizontalDiskUniformSampler{
 
 
 pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32, f32) {
+    // Fast, non-rejection
     // sqrt() and cos() and sin() are 
     // much faster in f32... that is why I am doing 
     // this.
-    let (r, theta): (f32, f32) = rng.gen();
+    // let (r, theta): (Float, Float) = rng.gen();
     
-    let r = radius as f32 * r.sqrt();
-    let theta = 2. * std::f32::consts::PI * theta;
-    let (theta_sin, theta_cos) = theta.sin_cos();
+    // let r = radius * r.sqrt();
+    // let theta = 2. * std::f64::consts::PI * theta;
+    // // let (theta_sin, theta_cos) = theta.sin_cos();
+    // let theta_sin = fast_sin(theta);
+    // let theta_cos = fast_cos(theta);
+
     
-    let local_x = r * theta_sin;
-    let local_y = r * theta_cos;
-    (local_x, local_y)
+    // let local_x = r * theta_sin;
+    // let local_y = r * theta_cos;
+    // (local_x as f32, local_y as f32)
+
+    // Accurate, non-rejection
+    // sqrt() and cos() and sin() are 
+    // much faster in f32... that is why I am doing 
+    // this.
+    // let (r, theta): (f32, f32) = rng.gen();
+    
+    // let r = radius as f32 * r.sqrt();
+    // let theta = 2. * std::f32::consts::PI * theta;
+    // let (theta_sin, theta_cos) = theta.sin_cos();
+    
+    // let local_x = r * theta_sin;
+    // let local_y = r * theta_cos;
+    // (local_x, local_y)
+
+    // rejection sampling
+    let (mut x, mut y): (Float, Float) = rng.gen(); 
+    x = x.mul_add(2.0*radius, -radius);
+    y = y.mul_add(2.0*radius, -radius);
+    let found_rsq = x*x+y*y;
+    if found_rsq < radius*radius {
+        (x as f32,y as f32)
+    }else{
+        uniform_sample_horizontal_disc(rng, radius)
+    }
+
+
 }
 
 pub fn local_to_world(
