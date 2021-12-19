@@ -21,7 +21,7 @@ SOFTWARE.
 use crate::RefCount;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D, Transform};
-use geometry3d::intersect_trait::SurfaceSide;
+use geometry3d::intersection::SurfaceSide;
 
 use crate::scene::Object;
 
@@ -107,8 +107,11 @@ pub struct SurfaceInteractionData{
     /// perturbed by a texture
     pub texture_shading: Option<ShadingInfo>,
 
-    /// The [`Object`] in the scene 
-    pub object: RefCount<Object>,    
+    // /// The [`Object`] in the scene 
+    // pub object: RefCount<Object>,    
+
+    /// The index of the primitive in the primitives array
+    pub prim_index: usize,
 }
 
 
@@ -133,7 +136,8 @@ impl SurfaceInteractionData {
             time,
             geometry_shading,
             texture_shading,            
-            object: RefCount::clone(&self.object)
+            // object: RefCount::clone(&self.object)
+            prim_index: self.prim_index
         }
     }
 
@@ -199,10 +203,10 @@ impl Interaction{
         }
     }
 
-    pub fn object(&self)->&RefCount<Object>{
-        match self{
-            Self::Surface(d)=>&d.object,
-            _ => panic!("{:?} has no normals", self)
-        }
-    }
+    // pub fn object(&self)->&RefCount<Object>{
+    //     match self{
+    //         Self::Surface(d)=>&d.object,
+    //         _ => panic!("{:?} has no normals", self)
+    //     }
+    // }
 }

@@ -18,17 +18,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::RefCount;
 use crate::Float;
 use crate::camera::{Camera, CameraSample};
 use crate::image::ImageBuffer;
 use crate::scene::{Scene, Object};
 use geometry3d::{Ray3D, Point3D, Vector3D};
 use crate::colour::Spectrum;
-use geometry3d::intersect_trait::SurfaceSide;
+use geometry3d::intersection::SurfaceSide;
 use crate::ray::Ray;
 use crate::interaction::Interaction;
 use crate::rand::*;
+use crate::material::Material;
 
 pub struct RayTracer {
     pub max_depth: usize,
@@ -70,12 +70,15 @@ impl RayTracer {
         // If hits an object (we test directly from the accelerator )
         if let Some((t, interaction)) = scene.cast_ray(ray) {
 
-            let object = interaction.object();
+            
             match &interaction {
                 Interaction::Endpoint(_)=>{panic!("Found an Endpoint while ray-tracing!")},
                 Interaction::Surface(data)=>{         
-                    // get the normal... can be textured.           
-                    let normal = data.normal();
+                    let object = &scene.objects[data.prim_index];
+                    // get the normal... can be textured.                               
+                    let normal = data.geometry_shading.normal.get_normalized();
+                    let e1 = data.geometry_shading.dpdu.get_normalized();
+                    let e2 = e1.cross(normal).get_normalized();
                     
 
                     debug_assert!((1.0 - normal.length()).abs() < 0.000001);
@@ -96,90 +99,89 @@ impl RayTracer {
                     };
                     
                     
-                    let intersection_pt = ray.geometry.project(t);
                     
+
+                    // for now, emmiting materials don't reflect
+                    if material.emits_direct_light() {
+                        return Spectrum::black();
+                    }
+                    /* SAMPLE BSDF */                    
+                    let intersection_pt = ray.geometry.project(t);                
                     let ray_dir = ray.geometry.direction;
-
-
-                    let materal_colour = material.colour();
-                    let bsdf_eval = material.bsdf_evaluator(data.geometry_shading);
+                    
                     /* SAMPLE LIGHTS */
                     let local = self.get_local_illumination(
                         scene,
-                        materal_colour,
-                        bsdf_eval,                        
+                        material,
                         ray_dir,
                         intersection_pt,
-                        normal                
+                        normal,
+                        e1,e2                
                     );
+                    
+                    let n_lights = scene.count_all_lights();                                                
+                    let mut global = Spectrum::black();                    
+                    let mut wt = current_value;
+                    let n = if current_depth == 0 {
+                        self.n_ambient_samples
+                    }else{
 
-                    /* SAMPLE BSDF */
-                    let mut global = Spectrum::black();
-                    // for now, emmiting materials don't reflect
-                    if !material.emits_direct_light() {
-                        let n_lights = scene.count_all_lights();                        
-                        let bsdf_sampler = material.bsdf_sampler(data.geometry_shading);
+                        /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */                        
                         
-                        let mut wt = current_value;
-                        let n = if current_depth == 0 {
-                            self.n_ambient_samples
-                        }else{
-
-                            /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */                        
-                            
-                            let d = 0.8 * current_value /*intens(rcol)*/* current_value * one_over_ambient_samples / self.limit_weight;
-                            if wt > d {
-                                wt = d;
-                            }
-                            let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;                    
-                            const MIN_AMBS : usize = 1;
-                            if n < MIN_AMBS {
-                                MIN_AMBS
-                            }else{
-                                n
-                            }            
-                        };
-                        // // println!("Rays reduced to {}", n)            ;
-                        // let n = self.n_ambient_samples;
-                        let total_samples = n + n_lights * self.n_shadow_samples;
-                        let bsdf_c = n as Float / total_samples as Float;
-                        
-                        for _ in 0..n {                           
-                            // Choose a direction.
-                            let (new_ray_dir, material_pdf) = bsdf_sampler(ray_dir, rng);                            
-                            debug_assert!((1. - new_ray_dir.length()).abs() < 0.0000001);
-
-                            let new_ray = Ray{
-                                time: ray.time,
-                                geometry: Ray3D {
-                                    direction : new_ray_dir,
-                                    origin: intersection_pt,// + normal * 0.0001, // avoid self shading
-                                }
-                            };
-                            let cos_theta = (normal * new_ray_dir).abs();
-                            // let new_value = material.colour().red * material_pdf * cos_theta;
-                            // Check reflection limits... as described in RTRACE's man
-                            // if self.limit_weight > 0. && /*new_value*/wt < self.limit_weight {
-                            //     // russian roulette
-                            //     let q : Float = rng.gen();
-                            //     if q > /*new_value*/wt/self.limit_weight {
-                            //         return Spectrum::black();
-                            //     }
-                            // }
-                            
-                            let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1, wt * material_pdf * cos_theta);
-
-                            let fx =  (li * cos_theta) * (material.colour() * material_pdf);
-                            let denominator = material_pdf * bsdf_c;
-
-                            // add contribution
-                            global += fx / denominator;
+                        let d = 0.8 * current_value /*intens(rcol)*/* current_value * one_over_ambient_samples / self.limit_weight;
+                        if wt > d {
+                            wt = d;
                         }
-                        
-                        global /= total_samples as Float;
-                    }
+                        let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;                    
+                        const MIN_AMBS : usize = 1;
+                        if n < MIN_AMBS {
+                            MIN_AMBS
+                        }else{
+                            n
+                        }            
+                    };
+                    // // println!("Rays reduced to {}", n)            ;
+                    // let n = self.n_ambient_samples;
+                    let total_samples = n + n_lights * self.n_shadow_samples;
+                    let bsdf_c = n as Float / total_samples as Float;
+                    
 
+                    for _ in 0..n {                           
+                        // Choose a direction.
+                        let (new_ray_dir, material_pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, ray_dir, rng);                            
+                        debug_assert!((1. - new_ray_dir.length()).abs() < 0.0000001);
+
+                        let new_ray = Ray{
+                            time: ray.time,
+                            geometry: Ray3D {
+                                direction : new_ray_dir,
+                                origin: intersection_pt,// + normal * 0.0001, // avoid self shading
+                            }
+                        };
+                        let cos_theta = (normal * new_ray_dir).abs();
+                        // let new_value = material.colour().red * material_pdf * cos_theta;
+                        // Check reflection limits... as described in RTRACE's man
+                        // if self.limit_weight > 0. && /*new_value*/wt < self.limit_weight {
+                        //     // russian roulette
+                        //     let q : Float = rng.gen();
+                        //     if q > /*new_value*/wt/self.limit_weight {
+                        //         return Spectrum::black();
+                        //     }
+                        // }
+                        
+                        let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1, wt * material_pdf * cos_theta);
+
+                        let fx =  (li * cos_theta) * (material.colour() * material_pdf);
+                        let denominator = material_pdf * bsdf_c;
+
+                        // add contribution
+                        global += fx / denominator;
+                    }
+                    
+                    global /= total_samples as Float;
+                    
                     local + global
+
 
                 }
             }            
@@ -248,15 +250,16 @@ impl RayTracer {
     fn get_local_illumination(
         &self,
         scene: &Scene,
-        mat_colour: Spectrum,
-        bsdf_eval: Box<dyn Fn(Vector3D, Vector3D)->Float>,        
+        material: &Material,                
         vin: Vector3D,
         point: Point3D,
-        normal: Vector3D,        
+        normal: Vector3D,  
+        e1: Vector3D,
+        e2: Vector3D,      
     ) -> Spectrum {        
         // prevent self-shading
         let origin = point + normal * 0.0001;
-        
+        let mat_colour = material.colour();
         
         let mut ret = Spectrum::black();
 
@@ -266,7 +269,7 @@ impl RayTracer {
         let bsdf_c = self.n_ambient_samples as Float / total_samples as Float;
         let light_c = self.n_shadow_samples as Float / total_samples as Float;
 
-        let mut sample_light_array = |lights: &[RefCount<Object>]|{            
+        let mut sample_light_array = |lights: &[Object]|{            
             for light in lights.iter() {
                 let origin = origin + normal * 0.001;
                 let sampler = light.primitive.direction_sampler(origin, self.n_shadow_samples);
@@ -285,7 +288,8 @@ impl RayTracer {
                     // Denominator of the Balance Heuristic... I am assuming that
                     // when one light has a pdf>0, then all the rest are Zero... is this
                     // correct?
-                    let material_pdf = bsdf_eval(shadow_ray.direction * -1., vin );
+                    let vout = shadow_ray.direction * -1.;
+                    let material_pdf = material.eval_bsdf(normal, e1, e2,  vin, vout );
                     let denominator = material_pdf * bsdf_c + light_pdf * light_c;
                     let fx = (light_colour * cos_theta) * (mat_colour * material_pdf);
     
@@ -338,7 +342,6 @@ impl RayTracer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    // use std::process::Command;
 
     // use geometry3d::ray3d::Ray3D;
     use geometry3d::{Vector3D, Point3D};
@@ -432,8 +435,9 @@ mod tests {
         
     }
 
-    use crate::material::{Light, Mirror, Plastic};
+    use crate::material::{Material, PlasticMetal};
     use geometry3d::{DistantSource3D, Triangle3D, Sphere3D};
+    use crate::primitive::Primitive;
     
 
     #[test]
@@ -442,23 +446,26 @@ mod tests {
         // Build scene
         let mut scene = Scene::default();
 
-        let red = scene.push_material(RefCount::new(Plastic {
-            red: 0.55,
-            green: 0.15,
-            blue: 0.15,
+        let red = scene.push_material(Material::Plastic(PlasticMetal {
+            color:Spectrum{
+                red: 0.55,
+                green: 0.15,
+                blue: 0.15},
             specularity: 0.,
             roughness: 0.,
         }));
 
-        let green = scene.push_material(RefCount::new(Plastic {
-            red: 0.15,
-            green: 0.15,
-            blue: 0.15,
+        let green = scene.push_material(Material::Plastic(PlasticMetal {
+            color: Spectrum{
+                red: 0.15,
+                green: 0.15,
+                blue: 0.15
+            },            
             specularity: 0.,
             roughness: 0.,
         }));
 
-        let mirror = scene.push_material(RefCount::new(Mirror {
+        let mirror = scene.push_material(Material::Mirror( Spectrum{
             red: 0.8,
             green: 0.99,
             blue: 0.8,
@@ -467,13 +474,13 @@ mod tests {
         scene.push_object(
             mirror,
             mirror,
-            Box::new(Sphere3D::new(1.5, Point3D::new(0., 0., 0.5))),
+            Primitive::Sphere(Sphere3D::new(1.5, Point3D::new(0., 0., 0.5))),
         );
 
         scene.push_object(
             mirror,
             red,            
-            Box::new(Sphere3D::new_partial(
+            Primitive::Sphere(Sphere3D::new_partial(
                 1.5, 
                 Point3D::new(1., -1., -1.5),
                 -2., 0.2, 
@@ -484,13 +491,13 @@ mod tests {
         scene.push_object(
             red,
             red,
-            Box::new(Sphere3D::new(12.5, Point3D::new(0., 25., 12.5-3.)))            
+            Primitive::Sphere(Sphere3D::new(12.5, Point3D::new(0., 25., 12.5-3.)))            
         );
 
         scene.push_object(
             green,
             green,
-            Box::new(Triangle3D::new(
+            Primitive::Triangle(Triangle3D::new(
                 Point3D::new(-1000., -1000., -3.),
                 Point3D::new( 1000., -1000., -3.),
                 Point3D::new( 1000.,  1000., -3.),                
@@ -500,14 +507,14 @@ mod tests {
         scene.push_object(
             green,
             green,
-            Box::new(Triangle3D::new(
+            Primitive::Triangle(Triangle3D::new(
                 Point3D::new( 1000.,  1000., -3.),                
                 Point3D::new(-1000.,  1000., -3.),
                 Point3D::new(-1000., -1000., -3.),
             ).unwrap()),
         );
 
-        let up = scene.push_material(RefCount::new(Light {
+        let up = scene.push_material(Material::Light(Spectrum {
             red: 10000.,
             green: 10000.,
             blue: 10000.,
@@ -516,7 +523,7 @@ mod tests {
         scene.push_object(
             up,
             up,
-            Box::new(DistantSource3D::new(
+            Primitive::Source(DistantSource3D::new(
                 Vector3D::new(0., 0., 1.),         // direction
                 (0.5 as Float).to_radians(), // angle
             )),
@@ -525,13 +532,13 @@ mod tests {
         scene.push_object(
             up,
             up,
-            Box::new(DistantSource3D::new(
+            Primitive::Source(DistantSource3D::new(
                 Vector3D::new(0., -1., 1.),        // direction
                 (0.5 as Float).to_radians(), // angle
             )),
         );
 
-        let lightbulb = scene.push_material(RefCount::new(Light {
+        let lightbulb = scene.push_material(Material::Light(Spectrum {
             red: 100.,
             green: 100.,
             blue: 100.,
@@ -540,7 +547,7 @@ mod tests {
         scene.push_object(
             lightbulb,
             lightbulb,
-            Box::new(Sphere3D::new(1.5, Point3D::new(1., -1., 15.))),
+            Primitive::Sphere(Sphere3D::new(1.5, Point3D::new(1., -1., 15.))),
         );
 
         scene.build_accelerator();
@@ -573,130 +580,4 @@ mod tests {
         buffer.save_hdre("./test_data/images/ray_tracer.hdr".to_string());
     }
 
-    #[test]
-    fn test_ray_tracer_shadow_ray(){
-         // Create a scene
-         let mut scene = Scene::default();
-        
-         // Add a Light
-         let lightbulb = scene.push_material(RefCount::new(Light {
-             red: 100.,
-             green: 100.,
-             blue: 100.,
-         }));
- 
-         scene.push_object(
-             lightbulb,
-             lightbulb,
-             Box::new(Sphere3D::new(1.5, Point3D::new(0., 0., 15.))),
-         );
- 
-         // Add a material and an object
-         let green = scene.push_material(RefCount::new(Plastic {
-             red: 0.15,
-             green: 0.15,
-             blue: 0.15,
-             specularity: 0.,
-             roughness: 0.,
-         }));
- 
-         let centre = Point3D::new(0., 0., 0.);
-         let radius = 1.;
-         scene.push_object(
-             green,
-             green,
-             Box::new(Sphere3D::new(radius, centre))            
-         );
- 
-         scene.build_accelerator();
-
-         // Crate this so we can test methods
-         let integrator = RayTracer::default();
-             
-         let test_ray = |given_z_origin: Float|->Result<(),String>{
-            let z_origin = given_z_origin*radius;
-            let expect_hit = z_origin.abs() < radius;
-            let expect_visible_light = z_origin > centre.z;
-            let ray = Ray{
-                time: 1.,
-                geometry: Ray3D{
-                   origin: Point3D::new(0., -20., z_origin),
-                   direction: Vector3D::new(0., 1., 0.),
-                }
-            };
-   
-            if let Some((t,interaction)) = scene.cast_ray(&ray){
-                if !expect_hit {
-                    return Err(format!("Z = {} | We were NOT expecting any hit",given_z_origin))
-                }
-                let object = interaction.object();
-                if let Interaction::Surface(data) = &interaction {
-                    let phit = data.point;
-                    let direction = (phit - ray.geometry.origin).get_normalized();
-                    assert_eq!(direction,Vector3D::new(0., 1., 0.));
-
-                    let normal = data.normal();
-                    // normal.z must have the same sign as (z_origin - centre.z)
-                    if normal.z.signum()*(z_origin - centre.z).signum() == -1.{
-                        return Err(format!("Z = {} | The sign of normal.z is {}, while the sign of (z_origin - centre.z) is {}", given_z_origin, normal.z.signum(), (z_origin - centre.z).signum()))
-                    }
-                    debug_assert!((1.0 - normal.length()).abs() < 0.000001);
-
-
-                    let material = match data.geometry_shading.side {
-                        SurfaceSide::Front => {
-                            &scene.materials[object.front_material_index]
-                        },
-                        SurfaceSide::Back =>{
-                            return Err(format!("Z = {} | Expecting intersection to be at the Front of the sphere", given_z_origin))
-                        },
-                        SurfaceSide::NonApplicable => {
-                            return Ok(())
-                        }                     
-                    };
-
-                    let intersection_pt = ray.geometry.project(t);
-                    
-                    let ray_dir = ray.geometry.direction;
-
-                    let mat_colour = material.colour();
-                    let bsdf_eval = material.bsdf_evaluator(data.geometry_shading);
-                    let local_light = integrator.get_local_illumination(
-                        &scene,
-                        mat_colour,
-                        bsdf_eval,
-                        ray_dir,
-                        intersection_pt,
-                        normal                
-                    );
-                    if local_light.is_black() && expect_visible_light{
-                        return Err(format!("Z = {} | Expecting visible light... found {:?}", given_z_origin,local_light));
-                    }else if !local_light.is_black() && !expect_visible_light{
-                        return Err(format!("Z = {} | NOT Expecting visible light... found {:?}",given_z_origin, local_light));
-                    }
-                    return Ok(())
-
-                } else{
-                    panic!("Z = {} | Unexpected kind of interaction : {:?}", given_z_origin,interaction)
-                }
-
-            }else{
-                if expect_hit {
-                    return Err(format!("Z = {} | We were expecting a hit...", given_z_origin))
-                }                
-            }
-
-            Ok(())
-
-         };// end of closure
-
-        test_ray(0.1).unwrap();
-        test_ray(0.2).unwrap();
-        test_ray(0.3).unwrap();
-        test_ray(-0.1).unwrap();
-        test_ray(-0.2).unwrap();
-        test_ray(-0.3).unwrap();
- 
-    }
-        
 }

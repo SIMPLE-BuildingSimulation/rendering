@@ -25,10 +25,9 @@ Physically Based Rendering: From Theory To Implementation, © 2004-2021 Matt Pha
 https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies
  */
 
-use crate::RefCount;
 use crate::scene::{Scene, Object};
 use geometry3d::{BBox3D, BBoxAxis, Point3D, Ray3D, Vector3D};
-use geometry3d::intersect_trait::{ IntersectionInfo };
+use geometry3d::intersection::IntersectionInfo;
 use crate::Float;
 use std::cmp::Ordering;
 use crate::interaction::{Interaction, SurfaceInteractionData, ShadingInfo};
@@ -123,7 +122,7 @@ impl Node {
         })
     }
 
-    fn recursive_build(primitives: &Vec<RefCount<Object>>, primitives_info: &mut Vec<ObjectInfo>, start: usize, end: usize, total_nodes: &mut usize, ordered_primes: &mut Vec<RefCount<Object>>)-> Self {
+    fn recursive_build(primitives: &Vec<Object>, primitives_info: &mut Vec<ObjectInfo>, start: usize, end: usize, total_nodes: &mut usize, ordered_primes: &mut Vec<Object>)-> Self {
         
         debug_assert!(start < end );
         *total_nodes += 1;
@@ -144,7 +143,7 @@ impl Node {
             let first_prim_offset = ordered_primes.len();
             for i in start..end{
                 let index = primitives_info[i].index;
-                ordered_primes.push(RefCount::clone(&primitives[index]))
+                ordered_primes.push(primitives[index].clone())
             }
             return Node::new_leaf(first_prim_offset, n_primitives, bounds)
         } 
@@ -190,7 +189,7 @@ impl Node {
             let first_prim_offset = ordered_primes.len();
             for i in start..end{
                 let index = primitives_info[i].index;
-                ordered_primes.push(RefCount::clone(&primitives[index]))
+                ordered_primes.push(primitives[index].clone())
             }
             return Node::new_leaf(first_prim_offset, n_primitives, bounds);
 
@@ -337,7 +336,7 @@ impl BoundingVolumeTree {
         leaf node holds references to one or more primitives. 
         */
         let mut total_nodes = 0;
-        let mut ordered_primitives : Vec<RefCount<Object>> = Vec::with_capacity(n_objects);
+        let mut ordered_primitives : Vec<Object> = Vec::with_capacity(n_objects);
         let root = Node::recursive_build(&scene.objects, &mut primitives_info, 0, n_objects, &mut total_nodes, &mut ordered_primitives);
         scene.objects = ordered_primitives; // Update the Scene with the ordered primitive.
 
@@ -387,14 +386,14 @@ impl BoundingVolumeTree {
 
     /// Returns an `Option<Float, Interaction>`, where the `Float` is the distance 
     /// travelled by the ray.
-    pub fn intersect(&self, primitives: &Vec<RefCount<Object>>, ray: &Ray3D) -> Option<(Float, Interaction)>{
+    pub fn intersect(&self, primitives: &Vec<Object>, ray: &Ray3D) -> Option<(Float, Interaction)>{
         const MIN_T: Float = 0.000001;
         
         if self.0.len() == 0 {
             return None
         }
         let mut info : Option<IntersectionInfo> = None;
-        let mut object: Option<RefCount<Object>> = None;
+        let mut prim_index: Option<usize> = None;
         let mut t_squared = Float::MAX;
         
         let inv_dir = Vector3D::new(1./ray.direction.x, 1./ray.direction.y, 1./ray.direction.z);
@@ -415,7 +414,7 @@ impl BoundingVolumeTree {
                                 if this_t_squared > MIN_T && this_t_squared < t_squared {             
                                     // If the distance is less than what we had, update return data       
                                     t_squared = this_t_squared;
-                                    object = Some(RefCount::clone(&primitives[offset + i]));                    
+                                    prim_index = Some(offset + i);                    
                                     info = Some(intersect_info);                                    
                                 }
                             }
@@ -459,7 +458,8 @@ impl BoundingVolumeTree {
         // return
         if info.is_some(){
             let info = info.unwrap();
-            let object = object.unwrap();
+            // let object = object.unwrap();
+            let prim_index = prim_index.unwrap();
             let t = t_squared.sqrt();  
             let point = ray.project(t);
             let data = SurfaceInteractionData{
@@ -478,7 +478,8 @@ impl BoundingVolumeTree {
                     side: info.side
                 },
                 texture_shading: None,
-                object,
+                // object,
+                prim_index, 
             };
             Some((t,Interaction::Surface(data)))
         }else{
@@ -488,7 +489,7 @@ impl BoundingVolumeTree {
 
 
     /// Checks if a ray can travel a certain distance without hitting anything
-    pub fn unobstructed_distance(&self, primitives: &Vec<RefCount<Object>>, ray: &Ray3D, distance: Float) -> bool {
+    pub fn unobstructed_distance(&self, primitives: &Vec<Object>, ray: &Ray3D, distance: Float) -> bool {
         if self.0.len() == 0 {
             return true
         }

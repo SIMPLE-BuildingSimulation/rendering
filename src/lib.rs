@@ -42,7 +42,7 @@ type RefCount<T> = std::rc::Rc<T>;
 // Core
 pub mod ray;
 pub mod interaction;
-pub mod sampleable_trait;
+pub mod primitive_samplers;
 pub mod samplers;
 pub mod camera;
 pub mod colour;
@@ -53,6 +53,7 @@ pub mod material;
 pub mod scene;
 pub mod rand;
 pub mod bvh;
+pub mod primitive;
 // pub mod lights;
 
 // Ray-tracer

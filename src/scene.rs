@@ -19,23 +19,21 @@ SOFTWARE.
 */
 
 // use std::rc::RefCount;
-use crate::RefCount;
 use crate::Float;
 use crate::material::Material;
-use crate::sampleable_trait::Sampleable;
 use crate::interaction::{Interaction};
-use geometry3d::{Ray3D,  Transform };
+use geometry3d::{Ray3D};
 use crate::ray::Ray;
 use crate::bvh::BoundingVolumeTree;
+use crate::primitive::Primitive;
+// type Texture = fn(Float,Float)->Float;
 
-type Texture = fn(Float,Float)->Float;
-
-
+#[derive(Clone)]
 pub struct Object {
-    pub primitive: Box<dyn Sampleable>,
+    pub primitive: Primitive,
     pub front_material_index: usize,
     pub back_material_index: usize,
-    pub texture: Option<RefCount<Transform>>,
+    // pub texture: Option<RefCount<Transform>>,
 }
 
 
@@ -46,23 +44,23 @@ pub struct Scene {
     /// Objects in the scene that are not tested
     /// directly for shadow (e.g., non-luminous objects
     /// and diffuse light)
-    pub objects: Vec<RefCount<Object>>,
+    pub objects: Vec<Object>,
     
     /// The materials in the scene
-    pub materials: Vec<RefCount<dyn Material>>,
+    pub materials: Vec<Material>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light.
     /// The objects here are also in the objects part.
-    pub lights: Vec<RefCount<Object>>,
+    pub lights: Vec<Object>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light
-    pub distant_lights: Vec<RefCount<Object>>,
+    pub distant_lights: Vec<Object>,
 
     // pub transforms: Vec<RefCount<Transform>>,
 
-    pub textures: Vec<RefCount<Texture>>,
+    // pub textures: Vec<RefCount<Texture>>,
 
     pub accelerator: Option<BoundingVolumeTree>
 }
@@ -185,7 +183,7 @@ impl Scene {
     }
 
     /// Pushes a [`Material`] to the [`Scene`]
-    pub fn push_material(&mut self, material: RefCount<dyn Material>) -> usize {
+    pub fn push_material(&mut self, material: Material) -> usize {
         self.materials.push(material);
         // return
         self.materials.len() - 1
@@ -198,7 +196,7 @@ impl Scene {
         &mut self,
         front_material_index: usize,
         back_material_index: usize,
-        object: Box<dyn Sampleable>,
+        primitive: Primitive,
     ) -> usize {
         if front_material_index >= self.materials.len() {
             panic!("Pushing object with front material out of bounds")
@@ -209,13 +207,13 @@ impl Scene {
         }
 
         let this_index = self.objects.len();
-        let ob_id = object.id();
+        let ob_id = primitive.id();
         let object = Object {
             front_material_index,
             back_material_index,
-            primitive: object,
+            primitive,
             
-            texture: None,            
+            // texture: None,            
         };
 
         
@@ -228,17 +226,16 @@ impl Scene {
             // only do this while creating the scene, not while
             // rendering
             if ob_id == "source"{                 
-                self.distant_lights.push(RefCount::new(object));
-            }else{
-                let addition = RefCount::new(object);
+                self.distant_lights.push(object.clone());
+            }else{                
                 // register object as light
-                self.lights.push(RefCount::clone(&addition));
+                self.lights.push(object.clone());
                 // Push object
-                self.objects.push(addition)
+                self.objects.push(object)
             }        
         }else{
             // Push
-            self.objects.push(RefCount::new(object));
+            self.objects.push(object);
         }
 
         // return

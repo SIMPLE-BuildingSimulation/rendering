@@ -30,22 +30,22 @@ use crate::rand::*;
 use rayon::iter::ParallelIterator;
 
 
-// from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/
-// The problem with these functions is that, due to their errors, they 
-// produce a lot of "Missed light" situations and the renders
-// become all weird.
-// /// Approximates `cos(x)` in radians with a maximum error of `0.002`.
-fn fast_cos(mut x: Float) -> Float {    
-    x *= 1./ (2. * crate::PI);
-    x -= 0.25 + (x + 0.25).floor();
-    x *= 16.0 * (x.abs() - 0.5);
-    x += 0.225 * x * (x.abs() - 1.0);
-    x
-}
+// // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/
+// // The problem with these functions is that, due to their errors, they 
+// // produce a lot of "Missed light" situations and the renders
+// // become all weird.
+// // /// Approximates `cos(x)` in radians with a maximum error of `0.002`.
+// fn fast_cos(mut x: Float) -> Float {    
+//     x *= 1./ (2. * crate::PI);
+//     x -= 0.25 + (x + 0.25).floor();
+//     x *= 16.0 * (x.abs() - 0.5);
+//     x += 0.225 * x * (x.abs() - 1.0);
+//     x
+// }
 
-fn fast_sin(x: Float) -> Float {
-    fast_cos(x - crate::PI / 2.0)
-}
+// fn fast_sin(x: Float) -> Float {
+//     fast_cos(x - crate::PI / 2.0)
+// }
 
 
 pub fn uniform_sample_triangle(rng: &mut RandGen,a:Point3D,b:Point3D,c:Point3D)->Point3D{

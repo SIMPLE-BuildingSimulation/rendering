@@ -18,10 +18,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::RefCount;
-use crate::Float;
 
-use crate::material::{Light, Metal, Mirror, Plastic};
+use crate::Float;
+use crate::colour::Spectrum;
+
+use crate::material::{PlasticMetal, Material};
+use crate::primitive::Primitive;
 
 use crate::scene::Scene;
 
@@ -194,14 +196,12 @@ impl Scanner {
 
         self.modifiers.push(name.clone());
 
-        let metal = Metal {
-            red,
-            green,
-            blue,
+        let metal = PlasticMetal {
+            color: Spectrum{red,green,blue},
             specularity,
             roughness,
         };
-        scene.push_material(RefCount::new(metal));
+        scene.push_material(Material::Metal(metal));
     }
 
     /// Consumes a Plastic material
@@ -226,14 +226,12 @@ impl Scanner {
 
         self.modifiers.push(name.clone());
 
-        let plastic = Plastic {
-            red,
-            green,
-            blue,
+        let plastic = PlasticMetal {
+            color: Spectrum{red,green,blue},
             specularity,
             roughness,
         };
-        scene.push_material(RefCount::new(plastic));
+        scene.push_material(Material::Plastic(plastic));
     }
 
     /// Consumes a Light material
@@ -256,8 +254,8 @@ impl Scanner {
 
         self.modifiers.push(name.clone());
 
-        let light = Light { red, green, blue };
-        scene.push_material(RefCount::new(light));
+        let light = Spectrum { red, green, blue };
+        scene.push_material(Material::Light(light));
     }
 
     /// Consumes a Light material
@@ -280,8 +278,8 @@ impl Scanner {
 
         self.modifiers.push(name.clone());
 
-        let mirror = Mirror { red, green, blue };
-        scene.push_material(RefCount::new(mirror));
+        let mirror = Spectrum { red, green, blue };
+        scene.push_material(Material::Mirror(mirror));
     }
 
     /// Consumes a sphere
@@ -306,7 +304,7 @@ impl Scanner {
         let sphere = Sphere3D::new(radius, Point3D::new(center_x, center_y, center_z));
 
         let mod_index = self.get_modifier_index(modifier);
-        scene.push_object(mod_index, mod_index, Box::new(sphere));
+        scene.push_object(mod_index, mod_index, Primitive::Sphere(sphere));
     }
 
     /// Consumes a sphere
@@ -330,7 +328,7 @@ impl Scanner {
         let distant_source = DistantSource3D::new(Vector3D::new(dir_x, dir_y, dir_z), angle);
 
         let mod_index = self.get_modifier_index(modifier);
-        scene.push_object(mod_index, mod_index, Box::new(distant_source));
+        scene.push_object(mod_index, mod_index, Primitive::Source(distant_source));
     }
     /// Consumes a polygon
     fn consume_polygon(
@@ -365,7 +363,7 @@ impl Scanner {
         let triangles = Triangulation3D::from_polygon(&polygon).unwrap().get_trilist();
 
         for tri in triangles{
-            scene.push_object(mod_index, mod_index, Box::new(tri));
+            scene.push_object(mod_index, mod_index, Primitive::Triangle(tri));
         }
     }
 }
