@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["mirror_direction",""]],"struct":[["Light",""],["Metal",""],["Mirror",""],["Plastic",""]],"trait":[["Material",""]]});
+initSidebarItems({"enum":[["Material",""]],"fn":[["eval_mirror_bsdf",""],["mirror_bsdf",""],["mirror_direction",""]],"struct":[["PlasticMetal",""]]});

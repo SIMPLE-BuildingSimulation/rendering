@@ -410,22 +410,22 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident">rayon::iter::ParallelIterator</span>;
 
 
-<span class="comment">// from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/</span>
-<span class="comment">// The problem with these functions is that, due to their errors, they </span>
-<span class="comment">// produce a lot of &quot;Missed light&quot; situations and the renders</span>
-<span class="comment">// become all weird.</span>
-<span class="comment">// /// Approximates `cos(x)` in radians with a maximum error of `0.002`.</span>
-<span class="kw">fn</span> <span class="ident">fast_cos</span>(<span class="kw-2">mut</span> <span class="ident">x</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {    
-    <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">1.</span><span class="op">/</span> (<span class="number">2.</span> <span class="op">*</span> <span class="ident"><span class="kw">crate</span>::PI</span>);
-    <span class="ident">x</span> <span class="op">-</span><span class="op">=</span> <span class="number">0.25</span> <span class="op">+</span> (<span class="ident">x</span> <span class="op">+</span> <span class="number">0.25</span>).<span class="ident">floor</span>();
-    <span class="ident">x</span> <span class="kw-2">*</span><span class="op">=</span> <span class="number">16.0</span> <span class="op">*</span> (<span class="ident">x</span>.<span class="ident">abs</span>() <span class="op">-</span> <span class="number">0.5</span>);
-    <span class="ident">x</span> <span class="op">+</span><span class="op">=</span> <span class="number">0.225</span> <span class="op">*</span> <span class="ident">x</span> <span class="op">*</span> (<span class="ident">x</span>.<span class="ident">abs</span>() <span class="op">-</span> <span class="number">1.0</span>);
-    <span class="ident">x</span>
-}
+<span class="comment">// // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/</span>
+<span class="comment">// // The problem with these functions is that, due to their errors, they </span>
+<span class="comment">// // produce a lot of &quot;Missed light&quot; situations and the renders</span>
+<span class="comment">// // become all weird.</span>
+<span class="comment">// // /// Approximates `cos(x)` in radians with a maximum error of `0.002`.</span>
+<span class="comment">// fn fast_cos(mut x: Float) -&gt; Float {    </span>
+<span class="comment">//     x *= 1./ (2. * crate::PI);</span>
+<span class="comment">//     x -= 0.25 + (x + 0.25).floor();</span>
+<span class="comment">//     x *= 16.0 * (x.abs() - 0.5);</span>
+<span class="comment">//     x += 0.225 * x * (x.abs() - 1.0);</span>
+<span class="comment">//     x</span>
+<span class="comment">// }</span>
 
-<span class="kw">fn</span> <span class="ident">fast_sin</span>(<span class="ident">x</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {
-    <span class="ident">fast_cos</span>(<span class="ident">x</span> <span class="op">-</span> <span class="ident"><span class="kw">crate</span>::PI</span> <span class="op">/</span> <span class="number">2.0</span>)
-}
+<span class="comment">// fn fast_sin(x: Float) -&gt; Float {</span>
+<span class="comment">//     fast_cos(x - crate::PI / 2.0)</span>
+<span class="comment">// }</span>
 
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_triangle</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>,<span class="ident">a</span>:<span class="ident">Point3D</span>,<span class="ident">b</span>:<span class="ident">Point3D</span>,<span class="ident">c</span>:<span class="ident">Point3D</span>)-&gt;<span class="ident">Point3D</span>{

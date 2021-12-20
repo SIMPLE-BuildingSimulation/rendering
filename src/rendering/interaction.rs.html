@@ -240,6 +240,10 @@
 <span id="206">206</span>
 <span id="207">207</span>
 <span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -263,7 +267,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RefCount</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Transform</span>};
-<span class="kw">use</span> <span class="ident">geometry3d::intersect_trait::SurfaceSide</span>;
+<span class="kw">use</span> <span class="ident">geometry3d::intersection::SurfaceSide</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Object</span>;
 
@@ -349,8 +353,11 @@ SOFTWARE.
     <span class="doccomment">/// perturbed by a texture</span>
     <span class="kw">pub</span> <span class="ident">texture_shading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ShadingInfo</span><span class="op">&gt;</span>,
 
-    <span class="doccomment">/// The [`Object`] in the scene </span>
-    <span class="kw">pub</span> <span class="ident">object</span>: <span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>,    
+    <span class="comment">// /// The [`Object`] in the scene </span>
+    <span class="comment">// pub object: RefCount&lt;Object&gt;,    </span>
+
+    <span class="doccomment">/// The index of the primitive in the primitives array</span>
+    <span class="kw">pub</span> <span class="ident">prim_index</span>: <span class="ident">usize</span>,
 }
 
 
@@ -375,7 +382,8 @@ SOFTWARE.
             <span class="ident">time</span>,
             <span class="ident">geometry_shading</span>,
             <span class="ident">texture_shading</span>,            
-            <span class="ident">object</span>: <span class="ident">RefCount::clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">object</span>)
+            <span class="comment">// object: RefCount::clone(&amp;self.object)</span>
+            <span class="ident">prim_index</span>: <span class="self">self</span>.<span class="ident">prim_index</span>
         }
     }
 
@@ -441,12 +449,12 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">object</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="kw-2">&amp;</span><span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>{
-        <span class="kw">match</span> <span class="self">self</span>{
-            <span class="ident"><span class="self">Self</span>::Surface</span>(<span class="ident">d</span>)=&gt;<span class="kw-2">&amp;</span><span class="ident">d</span>.<span class="ident">object</span>,
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{:?} has no normals&quot;</span>, <span class="self">self</span>)
-        }
-    }
+    <span class="comment">// pub fn object(&amp;self)-&gt;&amp;RefCount&lt;Object&gt;{</span>
+    <span class="comment">//     match self{</span>
+    <span class="comment">//         Self::Surface(d)=&gt;&amp;d.object,</span>
+    <span class="comment">//         _ =&gt; panic!(&quot;{:?} has no normals&quot;, self)</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
 }</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
     <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>

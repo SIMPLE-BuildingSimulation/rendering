@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Object",""],["Scene",""]],"type":[["Texture",""]]});
+initSidebarItems({"struct":[["Object",""],["Scene",""]]});
