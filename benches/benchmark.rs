@@ -1,8 +1,5 @@
 
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-type Float = f64;
-use rendering::rand::*;
-const PI : Float = std::f64::consts::PI;
 
 
 
