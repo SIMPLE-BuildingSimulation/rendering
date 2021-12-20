@@ -26,8 +26,6 @@ use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 use crate::rand::*;
 
-#[cfg(feature = "parallel")]
-use rayon::iter::ParallelIterator;
 
 
 // // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/

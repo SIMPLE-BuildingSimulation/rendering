@@ -27,46 +27,6 @@ use crate::samplers::*;
 // use geometry3d::intersect_trait::Intersect;
 use geometry3d::{Point3D, Triangle3D, Vector3D, Sphere3D, DistantSource3D};
 
-#[cfg(feature = "parallel")]
-pub trait SampleableRequirements:  Sync + Send {}
-
-#[cfg(feature = "parallel")]
-impl<T: Intersect + Sync + Send> SampleableRequirements for T {}
-
-#[cfg(not(feature = "parallel"))]
-pub trait SampleableRequirements {}
-
-#[cfg(not(feature = "parallel"))]
-impl<T> SampleableRequirements for T {}
-
-
-pub trait Sampleable : SampleableRequirements {
-    /// Receives a [`Point3D`] and returns the distance `t`
-    /// and a NORMALIZEd [`Vector3D`] pointing towards it
-    fn direction(&self, point: Point3D) -> (Float, Vector3D);
-
-    /// Produces an [`Iterator`] that produces samples (i.e., [`Vector3D`])
-    /// pointing from the [`Point3D`] `p` towards the object.
-    fn direction_sampler(
-        &self,
-        _point: Point3D,
-        _n_samples: usize,
-    ) -> Box<dyn Iterator<Item = Vector3D>> {
-        unimplemented!()
-    }
-
-    /// Produces an [`Iterator`] that produces samples (i.e., [`Point3D`])
-    /// located on top of the Sampleable object
-    fn surface_sampler(&self, _n_samples: usize) -> Box<dyn Iterator<Item = Point3D>> {
-        unimplemented!()
-    }
-
-    /// Returns the solid angle covered by a primitive
-    /// as seen—unobstructed—from a certain [`Point3D`].
-    fn omega(&self, point: Point3D) -> Float;
-
-    // Samples the center of the
-}
 
 /* TRIANGLE */
 
