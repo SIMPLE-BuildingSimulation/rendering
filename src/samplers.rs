@@ -192,7 +192,8 @@ impl Iterator for HorizontalCosineWeightedHemisphereSampler{
 pub fn sample_cosine_weighted_horizontal_hemisphere(rng: &mut RandGen) -> Vector3D {
     
     let (local_x, local_y) = uniform_sample_horizontal_disc(rng, 1.);
-    let local_z = (1. - local_x * local_x - local_y * local_y).sqrt();
+    let aux = (local_x * local_x + local_y * local_y).clamp(0., 1.);
+    let local_z = (1. - aux).sqrt();    
     Vector3D::new(local_x as Float, local_y as Float, local_z as Float)
 }
 
@@ -294,6 +295,15 @@ mod tests {
             check(Vector3D::new(0., 0., 1.)).unwrap();
             check(Vector3D::new(0., 1., 0.)).unwrap();
             check(Vector3D::new(-1000., -1., 2.)).unwrap();
+        }
+    }
+
+    #[test]
+    fn test_cosine_weighted_sampling(){
+        let mut rng = get_rng();
+        for _ in 0..999999999 {
+            let a = sample_cosine_weighted_horizontal_hemisphere(&mut rng);
+            assert!(a.length().is_finite());
         }
     }
 
