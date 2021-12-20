@@ -376,6 +376,16 @@
 <span id="342">342</span>
 <span id="343">343</span>
 <span id="344">344</span>
+<span id="345">345</span>
+<span id="346">346</span>
+<span id="347">347</span>
+<span id="348">348</span>
+<span id="349">349</span>
+<span id="350">350</span>
+<span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -570,7 +580,8 @@ SOFTWARE.
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_cosine_weighted_horizontal_hemisphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>) -&gt; <span class="ident">Vector3D</span> {
     
     <span class="kw">let</span> (<span class="ident">local_x</span>, <span class="ident">local_y</span>) <span class="op">=</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>, <span class="number">1.</span>);
-    <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">local_x</span> <span class="op">*</span> <span class="ident">local_x</span> <span class="op">-</span> <span class="ident">local_y</span> <span class="op">*</span> <span class="ident">local_y</span>).<span class="ident">sqrt</span>();
+    <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> (<span class="ident">local_x</span> <span class="op">*</span> <span class="ident">local_x</span> <span class="op">+</span> <span class="ident">local_y</span> <span class="op">*</span> <span class="ident">local_y</span>).<span class="ident">clamp</span>(<span class="number">0.</span>, <span class="number">1.</span>);
+    <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">aux</span>).<span class="ident">sqrt</span>();    
     <span class="ident">Vector3D::new</span>(<span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>)
 }
 
@@ -672,6 +683,15 @@ SOFTWARE.
             <span class="ident">check</span>(<span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>)).<span class="ident">unwrap</span>();
             <span class="ident">check</span>(<span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
             <span class="ident">check</span>(<span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1000.</span>, <span class="op">-</span><span class="number">1.</span>, <span class="number">2.</span>)).<span class="ident">unwrap</span>();
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_cosine_weighted_sampling</span>(){
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
+        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">999999999</span> {
+            <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">sample_cosine_weighted_horizontal_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
         }
     }
 
