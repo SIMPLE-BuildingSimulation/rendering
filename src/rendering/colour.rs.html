@@ -266,6 +266,14 @@
 <span id="232">232</span>
 <span id="233">233</span>
 <span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -287,18 +295,26 @@ SOFTWARE.
 */</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="comment">// pub enum LightingQuantity {</span>
-<span class="comment">//     PixelColour(RGBSpectrum),</span>
-<span class="comment">//     Radiance(RGBSpectrum),</span>
-<span class="comment">// }</span>
+
 
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Spectrum</span> <span class="op">=</span> <span class="ident">RGBSpectrum</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ColourMatrix</span> <span class="op">=</span> <span class="ident">matrix::GenericMatrix</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RGBSpectrum</span> {
     <span class="kw">pub</span> <span class="ident">red</span>: <span class="ident">Float</span>,
     <span class="kw">pub</span> <span class="ident">green</span>: <span class="ident">Float</span>,
     <span class="kw">pub</span> <span class="ident">blue</span>: <span class="ident">Float</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">matrix::OneZero</span> <span class="kw">for</span> <span class="ident">RGBSpectrum</span> {
+    <span class="kw">fn</span> <span class="ident">one</span>()-&gt;<span class="self">Self</span>{
+        <span class="ident"><span class="self">Self</span>::gray</span>(<span class="number">1.</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">zero</span>()-&gt;<span class="self">Self</span>{
+        <span class="ident"><span class="self">Self</span>::black</span>()
+    }
 }
 
 <span class="kw">impl</span> <span class="ident">RGBSpectrum</span> {

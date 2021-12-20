@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["rendering"] = [{"text":"impl OneZero for <a class=\"struct\" href=\"rendering/colour/struct.RGBSpectrum.html\" title=\"struct rendering::colour::RGBSpectrum\">RGBSpectrum</a>","synthetic":false,"types":["rendering::colour::RGBSpectrum"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
