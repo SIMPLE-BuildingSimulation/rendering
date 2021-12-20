@@ -31,6 +31,7 @@ pub struct RGBSpectrum {
     pub blue: Float,
 }
 
+
 impl matrix::OneZero for RGBSpectrum {
     fn one()->Self{
         Self::gray(1.)
@@ -182,6 +183,14 @@ impl std::ops::DivAssign<Float> for RGBSpectrum {
         self.red /= other;
         self.green /= other;
         self.blue /= other;
+    }
+}
+
+impl std::ops::DivAssign for RGBSpectrum {
+    fn div_assign(&mut self, other: Self) {
+        self.red *= other.red;
+        self.green *= other.green;
+        self.blue *= other.blue;
     }
 }
 
