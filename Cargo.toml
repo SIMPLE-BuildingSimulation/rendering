@@ -8,6 +8,7 @@ license = "MIT"
 
 [dependencies]
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git"}
+matrix = {git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git"}
 # geometry3d = {path = "../geometry3d"}
 rand = { version = "0.8.4", features=["small_rng"]}
 rayon = {version = "1.5", optional = true}
@@ -22,7 +23,7 @@ harness = false
 
 [features]
 default = []
-float = ["geometry3d/float"]
+float = ["geometry3d/float", "matrix/float"]
 parallel = ["geometry3d/parallel", "rayon"]
 
 

@@ -19,18 +19,26 @@ SOFTWARE.
 */
 
 use crate::Float;
-// pub enum LightingQuantity {
-//     PixelColour(RGBSpectrum),
-//     Radiance(RGBSpectrum),
-// }
+
 
 pub type Spectrum = RGBSpectrum;
+pub type ColourMatrix = matrix::GenericMatrix<Spectrum>;
 
 #[derive(Clone, Copy, Debug)]
 pub struct RGBSpectrum {
     pub red: Float,
     pub green: Float,
     pub blue: Float,
+}
+
+impl matrix::OneZero for RGBSpectrum {
+    fn one()->Self{
+        Self::gray(1.)
+    }
+
+    fn zero()->Self{
+        Self::black()
+    }
 }
 
 impl RGBSpectrum {
