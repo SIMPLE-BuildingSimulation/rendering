@@ -24,7 +24,7 @@ use crate::Float;
 pub type Spectrum = RGBSpectrum;
 pub type ColourMatrix = matrix::GenericMatrix<Spectrum>;
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RGBSpectrum {
     pub red: Float,
     pub green: Float,
@@ -67,7 +67,7 @@ impl std::fmt::Display for RGBSpectrum {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
-            "RGBSpectrum({:.5},{:.5},{:.5})",
+            "RGB({:.5},{:.5},{:.5})",
             self.red, self.green, self.blue
         )
     }
@@ -84,6 +84,17 @@ impl std::ops::Add for RGBSpectrum {
         }
     }
 }
+impl std::ops::Sub for RGBSpectrum {
+    type Output = Self;
+
+    fn sub(self, other: Self) -> Self {
+        Self {
+            red: self.red - other.red,
+            green: self.green - other.green,
+            blue: self.blue - other.blue,
+        }
+    }
+}
 
 impl std::ops::AddAssign for RGBSpectrum {
     fn add_assign(&mut self, other: Self) {
@@ -92,6 +103,15 @@ impl std::ops::AddAssign for RGBSpectrum {
         self.blue += other.blue;
     }
 }
+
+impl std::ops::SubAssign for RGBSpectrum {
+    fn sub_assign(&mut self, other: Self) {
+        self.red -= other.red;
+        self.green -= other.green;
+        self.blue -= other.blue;
+    }
+}
+
 
 impl std::ops::Mul for RGBSpectrum {
     type Output = Self;
