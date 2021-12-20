@@ -306,6 +306,15 @@
 <span id="272">272</span>
 <span id="273">273</span>
 <span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -338,6 +347,7 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">green</span>: <span class="ident">Float</span>,
     <span class="kw">pub</span> <span class="ident">blue</span>: <span class="ident">Float</span>,
 }
+
 
 <span class="kw">impl</span> <span class="ident">matrix::OneZero</span> <span class="kw">for</span> <span class="ident">RGBSpectrum</span> {
     <span class="kw">fn</span> <span class="ident">one</span>()-&gt;<span class="self">Self</span>{
@@ -490,6 +500,14 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">red</span> <span class="op">/</span><span class="op">=</span> <span class="ident">other</span>;
         <span class="self">self</span>.<span class="ident">green</span> <span class="op">/</span><span class="op">=</span> <span class="ident">other</span>;
         <span class="self">self</span>.<span class="ident">blue</span> <span class="op">/</span><span class="op">=</span> <span class="ident">other</span>;
+    }
+}
+
+<span class="kw">impl</span> <span class="ident">std::ops::DivAssign</span> <span class="kw">for</span> <span class="ident">RGBSpectrum</span> {
+    <span class="kw">fn</span> <span class="ident">div_assign</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">other</span>: <span class="self">Self</span>) {
+        <span class="self">self</span>.<span class="ident">red</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">red</span>;
+        <span class="self">self</span>.<span class="ident">green</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">green</span>;
+        <span class="self">self</span>.<span class="ident">blue</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">blue</span>;
     }
 }
 
