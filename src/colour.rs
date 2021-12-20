@@ -165,6 +165,18 @@ impl std::ops::Div<Float> for RGBSpectrum {
     }
 }
 
+impl std::ops::Div for RGBSpectrum {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self {
+        Self {
+            red: self.red / other.red,
+            green: self.green / other.green,
+            blue: self.blue / other.blue,
+        }
+    }
+}
+
 impl std::ops::DivAssign<Float> for RGBSpectrum {
     fn div_assign(&mut self, other: Float) {
         self.red /= other;
