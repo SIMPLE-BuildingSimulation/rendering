@@ -419,7 +419,7 @@ mod tests {
         // Create camera
         let camera = PinholeCam::new(view, film);
 
-        let integrator = RayTracer{
+        let integrator = RayTracer {
             n_ambient_samples: 128,
             n_shadow_samples: 1,
             max_depth: 2,
