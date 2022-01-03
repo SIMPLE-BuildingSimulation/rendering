@@ -61,7 +61,7 @@ fn main() {
         
     // Create camera    
     let film = Film {
-        resolution: (112, 112),
+        resolution: (512, 512),
     };
 
     // Create view

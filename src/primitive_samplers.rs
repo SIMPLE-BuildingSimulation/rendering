@@ -30,61 +30,11 @@ use geometry3d::{Point3D, Triangle3D, Vector3D, Sphere3D, DistantSource3D};
 
 /* TRIANGLE */
 
-pub struct TriangleDirectionSampler {    
-    pub ray_origin: Point3D,    
-    pub surface_sampler: TriangleSurfaceSampler,        
+
+pub fn sample_triangle_surface(triangle: &Triangle3D, rng: &mut RandGen)->Point3D{
+    uniform_sample_triangle(rng, triangle.a(), triangle.b(), triangle.c())
 }
 
-impl Iterator for TriangleDirectionSampler {
-    type Item = Vector3D;
-    fn next(&mut self) -> Option<Self::Item> {
-        let target_p = self.surface_sampler.next()?;        
-        let direction = target_p - self.ray_origin;                
-        Some(direction.get_normalized())
-    }
-}
-
-
-pub struct TriangleSurfaceSampler {    
-    pub a: Point3D,
-    pub b: Point3D,
-    pub c: Point3D,
-    pub n_samples: usize,
-    pub i: usize,
-    pub rng: RandGen,
-}
-
-impl Iterator for TriangleSurfaceSampler {
-    type Item = Point3D;
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.n_samples == self.i {
-            return None;
-        }
-        self.i += 1;
-                
-        // Get a direction on a unit Northern hemisphere        
-        Some(uniform_sample_triangle(&mut self.rng, self.a, self.b, self.c))
-    }
-}
-
-
-pub fn triangle_direction_sampler(
-    triangle: &Triangle3D,
-    point: Point3D,
-    n_samples: usize,
-) -> Box<dyn Iterator<Item = Vector3D>> {
-    Box::new(TriangleDirectionSampler {
-        ray_origin: point,
-        surface_sampler: TriangleSurfaceSampler{
-            a: triangle.a(),
-            b: triangle.b(),
-            c: triangle.c(),
-            n_samples,
-            i: 0,
-            rng: get_rng(),
-        }
-    })
-}
 
 pub fn triangle_direction(triangle: &Triangle3D, point: Point3D) -> (Float, Vector3D) {
     const THIRD : Float = 1./3.;
@@ -102,16 +52,6 @@ pub fn triangle_omega(_triangle: &Triangle3D, _point: Point3D) -> Float {
     // self.area() / t
 }
 
-pub fn triangle_surface_sampler(triangle: &Triangle3D, n_samples: usize) -> Box<dyn Iterator<Item = Point3D>> {
-    Box::new(TriangleSurfaceSampler{
-        a: triangle.a(),
-        b: triangle.b(),
-        c: triangle.c(),
-        n_samples,
-        i: 0,
-        rng: get_rng(),
-    })
-}
 
 /* END OF TRIANGLE */
 
@@ -119,88 +59,7 @@ pub fn triangle_surface_sampler(triangle: &Triangle3D, n_samples: usize) -> Box<
 
 /* SPHERE */
 
-pub struct InsideSphereDirectionSampler {    
-    pub ray_origin: Point3D,    
-    pub surface_sampler: SphereSurfaceSampler
-}
 
-impl Iterator for InsideSphereDirectionSampler {
-    type Item = Vector3D;
-    fn next(&mut self) -> Option<Self::Item> {
-        let target_p = self.surface_sampler.next()?;
-        let dir = target_p - self.ray_origin;
-        Some(dir.get_normalized())
-    }
-}
-
-pub struct SphereDirectionSampler {
-    pub normal: Vector3D,
-    pub ray_origin: Point3D,
-    pub centre: Point3D,
-    pub radius: Float,
-    pub n_samples: usize,
-    pub i: usize,
-    pub rng: RandGen,
-}
-
-impl Iterator for SphereDirectionSampler {
-    type Item = Vector3D;
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.n_samples == self.i {
-            return None;
-        }
-        self.i += 1;
-        let r2 = self.radius * self.radius;
-        let direction = self.centre - self.ray_origin;
-        if direction.length_squared() <= r2 {
-            // if we are inside of the sphere
-            panic!("Trying to sample sphere from inside it.")
-        }
-
-        if self.i == 0 {
-            // First sample is center
-            return Some(direction.get_normalized());
-        }
-        let p = uniform_sample_disc(&mut self.rng, self.radius, self.centre, self.normal);
-        let direction = p - self.ray_origin;
-        Some(direction.get_normalized())
-    }
-}
-
-
-pub struct SphereSurfaceSampler {    
-    pub centre: Point3D,
-    pub radius: Float,
-    pub n_samples: usize,
-    pub i: usize,
-    pub rng: RandGen,
-}
-
-
-
-impl Iterator for SphereSurfaceSampler {
-    type Item = Point3D;
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.n_samples == self.i {
-            return None;
-        }
-        self.i += 1;
-                
-        // Get a direction on a unit Northern hemisphere
-        let mut vec = uniform_sample_hemisphere(&mut self.rng, Vector3D::new(1., 0., 0.), Vector3D::new(0., 1., 0.), Vector3D::new(0., 0., 1.));
-
-        // 50% chance of flipping it
-        let coin : Float = self.rng.gen();
-        if coin > 0.5 {
-            vec *= self.radius
-        }else{
-            vec *= -self.radius
-        }
-        
-        let p = Point3D::new(vec.x, vec.y, vec.z) + self.centre;
-        Some(p)
-    }
-}
 
 pub fn sphere_direction(sphere: &Sphere3D, point: Point3D) -> (Float, Vector3D) {
     let direction = sphere.centre() - point;
@@ -214,85 +73,26 @@ pub fn sphere_omega(sphere: &Sphere3D, point: Point3D) -> Float {
     PI * sphere.radius * sphere.radius / d2
 }
 
-pub fn sphere_direction_sampler(
-    sphere: &Sphere3D,
-    point: Point3D,
-    n_samples: usize,
-) -> Box<dyn Iterator<Item = Vector3D>> {
-    let centre = sphere.centre();
-    let this_r_sqrd = (point - centre).length_squared();
-    if this_r_sqrd > sphere.radius * sphere.radius{
-        debug_assert!((centre - point).length_squared() >= 1e-9);
-        // if we are outside of the sphere
-        Box::new(SphereDirectionSampler {
-            n_samples,
-            normal: (centre - point).get_normalized(),
-            ray_origin: point,
-            radius: sphere.radius,
-            centre: centre,
-            i: 0,
-            rng: get_rng(),
-        })
-    }else{
-        Box::new(InsideSphereDirectionSampler {    
-            ray_origin: point,    
-            surface_sampler: SphereSurfaceSampler{
-                centre: sphere.centre(),
-                radius: sphere.radius,
-                n_samples,
-                i: 0,
-                rng: get_rng(),
-            }
-        })
-    }
+pub fn sample_sphere_surface(sphere:&Sphere3D, rng: &mut RandGen)->Point3D{
+    // Sample a sphere of radius 1 centered at the origin
+    let p = uniform_sample_sphere(rng);
+    let (mut x, mut y, mut z) = (p.x, p.y, p.z);
+    // Scale and translate
+    x = x.mul_add(sphere.radius, sphere.centre().x);
+    y = y.mul_add(sphere.radius, sphere.centre().y);
+    z = z.mul_add(sphere.radius, sphere.centre().z);
 
+    // return
+    Point3D::new(x, y ,z)
 }
 
-pub fn sphere_surface_sampler(sphere: &Sphere3D, n_samples: usize) -> Box<dyn Iterator<Item = Point3D>> {
-    Box::new(SphereSurfaceSampler {    
-        centre: sphere.centre(),
-        radius: sphere.radius,
-        n_samples,
-        i: 0,
-        rng: get_rng(),
-    })
-}
+
 
 /* END SPHERE */
 
 
 
 /* DISTANT SOURCE */
-
-pub struct DistantSourceSampler {
-    pub normal: Vector3D,
-    pub ray_origin: Point3D,
-    pub centre: Point3D,
-    pub radius: Float,
-    pub n_samples: usize,
-    pub i: usize,
-    pub rng: RandGen,
-}
-
-impl Iterator for DistantSourceSampler {
-    type Item = Vector3D;
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.n_samples == self.i {
-            return None;
-        }
-        self.i += 1;
-        let direction = self.centre - self.ray_origin;
-        if self.i == 0 {
-            // First sample is center
-            return Some(direction.get_normalized());
-        }
-
-        let p = uniform_sample_disc(&mut self.rng, self.radius, self.centre, self.normal);
-        let direction = p - self.ray_origin;
-
-        Some(direction.get_normalized())
-    }
-}
 
 /// It is always in the same direction
 pub fn source_direction(source: &DistantSource3D, _point: Point3D) -> (Float, Vector3D) {
@@ -301,24 +101,6 @@ pub fn source_direction(source: &DistantSource3D, _point: Point3D) -> (Float, Ve
 
 pub fn source_omega(source: &DistantSource3D, _point: Point3D) -> Float {
     source.omega
-}
-
-pub fn source_direction_sampler(
-    source: &DistantSource3D,
-    point: Point3D,
-    n_samples: usize,
-) -> Box<dyn Iterator<Item = Vector3D>> {
-    let normal = source.direction.get_normalized();
-    let radius = (source.angle / 2.0).tan();
-    Box::new(DistantSourceSampler {
-        n_samples,
-        normal,
-        radius,
-        ray_origin: point,
-        centre: point + normal,
-        i: 0,
-        rng: get_rng(),
-    })
 }
 
 

@@ -204,6 +204,19 @@ pub fn uniform_sample_hemisphere(rng: &mut RandGen, e1: Vector3D, e2: Vector3D, 
     Vector3D::new(x, y, z)
 }
 
+pub fn uniform_sample_sphere(rng: &mut RandGen)->Point3D{
+    const TWO_PI : f32 = 2.*std::f32::consts::PI;
+    // Sample a sphere of radius 1 centered at the origin
+    let (rand1, rand2): (f32, f32) = rng.gen();    
+    let z = 1. - 2.*rand1;
+    let aux = (1. - z*z).sqrt() as Float;
+    let z = z as Float;
+    let x = (TWO_PI*rand2).cos() as Float * aux;
+    let y = (TWO_PI*rand2).sin() as Float * aux;
+
+    Point3D::new(x,y,z)
+}
+
 pub fn uniform_sample_disc(
     rng: &mut RandGen,
     radius: Float,

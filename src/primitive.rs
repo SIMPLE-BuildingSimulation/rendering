@@ -19,7 +19,7 @@ SOFTWARE.
 */
 
 use crate::Float;
-
+use crate::rand::RandGen;
 use geometry3d::{
     Triangle3D,
     Sphere3D,    
@@ -33,6 +33,7 @@ use geometry3d::{
 
 use geometry3d::intersection::IntersectionInfo;
 use crate::primitive_samplers::*;
+use crate::samplers::uniform_sample_disc;
 
 #[derive(Clone)]
 pub enum Primitive{
@@ -109,16 +110,22 @@ impl Primitive{
         }
     }
 
-    pub fn direction_sampler(
+    pub fn sample_direction(
         &self,
+        rng: &mut RandGen,
         point: Point3D,
-        n_samples: usize,
-    ) -> Box<dyn Iterator<Item = Vector3D>> {
-        match self {
-            Self::Sphere(s)=>sphere_direction_sampler(s, point, n_samples),
-            Self::Triangle(s)=>triangle_direction_sampler(&s, point, n_samples),
+    ) -> Vector3D {
+        let surface_point = match self {
+            Self::Sphere(s)=>sample_sphere_surface(s, rng),
+            Self::Triangle(s)=> sample_triangle_surface(&s,  rng),
             Self::Cylinder(_s)=>unimplemented!(),
-            Self::Source(s)=>source_direction_sampler(s, point, n_samples),
-        }
+            Self::Source(s)=>{
+                let radius = (s.angle / 2.0).tan();
+                let normal = s.direction.get_normalized();
+                uniform_sample_disc(rng, radius, point + normal, normal)
+            },
+        };
+        let direction = surface_point - point;
+        direction.get_normalized()
     }
 }

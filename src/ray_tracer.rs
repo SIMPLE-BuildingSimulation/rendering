@@ -71,13 +71,14 @@ impl RayTracer {
         }
         
 
+
         // If hits an object 
-        if let Some((t, interaction)) = scene.cast_ray(&ray) {
+        if let Some((t, Interaction::Surface(data))) = scene.cast_ray(&ray) {
 
             
-            match &interaction {
-                Interaction::Endpoint(_)=>{panic!("Found an Endpoint while ray-tracing!")},
-                Interaction::Surface(data)=>{         
+            // match &interaction {
+                // Interaction::Endpoint(_)=>{panic!("Found an Endpoint while ray-tracing!")},
+                // Interaction::Surface(data)=>{         
                     let object = &scene.objects[data.prim_index];
                     // get the normal... can be textured.                               
                     let normal = data.geometry_shading.normal;
@@ -119,7 +120,8 @@ impl RayTracer {
                             ray,
                             intersection_pt,
                             normal,
-                            e1,e2                
+                            e1,e2,
+                            rng
                         );
                     
                    
@@ -190,8 +192,8 @@ impl RayTracer {
                     local + global
 
 
-                }// End match Surface Interaction
-            }// End all matches            
+                // }// End match Surface Interaction
+            // }// End all matches            
         } else {
             // Did not hit.
             Spectrum::black()
@@ -255,14 +257,15 @@ impl RayTracer {
     /// Calculates the luminance produced by the direct sources in the
     /// scene
     fn get_local_illumination(
-        &self,
+        &self,        
         scene: &Scene,
         material: &Material,                
         ray: Ray,
         point: Point3D,
         normal: Vector3D,  
         e1: Vector3D,
-        e2: Vector3D,      
+        e2: Vector3D,   
+        rng: &mut RandGen,   
     ) -> Spectrum {        
         // prevent self-shading
         let origin = point + normal * 0.0001;
@@ -279,8 +282,9 @@ impl RayTracer {
         let mut sample_light_array = |lights: &[Object]|{            
             for light in lights.iter() {
                 let this_origin = origin + normal * 0.001;
-                let sampler = light.primitive.direction_sampler(origin, self.n_shadow_samples);
-                for direction in sampler {            
+                for _ in 0..self.n_shadow_samples{
+                    let direction = light.primitive.sample_direction(rng,origin);
+                                
                     let shadow_ray = Ray3D {
                         origin: this_origin,
                         direction,
@@ -395,7 +399,7 @@ mod tests {
             n_shadow_samples: 38,
             max_depth: 3,
             limit_weight: 0.001,
-            n_ambient_samples: 2,
+            n_ambient_samples: 129,
             .. RayTracer::default()   
         };
         let now = Instant::now();
@@ -413,10 +417,10 @@ mod tests {
     #[test]
     fn render_scenes() {
         // return;
-        // compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
+        compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
-        // compare_with_radiance("exterior_0_mirror.rad".to_string());
-        compare_with_radiance("exterior_0_dielectric.rad".to_string());
+        compare_with_radiance("exterior_0_mirror.rad".to_string());
+        // compare_with_radiance("exterior_0_dielectric.rad".to_string());
     }
 
     #[test]
