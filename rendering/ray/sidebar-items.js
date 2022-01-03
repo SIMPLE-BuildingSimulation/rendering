@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Ray",""]]});
+initSidebarItems({"struct":[["Ray","Represents a ray (of light?) beyond pure geometry. It  includes also the current index of refraction and, potentially, time (for blurry images) "]]});

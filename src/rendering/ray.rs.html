@@ -84,6 +84,12 @@
 <span id="50">50</span>
 <span id="51">51</span>
 <span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -107,11 +113,17 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Transform</span>, <span class="ident">Ray3D</span>, <span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 
+<span class="doccomment">/// Represents a ray (of light?) beyond pure geometry. It </span>
+<span class="doccomment">/// includes also the current index of refraction and, potentially,</span>
+<span class="doccomment">/// time (for blurry images) </span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Ray</span>{
+    <span class="doccomment">/// Direction and position</span>
     <span class="kw">pub</span> <span class="ident">geometry</span>: <span class="ident">Ray3D</span>,
-    <span class="kw">pub</span> <span class="ident">time</span>: <span class="ident">Float</span>,
-    <span class="comment">// medium.</span>
+    <span class="comment">// pub time: Float,</span>
+
+    <span class="doccomment">/// index of refraction of the current medium</span>
+    <span class="kw">pub</span> <span class="ident">refraction_index</span>: <span class="ident">Float</span>    
 }
 
 <span class="kw">impl</span> <span class="ident">Ray</span> {
@@ -120,8 +132,8 @@ SOFTWARE.
         <span class="kw">let</span> (<span class="ident">geometry</span>,<span class="ident">_o_error</span>, <span class="ident">_d_error</span>)<span class="op">=</span> <span class="ident">t</span>.<span class="ident">transform_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">geometry</span>);
         <span class="self">Self</span>{
             <span class="ident">geometry</span>,
-            <span class="ident">time</span>: <span class="self">self</span>.<span class="ident">time</span>,
-            <span class="comment">// medium: self.medium</span>
+            <span class="comment">// time: self.time,</span>
+            <span class="ident">refraction_index</span>: <span class="self">self</span>.<span class="ident">refraction_index</span>
         }
     }
 

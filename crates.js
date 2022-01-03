@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["rendering"];
+window.ALL_CRATES = ["rendering","spict"];

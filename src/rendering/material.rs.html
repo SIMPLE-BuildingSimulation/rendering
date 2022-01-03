@@ -479,6 +479,7 @@
 <span id="445">445</span>
 <span id="446">446</span>
 <span id="447">447</span>
+<span id="448">448</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -498,13 +499,54 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
-
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Float</span>,<span class="ident">PI</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::samplers</span>::{<span class="ident">sample_cosine_weighted_horizontal_hemisphere</span>, <span class="ident">local_to_world</span>};
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Vector3D</span>, <span class="ident">Point3D</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand::RandGen</span>;
+<span class="kw">use</span> <span class="ident">rand::prelude</span>::<span class="kw-2">*</span>;
 
+<span class="doccomment">/// Fresnel Coefficient for TE-Polarized Light, according to Radiance&#39;s </span>
+<span class="doccomment">/// material documentation</span>
+<span class="doccomment">/// </span>
+<span class="doccomment">/// `n1` is the index of refraction on the ray&#39;s side; `cos1` is the </span>
+<span class="doccomment">/// cosine of the angle between the surface&#39;s normal and ray.</span>
+<span class="doccomment">/// </span>
+<span class="doccomment">/// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the </span>
+<span class="doccomment">/// cosine of the angle between the surface&#39;s normal and transmitted ray</span>
+<span class="kw">fn</span> <span class="ident">fresnel_te</span>(<span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Float</span>{
+    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> (<span class="ident">n1</span><span class="kw-2">*</span><span class="ident">cos1</span><span class="op">-</span><span class="ident">n2</span><span class="kw-2">*</span><span class="ident">cos2</span>)<span class="op">/</span>(<span class="ident">n1</span><span class="kw-2">*</span><span class="ident">cos1</span><span class="op">+</span><span class="ident">n2</span><span class="kw-2">*</span><span class="ident">cos2</span>);
+    <span class="ident">ret</span><span class="kw-2">*</span><span class="ident">ret</span>
+}
+
+<span class="doccomment">/// Fresnel Coefficient for TM-Polarized Light, according to Radiance&#39;s </span>
+<span class="doccomment">/// material documentation</span>
+<span class="doccomment">/// </span>
+<span class="doccomment">/// `n1` is the index of refraction on the ray&#39;s side; `cos1` is the </span>
+<span class="doccomment">/// cosine of the angle between the surface&#39;s normal and ray.</span>
+<span class="doccomment">/// </span>
+<span class="doccomment">/// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the </span>
+<span class="doccomment">/// cosine of the angle between the surface&#39;s normal and transmitted ray</span>
+<span class="kw">fn</span> <span class="ident">fresnel_tm</span>(<span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Float</span>{
+    <span class="kw">let</span> <span class="ident">one_cos1</span> <span class="op">=</span> <span class="number">1.</span><span class="op">/</span><span class="ident">cos1</span>;
+    <span class="kw">let</span> <span class="ident">one_cos2</span> <span class="op">=</span> <span class="number">1.</span><span class="op">/</span><span class="ident">cos2</span>;
+    <span class="ident">fresnel_te</span>(<span class="ident">n1</span>, <span class="ident">one_cos1</span>, <span class="ident">n2</span>, <span class="ident">one_cos2</span>)
+}
+
+
+<span class="kw">fn</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Float</span>{
+    <span class="number">0.5</span><span class="kw-2">*</span>(<span class="ident">fresnel_tm</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">+</span> <span class="ident">fresnel_te</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>))
+}
+
+
+<span class="doccomment">/// Calculates the direction of the transmision</span>
+<span class="kw">fn</span> <span class="ident">fresnel_transmission_dir</span>(<span class="ident">vin</span>:<span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Vector3D</span>{
+    <span class="kw">let</span> <span class="ident">n_ratio</span> <span class="op">=</span> <span class="ident">n1</span><span class="op">/</span><span class="ident">n2</span>;
+    <span class="ident">vin</span><span class="kw-2">*</span><span class="ident">n_ratio</span> <span class="op">+</span> <span class="ident">normal</span><span class="kw-2">*</span>(<span class="ident">n_ratio</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">+</span> <span class="ident">cos2</span>)
+}
+
+<span class="doccomment">/// Calculates the purely specular reflection direction.</span>
 <span class="kw">fn</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Vector3D</span> {
     <span class="macro">debug_assert!</span>((<span class="ident">vin</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">normal</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
@@ -513,6 +555,113 @@ SOFTWARE.
     <span class="ident">ret</span>
 }
 
+
+<span class="comment">/*************** */</span>
+<span class="comment">/* DIELECTRIC    */</span>
+<span class="comment">/*************** */</span>
+
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dielectric</span> {
+    <span class="kw">pub</span> <span class="ident">color</span>: <span class="ident">Spectrum</span>,
+    <span class="kw">pub</span> <span class="ident">refraction_index</span>: <span class="ident">Float</span>,
+}
+
+<span class="kw">impl</span> <span class="ident">Dielectric</span> {
+
+    <span class="doccomment">/// Calculates the parameters necessary for calculating the </span>
+    <span class="doccomment">/// Fresnel&#39;s equations. `cos2`—i.e., the cosine of the </span>
+    <span class="doccomment">/// angle between the normal and the transmitted ray—is wrapped in </span>
+    <span class="doccomment">/// an `Option` because it does not exist if the angle of incidence </span>
+    <span class="doccomment">/// is larger than the critical angle.</span>
+    <span class="kw">fn</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span> )-&gt;(<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>){
+        <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
+
+        <span class="kw">let</span> <span class="ident">cos1</span> <span class="op">=</span> <span class="ident">vin</span><span class="kw-2">*</span><span class="ident">normal</span>;
+        <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">refraction_index</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">refraction_index</span>;
+        <span class="comment">// If the ray already has this refraction index, assume</span>
+        <span class="comment">// we are leaving a volume</span>
+        <span class="kw">if</span> (<span class="ident">n1</span> <span class="op">-</span> <span class="ident">n2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-7</span> {
+            <span class="ident">n2</span> <span class="op">=</span> <span class="number">1.0</span>;
+        }
+        <span class="comment">// Calculate cos2</span>
+        <span class="kw">let</span> <span class="ident">sin1</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">cos1</span><span class="kw-2">*</span><span class="ident">cos1</span>).<span class="ident">clamp</span>(<span class="number">0.</span>, <span class="ident">Float::MAX</span>);
+        <span class="kw">let</span> <span class="ident">sin2</span> <span class="op">=</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">sin1</span><span class="op">/</span><span class="ident">n2</span>; <span class="comment">// Snell&#39;s law</span>
+        <span class="kw">if</span> <span class="ident">sin2</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.</span> {
+            <span class="comment">// Pure reflection... this does not make</span>
+            <span class="kw">return</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="prelude-val">None</span>)
+        }
+
+        <span class="kw">let</span> <span class="ident">cos2</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">sin2</span><span class="kw-2">*</span><span class="ident">sin2</span>).<span class="ident">clamp</span>(<span class="number">0.</span>, <span class="ident">Float::MAX</span>);
+        (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="prelude-val">Some</span>(<span class="ident">cos2</span>))
+    }
+
+    <span class="kw">fn</span> <span class="ident">bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,<span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="kw-2">mut</span> <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt;(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>){
+        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+        <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;        
+        <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos2</span> {
+            <span class="comment">// There is transmission and reflection</span>
+            <span class="kw">let</span> <span class="ident">refl</span> <span class="op">=</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
+            <span class="kw">let</span> <span class="ident">r</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+            <span class="kw">if</span> <span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">refl</span> {
+                <span class="comment">// reflection</span>
+                <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
+                (<span class="ident">ray</span>, <span class="ident">refl</span><span class="op">/</span><span class="ident">cos1</span>.<span class="ident">abs</span>(), <span class="bool-val">true</span>)
+            }<span class="kw">else</span>{
+                <span class="comment">// Transmission</span>
+                <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">fresnel_transmission_dir</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>, <span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
+                <span class="kw">let</span> <span class="ident">n_ratio2</span> <span class="op">=</span> (<span class="ident">n2</span><span class="op">/</span><span class="ident">n1</span>)<span class="kw-2">*</span>(<span class="ident">n2</span><span class="op">/</span><span class="ident">n1</span>);
+                (<span class="ident">ray</span>, (<span class="number">1.</span> <span class="op">-</span> <span class="ident">refl</span>)<span class="kw-2">*</span><span class="ident">n_ratio2</span><span class="op">/</span><span class="ident">cos1</span>.<span class="ident">abs</span>(), <span class="bool-val">true</span>)
+            }
+        }<span class="kw">else</span>{
+            <span class="comment">// reflection only... there is no transmission</span>
+            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
+            (<span class="ident">ray</span>, <span class="number">1.</span><span class="op">/</span><span class="ident">cos1</span>.<span class="ident">abs</span>(), <span class="bool-val">true</span>)
+
+        }
+            
+    }
+
+    <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>)-&gt;<span class="ident">Float</span>{        
+
+        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+        <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
+        <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>, <span class="ident">normal</span>);
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos2</span> {
+            <span class="comment">// Reflection and transmission</span>
+            <span class="comment">// Calculate directions</span>
+            <span class="kw">let</span> <span class="ident">trans_dir</span> <span class="op">=</span> <span class="ident">fresnel_transmission_dir</span>(<span class="ident">vin</span>, <span class="ident">normal</span>, <span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
+            <span class="kw">let</span> <span class="ident">refl</span> <span class="op">=</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
+            <span class="kw">let</span> <span class="ident">trans</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">refl</span>;
+
+            <span class="kw">if</span> <span class="ident">vout</span>.<span class="ident">is_parallel</span>(<span class="ident">mirror_dir</span>){
+                <span class="ident">refl</span>
+            }<span class="kw">else</span> <span class="kw">if</span> <span class="ident">vout</span>.<span class="ident">is_parallel</span>(<span class="ident">trans_dir</span>){
+                <span class="ident">trans</span>
+            }<span class="kw">else</span>{
+                <span class="number">0.0</span>
+            }
+        }<span class="kw">else</span>{
+            <span class="comment">// There is only reflection...</span>
+            <span class="kw">if</span> <span class="ident">vout</span>.<span class="ident">is_parallel</span>(<span class="ident">mirror_dir</span>){
+                <span class="number">1.</span>
+            } <span class="kw">else</span> {
+                <span class="number">0.0</span>
+            }
+        }
+        
+        
+
+    }
+}
+
+
+<span class="comment">/*************** */</span>
+<span class="comment">/* PLASTIC/METAL */</span>
+<span class="comment">/*************** */</span>
+
+
+<span class="doccomment">/// Information required for modelling Radiance&#39;s Plastic and Metal</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PlasticMetal</span> {
     <span class="kw">pub</span> <span class="ident">color</span>: <span class="ident">Spectrum</span>,
     <span class="kw">pub</span> <span class="ident">specularity</span>: <span class="ident">Float</span>,
@@ -520,7 +669,7 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">PlasticMetal</span>{
-    <span class="kw">fn</span> <span class="ident">bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,<span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">_ray_dir</span>: <span class="ident">Vector3D</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt;(<span class="ident">Vector3D</span>,<span class="ident">Float</span>, <span class="ident">bool</span>){
+    <span class="kw">fn</span> <span class="ident">bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,<span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="kw-2">mut</span> <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt;(<span class="ident">Ray</span>,<span class="ident">Float</span>, <span class="ident">bool</span>){
         
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">specularity</span> <span class="op">&gt;</span> <span class="number">0.</span> {
             <span class="macro">unimplemented!</span>()
@@ -534,8 +683,9 @@ SOFTWARE.
             <span class="macro">debug_assert!</span>( (<span class="ident">local_dir</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>, <span class="string">&quot;Length was {}&quot;</span>, <span class="ident">local_dir</span>.<span class="ident">length</span>());
             <span class="kw">let</span> (<span class="ident">x</span>,<span class="ident">y</span>,<span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_dir</span>.<span class="ident">x</span>, <span class="ident">local_dir</span>.<span class="ident">y</span>, <span class="ident">local_dir</span>.<span class="ident">z</span>);
             <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">x</span>,<span class="ident">y</span>,<span class="ident">z</span>);
+            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">dir</span>;
             <span class="comment">// debug_assert!( (dir.length() - 1.).abs() &lt; 1e-4);</span>
-            (<span class="ident">dir</span>, <span class="ident">prob</span>, <span class="bool-val">false</span>)
+            (<span class="ident">ray</span>, <span class="ident">prob</span>, <span class="bool-val">false</span>)
         }
     }
 
@@ -549,10 +699,15 @@ SOFTWARE.
 }
 
 
-<span class="kw">fn</span> <span class="ident">mirror_bsdf</span>(<span class="ident">ray_dir</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>)-&gt;(<span class="ident">Vector3D</span>, <span class="ident">Float</span>, <span class="ident">bool</span>){
-    <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>);            
-    <span class="macro">debug_assert!</span>( (<span class="ident">dir</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);            
-    (<span class="ident">dir</span>, <span class="number">1.</span>, <span class="bool-val">true</span>)
+<span class="comment">/************ */</span>
+<span class="comment">/* MIRROR  */</span>
+<span class="comment">/************ */</span>
+
+<span class="kw">fn</span> <span class="ident">mirror_bsdf</span>(<span class="kw-2">mut</span> <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>)-&gt;(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>){
+    <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
+    <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>);            
+    <span class="macro">debug_assert!</span>( (<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);            
+    (<span class="ident">ray</span>, <span class="number">1.</span>, <span class="bool-val">true</span>)
 }
 
 <span class="kw">fn</span> <span class="ident">eval_mirror_bsdf</span>(<span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>)-&gt;<span class="ident">Float</span>{        
@@ -565,11 +720,16 @@ SOFTWARE.
 }
 
 
+<span class="comment">/************ */</span>
+<span class="comment">/* MATERIALS */</span>
+<span class="comment">/************ */</span>
+
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Material</span> {
     <span class="ident">Plastic</span>(<span class="ident">PlasticMetal</span>),
     <span class="ident">Metal</span>(<span class="ident">PlasticMetal</span>),
     <span class="ident">Light</span>(<span class="ident">Spectrum</span>),
-    <span class="ident">Mirror</span>(<span class="ident">Spectrum</span>)
+    <span class="ident">Mirror</span>(<span class="ident">Spectrum</span>),
+    <span class="ident">Dielectric</span>(<span class="ident">Dielectric</span>)
 }
 
 <span class="kw">impl</span> <span class="ident">Material</span> {
@@ -582,6 +742,7 @@ SOFTWARE.
             <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">color</span>,
             <span class="ident"><span class="self">Self</span>::Light</span>(<span class="ident">s</span>)=&gt;<span class="kw-2">*</span><span class="ident">s</span>,
             <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="ident">s</span>)=&gt;<span class="kw-2">*</span><span class="ident">s</span>,
+            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">color</span>,
         }
     }
 
@@ -601,28 +762,6 @@ SOFTWARE.
         }
     }
 
-    <span class="comment">// /// Gets an iterator that samples the BSDF of the material</span>
-    <span class="comment">// /// according to a certain `ShadingInfo`. The closure receives a `Vector3D` corresponding</span>
-    <span class="comment">// /// to the incident direction in world&#39;s coordinates, and returns the outgoing direction</span>
-    <span class="comment">// /// as well as the probability of going in that direction.</span>
-    <span class="comment">// /// </span>
-    <span class="comment">// /// # Note</span>
-    <span class="comment">// /// </span>
-    <span class="comment">// /// When implementing forward/backard ray-tracing, modifications will have to be made </span>
-    <span class="comment">// /// to this function.</span>
-    <span class="comment">// fn bsdf_sampler(&amp;self, shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, &amp;mut RandGen)-&gt;(Vector3D,Float)&gt;;</span>
-
-    <span class="comment">// /// Gets a closure that allows calculating and sampling the BSDF of the material</span>
-    <span class="comment">// /// according to a certain `ShadingInfo`. The closure receives two `Vector3D`s, corresponding</span>
-    <span class="comment">// /// to the incident and outgoing directions in world&#39;s coordinates, and returns the </span>
-    <span class="comment">// /// value of the BSDF accordingly.</span>
-    <span class="comment">// /// </span>
-    <span class="comment">// /// # Note</span>
-    <span class="comment">// /// </span>
-    <span class="comment">// /// When implementing forward/backard ray-tracing, modifications will have to be made </span>
-    <span class="comment">// /// to this function.</span>
-    <span class="comment">// fn bsdf_evaluator(&amp;self, shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, Vector3D)-&gt;Float&gt;;</span>
-
     
     <span class="doccomment">/// Does this material scatter (e.g., like [`Plastic`]) or does it</span>
     <span class="doccomment">/// only transmit/reflects specularly (e.g., like [`Mirror`])?</span>
@@ -631,27 +770,31 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">match</span> <span class="self">self</span>{            
             <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>)=&gt;<span class="bool-val">true</span>,
+            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="kw">_</span>)=&gt;<span class="bool-val">true</span>,
             <span class="kw">_</span> =&gt; <span class="bool-val">false</span>
         }
     }
 
     <span class="doccomment">/// Samples the bsdf, returns a new direction, the probability and a boolean</span>
     <span class="doccomment">/// indicating whether this is a specular or a diffuse interaction</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">ray_dir</span>: <span class="ident">Vector3D</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt;(<span class="ident">Vector3D</span>,<span class="ident">Float</span>, <span class="ident">bool</span>){
-        <span class="macro">debug_assert!</span>( (<span class="ident">ray_dir</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;Length was {}&quot;</span>, <span class="ident">ray_dir</span>.<span class="ident">length</span>());
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt;(<span class="ident">Ray</span>,<span class="ident">Float</span>, <span class="ident">bool</span>){
+
+        <span class="macro">debug_assert!</span>( (<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;Length was {}&quot;</span>, <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>());
         <span class="macro">debug_assert!</span>( (<span class="ident">e1</span><span class="kw-2">*</span><span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
         <span class="macro">debug_assert!</span>( (<span class="ident">e1</span><span class="kw-2">*</span><span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
         <span class="macro">debug_assert!</span>( (<span class="ident">e2</span><span class="kw-2">*</span><span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
     
-        <span class="kw">match</span> <span class="self">self</span>{
-            <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray_dir</span>, <span class="ident">rng</span>),
-            <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray_dir</span>, <span class="ident">rng</span>),
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
+            <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
             <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>)=&gt;<span class="macro">panic!</span>(<span class="string">&quot;Trying to build a BSDF for a Light material&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>)=&gt;<span class="ident">mirror_bsdf</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>),
+            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>)=&gt;<span class="ident">mirror_bsdf</span>(<span class="ident">ray</span>, <span class="ident">normal</span>),
+            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>)-&gt;<span class="ident">Float</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>)-&gt;<span class="ident">Float</span>{
+        <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
         <span class="macro">debug_assert!</span>( (<span class="ident">vin</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;Length was {}&quot;</span>, <span class="ident">vin</span>.<span class="ident">length</span>());
         <span class="macro">debug_assert!</span>( (<span class="ident">e1</span><span class="kw-2">*</span><span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>);
         <span class="macro">debug_assert!</span>( (<span class="ident">e1</span><span class="kw-2">*</span><span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>);
@@ -661,229 +804,12 @@ SOFTWARE.
             <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">vin</span>, <span class="ident">vout</span>),
             <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>)=&gt;<span class="macro">panic!</span>(<span class="string">&quot;Trying to evaluate a BSDF for a Light material&quot;</span>),
             <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>)=&gt;<span class="ident">eval_mirror_bsdf</span>(<span class="ident">normal</span>, <span class="ident">vin</span>, <span class="ident">vout</span>),
+            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">ray</span>, <span class="ident">vout</span>),
         }
     }
 }
 
 
-<span class="comment">// pub struct Light {</span>
-<span class="comment">//     pub red: Float,</span>
-<span class="comment">//     pub green: Float,</span>
-<span class="comment">//     pub blue: Float,</span>
-<span class="comment">// }</span>
-<span class="comment">// impl Material for Light {</span>
-<span class="comment">//     fn colour(&amp;self) -&gt; Spectrum {</span>
-<span class="comment">//         Spectrum {</span>
-<span class="comment">//             red: self.red,</span>
-<span class="comment">//             green: self.green,</span>
-<span class="comment">//             blue: self.blue,</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     fn emits_direct_light(&amp;self) -&gt; bool {</span>
-<span class="comment">//         true</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     fn emits_light(&amp;self) -&gt; bool {</span>
-<span class="comment">//         true</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     // Lights don&#39;t reflect...?</span>
-<span class="comment">//     fn bsdf_sampler(&amp;self, _: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, &amp;mut RandGen)-&gt; (Vector3D,Float)&gt; {</span>
-<span class="comment">//         Box::new(|_vin: Vector3D, _rng: &amp;mut RandGen|{</span>
-<span class="comment">//             panic!(&quot;Trying to build a BSDF for a Light material&quot;)</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     fn bsdf_evaluator(&amp;self, _: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, Vector3D)-&gt; Float&gt; {</span>
-<span class="comment">//         Box::new(|_vin: Vector3D, _vout: Vector3D|{</span>
-<span class="comment">//             0.0</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-
-    
-<span class="comment">// }</span>
-
-
-<span class="comment">// pub struct Metal {</span>
-<span class="comment">//     pub red: Float,</span>
-<span class="comment">//     pub green: Float,</span>
-<span class="comment">//     pub blue: Float,</span>
-<span class="comment">//     pub specularity: Float,</span>
-<span class="comment">//     pub roughness: Float,</span>
-<span class="comment">// }</span>
-
-<span class="comment">// impl Material for Metal {</span>
-<span class="comment">//     fn colour(&amp;self) -&gt; Spectrum {</span>
-<span class="comment">//         Spectrum {</span>
-<span class="comment">//             red: self.red,</span>
-<span class="comment">//             green: self.green,</span>
-<span class="comment">//             blue: self.blue,</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     // Assume lambertian, for now</span>
-<span class="comment">//     fn bsdf_sampler(&amp;self, shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, &amp;mut RandGen)-&gt; (Vector3D, Float)&gt; {</span>
-        
-<span class="comment">//         let normal = shading_info.normal.get_normalized();</span>
-<span class="comment">//         let e1 = shading_info.dpdu.get_normalized();</span>
-<span class="comment">//         let e2 = e1.cross(normal).get_normalized();</span>
-<span class="comment">//         Box::new(move |_vin: Vector3D, rng: &amp;mut RandGen|{    </span>
-<span class="comment">//             // Probability</span>
-<span class="comment">//             const ONE_OVER_PI: Float = 1. / PI;</span>
-<span class="comment">//             let prob = ONE_OVER_PI;</span>
-
-<span class="comment">//             let local_dir = sample_cosine_weighted_horizontal_hemisphere(rng);</span>
-<span class="comment">//             debug_assert!( (local_dir.length() - 1.).abs() &lt; 1e-8);</span>
-<span class="comment">//             debug_assert!( (e1*e2).abs() &lt; 1e-8);</span>
-<span class="comment">//             debug_assert!( (e1*normal).abs() &lt; 1e-8);</span>
-<span class="comment">//             debug_assert!( (e2*normal).abs() &lt; 1e-8);</span>
-
-<span class="comment">//             let (x,y,z) = local_to_world(e1, e2, normal, Point3D::new(0., 0., 0.), local_dir.x, local_dir.y, local_dir.z);</span>
-<span class="comment">//             let dir = Vector3D::new(x,y,z);</span>
-<span class="comment">//             // debug_assert!( (dir.length() - 1.).abs() &lt; 1e-4);</span>
-<span class="comment">//             (dir, prob)</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-
-    
-<span class="comment">//     fn bsdf_evaluator(&amp;self, _shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, Vector3D)-&gt; Float&gt; {</span>
-<span class="comment">//         Box::new(|_vin: Vector3D, _vout: Vector3D|{            </span>
-<span class="comment">//             // Probability</span>
-<span class="comment">//             const ONE_OVER_PI: Float = 1. / PI;</span>
-<span class="comment">//             ONE_OVER_PI</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-    
-
-    
-<span class="comment">// }</span>
-
-
-<span class="comment">// pub struct Plastic {</span>
-<span class="comment">//     pub red: Float,</span>
-<span class="comment">//     pub green: Float,</span>
-<span class="comment">//     pub blue: Float,</span>
-<span class="comment">//     pub specularity: Float,</span>
-<span class="comment">//     pub roughness: Float,</span>
-<span class="comment">// }</span>
-
-<span class="comment">// impl Material for Plastic {</span>
-<span class="comment">//     fn colour(&amp;self) -&gt; Spectrum {</span>
-<span class="comment">//         Spectrum {</span>
-<span class="comment">//             red: self.red,</span>
-<span class="comment">//             green: self.green,</span>
-<span class="comment">//             blue: self.blue,</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     // Assume lambertian, for now</span>
-<span class="comment">//     fn bsdf_sampler(&amp;self, shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, &amp;mut RandGen)-&gt; (Vector3D, Float)&gt; {</span>
-        
-<span class="comment">//         let normal = shading_info.normal.get_normalized();</span>
-<span class="comment">//         let e1 = shading_info.dpdu.get_normalized();</span>
-<span class="comment">//         let e2 = e1.cross(normal).get_normalized();</span>
-<span class="comment">//         Box::new(move |_vin: Vector3D, rng: &amp;mut RandGen|{    </span>
-<span class="comment">//             // Probability</span>
-<span class="comment">//             const ONE_OVER_PI: Float = 1. / PI;</span>
-<span class="comment">//             let prob = ONE_OVER_PI;</span>
-
-<span class="comment">//             let local_dir = sample_cosine_weighted_horizontal_hemisphere(rng);            </span>
-<span class="comment">//             debug_assert!( (local_dir.length() - 1.).abs() &lt; 1e-5);</span>
-<span class="comment">//             debug_assert!( (e1*e2).abs() &lt; 1e-8);</span>
-<span class="comment">//             debug_assert!( (e1*normal).abs() &lt; 1e-8);</span>
-<span class="comment">//             debug_assert!( (e2*normal).abs() &lt; 1e-8);</span>
-
-<span class="comment">//             let (x,y,z) = local_to_world(e1, e2, normal, Point3D::new(0., 0., 0.), local_dir.x, local_dir.y, local_dir.z);</span>
-<span class="comment">//             let dir = Vector3D::new(x,y,z);</span>
-<span class="comment">//             // debug_assert!( (dir.length() - 1.).abs() &lt; 1e-4);</span>
-<span class="comment">//             (dir, prob)</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-
-<span class="comment">//     fn bsdf_evaluator(&amp;self, _shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, Vector3D)-&gt; Float&gt; {</span>
-<span class="comment">//         Box::new(|_vin: Vector3D, _vout: Vector3D|{            </span>
-<span class="comment">//             // Probability</span>
-<span class="comment">//             const ONE_OVER_PI: Float = 1. / PI;</span>
-<span class="comment">//             ONE_OVER_PI</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-    
-<span class="comment">// }</span>
-
-
-<span class="comment">// pub struct Mirror {</span>
-<span class="comment">//     pub red: Float,</span>
-<span class="comment">//     pub green: Float,</span>
-<span class="comment">//     pub blue: Float,</span>
-<span class="comment">// }</span>
-
-<span class="comment">// impl Material for Mirror {</span>
-<span class="comment">//     fn colour(&amp;self) -&gt; Spectrum {</span>
-<span class="comment">//         Spectrum {</span>
-<span class="comment">//             red: self.red,</span>
-<span class="comment">//             green: self.green,</span>
-<span class="comment">//             blue: self.blue,</span>
-<span class="comment">//         }</span>
-<span class="comment">//     }</span>
-
-    
-<span class="comment">//     fn bsdf_sampler(&amp;self, shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, &amp;mut RandGen)-&gt; (Vector3D,Float)&gt; {</span>
-<span class="comment">//         let normal = shading_info.normal.get_normalized();</span>
-<span class="comment">//         Box::new(move |vin: Vector3D, _rng: &amp;mut RandGen|{                    </span>
-<span class="comment">//             let dir = mirror_direction(vin, normal);</span>
-            
-<span class="comment">//             debug_assert!( (dir.length() - 1.).abs() &lt; 1e-8);            </span>
-<span class="comment">//             (dir, 1.)</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-
-    
-<span class="comment">//     fn bsdf_evaluator(&amp;self, shading_info: ShadingInfo) -&gt; Box&lt;dyn Fn(Vector3D, Vector3D)-&gt; Float&gt; {</span>
-<span class="comment">//         let normal = shading_info.normal.get_normalized();</span>
-<span class="comment">//         Box::new(move |vin: Vector3D, vout: Vector3D|{            </span>
-<span class="comment">//             let mirror = mirror_direction(vin, normal);</span>
-<span class="comment">//             // All of it goes to the mirror direction</span>
-<span class="comment">//             if vout.is_parallel(mirror) {</span>
-<span class="comment">//                 1.</span>
-<span class="comment">//             } else {</span>
-<span class="comment">//                 0.</span>
-<span class="comment">//             }</span>
-<span class="comment">//         })</span>
-<span class="comment">//     }</span>
-    
-
-    
-<span class="comment">// }</span>
-
-<span class="comment">// // pub struct Dielectric{</span>
-<span class="comment">// //     pub red: Float,</span>
-<span class="comment">// //     pub green: Float,</span>
-<span class="comment">// //     pub blue: Float,</span>
-<span class="comment">// //     pub refraction_coefficient: Float,</span>
-<span class="comment">// // }</span>
-
-<span class="comment">// // impl Dielectric {</span>
-
-<span class="comment">// // }</span>
-
-<span class="comment">// // impl Material for Dielectric{</span>
-<span class="comment">// //     fn colour(&amp;self) -&gt; Spectrum {</span>
-<span class="comment">// //         Spectrum {</span>
-<span class="comment">// //             red: self.red,</span>
-<span class="comment">// //             green: self.green,</span>
-<span class="comment">// //             blue: self.blue,</span>
-<span class="comment">// //         }</span>
-<span class="comment">// //     }</span>
-
-<span class="comment">// //     fn bsdf(&amp;self, vin: Vector3D, normal: Vector3D, vout: Vector3D) -&gt; Spectrum{</span>
-
-<span class="comment">// //     }</span>
-
-<span class="comment">// //     fn specular_only(&amp;self)-&gt;bool{</span>
-<span class="comment">// //         false</span>
-<span class="comment">// //     }</span>
-<span class="comment">// // }</span>
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
@@ -924,6 +850,82 @@ SOFTWARE.
             <span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>),
         )
         .<span class="ident">unwrap</span>();
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_vectors</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>) -&gt; (<span class="ident">Vector3D</span>,<span class="ident">Vector3D</span>,<span class="ident">Vector3D</span>,<span class="ident">Ray</span>,<span class="ident">Vector3D</span>) {        
+        <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>()).<span class="ident">get_normalized</span>();
+        <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">e1</span>.<span class="ident">get_perpendicular</span>().<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">e1</span>.<span class="ident">cross</span>(<span class="ident">e2</span>);
+        <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span>{
+            <span class="ident">geometry</span>: <span class="ident">geometry3d::Ray3D</span>{
+                <span class="ident">direction</span>: <span class="ident">geometry3d::Vector3D::new</span>(<span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>()).<span class="ident">get_normalized</span>(),
+                <span class="ident">origin</span>: <span class="ident">geometry3d::Point3D::new</span>(<span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>())
+            },
+            <span class="ident">refraction_index</span>: <span class="ident">rng</span>.<span class="ident">gen</span>(),
+        };
+        <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">4.</span>, <span class="number">12.</span>).<span class="ident">get_normalized</span>();
+
+        (<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>)
+    }
+
+    <span class="kw">fn</span> <span class="ident">test_material</span>(<span class="ident">material</span>: <span class="ident">Material</span>){
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::rand::get_rng</span>();
+        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">99999999</span>{
+            <span class="kw">let</span> (<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>) <span class="op">=</span> <span class="ident">get_vectors</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="kw">let</span> (<span class="ident">new_ray</span>, <span class="ident">pdf</span>, <span class="ident">_is_specular</span> ) <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
+            <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
+            <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
+            <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>.<span class="ident">as_vector3d</span>().<span class="ident">length</span>().<span class="ident">is_finite</span>());
+            <span class="kw">let</span> <span class="ident">pdf</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>,<span class="ident">e2</span>,<span class="ident">ray</span>,<span class="ident">vout</span>);
+            <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
+        }
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_sample_plastic</span>(){
+        
+        
+        
+        <span class="kw">let</span> <span class="ident">plastic</span> <span class="op">=</span> <span class="ident">Material::Plastic</span>(<span class="ident">PlasticMetal</span>{
+            <span class="ident">color</span>: <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.5</span>, <span class="ident">green</span>: <span class="number">0.2</span>, <span class="ident">blue</span>: <span class="number">0.9</span>},
+            <span class="ident">specularity</span>: <span class="number">0.0</span>, 
+            <span class="ident">roughness</span>: <span class="number">0.0</span>
+        });
+
+        <span class="ident">test_material</span>(<span class="ident">plastic</span>)
+
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_sample_metal</span>(){
+        
+        
+        <span class="kw">let</span> <span class="ident">metal</span> <span class="op">=</span> <span class="ident">Material::Metal</span>(<span class="ident">PlasticMetal</span>{
+            <span class="ident">color</span>: <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.5</span>, <span class="ident">green</span>: <span class="number">0.2</span>, <span class="ident">blue</span>: <span class="number">0.9</span>},
+            <span class="ident">specularity</span>: <span class="number">0.0</span>, 
+            <span class="ident">roughness</span>: <span class="number">0.0</span>
+        });
+
+        <span class="ident">test_material</span>(<span class="ident">metal</span>)
+
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_sample_mirror</span>(){                
+        <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">Material::Mirror</span>(<span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.5</span>, <span class="ident">green</span>: <span class="number">0.2</span>, <span class="ident">blue</span>: <span class="number">0.9</span>});
+        <span class="ident">test_material</span>(<span class="ident">mirror</span>)
+
+    }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_sample_dielectric</span>(){                
+        <span class="kw">let</span> <span class="ident">dielectric</span> <span class="op">=</span> <span class="ident">Material::Dielectric</span>(<span class="ident">Dielectric</span>{
+            <span class="ident">color</span>: <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.5</span>, <span class="ident">green</span>: <span class="number">0.2</span>, <span class="ident">blue</span>: <span class="number">0.9</span>},
+            <span class="ident">refraction_index</span>: <span class="number">1.</span>,
+        });
+        <span class="ident">test_material</span>(<span class="ident">dielectric</span>)
+
     }
 }
 </code></pre></div>

@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["CameraSample","Used for getting a sample ray from the [`Camera`]"],["PinholeCam",""],["View",""]],"trait":[["Camera",""]]});
+initSidebarItems({"enum":[["Camera",""]],"struct":[["CameraSample","Used for getting a sample ray from the [`Camera`]"],["PinholeCam",""],["View",""]]});

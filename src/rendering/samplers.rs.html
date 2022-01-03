@@ -479,23 +479,7 @@ SOFTWARE.
 
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>, <span class="ident">radius</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">f32</span>, <span class="ident">f32</span>) {
-    <span class="comment">// Fast, non-rejection</span>
-    <span class="comment">// sqrt() and cos() and sin() are </span>
-    <span class="comment">// much faster in f32... that is why I am doing </span>
-    <span class="comment">// this.</span>
-    <span class="comment">// let (r, theta): (Float, Float) = rng.gen();</span>
     
-    <span class="comment">// let r = radius * r.sqrt();</span>
-    <span class="comment">// let theta = 2. * std::f64::consts::PI * theta;</span>
-    <span class="comment">// // let (theta_sin, theta_cos) = theta.sin_cos();</span>
-    <span class="comment">// let theta_sin = fast_sin(theta);</span>
-    <span class="comment">// let theta_cos = fast_cos(theta);</span>
-
-    
-    <span class="comment">// let local_x = r * theta_sin;</span>
-    <span class="comment">// let local_y = r * theta_cos;</span>
-    <span class="comment">// (local_x as f32, local_y as f32)</span>
-
     <span class="comment">// Accurate, non-rejection</span>
     <span class="comment">// sqrt() and cos() and sin() are </span>
     <span class="comment">// much faster in f32... that is why I am doing </span>
@@ -511,15 +495,18 @@ SOFTWARE.
     <span class="comment">// (local_x, local_y)</span>
 
     <span class="comment">// rejection sampling</span>
-    <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x</span>, <span class="kw-2">mut</span> <span class="ident">y</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>(); 
-    <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
-    <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
-    <span class="kw">let</span> <span class="ident">found_rsq</span> <span class="op">=</span> <span class="ident">x</span><span class="kw-2">*</span><span class="ident">x</span><span class="op">+</span><span class="ident">y</span><span class="kw-2">*</span><span class="ident">y</span>;
-    <span class="kw">if</span> <span class="ident">found_rsq</span> <span class="op">&lt;</span> <span class="ident">radius</span><span class="kw-2">*</span><span class="ident">radius</span> {
-        (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>,<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f32</span>)
-    }<span class="kw">else</span>{
-        <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>, <span class="ident">radius</span>)
+    <span class="kw">const</span> <span class="ident">MAX_ITER</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">30</span>;
+    <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">MAX_ITER</span> {
+
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x</span>, <span class="kw-2">mut</span> <span class="ident">y</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>(); 
+        <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
+        <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
+        <span class="kw">let</span> <span class="ident">found_rsq</span> <span class="op">=</span> <span class="ident">x</span><span class="kw-2">*</span><span class="ident">x</span><span class="op">+</span><span class="ident">y</span><span class="kw-2">*</span><span class="ident">y</span>;
+        <span class="kw">if</span> <span class="ident">found_rsq</span> <span class="op">&lt;</span> <span class="ident">radius</span><span class="kw-2">*</span><span class="ident">radius</span> {
+            <span class="kw">return</span> (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>,<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f32</span>)
+        }
     }
+    <span class="macro">panic!</span>(<span class="string">&quot;Exceeded maximum iterations ({}) when uniform_sample_horizontal_disc()&quot;</span>, <span class="ident">MAX_ITER</span>);
 
 
 }
@@ -603,6 +590,19 @@ SOFTWARE.
     <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>,<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
     <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
+}
+
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_sphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">RandGen</span>)-&gt;<span class="ident">Point3D</span>{
+    <span class="kw">const</span> <span class="ident">TWO_PI</span> : <span class="ident">f32</span> <span class="op">=</span> <span class="number">2.</span><span class="kw-2">*</span><span class="ident">std::f32::consts::PI</span>;
+    <span class="comment">// Sample a sphere of radius 1 centered at the origin</span>
+    <span class="kw">let</span> (<span class="ident">rand1</span>, <span class="ident">rand2</span>): (<span class="ident">f32</span>, <span class="ident">f32</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();    
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="number">2.</span><span class="kw-2">*</span><span class="ident">rand1</span>;
+    <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">z</span><span class="kw-2">*</span><span class="ident">z</span>).<span class="ident">sqrt</span>() <span class="kw">as</span> <span class="ident">Float</span>;
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">z</span> <span class="kw">as</span> <span class="ident">Float</span>;
+    <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">TWO_PI</span><span class="kw-2">*</span><span class="ident">rand2</span>).<span class="ident">cos</span>() <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">aux</span>;
+    <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> (<span class="ident">TWO_PI</span><span class="kw-2">*</span><span class="ident">rand2</span>).<span class="ident">sin</span>() <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">aux</span>;
+
+    <span class="ident">Point3D::new</span>(<span class="ident">x</span>,<span class="ident">y</span>,<span class="ident">z</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_disc</span>(
