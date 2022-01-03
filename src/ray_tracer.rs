@@ -30,6 +30,10 @@ use crate::interaction::Interaction;
 use crate::rand::*;
 use crate::material::Material;
 
+#[cfg(feature="parallel")]
+use rayon::prelude::*;
+
+
 pub struct RayTracer {
     pub max_depth: usize,
     pub n_shadow_samples: usize,
@@ -57,18 +61,18 @@ impl Default for RayTracer{
 impl RayTracer {
 
      /// Recursively traces a ray
-     pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: &Ray, current_depth: usize, current_value: Float) -> Spectrum {
+     pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: Ray, current_depth: usize, current_value: Float) -> Spectrum {
         
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
         // Limit bounces        
-        if current_depth > self.max_depth {
+        if current_depth > self.max_depth {            
             return Spectrum::black();
         }
         
 
-        // If hits an object (we test directly from the accelerator )
-        if let Some((t, interaction)) = scene.cast_ray(ray) {
+        // If hits an object 
+        if let Some((t, interaction)) = scene.cast_ray(&ray) {
 
             
             match &interaction {
@@ -76,15 +80,14 @@ impl RayTracer {
                 Interaction::Surface(data)=>{         
                     let object = &scene.objects[data.prim_index];
                     // get the normal... can be textured.                               
-                    let normal = data.geometry_shading.normal.get_normalized();
+                    let normal = data.geometry_shading.normal;
+                    debug_assert!((1. - normal.length()).abs() < 1e-5);
                     let e1 = data.geometry_shading.dpdu.get_normalized();
-                    let e2 = e1.cross(normal).get_normalized();
+                    let e2 = normal.cross(e1).get_normalized();
                     
 
                     debug_assert!((1.0 - normal.length()).abs() < 0.000001);
-
-                    // let object = interaction.object();
-
+                    
                     let material = match data.geometry_shading.side {
                         SurfaceSide::Front => {
                             &scene.materials[object.front_material_index]
@@ -105,26 +108,29 @@ impl RayTracer {
                     if material.emits_direct_light() {
                         return Spectrum::black();
                     }
+                    
                     /* SAMPLE BSDF */                    
-                    let intersection_pt = ray.geometry.project(t);                
-                    let ray_dir = ray.geometry.direction;
+                    let intersection_pt = ray.geometry.project(t);                                    
                     
                     /* SAMPLE LIGHTS */
                     let local = self.get_local_illumination(
-                        scene,
-                        material,
-                        ray_dir,
-                        intersection_pt,
-                        normal,
-                        e1,e2                
-                    );
+                            scene,
+                            material,
+                            ray,
+                            intersection_pt,
+                            normal,
+                            e1,e2                
+                        );
                     
+                   
                     let n_lights = scene.count_all_lights();                                                
                     let mut global = Spectrum::black();                    
                     let mut wt = current_value;
                     let n = if current_depth == 0 {
                         self.n_ambient_samples
-                    }else{
+                    } else if material.specular_only() {
+                        3
+                    } else {
 
                         /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */                        
                         
@@ -140,51 +146,52 @@ impl RayTracer {
                             n
                         }            
                     };
-                    // // println!("Rays reduced to {}", n)            ;
-                    // let n = self.n_ambient_samples;
+                    // let n =  self.n_ambient_samples;
+                    
                     let total_samples = n + n_lights * self.n_shadow_samples;
                     let bsdf_c = n as Float / total_samples as Float;
                     
 
                     for _ in 0..n {                           
                         // Choose a direction.
-                        let (new_ray_dir, material_pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, ray_dir, rng);                            
+                        let (mut new_ray, material_pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, ray, rng);                            
+                        new_ray.geometry.origin = intersection_pt + normal*0.00001;
+                        let new_ray_dir = new_ray.geometry.direction;
                         debug_assert!((1. - new_ray_dir.length()).abs() < 0.0000001);
 
-                        let new_ray = Ray{
-                            time: ray.time,
-                            geometry: Ray3D {
-                                direction : new_ray_dir,
-                                origin: intersection_pt,// + normal * 0.0001, // avoid self shading
-                            }
-                        };
-                        let cos_theta = (normal * new_ray_dir).abs();
-                        // let new_value = material.colour().red * material_pdf * cos_theta;
-                        // Check reflection limits... as described in RTRACE's man
-                        // if self.limit_weight > 0. && /*new_value*/wt < self.limit_weight {
-                        //     // russian roulette
-                        //     let q : Float = rng.gen();
-                        //     if q > /*new_value*/wt/self.limit_weight {
-                        //         return Spectrum::black();
-                        //     }
-                        // }
+
+                        // increase depth 
+                        let new_depth = current_depth + 1;
+
                         
-                        let li = self.trace_ray(rng, scene, &new_ray, current_depth + 1, wt * material_pdf * cos_theta);
+                        let cos_theta = (normal * new_ray_dir).abs();
+                        let new_value = wt * material_pdf * cos_theta;
+                        
+                        // russian roulette
+                        if self.limit_weight > 0. && new_value < self.limit_weight {                                                        
+                            let q : Float = rng.gen();
+                            if q > new_value/self.limit_weight {                                
+                                return Spectrum::black();
+                            }
+                        }
+                        
+                        let li = self.trace_ray(rng, scene, new_ray, new_depth, new_value);
 
                         let fx =  (li * cos_theta) * (material.colour() * material_pdf);
                         let denominator = material_pdf * bsdf_c;
 
                         // add contribution
                         global += fx / denominator;
-                    }
+                    }                    
                     
                     global /= total_samples as Float;
                     
+                    // return
                     local + global
 
 
-                }
-            }            
+                }// End match Surface Interaction
+            }// End all matches            
         } else {
             // Did not hit.
             Spectrum::black()
@@ -251,7 +258,7 @@ impl RayTracer {
         &self,
         scene: &Scene,
         material: &Material,                
-        vin: Vector3D,
+        ray: Ray,
         point: Point3D,
         normal: Vector3D,  
         e1: Vector3D,
@@ -271,11 +278,11 @@ impl RayTracer {
 
         let mut sample_light_array = |lights: &[Object]|{            
             for light in lights.iter() {
-                let origin = origin + normal * 0.001;
+                let this_origin = origin + normal * 0.001;
                 let sampler = light.primitive.direction_sampler(origin, self.n_shadow_samples);
                 for direction in sampler {            
                     let shadow_ray = Ray3D {
-                        origin,
+                        origin: this_origin,
                         direction,
                     };
             
@@ -289,7 +296,7 @@ impl RayTracer {
                     // when one light has a pdf>0, then all the rest are Zero... is this
                     // correct?
                     let vout = shadow_ray.direction * -1.;
-                    let material_pdf = material.eval_bsdf(normal, e1, e2,  vin, vout );
+                    let material_pdf = material.eval_bsdf(normal, e1, e2,  ray, vout );
                     let denominator = material_pdf * bsdf_c + light_pdf * light_c;
                     let fx = (light_colour * cos_theta) * (mat_colour * material_pdf);
     
@@ -307,35 +314,48 @@ impl RayTracer {
     }
 
 
-    pub fn render(&self, scene: &Scene, camera: &dyn Camera) -> ImageBuffer {        
+    pub fn render(&self, scene: &Scene, camera: &Camera) -> ImageBuffer {        
         let (width, height) = camera.film_resolution();
-        let mut buffer = ImageBuffer::new(width, height);
+        
         let total_pixels = width * height;
 
+        let last_progress = std::sync::Arc::new(std::sync::Mutex::new(0.0));
+        let counter = std::sync::Arc::new(std::sync::Mutex::new(0));
 
-        let mut last_progress: Float = 0.0;
-        let mut i = 0;        
-        for y in 0..height {
-            for x in 0..width {
-                let (ray, weight) = camera.gen_ray(&CameraSample {
-                    p_film: (x, y),
-                    p_lens: (0., 0.), // we will not use this
-                    time: 1.,         // we will not use
-                });
-                let mut rng = get_rng();
-                buffer[(x, y)] = self.trace_ray(&mut rng, scene,&ray, 0, weight);
-                // report
-                let progress = (100 * i) as Float / total_pixels as Float;
-                if (progress - progress.floor()) < 0.1 && (progress - last_progress).abs() > 1. {
-                    last_progress = progress;
-                    println!("... Done {:.0}%", progress);
-                }
-                // increase counter
-                i += 1;
+        #[cfg(not(feature = "parallel"))]
+        let aux_iter = (0..total_pixels).into_iter();
+        #[cfg(feature = "parallel")]
+        let aux_iter = (0..total_pixels).into_par_iter();
+
+        let pixels : Vec<Spectrum> = aux_iter.map(|pixel|{
+            let y = (pixel as f32/width as f32).floor() as usize;
+            let x = pixel - y*width;
+            let (ray, weight) = camera.gen_ray(&CameraSample {
+                p_film: (x, y),
+                p_lens: (0., 0.), // we will not use this                    
+            });
+            let mut rng = get_rng();
+            let v = self.trace_ray(&mut rng, scene,ray, 0, weight);
+            
+            // report
+            let mut c = counter.lock().unwrap();
+            *c += 1;
+
+            
+            let mut lp = last_progress.lock().unwrap();
+            let progress = (100. *  *c as Float/ total_pixels  as Float).round() as Float;                        
+            if (*lp - progress.floor()) < 0.1 && (progress - *lp).abs() > 1. {
+                *lp = progress;                
+                println!("... Done {:.0}%", progress);
             }
-        }
+            
 
-        buffer
+            // return
+            v
+        }).collect();
+
+        // return
+        ImageBuffer::from_pixels(width, height, pixels)
     }
 }
 
@@ -346,7 +366,7 @@ mod tests {
     // use geometry3d::ray3d::Ray3D;
     use geometry3d::{Vector3D, Point3D};
 
-    use crate::camera::{PinholeCam, View};
+    use crate::camera::{Camera,View};
     use crate::film::Film;
     use std::time::Instant;
 
@@ -369,11 +389,13 @@ mod tests {
         };
 
         // Create camera
-        let camera = PinholeCam::new(view, film);
+        let camera = Camera::pinhole(view, film);
 
         let integrator = RayTracer{
-            n_shadow_samples: 3,
+            n_shadow_samples: 38,
+            max_depth: 3,
             limit_weight: 0.001,
+            n_ambient_samples: 2,
             .. RayTracer::default()   
         };
         let now = Instant::now();
@@ -391,10 +413,10 @@ mod tests {
     #[test]
     fn render_scenes() {
         // return;
-        compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
+        // compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
-        compare_with_radiance("exterior_0_mirror.rad".to_string());
-        // compare_with_radiance("exterior_0_dielectric.rad".to_string());
+        // compare_with_radiance("exterior_0_mirror.rad".to_string());
+        compare_with_radiance("exterior_0_dielectric.rad".to_string());
     }
 
     #[test]
@@ -407,7 +429,7 @@ mod tests {
         // Create camera
         // Create film
         let film = Film {
-            resolution: (212, 212),
+            resolution: (512, 512),
         };
 
         // Create view
@@ -417,10 +439,10 @@ mod tests {
             ..View::default()
         };
         // Create camera
-        let camera = PinholeCam::new(view, film);
+        let camera = Camera::pinhole(view, film);
 
         let integrator = RayTracer {
-            n_ambient_samples: 528,
+            n_ambient_samples: 300,
             n_shadow_samples: 1,
             max_depth: 2,
             .. RayTracer::default()
@@ -435,11 +457,12 @@ mod tests {
         
     }
 
+
+
+
     use crate::material::{Material, PlasticMetal};
     use geometry3d::{DistantSource3D, Triangle3D, Sphere3D};
-    use crate::primitive::Primitive;
-    
-
+    use crate::primitive::Primitive;    
     #[test]
     fn test_2() {
         // return;
@@ -566,12 +589,12 @@ mod tests {
         };
 
         // Create camera
-        let camera = PinholeCam::new(view, film);
+        let camera = Camera::pinhole(view, film);
 
         let integrator = RayTracer{
-            n_ambient_samples: 3,
-            n_shadow_samples: 1,
-            max_depth: 2,
+            n_ambient_samples: 18,
+            n_shadow_samples: 15,
+            max_depth: 3,
             .. RayTracer::default()
         };
         let now = Instant::now();

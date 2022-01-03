@@ -103,6 +103,8 @@ impl std::ops::Index<(usize, usize)> for ImageBuffer {
     }
 }
 
+
+
 impl ImageBuffer {
     /// Creates a new empty [`ImageBuffer`]
     pub fn new(width: usize, height: usize) -> Self {
@@ -110,6 +112,18 @@ impl ImageBuffer {
             width,
             height,
             pixels: vec![Spectrum::black(); width * height],
+        }
+    }
+
+    /// Creates a new empty [`ImageBuffer`]
+    pub fn from_pixels(width: usize, height: usize, pixels : Vec<Spectrum>) -> Self {
+        if pixels.len() != width * height {
+            panic!("Width ({}) and Height ({}) does not match the number of pixels (n_pixels is {}... expecting width*height={})", width, height, pixels.len(), width*height)
+        }
+        Self {
+            width,
+            height,
+            pixels,
         }
     }
 

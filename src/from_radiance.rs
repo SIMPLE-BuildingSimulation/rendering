@@ -22,7 +22,7 @@ SOFTWARE.
 use crate::Float;
 use crate::colour::Spectrum;
 
-use crate::material::{PlasticMetal, Material};
+use crate::material::{PlasticMetal, Material, Dielectric};
 use crate::primitive::Primitive;
 
 use crate::scene::Scene;
@@ -162,6 +162,7 @@ impl Scanner {
             b"metal" => self.consume_metal(source, scene, &modifier, &name),
             b"light" => self.consume_light(source, scene, &modifier, &name),
             b"mirror" => self.consume_mirror(source, scene, &modifier, &name),
+            b"dielectric" => self.consume_dielectric(source, scene, &modifier, &name),
 
             // objects
             b"sphere" => self.consume_sphere(source, scene, &modifier, &name),
@@ -280,6 +281,34 @@ impl Scanner {
 
         let mirror = Spectrum { red, green, blue };
         scene.push_material(Material::Mirror(mirror));
+    }
+
+    /// Consumes a Light material
+    fn consume_dielectric(
+        &mut self,
+        source: &[u8],
+        scene: &mut Scene,
+        _modifier: &String,
+        name: &String,
+    ) {
+        let t = self.consume_token(source);
+        assert_eq!(t, "0".to_string());
+        let t = self.consume_token(source);
+        assert_eq!(t, "0".to_string());
+        let t = self.consume_token(source);
+        assert_eq!(t, "5".to_string());
+        let red = self.consume_token(source).parse::<Float>().unwrap();
+        let green = self.consume_token(source).parse::<Float>().unwrap();
+        let blue = self.consume_token(source).parse::<Float>().unwrap();
+        let refraction_index = self.consume_token(source).parse::<Float>().unwrap();
+        let _hartmans = self.consume_token(source).parse::<Float>().unwrap();
+
+        self.modifiers.push(name.clone());
+
+        let color = Spectrum { red, green, blue };
+        scene.push_material(Material::Dielectric(Dielectric{
+            color,refraction_index
+        }));
     }
 
     /// Consumes a sphere

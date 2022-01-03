@@ -12,6 +12,11 @@ matrix = {git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git"}
 # geometry3d = {path = "../geometry3d"}
 rand = { version = "0.8.4", features=["small_rng"]}
 rayon = {version = "1.5", optional = true}
+clap = "2.33.3"
+
+[[bin]]
+name = "spict"
+path = "src/bin.rs"
 
 [dev-dependencies]
 criterion = "0.3"
@@ -25,6 +30,7 @@ harness = false
 default = []
 float = ["geometry3d/float", "matrix/float"]
 parallel = ["geometry3d/parallel", "rayon"]
+
 
 
 [profile.release]

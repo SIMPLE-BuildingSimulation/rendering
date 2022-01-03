@@ -51,19 +51,42 @@ pub struct CameraSample {
     /// The position within the Lens of the camera
     pub p_lens: (Float, Float),
 
-    /// Time at which the ray will be emmited
-    pub time: Float,
+    // /// Time at which the ray will be emmited
+    // pub time: Float,
 }
 
-pub trait Camera {
+pub enum Camera {
+    Pinhole(PinholeCam),
+}
+
+impl Camera {
+
+    /// Creates a new PinholeCamera
+    pub fn pinhole(view: View, film: Film) -> Self {
+        Self::Pinhole(PinholeCam::new(view,film))
+    }
+
     /// Generates a ray and
-    fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float);
+    pub fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float){
+        match self{
+            Self::Pinhole(c)=>c.gen_ray(sample)
+        }
+    }
 
     /// Gets the film resolution (width,height) in pixels
-    fn film_resolution(&self) -> (usize, usize);
+    pub fn film_resolution(&self) -> (usize, usize){
+        match self{
+            Self::Pinhole(c)=>c.film_resolution()
+        }
+    }
 
     /// Borrows the view
-    fn view(&self) -> &View;
+    pub fn view(&self) -> &View{
+        match self{
+            Self::Pinhole(c)=>c.view()
+        }
+    }
+    
 }
 
 pub struct PinholeCam {
@@ -86,9 +109,7 @@ impl PinholeCam {
             u,
         }
     }
-}
 
-impl Camera for PinholeCam {
     fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float) {
         let (width, height) = self.film.resolution;
         let (x_pixel, y_pixel) = sample.p_film;
@@ -106,7 +127,8 @@ impl Camera for PinholeCam {
                 direction: direction.get_normalized(),
                 origin: self.view.view_point,
             }, 
-            time: sample.time,
+            refraction_index: 1.
+            // time: sample.time,
         };
 
         // return
@@ -120,7 +142,9 @@ impl Camera for PinholeCam {
     fn view(&self) -> &View {
         &self.view
     }
-} // end of PinholeCam
+}
+
+
 
 #[cfg(test)]
 mod tests {

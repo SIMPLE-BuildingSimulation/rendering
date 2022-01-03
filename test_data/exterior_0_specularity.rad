@@ -12,6 +12,11 @@ void plastic green
 
 
 
+void plastic gray
+0
+0
+5 0.3 0.3 0.3 0 0
+
 red sphere ball
 0
 0
@@ -23,7 +28,7 @@ green sphere ball
 4   1 -1 -1.5 1.5
 
 
-green polygon floor
+gray polygon floor
 0
 0
 12  

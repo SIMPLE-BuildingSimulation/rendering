@@ -21,11 +21,17 @@ SOFTWARE.
 use crate::Float;
 use geometry3d::{Transform, Ray3D, Point3D, Vector3D};
 
+/// Represents a ray (of light?) beyond pure geometry. It 
+/// includes also the current index of refraction and, potentially,
+/// time (for blurry images) 
 #[derive(Clone, Copy)]
 pub struct Ray{
+    /// Direction and position
     pub geometry: Ray3D,
-    pub time: Float,
-    // medium.
+    // pub time: Float,
+
+    /// index of refraction of the current medium
+    pub refraction_index: Float    
 }
 
 impl Ray {
@@ -34,8 +40,8 @@ impl Ray {
         let (geometry,_o_error, _d_error)= t.transform_ray(&self.geometry);
         Self{
             geometry,
-            time: self.time,
-            // medium: self.medium
+            // time: self.time,
+            refraction_index: self.refraction_index
         }
     }
 
