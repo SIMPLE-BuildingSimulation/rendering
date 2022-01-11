@@ -98,45 +98,14 @@ impl Scene {
         let res = accelerator.intersect(&self.objects, &ray.geometry);
         if res.is_some(){
             return res
-        }else{
-            // // Did not intersec anything... Check distant sources
-            // for source in self.distant_lights.iter() {
-            //     if let Some(info) = source.primitive.intersect(&ray.geometry) {                    
-            //         let object = RefCount::clone(&source);
-            //         let t = Float::MAX;// Just a huge distance                            
-            //         let point = ray.geometry.project(t);
-            //         // eprintln!("cast ray 7");
-            //         let data = SurfaceInteractionData{
-            //             point,
-            //             // perror: info.perror,
-            //             time: ray.time,
-            //             wo: ray.geometry.direction * -1.,
-            //             geometry_shading: ShadingInfo{
-            //                 u: info.u,
-            //                 v: info.v,
-            //                 normal: info.normal,
-            //                 dpdu: info.dpdu,
-            //                 dpdv: info.dpdv,
-            //                 dndu: info.dndu,
-            //                 dndv: info.dndv,
-            //                 side: info.side
-            //             },
-            //             texture_shading: None,
-            //             object,
-            //         };
-
-                    
-            //         return Some((t,Interaction::Surface(data)))
-            //     }                
-            // }
-            // Did not intersect distant sources either.
+        }else{        
             None
         }       
     }
 
     
 
-    /// Checks whether a [`Ray3D`] can travel a certain distance without being obstructed
+    /// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface
     pub fn unobstructed_distance(&self, ray: &Ray3D, distance: Float) -> bool {
         let accelerator = match &self.accelerator{
             Some(s)=>s,
@@ -144,43 +113,10 @@ impl Scene {
         };
 
         // Check if we intersect something... otherwise, check distant sources
-        accelerator.unobstructed_distance(&self.objects, ray, distance)
-        
-
-
-        // const MIN_T: Float = 1e-20;
-        // let d_squared = distance * distance;
-
-        // debug_assert!((1. - ray.direction.length()).abs() < 0.00000001);
-
-        // // Check all objects
-        // for object in self.objects.iter() {
-        //     // If it intersects an object,
-        //     if let Some(pt) = object.primitive.simple_intersect(&ray) {                
-        //         let this_d_squared = (pt - ray.origin).length_squared();
-
-        //         // Is it a valid hit and it is earlier than the rest?
-        //         if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
-        //             return false;
-        //         }
-        //     }
-        // }
-
-        // // // Check lights as well
-        // // for object in self.lights.iter() {
-        // //     // If it intersects an object,
-        // //     if let Some(pt) = object.primitive.simple_intersect(&ray) {
-        // //         let this_d_squared = (pt - ray.origin).length_squared();
-        // //         // Is it a valid hit and it is earlier than the rest?
-        // //         if this_d_squared > MIN_T && this_d_squared + MIN_T < d_squared && (d_squared - this_d_squared).abs() > 0.0001 {
-        // //             return false;
-        // //         }
-        // //     }
-        // // }
-
-        // // it is unobstructed
-        // true
+        accelerator.unobstructed_distance(&self.objects, ray, distance)            
     }
+
+    
 
     /// Pushes a [`Material`] to the [`Scene`]
     pub fn push_material(&mut self, material: Material) -> usize {

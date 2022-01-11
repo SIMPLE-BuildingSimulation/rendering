@@ -112,12 +112,16 @@ impl PinholeCam {
 
     fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float) {
         let (width, height) = self.film.resolution;
-        let (x_pixel, y_pixel) = sample.p_film;
-        let dx = 2. / width as Float;
-        let dy = 2. / height as Float;
+        let aspect_ratio = height as Float/width as Float;
+        let xlim = 2.;
+        let ylim = aspect_ratio * xlim;
 
-        let x = dx / 2. + x_pixel as Float * dx - 1.;
-        let y = dy / 2. + y_pixel as Float * dy - 1.;
+        let (x_pixel, y_pixel) = sample.p_film;
+        let dx = xlim / width as Float;
+        let dy = ylim / height as Float;
+
+        let x = dx / 2. + x_pixel as Float * dx - xlim/2.;
+        let y = dy / 2. + y_pixel as Float * dy - ylim/2.;
 
         let direction =
             self.view.view_direction * self.film_distance + self.u * x - self.view.view_up * y;

@@ -4,3 +4,4 @@ test_data/images/*.hdr
 test_data/images/*.tiff
 .DS_Store
 .vscode
+check.txt

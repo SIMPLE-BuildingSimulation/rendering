@@ -61,6 +61,8 @@ fn main() {
         
     // Create camera    
     let film = Film {
+        // resolution: (600, 437),
+        // resolution: (1024, 768),
         resolution: (512, 512),
     };
 
@@ -68,6 +70,8 @@ fn main() {
     let view = View {
         view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
         view_point: Point3D::new(2., 1., 1.),
+        // view_point: Point3D::new(3., -5., 2.25),
+        field_of_view: 60.,
         ..View::default()
     };
 
@@ -77,10 +81,10 @@ fn main() {
     
 
     let integrator = RayTracer{
-        n_shadow_samples: 0,
-        max_depth: 3,
+        n_shadow_samples: 25,
+        max_depth: 0,
         limit_weight: 0.001,
-        n_ambient_samples: 20,
+        n_ambient_samples: 160,
         .. RayTracer::default()   
     };
 

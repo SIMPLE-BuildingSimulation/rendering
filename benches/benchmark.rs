@@ -35,7 +35,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         roughness: 0.0
     }));
     c.bench_function("sample_plastic", |b| b.iter(|| {
-        let (_new_ray, _pdf, _is_specular ) =plastic.sample_bsdf(normal, e1, e2, ray, &mut rng);
+        let (_new_ray, _pdf, _is_specular ) =plastic.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
     }));
     c.bench_function("eval_plastic", |b| b.iter(|| {
         let _val = plastic.eval_bsdf(normal, e1, e2, ray, vout);
@@ -49,7 +49,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         roughness: 0.0
     }));
     c.bench_function("sample_metal", |b| b.iter(|| {
-        let (_new_ray, _pdf, _is_specular ) = metal.sample_bsdf(normal, e1, e2, ray, &mut rng);
+        let (_new_ray, _pdf, _is_specular ) = metal.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
     }));
 
     c.bench_function("eval_metal", |b| b.iter(|| {
@@ -61,7 +61,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     let mirror = black_box(Material::Mirror(Spectrum{red: 0.5, green: 0.2, blue: 0.9}));
     c.bench_function("sample_mirror", |b| b.iter(|| {
-        let (_new_ray, _pdf, _is_specular ) = mirror.sample_bsdf(normal, e1, e2, ray, &mut rng);
+        let (_new_ray, _pdf, _is_specular ) = mirror.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
     }));
     c.bench_function("eval_mirror", |b| b.iter(|| {
         let _val = mirror.eval_bsdf(normal, e1, e2, ray, vout);
@@ -76,7 +76,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         
     }));
     c.bench_function("sample_dielectric", |b| b.iter(|| {
-        let (_new_ray, _pdf, _is_specular ) = dielectric.sample_bsdf(normal, e1, e2, ray, &mut rng);
+        let (_new_ray, _pdf, _is_specular ) = dielectric.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
     }));
     c.bench_function("eval_dielectric", |b| b.iter(|| {
         let _val = dielectric.eval_bsdf(normal, e1, e2, ray, vout);
