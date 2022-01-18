@@ -92,7 +92,7 @@ impl RayTracer {
                     &scene.materials[object.back_material_index]
                 },
                 SurfaceSide::NonApplicable => {
-                    // Hit parallel to the surface
+                    // Hit parallel to the surface... 
                     return Spectrum::black()
                 }                    
             };
@@ -102,17 +102,19 @@ impl RayTracer {
             // for now, emmiting materials don't reflect... but they 
             // are visible when viewed directly from the camera
             if material.emits_direct_light() {
-                if current_depth == 0 {
+                // if current_depth == 0 {
                     return material.colour()
-                }else{
-                    return Spectrum::black();
-                }
+                // }else{
+                    // return Spectrum::black();
+                // }
             }
             
                              
             // Calculate the number of ambient samples
             let mut wt = current_value;
-            let n = if current_depth == 0 {
+            let n = if self.max_depth == 0 { 
+                0 // No ambient samples required
+            } else if current_depth == 0 {
                 self.n_ambient_samples
             } else {
 
@@ -146,7 +148,7 @@ impl RayTracer {
 
             /* INDIRECT */
             // Limit bounces        
-            if current_depth >= self.max_depth {            
+            if current_depth > self.max_depth {            
                 return local
             }
 
@@ -188,16 +190,17 @@ impl RayTracer {
                     Material::Mirror(s)=>*s,
                     Material::Dielectric(s)=>{
                         let c = s.color;                        
-                        Spectrum {
-                            red: c.red.powf(t),
-                            green: c.green.powf(t),
-                            blue: c.blue.powf(t),
-                        }
+                        c
+                        // Spectrum {
+                        //     red: c.red.powf(t),
+                        //     green: c.green.powf(t),
+                        //     blue: c.blue.powf(t),
+                        // }
 
                     }
                 };
 
-                let li = self.trace_ray(rng, scene, new_ray, new_depth, new_value);                
+                let li = self.trace_ray(rng, scene, new_ray, new_depth, new_value);
                 let fx =  (li * cos_theta) * (color * bsdf_value);
                 let denominator = bsdf_value * bsdf_c;
 
@@ -239,6 +242,7 @@ impl RayTracer {
             }
         };
 
+
         let light_distance = (origin - intersection_info.p).length();
 
         // If the light is not visible (this does not consider 
@@ -260,10 +264,14 @@ impl RayTracer {
             }
         };
 
-        let light_colour = light_material.colour();        
-        let light_pdf = 1. / light.primitive.omega(origin);
+        let light_colour = light_material.colour();   
+        
+        let light_pdf = 1./ light.primitive.omega(origin);
+        // let light_pdf = light.primitive.omega(origin) / (2.* 3.141592654) ;
+        // let light_pdf = light.primitive.solid_angle_pdf(&intersection_info, shadow_ray);
+        
         // return
-        (light_colour,light_pdf)
+        (light_colour ,light_pdf)
                  
     }
 
@@ -308,11 +316,9 @@ impl RayTracer {
             
                     
                     let (light_colour, light_pdf) = self.sample_light(scene, light, &shadow_ray);                                
-                    if light_pdf.abs() < 1e-7 {                        
-                        // sample_light() returns a pdf of 0 if the light is obstructed.
-                        continue;
-                    }
-                    
+                    if light_pdf < 1e-3{
+                        continue
+                    }  
                     // Denominator of the Balance Heuristic... I am assuming that
                     // when one light has a pdf>0, then all the rest are Zero... is this
                     // correct?
@@ -523,7 +529,7 @@ mod tests {
         let integrator = RayTracer {
             n_ambient_samples: 220,
             n_shadow_samples: 1,
-            max_depth: 0,
+            max_depth: 3,
             .. RayTracer::default()
         };
 

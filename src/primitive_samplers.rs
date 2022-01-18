@@ -25,8 +25,15 @@ use crate::rand::*;
 use crate::{Float,PI};
 use crate::samplers::*;
 // use geometry3d::intersect_trait::Intersect;
-use geometry3d::{Point3D, Triangle3D, Vector3D, Sphere3D, DistantSource3D};
+use geometry3d::{Point3D, Triangle3D, Vector3D, Sphere3D, DistantSource3D, Ray3D};
+use geometry3d::intersection::IntersectionInfo;
 
+
+/// Calculates the probability of hitting a 
+fn uniform_cone_pdf(cos_theta: Float)->Float{
+    let aux = 2.*PI*(1.-cos_theta);
+    1./aux
+}
 
 /* TRIANGLE */
 
@@ -52,6 +59,17 @@ pub fn triangle_omega(_triangle: &Triangle3D, _point: Point3D) -> Float {
     // self.area() / t
 }
 
+pub fn triangle_solid_angle_pdf(triangle: &Triangle3D, info: &IntersectionInfo, ray: &Ray3D)->Float{
+    let d2 = (info.p - ray.origin).length_squared();
+    let cos_theta = ray.origin * info.normal;
+    debug_assert!(cos_theta > 0.);
+    if cos_theta < 1e-7{
+        return 0.0
+    }
+    let area = triangle.area();
+    // return
+    d2/cos_theta/area
+}
 
 /* END OF TRIANGLE */
 
@@ -59,7 +77,13 @@ pub fn triangle_omega(_triangle: &Triangle3D, _point: Point3D) -> Float {
 
 /* SPHERE */
 
-
+pub fn sphere_solid_angle_pdf(sphere: &Sphere3D, _info: &IntersectionInfo, ray: &Ray3D)->Float{
+    let d2 = (sphere.centre() - ray.origin).length_squared();    
+    let sin_theta_2 = sphere.radius * sphere.radius / d2;
+    let cos_theta = ( (1. - sin_theta_2).clamp(0., 1.) ).sqrt();    
+    // return
+    uniform_cone_pdf(cos_theta)
+}
 
 pub fn sphere_direction(sphere: &Sphere3D, point: Point3D) -> (Float, Vector3D) {
     let direction = sphere.centre() - point;
@@ -68,8 +92,7 @@ pub fn sphere_direction(sphere: &Sphere3D, point: Point3D) -> (Float, Vector3D) 
 }
 
 pub fn sphere_omega(sphere: &Sphere3D, point: Point3D) -> Float {
-    let d = (sphere.centre() - point).length();
-    let d2 = d * d;
+    let d2 = (sphere.centre() - point).length_squared();    
     PI * sphere.radius * sphere.radius / d2
 }
 
@@ -93,6 +116,12 @@ pub fn sample_sphere_surface(sphere:&Sphere3D, rng: &mut RandGen)->Point3D{
 
 
 /* DISTANT SOURCE */
+
+pub fn source_solid_angle_pdf(source: &DistantSource3D, _info: &IntersectionInfo, _ray: &Ray3D)->Float{
+    
+    // return
+    uniform_cone_pdf(source.cos_half_alpha)
+}
 
 /// It is always in the same direction
 pub fn source_direction(source: &DistantSource3D, _point: Point3D) -> (Float, Vector3D) {

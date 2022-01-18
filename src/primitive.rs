@@ -92,6 +92,15 @@ impl Primitive{
         }
     }
 
+    pub fn solid_angle_pdf(&self, info: &IntersectionInfo, ray: &Ray3D)->Float{
+        match self {
+            Self::Sphere(s)=>sphere_solid_angle_pdf(s, info, ray),
+            Self::Triangle(s)=>triangle_solid_angle_pdf(s, info, ray),
+            Self::Cylinder(_s)=>unimplemented!(),
+            Self::Source(s)=>source_solid_angle_pdf(s, info, ray),
+        }
+    }
+
     pub fn omega(&self, point: Point3D) -> Float {
         match self {
             Self::Sphere(s)=>sphere_omega(s,point),

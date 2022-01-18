@@ -21,12 +21,14 @@ ground_material polygon ground
 void light up
 0
 0
-3 10000 10000 10000
+3 199999 199999 199999
+
 
 up source top
 0
 0
-4   1 1 1 0.5
+4   100 100 100 0.5
+
 
 
 

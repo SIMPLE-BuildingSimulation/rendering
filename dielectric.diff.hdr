@@ -1,0 +1,65 @@
+#?RADIANCE
+CAPDATE= 2022:01:12 22:11:08
+GMT= 2022:01:12 09:11:08
+/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/scol.hdr:
+	CAPDATE= 2022:01:12 22:11:08
+	GMT= 2022:01:12 09:11:08
+	pcomb -f /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/pc0.cal -x 100 -y 237.5 -e v=(y+.5-25)/(yres/(1+1.5/8));vleft=v;vright=v -e vbelow=(y-.5-25)/(yres/(1+1.5/8));vabove=(y+1.5-25)/(yres/(1+1.5/8)) -e ra=0;ga=0;ba=0;
+/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slabinv.hdr:
+	CAPDATE= 2022:01:12 22:11:08
+	GMT= 2022:01:12 09:11:08
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab.hdr:
+		CAPDATE= 2022:01:12 22:11:08
+		GMT= 2022:01:12 09:11:08
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slabT.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab0.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab1.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab2.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab3.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab4.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab5.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab6.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab7.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab8.hdr:
+			psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+		pcompos -b 0 0 0 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slabT.hdr 0 237.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab0.hdr 0 212.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab1.hdr 0 187.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab2.hdr 0 162.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab3.hdr 0 137.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab4.hdr 0 112.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab5.hdr 0 87.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab6.hdr 0 62.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab7.hdr 0 37.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab8.hdr 0 12.5
+	pcomb -e lo=1-gi(1) /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab.hdr
+/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab.hdr:
+	CAPDATE= 2022:01:12 22:11:08
+	GMT= 2022:01:12 09:11:08
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slabT.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab0.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab1.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab2.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab3.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab4.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab5.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab6.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab7.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab8.hdr:
+		psign -s -.15 -cf 1 1 1 -cb 0 0 0 -h 20
+	pcompos -b 0 0 0 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slabT.hdr 0 237.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab0.hdr 0 212.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab1.hdr 0 187.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab2.hdr 0 162.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab3.hdr 0 137.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab4.hdr 0 112.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab5.hdr 0 87.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab6.hdr 0 62.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab7.hdr 0 37.5 =-0 /var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/slab8.hdr 0 12.5
+<stdin>:
+	CAPDATE= 2022:01:12 22:11:08
+	GMT= 2022:01:12 09:11:08
+	/var/folders/vp/tqht5xx50wlgcsjhb61d1b9m0000gn/T/uGcLaHt4YB/stdin.hdr:
+		CAPDATE= 2022:01:12 22:11:08
+		GMT= 2022:01:12 09:11:08
