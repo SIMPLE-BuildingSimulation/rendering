@@ -225,70 +225,6 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
-<span id="194">194</span>
-<span id="195">195</span>
-<span id="196">196</span>
-<span id="197">197</span>
-<span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
-<span id="203">203</span>
-<span id="204">204</span>
-<span id="205">205</span>
-<span id="206">206</span>
-<span id="207">207</span>
-<span id="208">208</span>
-<span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
-<span id="213">213</span>
-<span id="214">214</span>
-<span id="215">215</span>
-<span id="216">216</span>
-<span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -389,45 +325,14 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">accelerator</span>.<span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>.<span class="ident">geometry</span>);
         <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_some</span>(){
             <span class="kw">return</span> <span class="ident">res</span>
-        }<span class="kw">else</span>{
-            <span class="comment">// // Did not intersec anything... Check distant sources</span>
-            <span class="comment">// for source in self.distant_lights.iter() {</span>
-            <span class="comment">//     if let Some(info) = source.primitive.intersect(&amp;ray.geometry) {                    </span>
-            <span class="comment">//         let object = RefCount::clone(&amp;source);</span>
-            <span class="comment">//         let t = Float::MAX;// Just a huge distance                            </span>
-            <span class="comment">//         let point = ray.geometry.project(t);</span>
-            <span class="comment">//         // eprintln!(&quot;cast ray 7&quot;);</span>
-            <span class="comment">//         let data = SurfaceInteractionData{</span>
-            <span class="comment">//             point,</span>
-            <span class="comment">//             // perror: info.perror,</span>
-            <span class="comment">//             time: ray.time,</span>
-            <span class="comment">//             wo: ray.geometry.direction * -1.,</span>
-            <span class="comment">//             geometry_shading: ShadingInfo{</span>
-            <span class="comment">//                 u: info.u,</span>
-            <span class="comment">//                 v: info.v,</span>
-            <span class="comment">//                 normal: info.normal,</span>
-            <span class="comment">//                 dpdu: info.dpdu,</span>
-            <span class="comment">//                 dpdv: info.dpdv,</span>
-            <span class="comment">//                 dndu: info.dndu,</span>
-            <span class="comment">//                 dndv: info.dndv,</span>
-            <span class="comment">//                 side: info.side</span>
-            <span class="comment">//             },</span>
-            <span class="comment">//             texture_shading: None,</span>
-            <span class="comment">//             object,</span>
-            <span class="comment">//         };</span>
-
-                    
-            <span class="comment">//         return Some((t,Interaction::Surface(data)))</span>
-            <span class="comment">//     }                </span>
-            <span class="comment">// }</span>
-            <span class="comment">// Did not intersect distant sources either.</span>
+        }<span class="kw">else</span>{        
             <span class="prelude-val">None</span>
         }       
     }
 
     
 
-    <span class="doccomment">/// Checks whether a [`Ray3D`] can travel a certain distance without being obstructed</span>
+    <span class="doccomment">/// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>, <span class="ident">distance</span>: <span class="ident">Float</span>) -&gt; <span class="ident">bool</span> {
         <span class="kw">let</span> <span class="ident">accelerator</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span>{
             <span class="prelude-val">Some</span>(<span class="ident">s</span>)=&gt;<span class="ident">s</span>,
@@ -435,43 +340,10 @@ SOFTWARE.
         };
 
         <span class="comment">// Check if we intersect something... otherwise, check distant sources</span>
-        <span class="ident">accelerator</span>.<span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">distance</span>)
-        
-
-
-        <span class="comment">// const MIN_T: Float = 1e-20;</span>
-        <span class="comment">// let d_squared = distance * distance;</span>
-
-        <span class="comment">// debug_assert!((1. - ray.direction.length()).abs() &lt; 0.00000001);</span>
-
-        <span class="comment">// // Check all objects</span>
-        <span class="comment">// for object in self.objects.iter() {</span>
-        <span class="comment">//     // If it intersects an object,</span>
-        <span class="comment">//     if let Some(pt) = object.primitive.simple_intersect(&amp;ray) {                </span>
-        <span class="comment">//         let this_d_squared = (pt - ray.origin).length_squared();</span>
-
-        <span class="comment">//         // Is it a valid hit and it is earlier than the rest?</span>
-        <span class="comment">//         if this_d_squared &gt; MIN_T &amp;&amp; this_d_squared + MIN_T &lt; d_squared &amp;&amp; (d_squared - this_d_squared).abs() &gt; 0.0001 {</span>
-        <span class="comment">//             return false;</span>
-        <span class="comment">//         }</span>
-        <span class="comment">//     }</span>
-        <span class="comment">// }</span>
-
-        <span class="comment">// // // Check lights as well</span>
-        <span class="comment">// // for object in self.lights.iter() {</span>
-        <span class="comment">// //     // If it intersects an object,</span>
-        <span class="comment">// //     if let Some(pt) = object.primitive.simple_intersect(&amp;ray) {</span>
-        <span class="comment">// //         let this_d_squared = (pt - ray.origin).length_squared();</span>
-        <span class="comment">// //         // Is it a valid hit and it is earlier than the rest?</span>
-        <span class="comment">// //         if this_d_squared &gt; MIN_T &amp;&amp; this_d_squared + MIN_T &lt; d_squared &amp;&amp; (d_squared - this_d_squared).abs() &gt; 0.0001 {</span>
-        <span class="comment">// //             return false;</span>
-        <span class="comment">// //         }</span>
-        <span class="comment">// //     }</span>
-        <span class="comment">// // }</span>
-
-        <span class="comment">// // it is unobstructed</span>
-        <span class="comment">// true</span>
+        <span class="ident">accelerator</span>.<span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">distance</span>)            
     }
+
+    
 
     <span class="doccomment">/// Pushes a [`Material`] to the [`Scene`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_material</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">material</span>: <span class="ident">Material</span>) -&gt; <span class="ident">usize</span> {

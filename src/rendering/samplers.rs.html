@@ -588,7 +588,7 @@ SOFTWARE.
 
     <span class="comment">// Take back to world normal    </span>
     <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>,<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>);
-    <span class="macro">debug_assert!</span>((<span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>);
+    <span class="macro">debug_assert!</span>((<span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;length is {}&quot;</span>, <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>());
     <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
@@ -677,7 +677,7 @@ SOFTWARE.
             <span class="prelude-val">Ok</span>(())
         }
 
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">100</span> {
+        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">9999999</span> {
             <span class="ident">check</span>(<span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">2.</span>, <span class="op">-</span><span class="number">1.</span>)).<span class="ident">unwrap</span>();
             <span class="ident">check</span>(<span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>)).<span class="ident">unwrap</span>();
             <span class="ident">check</span>(<span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>)).<span class="ident">unwrap</span>();
@@ -689,7 +689,7 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_cosine_weighted_sampling</span>(){
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">999999999</span> {
+        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">99999999</span> {
             <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">sample_cosine_weighted_horizontal_hemisphere</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">rng</span>);
             <span class="macro">assert!</span>(<span class="ident">a</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
         }

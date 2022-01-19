@@ -126,6 +126,10 @@
 <span id="92">92</span>
 <span id="93">93</span>
 <span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -189,13 +193,17 @@ SOFTWARE.
         
     <span class="comment">// Create camera    </span>
     <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
-        <span class="ident">resolution</span>: (<span class="number">512</span>, <span class="number">512</span>),
+        <span class="comment">// resolution: (600, 437),</span>
+        <span class="ident">resolution</span>: (<span class="number">1024</span>, <span class="number">768</span>),
+        <span class="comment">// resolution: (512, 512),</span>
     };
 
     <span class="comment">// Create view</span>
     <span class="kw">let</span> <span class="ident">view</span> <span class="op">=</span> <span class="ident">View</span> {
         <span class="ident">view_direction</span>: <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>).<span class="ident">get_normalized</span>(),
-        <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">1.</span>, <span class="number">1.</span>),
+        <span class="comment">// view_point: Point3D::new(2., 1., 1.),</span>
+        <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="number">3.</span>, <span class="op">-</span><span class="number">5.</span>, <span class="number">2.25</span>),
+        <span class="ident">field_of_view</span>: <span class="number">50.</span>,
         ..<span class="ident">View::default</span>()
     };
 
@@ -205,10 +213,10 @@ SOFTWARE.
     
 
     <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer</span>{
-        <span class="ident">n_shadow_samples</span>: <span class="number">0</span>,
-        <span class="ident">max_depth</span>: <span class="number">3</span>,
+        <span class="ident">n_shadow_samples</span>: <span class="number">10</span>,
+        <span class="ident">max_depth</span>: <span class="number">1</span>,
         <span class="ident">limit_weight</span>: <span class="number">0.001</span>,
-        <span class="ident">n_ambient_samples</span>: <span class="number">20</span>,
+        <span class="ident">n_ambient_samples</span>: <span class="number">490</span>,
         .. <span class="ident">RayTracer::default</span>()   
     };
 
