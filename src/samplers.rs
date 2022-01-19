@@ -200,7 +200,7 @@ pub fn uniform_sample_hemisphere(rng: &mut RandGen, e1: Vector3D, e2: Vector3D, 
 
     // Take back to world normal    
     let (x, y, z) = local_to_world(e1, e2, normal,Point3D::new(0., 0., 0.), local_x as Float, local_y as Float, local_z as Float);
-    debug_assert!((Vector3D::new(x, y, z).length() - 1.).abs() < 0.0000001);
+    debug_assert!((Vector3D::new(x, y, z).length() - 1.).abs() < 1e-5, "length is {}", Vector3D::new(x, y, z).length());
     Vector3D::new(x, y, z)
 }
 
@@ -289,7 +289,7 @@ mod tests {
             Ok(())
         }
 
-        for _ in 0..100 {
+        for _ in 0..9999999 {
             check(Vector3D::new(1., 2., -1.)).unwrap();
             check(Vector3D::new(-1., 0., 0.)).unwrap();
             check(Vector3D::new(0., 0., 1.)).unwrap();
@@ -301,7 +301,7 @@ mod tests {
     #[test]
     fn test_cosine_weighted_sampling(){
         let mut rng = get_rng();
-        for _ in 0..999999999 {
+        for _ in 0..99999999 {
             let a = sample_cosine_weighted_horizontal_hemisphere(&mut rng);
             assert!(a.length().is_finite());
         }

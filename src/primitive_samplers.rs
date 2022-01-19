@@ -92,7 +92,7 @@ pub fn sphere_direction(sphere: &Sphere3D, point: Point3D) -> (Float, Vector3D) 
 }
 
 pub fn sphere_omega(sphere: &Sphere3D, point: Point3D) -> Float {
-    let d2 = (sphere.centre() - point).length_squared();    
+    let d2 = (sphere.centre() - point).length_squared();       
     PI * sphere.radius * sphere.radius / d2
 }
 

@@ -62,16 +62,16 @@ fn main() {
     // Create camera    
     let film = Film {
         // resolution: (600, 437),
-        // resolution: (1024, 768),
-        resolution: (512, 512),
+        resolution: (1024, 768),
+        // resolution: (512, 512),
     };
 
     // Create view
     let view = View {
         view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
-        view_point: Point3D::new(2., 1., 1.),
-        // view_point: Point3D::new(3., -5., 2.25),
-        field_of_view: 60.,
+        // view_point: Point3D::new(2., 1., 1.),
+        view_point: Point3D::new(3., -5., 2.25),
+        field_of_view: 50.,
         ..View::default()
     };
 
@@ -84,7 +84,7 @@ fn main() {
         n_shadow_samples: 10,
         max_depth: 1,
         limit_weight: 0.001,
-        n_ambient_samples: 390,
+        n_ambient_samples: 490,
         .. RayTracer::default()   
     };
 

@@ -61,7 +61,7 @@ impl Default for RayTracer{
 impl RayTracer {
 
      /// Recursively traces a ray
-     pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: Ray, current_depth: usize, current_value: Float) -> Spectrum {
+     pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: Ray, current_depth: usize, current_value: Float) -> Option<Spectrum> {
         
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
@@ -93,7 +93,8 @@ impl RayTracer {
                 },
                 SurfaceSide::NonApplicable => {
                     // Hit parallel to the surface... 
-                    return Spectrum::black()
+                    return None;
+                    //return Some(Spectrum::black())
                 }                    
             };
             
@@ -101,11 +102,11 @@ impl RayTracer {
             
             // for now, emmiting materials don't reflect... but they 
             // are visible when viewed directly from the camera
-            if material.emits_direct_light() {
+            if material.emits_light() {
                 // if current_depth == 0 {
-                    return material.colour()
+                    return Some(material.colour())
                 // }else{
-                    // return Spectrum::black();
+                //     return None;// Spectrum::black();
                 // }
             }
             
@@ -148,8 +149,8 @@ impl RayTracer {
 
             /* INDIRECT */
             // Limit bounces        
-            if current_depth > self.max_depth {            
-                return local
+            if current_depth >= self.max_depth {            
+                return Some(local)
             }
 
             let n_lights = scene.count_all_lights();                                                
@@ -158,7 +159,8 @@ impl RayTracer {
             let bsdf_c = n as Float / total_samples as Float;
             
 
-            for _ in 0..n {                                        
+            let mut i : usize = 0;
+            while i < n {                                        
                 // Choose a direction.                                
                 let (new_ray, bsdf_value,  is_specular) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);                                            
                 let new_ray_dir = new_ray.geometry.direction;
@@ -179,7 +181,7 @@ impl RayTracer {
                 if self.limit_weight > 0. && new_value < self.limit_weight {                                                        
                     let q : Float = rng.gen();
                     if q > new_value/self.limit_weight {                                
-                        return Spectrum::black();
+                        return Some(Spectrum::black());
                     }
                 }
                 
@@ -200,30 +202,40 @@ impl RayTracer {
                     }
                 };
 
-                let li = self.trace_ray(rng, scene, new_ray, new_depth, new_value);
+                let li = match self.trace_ray(rng, scene, new_ray, new_depth, new_value){
+                    Some(s)=>{
+                        i+=1; // count sample
+                        s
+                    },
+                    None => {
+                        i+=1; // count sample
+                        // Resample
+                        // continue;
+                        Spectrum::black()
+                    }
+                };
                 let fx =  (li * cos_theta) * (color * bsdf_value);
+                // let denominator = bsdf_value;// * bsdf_c;
                 let denominator = bsdf_value * bsdf_c;
 
                 // add contribution
                 global += fx / denominator;
             }                    
             
+            // global /= n as Float; 
             global /= total_samples as Float;
-            
-
-            
-
+                        
             // return
-            local + global
+            Some(local + global)
 
         } else {
-            // Did not hit.
-            Spectrum::black()
+            // Did not hit... how about distant lights?
+            Some(Spectrum::black())
         }
     }
 
     
-    fn sample_light(&self, scene: &Scene, light: &Object, shadow_ray: &Ray3D)->(Spectrum, Float){
+    fn sample_light(&self, scene: &Scene, light: &Object, shadow_ray: &Ray3D)->Option<(Spectrum, Float)>{
         
         let light_direction = shadow_ray.direction;
         let origin = shadow_ray.origin;
@@ -238,7 +250,7 @@ impl RayTracer {
             Some(info) => info,
             None => {
                 // eprintln!("... Missed light...");
-                return (Spectrum::black(),0.0)
+                return None;//(Spectrum::black(),0.0)
             }
         };
 
@@ -248,7 +260,7 @@ impl RayTracer {
         // If the light is not visible (this does not consider 
         // transparent surfaces, yet.)
         if !scene.unobstructed_distance(&shadow_ray, light_distance) {                        
-            return (Spectrum::black(), 0.0)
+            return Some((Spectrum::black(), 0.0))
         } 
                         
         let light_material = match intersection_info.side {
@@ -260,18 +272,16 @@ impl RayTracer {
             },
             SurfaceSide::NonApplicable => {
                 // Hit parallel to the surface
-                return (Spectrum::black(), 0.0) ;
+                return Some((Spectrum::black(), 0.0)) ;
             }
         };
 
         let light_colour = light_material.colour();   
         
         let light_pdf = 1./ light.primitive.omega(origin);
-        // let light_pdf = light.primitive.omega(origin) / (2.* 3.141592654) ;
-        // let light_pdf = light.primitive.solid_angle_pdf(&intersection_info, shadow_ray);
         
         // return
-        (light_colour ,light_pdf)
+        Some((light_colour ,light_pdf))
                  
     }
 
@@ -296,7 +306,7 @@ impl RayTracer {
         let this_origin = point + normal * 0.001;
         let mat_colour = material.colour();
         
-        let mut ret = Spectrum::black();
+        
 
         // let lights = &scene.lights;
         let n_lights = scene.lights.len() + scene.distant_lights.len();
@@ -304,10 +314,13 @@ impl RayTracer {
         let bsdf_c = n_ambient_samples as Float / total_samples as Float;
         let light_c = self.n_shadow_samples as Float / total_samples as Float;
 
-        let sample_light_array = |lights: &[Object], rng: &mut RandGen, ret: &mut Spectrum|{            
+        let sample_light_array = |lights: &[Object], rng: &mut RandGen|->Spectrum{           
+            // println!("---- entering sample_light_array()");
+            let mut local_illum = Spectrum::black(); 
             for light in lights.iter() {
                 // let this_origin = this_origin + normal * 0.001;
-                for _ in 0..self.n_shadow_samples{
+                let mut i = 0;
+                while i < self.n_shadow_samples {
                     let direction = light.primitive.sample_direction(rng,this_origin);
                     let shadow_ray = Ray3D {
                         origin: this_origin,
@@ -315,30 +328,46 @@ impl RayTracer {
                     };
             
                     
-                    let (light_colour, light_pdf) = self.sample_light(scene, light, &shadow_ray);                                
-                    if light_pdf < 1e-3{
-                        continue
-                    }  
-                    // Denominator of the Balance Heuristic... I am assuming that
-                    // when one light has a pdf>0, then all the rest are Zero... is this
-                    // correct?
-                    let cos_theta = (normal * direction).abs();
-                    let vout = shadow_ray.direction * -1.;
-                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2,  ray, vout );
-                    let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c;
-                    let fx = (light_colour * cos_theta) * (mat_colour * mat_bsdf_value);
-    
-                    // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
-                    *ret += fx / denominator;
+                    if let Some((light_colour, light_pdf)) = self.sample_light(scene, light, &shadow_ray){
+                        i += 1;
+                        if light_pdf < 1e-18 {
+                            // This can happen... why...?
+                            //continue
+                            // println!("this origin = {}", this_origin);
+                            // return Spectrum::black()
+                            continue;
+                        }
+
+                        // println!("i = {}", i);
+                        // Denominator of the Balance Heuristic... I am assuming that
+                        // when one light has a pdf>0, then all the rest are Zero... is this
+                        // correct?
+                        let cos_theta = (normal * direction).abs();
+                        let vout = shadow_ray.direction * -1.;
+                        let mat_bsdf_value = material.eval_bsdf(normal, e1, e2,  ray, vout );
+                        let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//
+                        let fx = (light_colour * cos_theta) * (mat_colour * mat_bsdf_value);
+                                                
+                        // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
+                        local_illum += fx / denominator ;
+                                                
+                    }
+                    // else, just try again
+                    
                 } // end of iterating samples
             } // end of iterating lights
+            // local_illum / self.n_shadow_samples as Float // return
+            local_illum 
         };
 
-        sample_light_array(&scene.lights, rng, &mut ret);
-        sample_light_array(&scene.distant_lights, rng, &mut ret);        
+        let close = sample_light_array(&scene.lights, rng);
+        // println!("Close = {}", close);
+        let distant = sample_light_array(&scene.distant_lights, rng);        
+        // println!("Distant = {}", distant);
 
         // return
-        ret /  total_samples as Float
+        //ret //  total_samples as Float
+        (close + distant) /  total_samples as Float
     }
 
 
@@ -378,8 +407,8 @@ impl RayTracer {
             }
             
 
-            // return
-            v
+            // return... should always contain value because these are primary rays
+            v.unwrap()
         }).collect();
 
         // return
@@ -482,7 +511,7 @@ mod tests {
 
         let mut rng = get_rng();
 
-        let pixel = 159232;
+        let pixel = 2000;
         let width = 512;        
         let y = (pixel as f32/width as f32).floor() as usize;
             let x = pixel - y*width;
@@ -493,7 +522,7 @@ mod tests {
         });
 
         let i = integrator.trace_ray(&mut rng, &scene, ray, 0, weight);
-        println!("{}", i);
+        println!("{}", i.unwrap());
 
         println!(
             "Scene '{}' took {} seconds to render",
@@ -506,7 +535,7 @@ mod tests {
 
     #[test]
     fn test_render_room() {
-        // return;
+        return;
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
         
         scene.build_accelerator();

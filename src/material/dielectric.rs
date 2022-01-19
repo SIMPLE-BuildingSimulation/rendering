@@ -42,8 +42,9 @@ impl Dielectric {
     /// 
     /// # Example
     /// ```
-    /// use geometry3d::{Point3D,Vector3D};
-    /// use rendering::material::dielectric::Dielectric;
+    /// use geometry3d::{Point3D,Vector3D, Ray3D};
+    /// use rendering::colour::Spectrum;
+    /// use rendering::material::Dielectric;
     /// use rendering::ray::Ray;
     /// let mat = Dielectric{
     ///     color: Spectrum::gray(0.23), //irrelevant for this test
