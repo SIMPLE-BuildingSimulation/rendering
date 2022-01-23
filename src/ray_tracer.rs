@@ -71,19 +71,7 @@ impl RayTracer {
         // If hits an object 
         if let Some((t, Interaction::Surface(data))) = scene.cast_ray(&ray) {
 
-            
-            // Get basic information on the intersection
-            let intersection_pt = ray.geometry.project(t);
             let object = &scene.objects[data.prim_index];            
-            let normal = data.geometry_shading.normal;
-            let e1 = data.geometry_shading.dpdu.get_normalized();
-            let e2 = normal.cross(e1);//.get_normalized();
-            
-            // Check
-            debug_assert!((1. - normal.length()).abs() < 1e-5);
-            debug_assert!((1.0 - normal.length()).abs() < 1e-5);
-            debug_assert!((1.0 - e2.length()).abs() < 1e-5);
-            
             let material = match data.geometry_shading.side {
                 SurfaceSide::Front => {
                     &scene.materials[object.front_material_index]
@@ -109,6 +97,19 @@ impl RayTracer {
                 //     return None;// Spectrum::black();
                 // }
             }
+
+            // Get basic information on the intersection
+            let intersection_pt = ray.geometry.project(t);            
+            let normal = data.geometry_shading.normal;
+            let e1 = data.geometry_shading.dpdu.get_normalized();
+            let e2 = normal.cross(e1);//.get_normalized();
+            
+            // Check
+            debug_assert!((1. - normal.length()).abs() < 1e-5);
+            debug_assert!((1.0 - normal.length()).abs() < 1e-5);
+            debug_assert!((1.0 - e2.length()).abs() < 1e-5);
+            
+            
             
                              
             // Calculate the number of ambient samples
@@ -208,10 +209,11 @@ impl RayTracer {
                         s
                     },
                     None => {
-                        i+=1; // count sample
+                        unreachable!();
+                        // i+=1; // count sample
                         // Resample
                         // continue;
-                        Spectrum::black()
+                        // Spectrum::black()
                     }
                 };
                 let fx =  (li * cos_theta) * (color * bsdf_value);
@@ -235,6 +237,9 @@ impl RayTracer {
     }
 
     
+    /// Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses 
+    /// the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)` 
+    /// if the light is hit.
     fn sample_light(&self, scene: &Scene, light: &Object, shadow_ray: &Ray3D)->Option<(Spectrum, Float)>{
         
         let light_direction = shadow_ray.direction;
@@ -331,11 +336,8 @@ impl RayTracer {
                     if let Some((light_colour, light_pdf)) = self.sample_light(scene, light, &shadow_ray){
                         i += 1;
                         if light_pdf < 1e-18 {
-                            // This can happen... why...?
-                            //continue
-                            // println!("this origin = {}", this_origin);
-                            // return Spectrum::black()
-                            continue;
+                            // The light is obstructed.                            
+                            continue
                         }
 
                         // println!("i = {}", i);
@@ -728,5 +730,7 @@ mod tests {
         println!("Scene took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre("./test_data/images/ray_tracer.hdr".to_string());
     }
+
+    
 
 }

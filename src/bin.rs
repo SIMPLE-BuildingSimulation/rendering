@@ -82,9 +82,9 @@ fn main() {
 
     let integrator = RayTracer{
         n_shadow_samples: 10,
-        max_depth: 1,
+        max_depth: 3,
         limit_weight: 0.001,
-        n_ambient_samples: 490,
+        n_ambient_samples: 90,
         .. RayTracer::default()   
     };
 

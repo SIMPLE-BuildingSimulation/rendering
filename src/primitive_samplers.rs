@@ -154,4 +154,6 @@ mod tests {
         assert!((t - (x * x + y * y + z * z).sqrt() + r).abs() < 0.000001);
         assert_eq!(Vector3D::new(x, y, z).get_normalized(), direction);
     }
+
+    
 }
