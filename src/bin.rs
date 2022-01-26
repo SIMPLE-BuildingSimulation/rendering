@@ -61,8 +61,8 @@ fn main() {
         
     // Create camera    
     let film = Film {
-        // resolution: (600, 437),
-        resolution: (1024, 768),
+        resolution: (600, 437),
+        // resolution: (1024, 768),
         // resolution: (512, 512),
     };
 

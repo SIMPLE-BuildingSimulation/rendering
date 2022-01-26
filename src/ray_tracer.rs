@@ -114,11 +114,13 @@ impl RayTracer {
                              
             // Calculate the number of ambient samples
             let mut wt = current_value;
-            let n = if self.max_depth == 0 { 
+            let n = if material.specular_only(){
+                10 // ... I hate this solution.
+            } else if self.max_depth == 0 { 
                 0 // No ambient samples required
             } else if current_depth == 0 {
                 self.n_ambient_samples
-            } else {
+            } else  {
 
                 /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */                        
                 
@@ -134,6 +136,9 @@ impl RayTracer {
                     n
                 }            
             };
+            if current_depth != 0 && n > 20 {
+                panic!("n is {} | material is {}", n, material.id())
+            }
                         
             
             /* DIRECT LIGHT */
@@ -169,10 +174,10 @@ impl RayTracer {
 
 
                 // increase depth 
-                let mut new_depth = current_depth + 1;
-                if !is_specular {
-                    new_depth += 1
-                }
+                let mut new_depth = current_depth;// + 1;
+                // if !is_specular {
+                    new_depth += 1;
+                // }
                 let cos_theta = (normal * new_ray_dir).abs();
                 let new_value = wt * bsdf_value * cos_theta;
                 

@@ -28,19 +28,18 @@ pub fn mirror_bsdf(intersection_pt:Point3D, mut ray: Ray, normal: Vector3D)->(Ra
     // avoid self shading    
     ray.geometry.origin = intersection_pt + normal*0.00001;
     let ray_dir = ray.geometry.direction;
-    // let cos = (ray_dir * normal).abs();
+    let cos = (ray_dir * normal).abs();
     ray.geometry.direction = mirror_direction(ray_dir, normal);            
     debug_assert!( (ray.geometry.direction.length() - 1.).abs() < 1e-8);            
-    // (ray, 1./cos, true)
-    (ray, 1., true)
+    (ray, 1./cos, true)
+    // (ray, 1., true)
 }
 
 pub fn eval_mirror_bsdf(normal: Vector3D, vin: Vector3D, vout: Vector3D)->Float{        
     let mirror = mirror_direction(vin, normal);
     if vout.is_parallel(mirror) {
-        // let cos = (vin * normal).abs();
-        // 1./cos
-        1.
+        let cos = (vin * normal).abs();
+        1./cos        
     } else {
         0.
     }

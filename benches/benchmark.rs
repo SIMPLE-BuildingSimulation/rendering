@@ -7,11 +7,17 @@ use rendering::material::*;
 use rendering::colour::Spectrum;
 use geometry3d::{Vector3D, Point3D, Ray3D};
 
+use rand::prelude::*;
 
 
 // use rand::distributions::{Distribution, Uniform};
 pub fn criterion_benchmark(c: &mut Criterion) {
     
+
+
+
+
+    /* MATERIALS */
     let mut rng = black_box(rendering::rand::get_rng());
     let e1 = black_box(Vector3D::new(1., 0., 0.));
     let e2 = black_box(Vector3D::new(0., 1., 0.));

@@ -92,12 +92,12 @@ impl Dielectric {
         (n1, cos1, n2, Some(cos2))
     }
 
-    /// Gets the Reflected and Transmitted components
+    /// Gets the Reflected and Transmitted BSDF values
     fn refl_trans(&self, n1: Float, cos1: Float, n2: Float, cos2: Option<Float>)->(Float, Float){
         
         if let Some(cos2) = cos2 {
             // There is refraction
-            let refl = fresnel_reflectance(n1, cos1, n2, cos2);
+            let refl = fresnel_reflectance(n1, cos1, n2, cos2);            
             let refl_comp = refl/cos1.abs();
             let ratio = n2/n1;
             let n_ratio2 = ratio*ratio;
@@ -105,7 +105,7 @@ impl Dielectric {
             (refl_comp, t_comp)
         }else{
             // pure reflection            
-            (1./cos1,0.)
+            (1./cos1,0.)            
         }
 
         
@@ -121,20 +121,22 @@ impl Dielectric {
         
         
         let r : Float = rng.gen();
-        if r <= refl/(refl + trans) {// Reflection            
+        if r <= refl/(refl + trans) {
+            // Reflection            
             // avoid self shading
             ray.geometry.origin = intersection_pt + normal*0.00001;
 
             ray.geometry.direction = mirror_dir;
-            (ray, refl, true)            
-        }else{ // Transmission                        
+            (ray, refl, true)                        
+        }else{ 
+            // Transmission                        
             // avoid self shading            
             ray.geometry.origin = intersection_pt - normal*0.00001;
             
             ray.refraction_index = n2;
             let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());            
             ray.geometry.direction = trans_dir;                
-            (ray, trans, true)
+            (ray, trans, true)            
             
         }
                     
@@ -347,6 +349,7 @@ mod tests {
         // Get INTO the material                
         for _ in 0..30 {
             let (new_ray, _pdf, _is_specular) = mat.bsdf(normal, Point3D::new(0., 0., 0.), ray, &mut rng);
+            println!("A -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {
                 // We are still moving down... thus, refraction
@@ -365,7 +368,7 @@ mod tests {
         ray.geometry.direction = trans_dir.unwrap();  
         for _ in 0..30 {
             let (new_ray, _pdf, _is_specular) = mat.bsdf(normal, Point3D::new(0., 0., 0.), ray, &mut rng);
-
+            println!("B -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {
                 // We are still moving down... thus, refraction

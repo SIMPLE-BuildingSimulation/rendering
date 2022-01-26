@@ -21,8 +21,7 @@ SOFTWARE.
 use crate::Float;
 use geometry3d::Vector3D;
 
-/// Fresnel Coefficient for TE-Polarized Light (i.e., perpendicular), according to Radiance's 
-/// material documentation
+/// Fresnel Coefficient for TE-Polarized Light (i.e., perpendicular), according to PBR-book
 /// 
 /// `n1` is the index of refraction on the ray's side; `cos1` is the 
 /// cosine of the angle between the surface's normal and ray.
@@ -30,29 +29,26 @@ use geometry3d::Vector3D;
 /// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the 
 /// cosine of the angle between the surface's normal and transmitted ray
 pub fn fresnel_te(n1:Float, cos1:Float, n2: Float, cos2:Float )->Float{
-    let ret = (n1*cos1-n2*cos2)/(n1*cos1+n2*cos2);
-    ret*ret
+    (n1*cos1-n2*cos2)/(n1*cos1+n2*cos2)
+    
 }
 
-/// Fresnel Coefficient for TM-Polarized Light (i.e., parallel), according to Radiance's 
-/// material documentation
+/// Fresnel Coefficient for TM-Polarized Light (i.e., parallel), according to PBR-book
 /// 
 /// `n1` is the index of refraction on the ray's side; `cos1` is the 
 /// cosine of the angle between the surface's normal and ray.
 /// 
 /// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the 
 /// cosine of the angle between the surface's normal and transmitted ray
-pub fn fresnel_tm(n1:Float, cos1:Float, n2: Float, cos2:Float )->Float{
-    // let one_cos1 = 1./cos1;
-    // let one_cos2 = 1./cos2;
-    // fresnel_te(n1, one_cos1, n2, one_cos2)
-    let ret = (n2*cos1-n1*cos2)/(n2*cos1+n1*cos2);
-    ret*ret 
+pub fn fresnel_tm(n1:Float, cos1:Float, n2: Float, cos2:Float )->Float{    
+    (n2*cos1-n1*cos2)/(n2*cos1+n1*cos2)    
 }
 
 
 pub fn fresnel_reflectance(n1:Float, cos1:Float, n2: Float, cos2:Float )->Float{
-    0.5*(fresnel_tm(n1, cos1, n2, cos2) + fresnel_te(n1, cos1, n2, cos2))
+    let parallel = fresnel_tm(n1, cos1, n2, cos2);
+    let perpendicular = fresnel_te(n1, cos1, n2, cos2);
+    0.5*(parallel*parallel + perpendicular*perpendicular)
 }
 
 

@@ -57,6 +57,16 @@ impl Material {
         }
     }
 
+    pub fn id(&self) -> &str{
+        match self{
+            Self::Plastic(_)=>"plastic",
+            Self::Metal(_)=>"metal",
+            Self::Light(_)=>"light",
+            Self::Mirror(_)=>"mirror",
+            Self::Dielectric(_)=>"dielectric",
+        }
+    }
+
     /// Should this material be tested for direct illumination?    
     pub fn emits_direct_light(&self) -> bool {
         match self{
