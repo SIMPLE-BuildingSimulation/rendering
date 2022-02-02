@@ -93,7 +93,7 @@ impl Dielectric {
     }
 
     /// Gets the Reflected and Transmitted BSDF values
-    fn refl_trans(&self, n1: Float, cos1: Float, n2: Float, cos2: Option<Float>)->(Float, Float){
+    pub fn refl_trans(&self, n1: Float, cos1: Float, n2: Float, cos2: Option<Float>)->(Float, Float){
         
         if let Some(cos2) = cos2 {
             // There is refraction

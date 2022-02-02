@@ -61,7 +61,7 @@ impl Default for RayTracer{
 impl RayTracer {
 
      /// Recursively traces a ray
-     pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: Ray, current_depth: usize, current_value: Float) -> Option<Spectrum> {
+     pub fn trace_ray(&self, rng: &mut RandGen, scene: &Scene, ray: Ray, current_depth: usize, current_value: Float) -> (Spectrum, Float) {
         
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
@@ -80,33 +80,37 @@ impl RayTracer {
                     &scene.materials[object.back_material_index]
                 },
                 SurfaceSide::NonApplicable => {
-                    // Hit parallel to the surface... 
-                    return None;
-                    //return Some(Spectrum::black())
+                    // Hit parallel to the surface...                     
+                    return (Spectrum::black(),0.0)
                 }                    
             };
             
             
-            
+            let intersection_pt = ray.geometry.project(t);            
+
             // for now, emmiting materials don't reflect... but they 
             // are visible when viewed directly from the camera
             if material.emits_light() {
                 // if current_depth == 0 {
-                    return Some(material.colour())
+                    let light_pdf = 1./object.primitive.omega(intersection_pt);
+                    return (material.colour(), light_pdf)
+                    // return Some(Spectrum::gray(1.))
                 // }else{
-                //     return None;// Spectrum::black();
+                //     return None; 
+                    // return Some(Spectrum::black());
                 // }
             }
 
             // Get basic information on the intersection
-            let intersection_pt = ray.geometry.project(t);            
+            
             let normal = data.geometry_shading.normal;
             let e1 = data.geometry_shading.dpdu.get_normalized();
             let e2 = normal.cross(e1);//.get_normalized();
-            
+
+                        
             // Check
             debug_assert!((1. - normal.length()).abs() < 1e-5);
-            debug_assert!((1.0 - normal.length()).abs() < 1e-5);
+            debug_assert!((1.0 - e1.length()).abs() < 1e-5);
             debug_assert!((1.0 - e2.length()).abs() < 1e-5);
             
             
@@ -114,9 +118,7 @@ impl RayTracer {
                              
             // Calculate the number of ambient samples
             let mut wt = current_value;
-            let n = if material.specular_only(){
-                10 // ... I hate this solution.
-            } else if self.max_depth == 0 { 
+            let n = if self.max_depth == 0 { 
                 0 // No ambient samples required
             } else if current_depth == 0 {
                 self.n_ambient_samples
@@ -136,11 +138,45 @@ impl RayTracer {
                     n
                 }            
             };
-            if current_depth != 0 && n > 20 {
-                panic!("n is {} | material is {}", n, material.id())
-            }
-                        
             
+             
+
+
+            // Handle specular materials... we have 1 or 2 rays... spawn those.
+            let n_lights = scene.count_all_lights();                                                
+            if material.specular_only(){
+                let mut specular_li = Spectrum::black();
+                let paths = material.get_possible_paths(normal, intersection_pt, ray);                
+                // let mut n = 0;
+                for i in 0..2{                    
+                    if let Some((new_ray, bsdf_value, weight)) = paths[i]{
+                        // n += 1;
+                    
+                        let new_ray_dir = new_ray.geometry.direction;                    
+                        let cos_theta = (normal * new_ray_dir).abs();
+                        let new_value = wt * bsdf_value * cos_theta;
+                        // russian roulette
+                        if self.limit_weight > 0. && new_value < self.limit_weight {                                                        
+                            let q : Float = rng.gen();
+                            if q > new_value/self.limit_weight {                                
+                                return (Spectrum::black(), 0.0);
+                            }
+                        }
+                        
+                        let (li, _light_pdf) = self.trace_ray(rng, scene, new_ray, current_depth, new_value);
+                            
+                        let color = material.colour();
+                        // let total_samples = n + n_lights * self.n_shadow_samples;
+                        // let bsdf_c = 1.;//n as Float / total_samples as Float;
+                        specular_li += (li * cos_theta) * (color ) * weight;// / ( bsdf_c * bsdf_value );                        
+                    }
+                } 
+                // return Some(specular_li + local)
+                return (specular_li, 0.0 )
+            }         
+            
+            
+
             /* DIRECT LIGHT */
             let local = self.get_local_illumination(
                 scene,
@@ -152,26 +188,24 @@ impl RayTracer {
                 rng,
                 n
             );
-
-            /* INDIRECT */
-            // Limit bounces        
-            if current_depth >= self.max_depth {            
-                return Some(local)
-            }
-
-            let n_lights = scene.count_all_lights();                                                
-            let mut global = Spectrum::black();                    
+        
             let total_samples = n + n_lights * self.n_shadow_samples;
-            let bsdf_c = n as Float / total_samples as Float;
+            // Limit bounces        
+            if current_depth > self.max_depth {            
+                return (local, 0.0)
+                // return (Spectrum::black(), 0.0)
+            }
+            /* INDIRECT */
+             
+            let mut global = Spectrum::black();                    
+            
             
 
-            let mut i : usize = 0;
-            while i < n {                                        
+            for _ in 0..n {
                 // Choose a direction.                                
-                let (new_ray, bsdf_value,  is_specular) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);                                            
+                let (new_ray, bsdf_value,  _is_specular) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);                                            
                 let new_ray_dir = new_ray.geometry.direction;
                 debug_assert!((1. - new_ray_dir.length()).abs() < 1e-5, "Length is {}",new_ray_dir.length() );
-
 
                 // increase depth 
                 let mut new_depth = current_depth;// + 1;
@@ -181,63 +215,36 @@ impl RayTracer {
                 let cos_theta = (normal * new_ray_dir).abs();
                 let new_value = wt * bsdf_value * cos_theta;
                 
-                
-                
+                                
                 // russian roulette
                 if self.limit_weight > 0. && new_value < self.limit_weight {                                                        
                     let q : Float = rng.gen();
                     if q > new_value/self.limit_weight {                                
-                        return Some(Spectrum::black());
+                        return (Spectrum::black(), 0.0);
                     }
                 }
                 
-                let color = match material {
-                    Material::Plastic(s)=>s.color,
-                    Material::Metal(s)=>s.color,
-                    Material::Light(s)=>*s,
-                    Material::Mirror(s)=>*s,
-                    Material::Dielectric(s)=>{
-                        let c = s.color;                        
-                        c
-                        // Spectrum {
-                        //     red: c.red.powf(t),
-                        //     green: c.green.powf(t),
-                        //     blue: c.blue.powf(t),
-                        // }
+                let color = material.colour();
 
-                    }
-                };
-
-                let li = match self.trace_ray(rng, scene, new_ray, new_depth, new_value){
-                    Some(s)=>{
-                        i+=1; // count sample
-                        s
-                    },
-                    None => {
-                        unreachable!();
-                        // i+=1; // count sample
-                        // Resample
-                        // continue;
-                        // Spectrum::black()
-                    }
-                };
-                let fx =  (li * cos_theta) * (color * bsdf_value);
+                let (li, light_pdf) =  self.trace_ray(rng, scene, new_ray, new_depth, new_value);                
+                
+                let fx =  (li * cos_theta) * (color * bsdf_value);// * n as Float;
                 // let denominator = bsdf_value;// * bsdf_c;
-                let denominator = bsdf_value * bsdf_c;
+                let denominator = bsdf_value * n as Float + self.n_shadow_samples  as Float * light_pdf; 
 
                 // add contribution
                 global += fx / denominator;
             }                    
             
             // global /= n as Float; 
-            global /= total_samples as Float;
+            // global /= total_samples as Float;
                         
             // return
-            Some(local + global)
+            ( (local + global), 0.0) // /total_samples as Float , 0.0)
 
         } else {
             // Did not hit... how about distant lights?
-            Some(Spectrum::black())
+            (Spectrum::black(), 0.0)
         }
     }
 
@@ -319,10 +326,10 @@ impl RayTracer {
         
 
         // let lights = &scene.lights;
-        let n_lights = scene.lights.len() + scene.distant_lights.len();
-        let total_samples = n_ambient_samples + n_lights * self.n_shadow_samples;
-        let bsdf_c = n_ambient_samples as Float / total_samples as Float;
-        let light_c = self.n_shadow_samples as Float / total_samples as Float;
+        // let n_lights = scene.lights.len() + scene.distant_lights.len();
+        // let total_samples = n_ambient_samples + n_lights * self.n_shadow_samples;
+        // let bsdf_c = n_ambient_samples as Float / total_samples as Float;
+        // let light_c = self.n_shadow_samples as Float / total_samples as Float;
 
         let sample_light_array = |lights: &[Object], rng: &mut RandGen|->Spectrum{           
             // println!("---- entering sample_light_array()");
@@ -351,9 +358,11 @@ impl RayTracer {
                         // correct?
                         let cos_theta = (normal * direction).abs();
                         let vout = shadow_ray.direction * -1.;
+
                         let mat_bsdf_value = material.eval_bsdf(normal, e1, e2,  ray, vout );
-                        let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//
-                        let fx = (light_colour * cos_theta) * (mat_colour * mat_bsdf_value);
+                        // let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//
+                        let denominator = light_pdf * self.n_shadow_samples as Float + mat_bsdf_value * n_ambient_samples as Float; //light_pdf;//
+                        let fx = (light_colour * cos_theta) * (mat_colour * mat_bsdf_value);// * self.n_shadow_samples as Float;
                                                 
                         // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
                         local_illum += fx / denominator ;
@@ -374,7 +383,7 @@ impl RayTracer {
 
         // return
         //ret //  total_samples as Float
-        (close + distant) /  total_samples as Float
+        (close + distant) //  total_samples as Float
     }
 
 
@@ -400,7 +409,7 @@ impl RayTracer {
             });
             
             let mut rng = get_rng();   
-            let v = self.trace_ray(&mut rng, scene,ray, 0, weight);
+            let (v,_) = self.trace_ray(&mut rng, scene,ray, 0, weight);
             // report
             let mut c = counter.lock().unwrap();
             *c += 1;
@@ -415,7 +424,7 @@ impl RayTracer {
             
 
             // return... should always contain value because these are primary rays
-            v.unwrap()
+            v
         }).collect();
 
         // return
@@ -528,8 +537,8 @@ mod tests {
             p_lens: (0., 0.)
         });
 
-        let i = integrator.trace_ray(&mut rng, &scene, ray, 0, weight);
-        println!("{}", i.unwrap());
+        let (i, _) = integrator.trace_ray(&mut rng, &scene, ray, 0, weight);
+        println!("{}", i);
 
         println!(
             "Scene '{}' took {} seconds to render",

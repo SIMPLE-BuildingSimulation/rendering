@@ -96,6 +96,45 @@ impl Material {
         }
     }
 
+    pub fn get_possible_paths(&self, normal: Vector3D, intersection_pt: Point3D, mut ray: Ray)->[Option<(Ray, Float, Float)>; 2]{
+        
+        match self{            
+            Self::Mirror(_)=>{
+                // Calculate the ray direction and BSDF
+                let (ray, v, _) = mirror_bsdf(intersection_pt, ray, normal);                
+                [Some((ray, v, 1.)), None]
+            },
+            Self::Dielectric(mat)=>{
+                let (n1, cos1, n2, cos2) = mat.cos_and_n(ray, normal);
+                let (refl, trans) = mat.refl_trans(n1, cos1, n2, cos2);
+                let ray_dir = ray.geometry.direction;        
+                let mirror_dir = mirror_direction(ray_dir, normal);
+                debug_assert!((1.- mirror_dir.length()).abs() < 1e-5, "length is {}", mirror_dir.length());
+                
+                // Process reflection...
+                let mut ray1 = ray;
+                ray1.geometry.direction = mirror_dir;
+                ray1.geometry.origin = intersection_pt + normal*0.00001;
+                let pair1 = Some((ray1, refl, refl/(refl + trans)));
+                
+                // process transmission
+                let pair2 = if trans > 0.0 {
+                    ray.geometry.origin = intersection_pt - normal*0.00001;
+                    ray.refraction_index = n2;
+                    let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());            
+                    ray.geometry.direction = trans_dir;                
+                    Some((ray, trans, trans/(refl + trans)))
+                }else{
+                    None
+                };
+
+
+                [pair1, pair2]
+            },
+            _ => panic!("We should never get here")
+        }
+    }
+
     /// Samples the bsdf, returns a new direction, the value of the BSDF, and a boolean
     /// indicating whether this is a specular or a diffuse interaction
     pub fn sample_bsdf(&self, normal: Vector3D, e1: Vector3D, e2: Vector3D, intersection_pt: Point3D, ray: Ray, rng: &mut RandGen)->(Ray,Float, bool){
