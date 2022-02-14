@@ -126,7 +126,7 @@ impl Primitive{
     ) -> Vector3D {
         let surface_point = match self {
             Self::Sphere(s)=>sample_sphere_surface(s, rng),
-            Self::Triangle(s)=> sample_triangle_surface(&s,  rng),
+            Self::Triangle(s)=> sample_triangle_surface(s,  rng),
             Self::Cylinder(_s)=>unimplemented!(),
             Self::Source(s)=>{
                 let radius = (s.angle / 2.0).tan();

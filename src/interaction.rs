@@ -125,10 +125,12 @@ impl SurfaceInteractionData {
 
         // shading
         let geometry_shading = self.geometry_shading.transform(t);
-        let texture_shading = match self.texture_shading{
-            Some(s)=>Some(s.transform(t)),
-            None=>None
-        };        
+        // let texture_shading = match self.texture_shading{
+        //     Some(s)=>Some(s.transform(t)),
+        //     None=>None
+        // };
+        let texture_shading = self.texture_shading.map(|s| s.transform(t));
+        
         Self{
             point,
             // perror,
@@ -189,10 +191,11 @@ impl Interaction{
 
     /// Checks whether an [`Interaction`] is Surface
     pub fn is_surface_interaction(&self)->bool{
-        match self{
-            Self::Surface(_) => true,
-            _ => false
-        }
+        // match self{
+        //     Self::Surface(_) => true,
+        //     _ => false
+        // }
+        matches!(self, Self::Surface(_))
     }
 
 

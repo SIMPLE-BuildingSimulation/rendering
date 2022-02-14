@@ -122,7 +122,7 @@ impl Node {
         })
     }
 
-    fn recursive_build(primitives: &Vec<Object>, primitives_info: &mut Vec<ObjectInfo>, start: usize, end: usize, total_nodes: &mut usize, ordered_primes: &mut Vec<Object>)-> Self {
+    fn recursive_build(primitives: &[Object], primitives_info: &mut [ObjectInfo], start: usize, end: usize, total_nodes: &mut usize, ordered_primes: &mut Vec<Object>)-> Self {
         
         debug_assert!(start < end );
         *total_nodes += 1;
@@ -134,24 +134,27 @@ impl Node {
         
         // Get a BBOX containing EVERYTHING within scope
         let mut bounds = primitives_info[start].bounds;
-        for i in start+1..end{
-            bounds = BBox3D::from_union(&bounds, &primitives_info[i].bounds);
+        // for i in start+1..end{
+        //     bounds = BBox3D::from_union(&bounds, &primitives_info[i].bounds);
+        // }
+        for info in primitives_info.iter().take(end).skip(start+1){
+                bounds = BBox3D::from_union(&bounds, &info.bounds);
         }
         let n_primitives = end - start;
         if n_primitives == 1 {
             // Create Leaf
-            let first_prim_offset = ordered_primes.len();
-            for i in start..end{
-                let index = primitives_info[i].index;
+            let first_prim_offset = ordered_primes.len();            
+            for info in primitives_info.iter().take(end).skip(start){                
+                let index = info.index;
                 ordered_primes.push(primitives[index].clone())
             }
             return Node::new_leaf(first_prim_offset, n_primitives, bounds)
         } 
 
         // Calculate the the BBOX of the centroids
-        let mut centroids_bbox = BBox3D::from_point(primitives_info[start].centroid);
-        for i in start+1..end{
-            centroids_bbox = BBox3D::from_union_point(&centroids_bbox, primitives_info[i].centroid);
+        let mut centroids_bbox = BBox3D::from_point(primitives_info[start].centroid);        
+        for prim_info in primitives_info.iter().take(end).skip(start+1){
+            centroids_bbox = BBox3D::from_union_point(&centroids_bbox, prim_info.centroid);
         }
 
         split_axis = centroids_bbox.max_extent();
@@ -187,8 +190,9 @@ impl Node {
             // All primitives seem to be aligned in all directions (i.e., overlapping)
             // Put them al together in a Leaf
             let first_prim_offset = ordered_primes.len();
-            for i in start..end{
-                let index = primitives_info[i].index;
+            // for i in start..end{
+            for prim_info in primitives_info.iter().take(end).skip(start){
+                let index = prim_info.index;
                 ordered_primes.push(primitives[index].clone())
             }
             return Node::new_leaf(first_prim_offset, n_primitives, bounds);
@@ -207,15 +211,16 @@ impl Node {
 
                 // First, put all the elements in a bucket
                 let mut buckets : Vec<BucketInfo> = vec![BucketInfo{count:0, bounds:None}; N_BUCKETS];
-                for i in start..end {
+                
+                for prim_info in primitives_info.iter().take(end).skip(start){
                     // Identify which bucket contains this object's centroid
-                    let bucket_index = get_bucket_index(primitives_info[i].centroid, len_axis, split_axis, N_BUCKETS, centroids_bbox.min);                    
+                    let bucket_index = get_bucket_index(prim_info.centroid, len_axis, split_axis, N_BUCKETS, centroids_bbox.min);                    
 
                     // Register
                     buckets[bucket_index].count += 1;
                     match buckets[bucket_index].bounds {
-                        Some(b)=>  {buckets[bucket_index].bounds = Some(BBox3D::from_union_point(&b, primitives_info[i].centroid))},
-                        None => {buckets[bucket_index].bounds = Some(BBox3D::from_point(primitives_info[i].centroid))}
+                        Some(b)=>  {buckets[bucket_index].bounds = Some(BBox3D::from_union_point(&b, prim_info.centroid))},
+                        None => {buckets[bucket_index].bounds = Some(BBox3D::from_point(prim_info.centroid))}
                     }
                 }
 
@@ -226,19 +231,21 @@ impl Node {
                     // Properties before... initialize as first bucket
                     let mut before = buckets[0].bounds.unwrap();
                     let mut count_before = buckets[0].count;
-                    for j in 1..=i { // this will not iterate
-                        if let Some(b) = &buckets[j].bounds {
+                    
+                    for bucket in buckets.iter().take(i+1).skip(1){
+                        if let Some(b) = &bucket.bounds {
                             before = BBox3D::from_union(&before, b);
-                            count_before += buckets[j].count;
+                            count_before += bucket.count;
                         }
                     }
                     // Properties after... initialize as last bucket
                     let mut after = buckets[N_BUCKETS - 1].bounds.unwrap();
                     let mut count_after = buckets[N_BUCKETS - 1].count;
-                    for j in (i+1)..(N_BUCKETS-1){
-                        if let Some(b) = &buckets[j].bounds {
+                    // for j in (i+1)..(N_BUCKETS-1){
+                    for bucket in buckets.iter().take(N_BUCKETS - 1).skip(i+1){
+                        if let Some(b) = &bucket.bounds {
                             after = BBox3D::from_union(&after, b);
-                            count_after += buckets[j].count;
+                            count_after += bucket.count;
                         }
                     }
 
@@ -269,9 +276,9 @@ impl Node {
                 }else{
                     // Don't subdivide... create leaf
                     let first = ordered_primes.len();
-                    let n_prims = n_primitives;
-                    for i in start..end{
-                        let prim_num = primitives_info[i].index;
+                    let n_prims = n_primitives;                    
+                    for prim in primitives_info.iter().take(end).skip(start){
+                        let prim_num = prim.index;
                         ordered_primes.push(primitives[prim_num].clone());
                     }
                     return Node::new_leaf(first, n_prims, bounds);
@@ -386,10 +393,10 @@ impl BoundingVolumeTree {
 
     /// Returns an `Option<Float, Interaction>`, where the `Float` is the distance 
     /// travelled by the ray.
-    pub fn intersect(&self, primitives: &Vec<Object>, ray: &Ray3D) -> Option<(Float, Interaction)>{
+    pub fn intersect(&self, primitives: &[Object], ray: &Ray3D) -> Option<(Float, Interaction)>{
         const MIN_T: Float = 0.000001;
         
-        if self.0.len() == 0 {
+        if self.0.is_empty() {
             return None
         }
         let mut info : Option<IntersectionInfo> = None;
@@ -442,22 +449,21 @@ impl BoundingVolumeTree {
                             current_node = data.second_child_offset;
                         }else{
                             nodes_to_visit.push(data.second_child_offset);
-                            current_node = current_node + 1;
+                            current_node +=1;
                         }
                     }
                 }
+            }else if let Some(i) = nodes_to_visit.pop() {
+                current_node = i;
             }else{
-                if let Some(i) = nodes_to_visit.pop() {
-                    current_node = i;
-                }else{
-                    break
-                }                
-            }
+                break
+            }                
+            
         }// End loop
         
         // return
-        if info.is_some(){
-            let info = info.unwrap();
+        if let Some(info) = info {
+            // let info = info.unwrap();
             // let object = object.unwrap();
             let prim_index = prim_index.unwrap();
             let t = t_squared.sqrt();  
@@ -489,8 +495,8 @@ impl BoundingVolumeTree {
 
 
     /// Checks if a ray can travel a certain distance without hitting anything
-    pub fn unobstructed_distance(&self, primitives: &Vec<Object>, ray: &Ray3D, distance: Float) -> bool {
-        if self.0.len() == 0 {
+    pub fn unobstructed_distance(&self, primitives: &[Object], ray: &Ray3D, distance: Float) -> bool {
+        if self.0.is_empty() {
             return true
         }
         let d_squared = distance * distance;
@@ -541,17 +547,16 @@ impl BoundingVolumeTree {
                             current_node = data.second_child_offset;
                         }else{
                             nodes_to_visit.push(data.second_child_offset);
-                            current_node = current_node + 1;
+                            current_node += 1;
                         }
                     }
                 }
+            }else if let Some(i) = nodes_to_visit.pop() {
+                current_node = i;
             }else{
-                if let Some(i) = nodes_to_visit.pop() {
-                    current_node = i;
-                }else{
-                    break
-                }                
-            }
+                break
+            }                
+        
         }// End loop
         
         // otherwise, return true

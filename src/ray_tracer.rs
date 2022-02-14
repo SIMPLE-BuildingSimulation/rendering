@@ -142,34 +142,33 @@ impl RayTracer {
              
 
 
-            // Handle specular materials... we have 1 or 2 rays... spawn those.
-            let n_lights = scene.count_all_lights();                                                
+            // Handle specular materials... we have 1 or 2 rays... spawn those.            
             if material.specular_only(){
                 let mut specular_li = Spectrum::black();
                 let paths = material.get_possible_paths(normal, intersection_pt, ray);                
                 // let mut n = 0;
-                for i in 0..2{                    
-                    if let Some((new_ray, bsdf_value, weight)) = paths[i]{
-                        // n += 1;
-                    
-                        let new_ray_dir = new_ray.geometry.direction;                    
-                        let cos_theta = (normal * new_ray_dir).abs();
-                        let new_value = wt * bsdf_value * cos_theta;
-                        // russian roulette
-                        if self.limit_weight > 0. && new_value < self.limit_weight {                                                        
-                            let q : Float = rng.gen();
-                            if q > new_value/self.limit_weight {                                
-                                return (Spectrum::black(), 0.0);
-                            }
+                for (new_ray, bsdf_value, weight) in paths.iter().flatten(){
+
+                    // n += 1;
+                
+                    let new_ray_dir = new_ray.geometry.direction;                    
+                    let cos_theta = (normal * new_ray_dir).abs();
+                    let new_value = wt * bsdf_value * cos_theta;
+                    // russian roulette
+                    if self.limit_weight > 0. && new_value < self.limit_weight {                                                        
+                        let q : Float = rng.gen();
+                        if q > new_value/self.limit_weight {                                
+                            return (Spectrum::black(), 0.0);
                         }
-                        
-                        let (li, _light_pdf) = self.trace_ray(rng, scene, new_ray, current_depth, new_value);
-                            
-                        let color = material.colour();
-                        // let total_samples = n + n_lights * self.n_shadow_samples;
-                        // let bsdf_c = 1.;//n as Float / total_samples as Float;
-                        specular_li += (li * cos_theta) * (color ) * weight;// / ( bsdf_c * bsdf_value );                        
                     }
+                    
+                    let (li, _light_pdf) = self.trace_ray(rng, scene, *new_ray, current_depth, new_value);
+                        
+                    let color = material.colour();
+                    // let total_samples = n + n_lights * self.n_shadow_samples;
+                    // let bsdf_c = 1.;//n as Float / total_samples as Float;
+                    specular_li += (li * cos_theta) * (color ) * *weight;// / ( bsdf_c * bsdf_value );                        
+                    
                 } 
                 // return Some(specular_li + local)
                 return (specular_li, 0.0 )
@@ -189,11 +188,10 @@ impl RayTracer {
                 n
             );
         
-            let total_samples = n + n_lights * self.n_shadow_samples;
+            
             // Limit bounces        
             if current_depth > self.max_depth {            
-                return (local, 0.0)
-                // return (Spectrum::black(), 0.0)
+                return (local, 0.0)                
             }
             /* INDIRECT */
              
@@ -263,7 +261,7 @@ impl RayTracer {
         debug_assert!((1. - light_direction.length()).abs() < 0.0001);
 
 
-        let intersection_info = match light.primitive.intersect(&shadow_ray) {
+        let intersection_info = match light.primitive.intersect(shadow_ray) {
             Some(info) => info,
             None => {
                 // eprintln!("... Missed light...");
@@ -276,7 +274,7 @@ impl RayTracer {
 
         // If the light is not visible (this does not consider 
         // transparent surfaces, yet.)
-        if !scene.unobstructed_distance(&shadow_ray, light_distance) {                        
+        if !scene.unobstructed_distance(shadow_ray, light_distance) {                        
             return Some((Spectrum::black(), 0.0))
         } 
                         
@@ -377,13 +375,10 @@ impl RayTracer {
         };
 
         let close = sample_light_array(&scene.lights, rng);
-        // println!("Close = {}", close);
         let distant = sample_light_array(&scene.distant_lights, rng);        
-        // println!("Distant = {}", distant);
-
+        
         // return
-        //ret //  total_samples as Float
-        (close + distant) //  total_samples as Float
+        close + distant
     }
 
 
@@ -396,7 +391,7 @@ impl RayTracer {
         let counter = std::sync::Arc::new(std::sync::Mutex::new(0));
 
         #[cfg(not(feature = "parallel"))]
-        let aux_iter = (0..total_pixels).into_iter();
+        let aux_iter = 0..total_pixels;//.into_iter();
         #[cfg(feature = "parallel")]
         let aux_iter = (0..total_pixels).into_par_iter();
 
@@ -551,7 +546,7 @@ mod tests {
 
     #[test]
     fn test_render_room() {
-        return;
+        // return;
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
         
         scene.build_accelerator();

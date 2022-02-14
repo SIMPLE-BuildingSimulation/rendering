@@ -151,7 +151,7 @@ mod tests {
         let cos2 = cos1;        
         let te = fresnel_te(n1, cos1, n2, cos2);
         let tm = fresnel_tm(n1, cos1, n2, cos2);
-        assert!( (te-tm).abs() < 1e-8, "te = {}, tm = {}", te, tm );
+        assert!( (te.abs()-tm.abs()).abs() < 1e-8, "te = {}, tm = {}", te, tm );
 
         
 

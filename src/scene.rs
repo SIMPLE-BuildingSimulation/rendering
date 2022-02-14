@@ -97,7 +97,7 @@ impl Scene {
         // Check if we intersect something... otherwise, check distant sources
         let res = accelerator.intersect(&self.objects, &ray.geometry);
         if res.is_some(){
-            return res
+            res
         }else{        
             None
         }       
@@ -162,7 +162,7 @@ impl Scene {
             // only do this while creating the scene, not while
             // rendering
             if ob_id == "source"{                 
-                self.distant_lights.push(object.clone());
+                self.distant_lights.push(object);
             }else{                
                 // register object as light
                 self.lights.push(object.clone());

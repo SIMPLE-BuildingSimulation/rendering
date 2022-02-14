@@ -69,18 +69,20 @@ impl Material {
 
     /// Should this material be tested for direct illumination?    
     pub fn emits_direct_light(&self) -> bool {
-        match self{
-            Self::Light(_)=>true,
-            _ => false
-        }
+        matches!(self, Self::Light(_))
+        // match self{
+        //     Self::Light(_)=>true,
+        //     _ => false
+        // }
     }
 
     /// Should this material emits light    
     pub fn emits_light(&self) -> bool {
-        match self{
-            Self::Light(_)=>true,
-            _ => false
-        }
+        matches!(self, Self::Light(_))
+        // match self{
+        //     Self::Light(_)=>true,
+        //     _ => false
+        // }
     }
 
     
@@ -89,11 +91,12 @@ impl Material {
     ///
     /// Defaults to `false`
     pub fn specular_only(&self) -> bool {
-        match self{            
-            Self::Mirror(_)=>true,
-            Self::Dielectric(_)=>true,
-            _ => false
-        }
+        // match self{            
+        //     Self::Mirror(_)=>true,
+        //     Self::Dielectric(_)=>true,
+        //     _ => false
+        // }
+        matches!(self, Self::Mirror(_) | Self::Dielectric(_))
     }
 
     pub fn get_possible_paths(&self, normal: Vector3D, intersection_pt: Point3D, mut ray: Ray)->[Option<(Ray, Float, Float)>; 2]{

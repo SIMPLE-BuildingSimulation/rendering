@@ -35,7 +35,7 @@ use std::io::Write;
 
 fn rusty_frexp(s: Float) -> (Float, i32) {
     if 0.0 == s {
-        return (s, 0);
+        (s, 0)
     } else {
         let lg = s.abs().log2();
         let x = (lg - lg.floor() - 1.0).exp2();
@@ -138,11 +138,11 @@ impl ImageBuffer {
         // file.write_all(format!("GAMMA={}\n", gamma).as_bytes()).unwrap();
         // file.write_all(format!("EXPOSURE={}\n", exposure).as_bytes()).unwrap();
         file.write_all(b"FORMAT=32-bit_rle_rgbe\n\n").unwrap();
-        file.write(format!("-Y {} +X {}\n", self.height, self.width).as_bytes())
+        file.write_all(format!("-Y {} +X {}\n", self.height, self.width).as_bytes())
             .unwrap();
 
         for pixel in self.pixels.iter() {
-            file.write(&float_to_rgbe(pixel.red, pixel.green, pixel.blue))
+            file.write_all(&float_to_rgbe(pixel.red, pixel.green, pixel.blue))
                 .unwrap();
         }
     }

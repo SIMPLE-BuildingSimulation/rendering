@@ -53,7 +53,7 @@ impl Scanner {
         panic!("Error at line {}: {}", self.line, msg)
     }
 
-    fn get_modifier_index(&self, name: &String) -> usize {
+    fn get_modifier_index(&self, name: &str) -> usize {
         for (i, mod_name) in self.modifiers.iter().enumerate() {
             if name == mod_name {
                 return i;
@@ -67,7 +67,7 @@ impl Scanner {
     }
 
     fn consume_whitespace(&mut self, source: &[u8]) -> bool {
-        if source.len() == 0{
+        if source.is_empty() {
             self.is_done = true;
         }
 
@@ -146,15 +146,15 @@ impl Scanner {
 
         let modifier = self.consume_token(source);
         if self.is_done {
-            self.error_here(format!("Incorrect source... no data after 'modifier'"));
+            self.error_here("Incorrect source... no data after 'modifier'".to_string());
         }
         let object_type = self.consume_token(source);
         if self.is_done {
-            self.error_here(format!("Incorrect source... no data after 'object_type'"));
+            self.error_here("Incorrect source... no data after 'object_type'".to_string());
         }
         let name = self.consume_token(source);
         if self.is_done {
-            self.error_here(format!("Incorrect source... no data after 'name'"));
+            self.error_here("Incorrect source... no data after 'name'".to_string());
         }
         match object_type.as_bytes() {
             // modifiers
@@ -180,8 +180,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        _modifier: &String,
-        name: &String,
+        _modifier: &str,
+        name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -195,7 +195,7 @@ impl Scanner {
         let specularity = self.consume_token(source).parse::<Float>().unwrap();
         let roughness = self.consume_token(source).parse::<Float>().unwrap();
 
-        self.modifiers.push(name.clone());
+        self.modifiers.push(name.to_string());
 
         let metal = PlasticMetal {
             color: Spectrum{red,green,blue},
@@ -210,8 +210,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        _modifier: &String,
-        name: &String,
+        _modifier: &str,
+        name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -225,7 +225,7 @@ impl Scanner {
         let specularity = self.consume_token(source).parse::<Float>().unwrap();
         let roughness = self.consume_token(source).parse::<Float>().unwrap();
 
-        self.modifiers.push(name.clone());
+        self.modifiers.push(name.to_string());
 
         let plastic = PlasticMetal {
             color: Spectrum{red,green,blue},
@@ -240,8 +240,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        _modifier: &String,
-        name: &String,
+        _modifier: &str,
+        name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -253,7 +253,7 @@ impl Scanner {
         let green = self.consume_token(source).parse::<Float>().unwrap();
         let blue = self.consume_token(source).parse::<Float>().unwrap();
 
-        self.modifiers.push(name.clone());
+        self.modifiers.push(name.to_string());
 
         let light = Spectrum { red, green, blue };
         scene.push_material(Material::Light(light));
@@ -264,8 +264,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        _modifier: &String,
-        name: &String,
+        _modifier: &str,
+        name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -277,7 +277,7 @@ impl Scanner {
         let green = self.consume_token(source).parse::<Float>().unwrap();
         let blue = self.consume_token(source).parse::<Float>().unwrap();
 
-        self.modifiers.push(name.clone());
+        self.modifiers.push(name.to_string());
 
         let mirror = Spectrum { red, green, blue };
         scene.push_material(Material::Mirror(mirror));
@@ -288,8 +288,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        _modifier: &String,
-        name: &String,
+        _modifier: &str,
+        name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -303,7 +303,7 @@ impl Scanner {
         let refraction_index = self.consume_token(source).parse::<Float>().unwrap();
         let _hartmans = self.consume_token(source).parse::<Float>().unwrap();
 
-        self.modifiers.push(name.clone());
+        self.modifiers.push(name.to_string());
 
         let color = Spectrum { red, green, blue };
         scene.push_material(Material::Dielectric(Dielectric{
@@ -316,8 +316,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        modifier: &String,
-        _name: &String,
+        modifier: &str,
+        _name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -341,8 +341,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        modifier: &String,
-        _name: &String,
+        modifier: &str,
+        _name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -364,8 +364,8 @@ impl Scanner {
         &mut self,
         source: &[u8],
         scene: &mut Scene,
-        modifier: &String,
-        _name: &String,
+        modifier: &str,
+        _name: &str,
     ) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
