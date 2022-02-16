@@ -83,7 +83,7 @@ impl Scene {
     /// Creates a new `Scene` from a `SimpleModel`. The `enum` `Wavelengths`
     /// can be used to create a `Visible` or a `Solar` model, for calculating
     /// Lighting or Solar Radiation, respectively.
-    pub fn from_scene(model: &SimpleModel, wavelength: Wavelengths)->Self{
+    pub fn from_simple_model(model: &SimpleModel, wavelength: Wavelengths)->Self{
         let mut reader = SimpleModelReader::default();
         reader.build_scene(model, &wavelength)
     }    
