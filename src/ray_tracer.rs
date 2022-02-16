@@ -551,7 +551,6 @@ mod tests {
         
         scene.build_accelerator();
 
-        // Create camera
         // Create film
         let film = Film {
             resolution: (512, 512),
@@ -574,17 +573,7 @@ mod tests {
         };
 
 
-        // let y = (pixel as f32/width as f32).floor() as usize;
-        // let x = pixel - y*width;
-        // let x = 256;
-        // let y = 1;
-        // let (ray, weight) = camera.gen_ray(&CameraSample {
-        //     p_film: (x, y),
-        //     p_lens: (0., 0.), // we will not use this                    
-        // });
-        // let mut rng = get_rng();   
-        // let v = integrator.trace_ray(&mut rng, &scene, ray, 0, weight);
-
+        
         let now = Instant::now();
 
         let buffer = integrator.render(&scene, &camera);

@@ -56,6 +56,8 @@ pub mod bvh;
 pub mod primitive;
 // pub mod lights;
 
+mod from_simple_model;
+
 // Ray-tracer
 pub mod ray_tracer;
 

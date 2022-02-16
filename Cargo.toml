@@ -7,12 +7,13 @@ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git"}
 matrix = {git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git"}
 # geometry3d = {path = "../geometry3d"}
 rand = { version = "0.8.4", features=["small_rng"]}
 rayon = {version = "1.5", optional = true}
-clap = "2.33.3"
+clap = "3.0.14"
 
 [[bin]]
 name = "spict"

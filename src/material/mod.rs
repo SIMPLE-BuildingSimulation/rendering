@@ -99,6 +99,8 @@ impl Material {
         matches!(self, Self::Mirror(_) | Self::Dielectric(_))
     }
 
+    
+
     pub fn get_possible_paths(&self, normal: Vector3D, intersection_pt: Point3D, mut ray: Ray)->[Option<(Ray, Float, Float)>; 2]{
         
         match self{            

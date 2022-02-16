@@ -20,13 +20,20 @@ SOFTWARE.
 
 // use std::rc::RefCount;
 use crate::Float;
-use crate::material::Material;
+use crate::material::{Material};
 use crate::interaction::{Interaction};
-use geometry3d::{Ray3D};
+use geometry3d::{
+    Ray3D
+};
 use crate::ray::Ray;
 use crate::bvh::BoundingVolumeTree;
 use crate::primitive::Primitive;
+use crate::from_simple_model::SimpleModelReader;
 // type Texture = fn(Float,Float)->Float;
+use simple_model::{
+    SimpleModel,
+    Substance
+};
 
 #[derive(Clone)]
 pub struct Object {
@@ -65,7 +72,22 @@ pub struct Scene {
     pub accelerator: Option<BoundingVolumeTree>
 }
 
+pub enum Wavelengths {
+    Solar,
+    Visible,
+}
+
 impl Scene {
+
+
+    /// Creates a new `Scene` from a `SimpleModel`. The `enum` `Wavelengths`
+    /// can be used to create a `Visible` or a `Solar` model, for calculating
+    /// Lighting or Solar Radiation, respectively.
+    pub fn from_scene(model: &SimpleModel, wavelength: Wavelengths)->Self{
+        let mut reader = SimpleModelReader::default();
+        reader.build_scene(model, &wavelength)
+    }    
+
     /// Creates an empty scene
     pub fn new() -> Self {
         Self::default()
@@ -118,8 +140,9 @@ impl Scene {
 
     
 
-    /// Pushes a [`Material`] to the [`Scene`]
-    pub fn push_material(&mut self, material: Material) -> usize {
+    /// Pushes a [`Material`] to the [`Scene`] and return its
+    /// position in the `materials` Vector. 
+    pub fn push_material(&mut self, material: Material) -> usize {        
         self.materials.push(material);
         // return
         self.materials.len() - 1
@@ -186,8 +209,17 @@ impl Scene {
 #[cfg(test)]
 mod tests {
 
+    
     // #[test]
-    // fn test_shadow_ray() {
-    //     // assert!(false)
+    // fn test_push_material() {
+    //     // Add a material
+
+    //     // Add the material again
+
+    //     // The number of materials should be 1.
+        
+    //     // Both indexes should be the same (1)
+        
+    //     assert!(false)
     // }
 }
