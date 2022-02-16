@@ -76,10 +76,6 @@ lamp sphere thelamp
 0
 4 3 3 4.4 0.1
 
-mymirror sphere mirrored
-0
-0
-4   1.6 4.0 1 1
 
 glass sphere glassed
 0

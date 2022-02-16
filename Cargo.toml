@@ -29,7 +29,7 @@ harness = false
 
 [features]
 default = []
-float = ["geometry3d/float", "matrix/float"]
+float = ["geometry3d/float", "matrix/float", "simple_model/float"]
 parallel = ["geometry3d/parallel", "rayon"]
 
 
