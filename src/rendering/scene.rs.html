@@ -343,7 +343,7 @@ SOFTWARE.
     <span class="doccomment">/// Creates a new `Scene` from a `SimpleModel`. The `enum` `Wavelengths`</span>
     <span class="doccomment">/// can be used to create a `Visible` or a `Solar` model, for calculating</span>
     <span class="doccomment">/// Lighting or Solar Radiation, respectively.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_scene</span>(<span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleModel</span>, <span class="ident">wavelength</span>: <span class="ident">Wavelengths</span>)-&gt;<span class="self">Self</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_simple_model</span>(<span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleModel</span>, <span class="ident">wavelength</span>: <span class="ident">Wavelengths</span>)-&gt;<span class="self">Self</span>{
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">SimpleModelReader::default</span>();
         <span class="ident">reader</span>.<span class="ident">build_scene</span>(<span class="ident">model</span>, <span class="kw-2">&amp;</span><span class="ident">wavelength</span>)
     }    
