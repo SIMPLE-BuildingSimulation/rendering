@@ -546,7 +546,7 @@ mod tests {
 
     #[test]
     fn test_render_room() {
-        // return;
+        return;
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
         
         scene.build_accelerator();

@@ -282,7 +282,7 @@ mod tests {
             if (1. - dir.length()).abs() > 1e-5 {
                 return Err(format!("Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})", dir, dir.length()));
             }
-            if dir * normal < 0. {
+            if dir * normal < -Float::EPSILON*30. {
                 return Err(format!("Sampled direction (from uniform_sample_hemisphere) is not in hemisphere... Normal = {} | Dir = {}", normal, dir));
             }
 
