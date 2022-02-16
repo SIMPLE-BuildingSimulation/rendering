@@ -299,6 +299,8 @@
 <span id="264">264</span>
 <span id="265">265</span>
 <span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -399,6 +401,8 @@ SOFTWARE.
         <span class="comment">// }</span>
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="kw">_</span>))
     }
+
+    
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_possible_paths</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>, <span class="kw-2">mut</span> <span class="ident">ray</span>: <span class="ident">Ray</span>)-&gt;[<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>]{
         

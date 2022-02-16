@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Object",""],["Scene",""]]});
+initSidebarItems({"enum":[["Wavelengths",""]],"struct":[["Object",""],["Scene",""]]});

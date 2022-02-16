@@ -226,6 +226,38 @@
 <span id="191">191</span>
 <span id="192">192</span>
 <span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -248,13 +280,20 @@ SOFTWARE.
 
 <span class="comment">// use std::rc::RefCount;</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Material</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>};
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>};
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{
+    <span class="ident">Ray3D</span>
+};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bvh::BoundingVolumeTree</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::from_simple_model::SimpleModelReader</span>;
 <span class="comment">// type Texture = fn(Float,Float)-&gt;Float;</span>
+<span class="kw">use</span> <span class="ident">simple_model</span>::{
+    <span class="ident">SimpleModel</span>,
+    <span class="ident">Substance</span>
+};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Object</span> {
@@ -293,7 +332,22 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">accelerator</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoundingVolumeTree</span><span class="op">&gt;</span>
 }
 
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Wavelengths</span> {
+    <span class="ident">Solar</span>,
+    <span class="ident">Visible</span>,
+}
+
 <span class="kw">impl</span> <span class="ident">Scene</span> {
+
+
+    <span class="doccomment">/// Creates a new `Scene` from a `SimpleModel`. The `enum` `Wavelengths`</span>
+    <span class="doccomment">/// can be used to create a `Visible` or a `Solar` model, for calculating</span>
+    <span class="doccomment">/// Lighting or Solar Radiation, respectively.</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_scene</span>(<span class="ident">model</span>: <span class="kw-2">&amp;</span><span class="ident">SimpleModel</span>, <span class="ident">wavelength</span>: <span class="ident">Wavelengths</span>)-&gt;<span class="self">Self</span>{
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">SimpleModelReader::default</span>();
+        <span class="ident">reader</span>.<span class="ident">build_scene</span>(<span class="ident">model</span>, <span class="kw-2">&amp;</span><span class="ident">wavelength</span>)
+    }    
+
     <span class="doccomment">/// Creates an empty scene</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
@@ -346,8 +400,9 @@ SOFTWARE.
 
     
 
-    <span class="doccomment">/// Pushes a [`Material`] to the [`Scene`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_material</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">material</span>: <span class="ident">Material</span>) -&gt; <span class="ident">usize</span> {
+    <span class="doccomment">/// Pushes a [`Material`] to the [`Scene`] and return its</span>
+    <span class="doccomment">/// position in the `materials` Vector. </span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_material</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">material</span>: <span class="ident">Material</span>) -&gt; <span class="ident">usize</span> {        
         <span class="self">self</span>.<span class="ident">materials</span>.<span class="ident">push</span>(<span class="ident">material</span>);
         <span class="comment">// return</span>
         <span class="self">self</span>.<span class="ident">materials</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>
@@ -414,9 +469,18 @@ SOFTWARE.
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
 
+    
     <span class="comment">// #[test]</span>
-    <span class="comment">// fn test_shadow_ray() {</span>
-    <span class="comment">//     // assert!(false)</span>
+    <span class="comment">// fn test_push_material() {</span>
+    <span class="comment">//     // Add a material</span>
+
+    <span class="comment">//     // Add the material again</span>
+
+    <span class="comment">//     // The number of materials should be 1.</span>
+        
+    <span class="comment">//     // Both indexes should be the same (1)</span>
+        
+    <span class="comment">//     assert!(false)</span>
     <span class="comment">// }</span>
 }
 </code></pre></div>

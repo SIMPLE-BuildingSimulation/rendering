@@ -767,17 +767,6 @@
 <span id="732">732</span>
 <span id="733">733</span>
 <span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -1331,7 +1320,6 @@ SOFTWARE.
         
         <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
-        <span class="comment">// Create camera</span>
         <span class="comment">// Create film</span>
         <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
             <span class="ident">resolution</span>: (<span class="number">512</span>, <span class="number">512</span>),
@@ -1354,17 +1342,7 @@ SOFTWARE.
         };
 
 
-        <span class="comment">// let y = (pixel as f32/width as f32).floor() as usize;</span>
-        <span class="comment">// let x = pixel - y*width;</span>
-        <span class="comment">// let x = 256;</span>
-        <span class="comment">// let y = 1;</span>
-        <span class="comment">// let (ray, weight) = camera.gen_ray(&amp;CameraSample {</span>
-        <span class="comment">//     p_film: (x, y),</span>
-        <span class="comment">//     p_lens: (0., 0.), // we will not use this                    </span>
-        <span class="comment">// });</span>
-        <span class="comment">// let mut rng = get_rng();   </span>
-        <span class="comment">// let v = integrator.trace_ray(&amp;mut rng, &amp;scene, ray, 0, weight);</span>
-
+        
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
 
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
