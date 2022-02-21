@@ -18,25 +18,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-use crate::Float;
 use crate::colour::Spectrum;
+use crate::Float;
 
-use crate::material::{PlasticMetal, Material, Dielectric};
+use crate::material::{Dielectric, Material, PlasticMetal};
 use crate::primitive::Primitive;
 
 use crate::scene::Scene;
 
 use geometry3d::{
-    DistantSource3D,
-    Loop3D,
-    Point3D,
-    Polygon3D,
-    Sphere3D,
-    Vector3D,
-    Triangulation3D
+    DistantSource3D, Loop3D, Point3D, Polygon3D, Sphere3D, Triangulation3D, Vector3D,
 };
-
 
 use std::fs;
 
@@ -176,13 +168,7 @@ impl Scanner {
     }
 
     /// Consumes a Metal material
-    fn consume_metal(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        _modifier: &str,
-        name: &str,
-    ) {
+    fn consume_metal(&mut self, source: &[u8], scene: &mut Scene, _modifier: &str, name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
@@ -198,7 +184,7 @@ impl Scanner {
         self.modifiers.push(name.to_string());
 
         let metal = PlasticMetal {
-            color: Spectrum{red,green,blue},
+            color: Spectrum { red, green, blue },
             specularity,
             roughness,
         };
@@ -206,13 +192,7 @@ impl Scanner {
     }
 
     /// Consumes a Plastic material
-    fn consume_plastic(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        _modifier: &str,
-        name: &str,
-    ) {
+    fn consume_plastic(&mut self, source: &[u8], scene: &mut Scene, _modifier: &str, name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
@@ -228,7 +208,7 @@ impl Scanner {
         self.modifiers.push(name.to_string());
 
         let plastic = PlasticMetal {
-            color: Spectrum{red,green,blue},
+            color: Spectrum { red, green, blue },
             specularity,
             roughness,
         };
@@ -236,13 +216,7 @@ impl Scanner {
     }
 
     /// Consumes a Light material
-    fn consume_light(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        _modifier: &str,
-        name: &str,
-    ) {
+    fn consume_light(&mut self, source: &[u8], scene: &mut Scene, _modifier: &str, name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
@@ -260,13 +234,7 @@ impl Scanner {
     }
 
     /// Consumes a Light material
-    fn consume_mirror(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        _modifier: &str,
-        name: &str,
-    ) {
+    fn consume_mirror(&mut self, source: &[u8], scene: &mut Scene, _modifier: &str, name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
@@ -306,19 +274,14 @@ impl Scanner {
         self.modifiers.push(name.to_string());
 
         let color = Spectrum { red, green, blue };
-        scene.push_material(Material::Dielectric(Dielectric{
-            color,refraction_index
+        scene.push_material(Material::Dielectric(Dielectric {
+            color,
+            refraction_index,
         }));
     }
 
     /// Consumes a sphere
-    fn consume_sphere(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        modifier: &str,
-        _name: &str,
-    ) {
+    fn consume_sphere(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
@@ -337,13 +300,7 @@ impl Scanner {
     }
 
     /// Consumes a sphere
-    fn consume_source(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        modifier: &str,
-        _name: &str,
-    ) {
+    fn consume_source(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
@@ -353,20 +310,18 @@ impl Scanner {
         let dir_x = self.consume_token(source).parse::<Float>().unwrap();
         let dir_y = self.consume_token(source).parse::<Float>().unwrap();
         let dir_z = self.consume_token(source).parse::<Float>().unwrap();
-        let angle = self.consume_token(source).parse::<Float>().unwrap().to_radians();        
+        let angle = self
+            .consume_token(source)
+            .parse::<Float>()
+            .unwrap()
+            .to_radians();
         let distant_source = DistantSource3D::new(Vector3D::new(dir_x, dir_y, dir_z), angle);
 
         let mod_index = self.get_modifier_index(modifier);
         scene.push_object(mod_index, mod_index, Primitive::Source(distant_source));
     }
     /// Consumes a polygon
-    fn consume_polygon(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        modifier: &str,
-        _name: &str,
-    ) {
+    fn consume_polygon(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
@@ -389,9 +344,11 @@ impl Scanner {
 
         the_loop.close().unwrap();
         let polygon = Polygon3D::new(the_loop).unwrap();
-        let triangles = Triangulation3D::from_polygon(&polygon).unwrap().get_trilist();
+        let triangles = Triangulation3D::from_polygon(&polygon)
+            .unwrap()
+            .get_trilist();
 
-        for tri in triangles{
+        for tri in triangles {
             scene.push_object(mod_index, mod_index, Primitive::Triangle(tri));
         }
     }
@@ -404,7 +361,7 @@ impl Scene {
         Scene::from_radiance_source(&src)
     }
 
-    /// Creates a scene from a slice of bytes read from a 
+    /// Creates a scene from a slice of bytes read from a
     /// Radiance file
     pub fn from_radiance_source(source: &[u8]) -> Self {
         let mut ret = Self::default();
@@ -422,7 +379,6 @@ impl Scene {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
 
     #[test]
     fn test_default() {

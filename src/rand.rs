@@ -23,8 +23,7 @@ pub use rand::prelude::*;
 pub type RandGen = SmallRng;
 
 /// Gets a random number generator for Montecarlo estimations
-pub fn get_rng()->RandGen{    
+pub fn get_rng() -> RandGen {
     // rand::thread_rng()
     SmallRng::from_entropy()
 }
-

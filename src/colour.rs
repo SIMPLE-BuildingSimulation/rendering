@@ -20,9 +20,7 @@ SOFTWARE.
 
 use crate::Float;
 
-
 pub type Spectrum = RGBSpectrum;
-pub type ColourMatrix = matrix::GenericMatrix<Spectrum>;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct RGBSpectrum {
@@ -31,18 +29,18 @@ pub struct RGBSpectrum {
     pub blue: Float,
 }
 
-
 impl matrix::OneZero for RGBSpectrum {
-    fn one()->Self{
+    fn one() -> Self {
         Self::gray(1.)
     }
 
-    fn zero()->Self{
+    fn zero() -> Self {
         Self::black()
     }
 }
 
 impl RGBSpectrum {
+    /// Creates a new Spectrum full of Zeroes
     pub fn black() -> Self {
         Self {
             red: 0.,
@@ -51,6 +49,7 @@ impl RGBSpectrum {
         }
     }
 
+    /// Creates a new Spectrum full of equal values `v`
     pub fn gray(v: Float) -> Self {
         Self {
             red: v,
@@ -59,18 +58,32 @@ impl RGBSpectrum {
         }
     }
 
-    pub fn is_black(&self)->bool{
+    /// Checks whether `Spectrum::black() == self`
+    pub fn is_black(&self) -> bool {
         self.red == 0. && self.green == 0. && self.blue == 0.
     }
+
+    /// Calculates a weighted average of RGB colours, returning
+    /// a single value representing Radiance
+    pub fn to_radiance(&self) -> Float {
+        // self.red*47.9 + self.green*119.9 + self.blue*11.6
+        self.red * 0.265 + self.green * 0.670 + self.blue * 0.065
+    }
+
+    /// Calculates a weighted average of RGB colours, returning
+    /// a single value representing Radiance
+    pub fn to_luminance(&self) -> Float {
+        self.to_radiance() / Self::WHITE_EFFICACY
+    }
+
+    /// The standard Luminious Efficacy of equal white light energy
+    /// as defined in Radiance
+    pub const WHITE_EFFICACY: Float = 179.;
 }
 
 impl std::fmt::Display for RGBSpectrum {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "RGB({:.5},{:.5},{:.5})",
-            self.red, self.green, self.blue
-        )
+        write!(f, "{:.5} {:.5} {:.5}", self.red, self.green, self.blue)
     }
 }
 
@@ -112,7 +125,6 @@ impl std::ops::SubAssign for RGBSpectrum {
         self.blue -= other.blue;
     }
 }
-
 
 impl std::ops::Mul for RGBSpectrum {
     type Output = Self;

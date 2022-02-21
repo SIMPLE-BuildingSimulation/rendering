@@ -18,7 +18,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 /*
  PART OF THIS FILE contains code to write four byte rgbe file format
  developed by Greg Ward. It handles the conversions between rgbe and
@@ -29,8 +28,8 @@ SOFTWARE.
  written by Bruce Walter  (bjw@graphics.cornell.edu)  5/26/95
  based on code written by Greg Ward
 */
-use crate::Float;
 use crate::colour::Spectrum;
+use crate::Float;
 use std::io::Write;
 
 fn rusty_frexp(s: Float) -> (Float, i32) {
@@ -103,8 +102,6 @@ impl std::ops::Index<(usize, usize)> for ImageBuffer {
     }
 }
 
-
-
 impl ImageBuffer {
     /// Creates a new empty [`ImageBuffer`]
     pub fn new(width: usize, height: usize) -> Self {
@@ -116,7 +113,7 @@ impl ImageBuffer {
     }
 
     /// Creates a new empty [`ImageBuffer`]
-    pub fn from_pixels(width: usize, height: usize, pixels : Vec<Spectrum>) -> Self {
+    pub fn from_pixels(width: usize, height: usize, pixels: Vec<Spectrum>) -> Self {
         if pixels.len() != width * height {
             panic!("Width ({}) and Height ({}) does not match the number of pixels (n_pixels is {}... expecting width*height={})", width, height, pixels.len(), width*height)
         }
@@ -150,13 +147,13 @@ impl ImageBuffer {
 
 #[cfg(test)]
 mod tests {
-    use crate::PI;
     use super::*;
-    use std::os::raw::{c_int};
+    use crate::PI;
     #[cfg(not(feature = "float"))]
-    use std::os::raw::{c_double};
+    use std::os::raw::c_double;
     #[cfg(feature = "float")]
-    use std::os::raw::{c_float};
+    use std::os::raw::c_float;
+    use std::os::raw::c_int;
 
     #[cfg(not(feature = "float"))]
     extern "C" {
@@ -176,17 +173,7 @@ mod tests {
 
     #[test]
     fn test_frexp() {
-        let xs: Vec<Float> = vec![
-            1e6,
-            2.,
-            PI,
-            123987.,
-            0.,
-            99.,
-            2.3123,
-            1024.,
-            0.1,
-        ];
+        let xs: Vec<Float> = vec![1e6, 2., PI, 123987., 0., 99., 2.3123, 1024., 0.1];
         for x in xs.iter() {
             let (c_mantissa, c_exp) = c_frexp(*x);
             let (mantissa, exp) = rusty_frexp(*x);

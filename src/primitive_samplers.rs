@@ -22,29 +22,26 @@ SOFTWARE.
 
 use crate::rand::*;
 
-use crate::{Float,PI};
 use crate::samplers::*;
+use crate::{Float, PI};
 // use geometry3d::intersect_trait::Intersect;
-use geometry3d::{Point3D, Triangle3D, Vector3D, Sphere3D, DistantSource3D, Ray3D};
 use geometry3d::intersection::IntersectionInfo;
+use geometry3d::{DistantSource3D, Point3D, Ray3D, Sphere3D, Triangle3D, Vector3D};
 
-
-/// Calculates the probability of hitting a 
-fn uniform_cone_pdf(cos_theta: Float)->Float{
-    let aux = 2.*PI*(1.-cos_theta);
-    1./aux
+/// Calculates the probability of hitting a
+fn uniform_cone_pdf(cos_theta: Float) -> Float {
+    let aux = 2. * PI * (1. - cos_theta);
+    1. / aux
 }
 
 /* TRIANGLE */
 
-
-pub fn sample_triangle_surface(triangle: &Triangle3D, rng: &mut RandGen)->Point3D{
+pub fn sample_triangle_surface(triangle: &Triangle3D, rng: &mut RandGen) -> Point3D {
     uniform_sample_triangle(rng, triangle.a(), triangle.b(), triangle.c())
 }
 
-
 pub fn triangle_direction(triangle: &Triangle3D, point: Point3D) -> (Float, Vector3D) {
-    const THIRD : Float = 1./3.;
+    const THIRD: Float = 1. / 3.;
     // Do the rest
     let centroid = (triangle.a() + triangle.b() + triangle.c()) * THIRD;
     let direction = centroid - point;
@@ -59,28 +56,30 @@ pub fn triangle_omega(_triangle: &Triangle3D, _point: Point3D) -> Float {
     // self.area() / t
 }
 
-pub fn triangle_solid_angle_pdf(triangle: &Triangle3D, info: &IntersectionInfo, ray: &Ray3D)->Float{
+pub fn triangle_solid_angle_pdf(
+    triangle: &Triangle3D,
+    info: &IntersectionInfo,
+    ray: &Ray3D,
+) -> Float {
     let d2 = (info.p - ray.origin).length_squared();
     let cos_theta = ray.origin * info.normal;
     debug_assert!(cos_theta > 0.);
-    if cos_theta < 1e-7{
-        return 0.0
+    if cos_theta < 1e-7 {
+        return 0.0;
     }
     let area = triangle.area();
     // return
-    d2/cos_theta/area
+    d2 / cos_theta / area
 }
 
 /* END OF TRIANGLE */
 
-
-
 /* SPHERE */
 
-pub fn sphere_solid_angle_pdf(sphere: &Sphere3D, _info: &IntersectionInfo, ray: &Ray3D)->Float{
-    let d2 = (sphere.centre() - ray.origin).length_squared();    
+pub fn sphere_solid_angle_pdf(sphere: &Sphere3D, _info: &IntersectionInfo, ray: &Ray3D) -> Float {
+    let d2 = (sphere.centre() - ray.origin).length_squared();
     let sin_theta_2 = sphere.radius * sphere.radius / d2;
-    let cos_theta = ( (1. - sin_theta_2).clamp(0., 1.) ).sqrt();    
+    let cos_theta = ((1. - sin_theta_2).clamp(0., 1.)).sqrt();
     // return
     uniform_cone_pdf(cos_theta)
 }
@@ -92,11 +91,11 @@ pub fn sphere_direction(sphere: &Sphere3D, point: Point3D) -> (Float, Vector3D) 
 }
 
 pub fn sphere_omega(sphere: &Sphere3D, point: Point3D) -> Float {
-    let d2 = (sphere.centre() - point).length_squared();       
+    let d2 = (sphere.centre() - point).length_squared();
     PI * sphere.radius * sphere.radius / d2
 }
 
-pub fn sample_sphere_surface(sphere:&Sphere3D, rng: &mut RandGen)->Point3D{
+pub fn sample_sphere_surface(sphere: &Sphere3D, rng: &mut RandGen) -> Point3D {
     // Sample a sphere of radius 1 centered at the origin
     let p = uniform_sample_sphere(rng);
     let (mut x, mut y, mut z) = (p.x, p.y, p.z);
@@ -106,19 +105,18 @@ pub fn sample_sphere_surface(sphere:&Sphere3D, rng: &mut RandGen)->Point3D{
     z = z.mul_add(sphere.radius, sphere.centre().z);
 
     // return
-    Point3D::new(x, y ,z)
+    Point3D::new(x, y, z)
 }
-
-
 
 /* END SPHERE */
 
-
-
 /* DISTANT SOURCE */
 
-pub fn source_solid_angle_pdf(source: &DistantSource3D, _info: &IntersectionInfo, _ray: &Ray3D)->Float{
-    
+pub fn source_solid_angle_pdf(
+    source: &DistantSource3D,
+    _info: &IntersectionInfo,
+    _ray: &Ray3D,
+) -> Float {
     // return
     uniform_cone_pdf(source.cos_half_alpha)
 }
@@ -132,10 +130,7 @@ pub fn source_omega(source: &DistantSource3D, _point: Point3D) -> Float {
     source.omega
 }
 
-
 /* END DISTANT SOURCE */
-
-
 
 #[cfg(test)]
 mod tests {
@@ -154,6 +149,4 @@ mod tests {
         assert!((t - (x * x + y * y + z * z).sqrt() + r).abs() < 0.000001);
         assert_eq!(Vector3D::new(x, y, z).get_normalized(), direction);
     }
-
-    
 }

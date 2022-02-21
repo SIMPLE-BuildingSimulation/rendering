@@ -18,79 +18,90 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::RefCount;
 use crate::Float;
-use geometry3d::{Point3D, Vector3D, Transform};
+use crate::RefCount;
 use geometry3d::intersection::SurfaceSide;
+use geometry3d::{Point3D, Transform, Vector3D};
 
 use crate::scene::Object;
 
-
-#[derive(Clone,Copy)]
-pub struct ShadingInfo{
+#[derive(Clone, Copy)]
+pub struct ShadingInfo {
     /// The normal [`Vector3D`] at the interaction.
     /// Must have the value of (dpdu x dpdv).normalize() ... use
     /// ShadingInfo::new(..) and this is done automatically
-    pub normal : Vector3D,
+    pub normal: Vector3D,
 
     /// Partial derivative of the position `p` with respect to `u`
-    pub dpdu: Vector3D, 
+    pub dpdu: Vector3D,
 
     /// Partial derivative of the position `p` with respect to `v`
-    pub dpdv: Vector3D, 
+    pub dpdv: Vector3D,
 
     /// Partial derivative of the normal `n` with respect to u
-    pub dndu: Vector3D,  
+    pub dndu: Vector3D,
 
     /// Partial derivative of the normal `n` with respect to v
-    pub dndv: Vector3D, 
+    pub dndv: Vector3D,
 
     pub u: Float,
     pub v: Float,
     pub side: SurfaceSide,
 }
 
-impl ShadingInfo{
-    pub fn new(u: Float, v: Float, dpdu: Vector3D, dpdv: Vector3D, dndu: Vector3D, dndv: Vector3D, side: SurfaceSide)->Self{
-        debug_assert!(u>=0.);
-        debug_assert!(u<=1.);
-        debug_assert!(v>=0.);
-        debug_assert!(v<=1.);
+impl ShadingInfo {
+    pub fn new(
+        u: Float,
+        v: Float,
+        dpdu: Vector3D,
+        dpdv: Vector3D,
+        dndu: Vector3D,
+        dndv: Vector3D,
+        side: SurfaceSide,
+    ) -> Self {
+        debug_assert!(u >= 0.);
+        debug_assert!(u <= 1.);
+        debug_assert!(v >= 0.);
+        debug_assert!(v <= 1.);
         let normal = dpdu.cross(dpdv).get_normalized();
-        Self{
-            dpdv,dpdu,dndu,dndv,normal, u, v, side
-        }        
+        Self {
+            dpdv,
+            dpdu,
+            dndu,
+            dndv,
+            normal,
+            u,
+            v,
+            side,
+        }
     }
 
-    pub fn transform(&self, t: &Transform)->Self{
-        Self{
+    pub fn transform(&self, t: &Transform) -> Self {
+        Self {
             u: self.u,
             v: self.v,
             normal: t.transform_normal(self.normal),
-            dpdu: t.transform_vec(self.dpdu), 
-            dpdv: t.transform_vec(self.dpdv), 
-            dndu: t.transform_vec(self.dndu), 
-            dndv: t.transform_vec(self.dndv), 
-            side: self.side
+            dpdu: t.transform_vec(self.dpdu),
+            dpdv: t.transform_vec(self.dpdv),
+            dndu: t.transform_vec(self.dndu),
+            dndv: t.transform_vec(self.dndv),
+            side: self.side,
         }
     }
 }
 
-
 /// The data for a SurfaceInteraction
-pub struct SurfaceInteractionData{
+pub struct SurfaceInteractionData {
     /* GENERAL INTERACTION DATA */
-
     /// The [`Point3D`] of the interaction
     pub point: Point3D,
 
     // The floating point error at the intersection
     // pub perror: Point3D,
-
     /// The time of the intersection
     pub time: Float,
 
-    /// The outgoing direction at the interaction. 
+    /// The outgoing direction at the interaction.
     /// This is the negative ray direction
     pub wo: Vector3D,
 
@@ -98,25 +109,22 @@ pub struct SurfaceInteractionData{
     // pub medium_interface: MediumInterface,
 
     /* FOR SURFACE INTERACTION */
-
     /// Stores the shading information based on
     /// pure geometry
     pub geometry_shading: ShadingInfo,
 
-    /// Stores the shading information after being 
+    /// Stores the shading information after being
     /// perturbed by a texture
     pub texture_shading: Option<ShadingInfo>,
 
-    // /// The [`Object`] in the scene 
-    // pub object: RefCount<Object>,    
-
+    // /// The [`Object`] in the scene
+    // pub object: RefCount<Object>,
     /// The index of the primitive in the primitives array
     pub prim_index: usize,
 }
 
-
 impl SurfaceInteractionData {
-    pub fn transform(&self, t: &Transform)->Self{
+    pub fn transform(&self, t: &Transform) -> Self {
         // let (point, perror) = t.transform_pt_propagate_error(self.point, self.perror);
         let point = t.transform_pt(self.point);
         let wo = t.transform_vec(self.wo);
@@ -130,67 +138,59 @@ impl SurfaceInteractionData {
         //     None=>None
         // };
         let texture_shading = self.texture_shading.map(|s| s.transform(t));
-        
-        Self{
+
+        Self {
             point,
             // perror,
             wo,
             time,
             geometry_shading,
-            texture_shading,            
+            texture_shading,
             // object: RefCount::clone(&self.object)
-            prim_index: self.prim_index
+            prim_index: self.prim_index,
         }
     }
 
     /// Retrieves the normal of the [`SurfaceInteractionData`].
     /// Prioritizes the texture geometry (which can deviate the normal).
     /// If there is `None`, then the geometry shading is used.
-    pub fn normal(&self)->Vector3D{
-        match &self.texture_shading{
-            Some(info)=>info.normal,
-            None => self.geometry_shading.normal
+    pub fn normal(&self) -> Vector3D {
+        match &self.texture_shading {
+            Some(info) => info.normal,
+            None => self.geometry_shading.normal,
         }
     }
 }
 
-
-pub enum Interaction{
-    Surface(SurfaceInteractionData), 
-    Endpoint(Option<RefCount<Object>>) 
+pub enum Interaction {
+    Surface(SurfaceInteractionData),
+    Endpoint(Option<RefCount<Object>>),
 }
 
 impl std::fmt::Debug for Interaction {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self{
-            Self::Surface(_)=>{
-                f.debug_struct("SurfaceInteraction(..)").finish()
-            },    
-            Self::Endpoint(light)=>{
-                let kind = if light.is_some(){
-                    "Light"
-                }else{
-                    "Camera"
-                };
-                f.debug_struct(&format!("EndpointInteraction({})", kind)).finish()
-            },            
+        match self {
+            Self::Surface(_) => f.debug_struct("SurfaceInteraction(..)").finish(),
+            Self::Endpoint(light) => {
+                let kind = if light.is_some() { "Light" } else { "Camera" };
+                f.debug_struct(&format!("EndpointInteraction({})", kind))
+                    .finish()
+            }
         }
-        
     }
 }
 
-impl Interaction{
-
-    pub fn new_surface(data: SurfaceInteractionData, flip_normal: bool)->Self{
+impl Interaction {
+    pub fn new_surface(data: SurfaceInteractionData, flip_normal: bool) -> Self {
         let mut data = data;
-        if flip_normal{
+        if flip_normal {
             data.geometry_shading.normal *= -1.
         }
         Self::Surface(data)
     }
 
     /// Checks whether an [`Interaction`] is Surface
-    pub fn is_surface_interaction(&self)->bool{
+    pub fn is_surface_interaction(&self) -> bool {
         // match self{
         //     Self::Surface(_) => true,
         //     _ => false
@@ -198,11 +198,10 @@ impl Interaction{
         matches!(self, Self::Surface(_))
     }
 
-
-    pub fn normal(&self)->Vector3D{
-        match self{
-            Self::Surface(d)=>d.normal(),
-            _ => panic!("{:?} has no normals", self)
+    pub fn normal(&self) -> Vector3D {
+        match self {
+            Self::Surface(d) => d.normal(),
+            _ => panic!("{:?} has no normals", self),
         }
     }
 

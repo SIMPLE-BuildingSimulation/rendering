@@ -19,40 +19,37 @@ SOFTWARE.
 */
 
 use crate::Float;
-use geometry3d::{Transform, Ray3D, Point3D, Vector3D};
+use geometry3d::{Point3D, Ray3D, Transform, Vector3D};
 
-/// Represents a ray (of light?) beyond pure geometry. It 
+/// Represents a ray (of light?) beyond pure geometry. It
 /// includes also the current index of refraction and, potentially,
-/// time (for blurry images) 
+/// time (for blurry images)
 #[derive(Clone, Copy)]
-pub struct Ray{
+pub struct Ray {
     /// Direction and position
     pub geometry: Ray3D,
     // pub time: Float,
-
     /// index of refraction of the current medium
-    pub refraction_index: Float    
+    pub refraction_index: Float,
 }
 
 impl Ray {
-
-    pub fn apply_transformation(&self, t:&Transform)->Self{
-        let (geometry,_o_error, _d_error)= t.transform_ray(&self.geometry);
-        Self{
+    pub fn apply_transformation(&self, t: &Transform) -> Self {
+        let (geometry, _o_error, _d_error) = t.transform_ray(&self.geometry);
+        Self {
             geometry,
             // time: self.time,
-            refraction_index: self.refraction_index
+            refraction_index: self.refraction_index,
         }
     }
 
     #[inline(always)]
-    pub fn direction(&self)->Vector3D{
+    pub fn direction(&self) -> Vector3D {
         self.geometry.direction
     }
 
     #[inline(always)]
-    pub fn origin(&self)->Point3D{
+    pub fn origin(&self) -> Point3D {
         self.geometry.origin
     }
 }
-

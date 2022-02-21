@@ -18,53 +18,46 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use simple_model::{
-    SimpleModel,
-    Substance
-};
 use geometry3d::Triangulation3D;
+use simple_model::{SimpleModel, Substance};
 
+use crate::colour::Spectrum;
+use crate::material::{Material, PlasticMetal};
 use crate::primitive::Primitive;
 use crate::scene::{Scene, Wavelengths};
-use crate::material::{
-    Material,
-    PlasticMetal
-};
-use crate::colour::Spectrum;
-
 
 /// An auxiliar structure only meant to create a Scene from a SimpleModel
 #[derive(Default)]
-pub struct SimpleModelReader{
+pub struct SimpleModelReader {
     /// A list of the modifiers already in the model
     modifiers: Vec<String>,
 }
 
 impl SimpleModelReader {
-
-
-    pub fn build_scene(&mut self, model: &SimpleModel, wavelength: &Wavelengths)->Scene{
-        if matches!(wavelength, Wavelengths::Visible){
+    pub fn build_scene(&mut self, model: &SimpleModel, wavelength: &Wavelengths) -> Scene {
+        if matches!(wavelength, Wavelengths::Visible) {
             unimplemented!()
         }
-                
+
         let mut scene = Scene::new();
-        
+
         // Add surfaces
         for s in &model.surfaces {
             let polygon = &s.vertices;
             let construction = &s.construction;
             // Should not be empty, and should have been check before this
-            assert!(!construction.materials.is_empty()); 
-            
-            let front_substance = &construction.materials[0].substance;            
-            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength);            
+            assert!(!construction.materials.is_empty());
+
+            let front_substance = &construction.materials[0].substance;
+            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength);
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
             let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength);
-             
+
             // Add all the triangles necessary
-            let triangles = Triangulation3D::from_polygon(&polygon).unwrap().get_trilist();
-            for tri in triangles{
+            let triangles = Triangulation3D::from_polygon(&polygon)
+                .unwrap()
+                .get_trilist();
+            for tri in triangles {
                 scene.push_object(front_mat_index, back_mat_index, Primitive::Triangle(tri));
             }
         }
@@ -74,16 +67,18 @@ impl SimpleModelReader {
             let polygon = &s.vertices;
             let construction = &s.construction;
             // Should not be empty, and should have been check before this
-            assert!(!construction.materials.is_empty()); 
-            
-            let front_substance = &construction.materials[0].substance;            
-            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength);            
+            assert!(!construction.materials.is_empty());
+
+            let front_substance = &construction.materials[0].substance;
+            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength);
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
             let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength);
-             
+
             // Add all the triangles necessary
-            let triangles = Triangulation3D::from_polygon(&polygon).unwrap().get_trilist();
-            for tri in triangles{
+            let triangles = Triangulation3D::from_polygon(&polygon)
+                .unwrap()
+                .get_trilist();
+            for tri in triangles {
                 scene.push_object(front_mat_index, back_mat_index, Primitive::Triangle(tri));
             }
         }
@@ -92,16 +87,19 @@ impl SimpleModelReader {
         scene
     }
 
-
     /// Adds a Substance to the Scene, checking if it has been added before (by name).
     /// If a substance has already been added to the Scene, then it will not add it.
-    /// 
+    ///
     /// Returns the index of the already existing or new Material in the Scene.
-    fn push_substance(&mut self, scene: &mut Scene, substance: &Substance, wavelength: &Wavelengths)->usize{
-        
+    fn push_substance(
+        &mut self,
+        scene: &mut Scene,
+        substance: &Substance,
+        wavelength: &Wavelengths,
+    ) -> usize {
         let substance_name = substance.name().to_string();
-        match self.get_modifier_index(&substance_name){
-            Some(i)=>i,
+        match self.get_modifier_index(&substance_name) {
+            Some(i) => i,
             None => {
                 // Material is not there... add, then.
                 let front_mat = Self::substance_to_material(substance, wavelength);
@@ -110,8 +108,8 @@ impl SimpleModelReader {
         }
     }
 
-    fn get_modifier_index(&self, item: &String)->Option<usize>{
-        for (i,v) in self.modifiers.iter().enumerate() {
+    fn get_modifier_index(&self, item: &String) -> Option<usize> {
+        for (i, v) in self.modifiers.iter().enumerate() {
             if v == item {
                 return Some(i);
             }
@@ -120,16 +118,16 @@ impl SimpleModelReader {
     }
 
     /// Transformsa a SimpleModel Substance into a Material
-    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths)->Material{
-        if matches!(wavelength, Wavelengths::Visible){
+    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Material {
+        if matches!(wavelength, Wavelengths::Visible) {
             unimplemented!();
         }
-        
+
         let color = match substance {
-            Substance::Normal(s)=>{
+            Substance::Normal(s) => {
                 let alpha = match s.solar_absorbtance() {
-                    Ok(v)=>*v,
-                    Err(_) => { 
+                    Ok(v) => *v,
+                    Err(_) => {
                         let v = 0.7;
                         eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
                         v
@@ -141,35 +139,32 @@ impl SimpleModelReader {
         };
 
         // return
-        Material::Plastic(PlasticMetal{
+        Material::Plastic(PlasticMetal {
             color: Spectrum::gray(color),
-            specularity: 0.0, 
-            roughness: 0.0
+            specularity: 0.0,
+            roughness: 0.0,
         })
     }
 }
 
-
-
-
 #[cfg(test)]
 mod tests {
-    
+
     use super::*;
-    use geometry3d::{DistantSource3D, Vector3D, Point3D};
-    use crate::Float;
-    use crate::ray_tracer::RayTracer;
+    use crate::camera::{Camera, View};
     use crate::film::Film;
-    use crate::camera::{View, Camera};
+    use crate::ray_tracer::RayTracer;
+    use crate::Float;
+    use geometry3d::{DistantSource3D, Point3D, Vector3D};
     use std::time::Instant;
 
-
     #[test]
-    fn test_scene_from_model(){
+    fn test_scene_from_model() {
         return;
         // BUILD SCENE
-        let (model, _state_header) = SimpleModel::from_file("./test_data/room.spl".to_string()).unwrap();
-        let mut reader = SimpleModelReader::default();        
+        let (model, _state_header) =
+            SimpleModel::from_file("./test_data/room.spl".to_string()).unwrap();
+        let mut reader = SimpleModelReader::default();
         let mut scene = reader.build_scene(&model, &Wavelengths::Solar);
 
         let light_index = scene.push_material(Material::Light(Spectrum::gray(10000.)));
@@ -177,7 +172,7 @@ mod tests {
             light_index,
             light_index,
             Primitive::Source(DistantSource3D::new(
-                Vector3D::new(1., 1., 1.),         // direction
+                Vector3D::new(1., 1., 1.),   // direction
                 (0.5 as Float).to_radians(), // angle
             )),
         );
@@ -203,7 +198,7 @@ mod tests {
             n_ambient_samples: 220,
             n_shadow_samples: 1,
             max_depth: 3,
-            .. RayTracer::default()
+            ..RayTracer::default()
         };
 
         let now = Instant::now();
@@ -211,7 +206,5 @@ mod tests {
         let buffer = integrator.render(&scene, &camera);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre("./test_data/images/simple_room.hdr".to_string());
-
-
     }
 }

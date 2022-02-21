@@ -20,49 +20,52 @@ SOFTWARE.
 
 use rendering::scene::Scene;
 // use rendering::from_radiance::from
-use clap::{Arg, App};
+use clap::{App, Arg};
 
-use std::time::Instant;
-use geometry3d::{Vector3D,Point3D};
-use rendering::film::Film;
+use geometry3d::{Point3D, Vector3D};
 use rendering::camera::{Camera, View};
+use rendering::film::Film;
 use rendering::ray_tracer::RayTracer;
+use std::time::Instant;
 
 fn main() {
     let matches = App::new("SIMPLE ray tracer")
-                    .version("0.1 (but it is still awesome!)")
-                    .author("(c) German Molina")
-                    .about("A simple ray-tracing renderer")
-                    .arg(Arg::new("input")
-                        .short('i')
-                        .long("input")
-                        .value_name("Radiance file")
-                        .help("This is the SIMPLE Model or a Radiance file")
-                        .takes_value(true)
-                        .required(true)
-                        .index(1)
-                    )                       
-                    .arg(Arg::new("output")
-                        .short('o')
-                        .long("output")
-                        .value_name("The file where to write the image")
-                        .help("The file where to write the image")
-                        .takes_value(true)
-                        .required(true)
-                        .index(2)
-                    )
-                    .get_matches();
+        .version("0.1 (but it is still awesome!)")
+        .author("(c) German Molina")
+        .about("A simple ray-tracing renderer")
+        .arg(
+            Arg::new("input")
+                .short('i')
+                .long("input")
+                .value_name("Radiance file")
+                .help("This is the SIMPLE Model or a Radiance file")
+                .takes_value(true)
+                .required(true)
+                .index(1),
+        )
+        .arg(
+            Arg::new("output")
+                .short('o')
+                .long("output")
+                .value_name("The file where to write the image")
+                .help("The file where to write the image")
+                .takes_value(true)
+                .required(true)
+                .index(2),
+        )
+        .get_matches();
 
     let input_file = matches.value_of("input").unwrap();
     let output_file = matches.value_of("output").unwrap();
     let mut scene = Scene::from_radiance(input_file.to_string());
 
     scene.build_accelerator();
-        
-    // Create camera    
+
+    // Create camera
     let film = Film {
+        resolution: (600 / 2, 437 / 2),
         // resolution: (600, 437),
-        resolution: (1024, 768),
+        // resolution: (1024, 768),
         // resolution: (512, 512),
     };
 
@@ -78,21 +81,21 @@ fn main() {
     // Create camera
     let camera = Camera::pinhole(view, film);
 
-    
-
-    let integrator = RayTracer{
+    let integrator = RayTracer {
         n_shadow_samples: 10,
         max_depth: 3,
         limit_weight: 0.001,
         n_ambient_samples: 290,
-        .. RayTracer::default()   
+        ..RayTracer::default()
     };
 
     let now = Instant::now();
 
     let buffer = integrator.render(&scene, &camera);
-    println!("Image described in '{}' took {} seconds to render", input_file, now.elapsed().as_secs());
+    println!(
+        "Image described in '{}' took {} seconds to render",
+        input_file,
+        now.elapsed().as_secs()
+    );
     buffer.save_hdre(output_file.to_string());
-
-    
 }

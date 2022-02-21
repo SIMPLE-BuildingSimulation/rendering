@@ -40,24 +40,23 @@ type RefCount<T> = std::sync::Arc<T>;
 type RefCount<T> = std::rc::Rc<T>;
 
 // Core
-pub mod ray;
-pub mod interaction;
-pub mod primitive_samplers;
-pub mod samplers;
+pub mod bvh;
 pub mod camera;
 pub mod colour;
 pub mod film;
 pub mod from_radiance;
 pub mod image;
+pub mod interaction;
 pub mod material;
-pub mod scene;
-pub mod rand;
-pub mod bvh;
 pub mod primitive;
+pub mod primitive_samplers;
+pub mod rand;
+pub mod ray;
+pub mod samplers;
+pub mod scene;
 // pub mod lights;
 
 mod from_simple_model;
 
 // Ray-tracer
 pub mod ray_tracer;
-

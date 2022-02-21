@@ -18,22 +18,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
-
-
+use crate::rand::*;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
-use crate::rand::*;
-
-
 
 // // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/
-// // The problem with these functions is that, due to their errors, they 
+// // The problem with these functions is that, due to their errors, they
 // // produce a lot of "Missed light" situations and the renders
 // // become all weird.
 // // /// Approximates `cos(x)` in radians with a maximum error of `0.002`.
-// fn fast_cos(mut x: Float) -> Float {    
+// fn fast_cos(mut x: Float) -> Float {
 //     x *= 1./ (2. * crate::PI);
 //     x -= 0.25 + (x + 0.25).floor();
 //     x *= 16.0 * (x.abs() - 0.5);
@@ -45,21 +39,20 @@ use crate::rand::*;
 //     fast_cos(x - crate::PI / 2.0)
 // }
 
-
-pub fn uniform_sample_triangle(rng: &mut RandGen,a:Point3D,b:Point3D,c:Point3D)->Point3D{
+pub fn uniform_sample_triangle(rng: &mut RandGen, a: Point3D, b: Point3D, c: Point3D) -> Point3D {
     let (rand1, rand2): (Float, Float) = rng.gen();
     // let rand1 : Float = rng.gen();
     // let rand2 : Float = rng.gen();
     let aux = rand1.sqrt();
     let u = 1. - aux;
-    let v = rand2*aux;
-    let v1 = b-a;
-    let v2 = c-a;
+    let v = rand2 * aux;
+    let v1 = b - a;
+    let v2 = c - a;
     // return
     a + v1 * u + v2 * v
 }
 
-pub struct HorizontalDiskUniformSampler{
+pub struct HorizontalDiskUniformSampler {
     n_samples: usize,
     i: usize,
     rng: RandGen,
@@ -67,8 +60,8 @@ pub struct HorizontalDiskUniformSampler{
 }
 
 impl HorizontalDiskUniformSampler {
-    pub fn new(radius: Float, n_samples: usize)->Self{
-        Self{
+    pub fn new(radius: Float, n_samples: usize) -> Self {
+        Self {
             i: 0,
             rng: get_rng(),
             radius,
@@ -77,50 +70,47 @@ impl HorizontalDiskUniformSampler {
     }
 }
 
-impl Iterator for HorizontalDiskUniformSampler{
+impl Iterator for HorizontalDiskUniformSampler {
     type Item = (f32, f32);
-    fn next(&mut self)->Option<Self::Item>{
+    fn next(&mut self) -> Option<Self::Item> {
         if self.n_samples == self.i {
-            return None
+            return None;
         }
         self.i += 1;
         Some(uniform_sample_horizontal_disc(&mut self.rng, self.radius))
     }
 }
 
-
-
 pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32, f32) {
-    
     // Accurate, non-rejection
-    // sqrt() and cos() and sin() are 
-    // much faster in f32... that is why I am doing 
+    // sqrt() and cos() and sin() are
+    // much faster in f32... that is why I am doing
     // this.
     // let (r, theta): (f32, f32) = rng.gen();
-    
+
     // let r = radius as f32 * r.sqrt();
     // let theta = 2. * std::f32::consts::PI * theta;
     // let (theta_sin, theta_cos) = theta.sin_cos();
-    
+
     // let local_x = r * theta_sin;
     // let local_y = r * theta_cos;
     // (local_x, local_y)
 
     // rejection sampling
-    const MAX_ITER : usize = 30;
+    const MAX_ITER: usize = 30;
     for _ in 0..MAX_ITER {
-
-        let (mut x, mut y): (Float, Float) = rng.gen(); 
-        x = x.mul_add(2.0*radius, -radius);
-        y = y.mul_add(2.0*radius, -radius);
-        let found_rsq = x*x+y*y;
-        if found_rsq < radius*radius {
-            return (x as f32,y as f32)
+        let (mut x, mut y): (Float, Float) = rng.gen();
+        x = x.mul_add(2.0 * radius, -radius);
+        y = y.mul_add(2.0 * radius, -radius);
+        let found_rsq = x * x + y * y;
+        if found_rsq < radius * radius {
+            return (x as f32, y as f32);
         }
     }
-    panic!("Exceeded maximum iterations ({}) when uniform_sample_horizontal_disc()", MAX_ITER);
-
-
+    panic!(
+        "Exceeded maximum iterations ({}) when uniform_sample_horizontal_disc()",
+        MAX_ITER
+    );
 }
 
 pub fn local_to_world(
@@ -130,91 +120,100 @@ pub fn local_to_world(
     centre: Point3D,
     x_local: Float,
     y_local: Float,
-    z_local: Float,    
-
+    z_local: Float,
 ) -> (Float, Float, Float) {
-
     // Check that they are normalized
     debug_assert!((1. - local_e1.length_squared()).abs() < 1e-4);
     debug_assert!((1. - local_e2.length_squared()).abs() < 1e-4);
     debug_assert!((1. - normal.length_squared()).abs() < 1e-4);
-    
-    
-    let x = centre.x + x_local * local_e1.x + y_local*local_e2.x + z_local * normal.x;
-    let y = centre.y + x_local * local_e1.y + y_local*local_e2.y + z_local * normal.y;
-    let z = centre.z + x_local * local_e1.z + y_local*local_e2.z + z_local * normal.z;
+
+    let x = centre.x + x_local * local_e1.x + y_local * local_e2.x + z_local * normal.x;
+    let y = centre.y + x_local * local_e1.y + y_local * local_e2.y + z_local * normal.y;
+    let z = centre.z + x_local * local_e1.z + y_local * local_e2.z + z_local * normal.z;
 
     (x, y, z)
 }
 
-
-pub struct HorizontalCosineWeightedHemisphereSampler{            
+pub struct HorizontalCosineWeightedHemisphereSampler {
     disk_sampler: HorizontalDiskUniformSampler,
 }
 
 impl HorizontalCosineWeightedHemisphereSampler {
-    pub fn new(n_samples: usize)->Self{
-        Self{            
+    pub fn new(n_samples: usize) -> Self {
+        Self {
             disk_sampler: HorizontalDiskUniformSampler::new(1., n_samples),
         }
     }
 }
 
-impl Iterator for HorizontalCosineWeightedHemisphereSampler{
+impl Iterator for HorizontalCosineWeightedHemisphereSampler {
     type Item = Vector3D;
-    fn next(&mut self)->Option<Self::Item>{
+    fn next(&mut self) -> Option<Self::Item> {
         if let Some((local_x, local_y)) = self.disk_sampler.next() {
             let local_z = (1. - local_x * local_x - local_y * local_y).sqrt();
             let ret = Vector3D::new(local_x as Float, local_y as Float, local_z as Float);
             Some(ret)
-        }else{
+        } else {
             None
         }
     }
 }
 
-
 /// Gets a random `Vector3D`, distributed according to `cos(theta)` according
 /// to a normal `Vector3D(0,0,1)`
 pub fn sample_cosine_weighted_horizontal_hemisphere(rng: &mut RandGen) -> Vector3D {
-    
     let (local_x, local_y) = uniform_sample_horizontal_disc(rng, 1.);
     let aux = (local_x * local_x + local_y * local_y).clamp(0., 1.);
-    let local_z = (1. - aux).sqrt();    
+    let local_z = (1. - aux).sqrt();
     Vector3D::new(local_x as Float, local_y as Float, local_z as Float)
 }
 
-
-
-pub fn uniform_sample_hemisphere(rng: &mut RandGen, e1: Vector3D, e2: Vector3D, normal: Vector3D) -> Vector3D {
+pub fn uniform_sample_hemisphere(
+    rng: &mut RandGen,
+    e1: Vector3D,
+    e2: Vector3D,
+    normal: Vector3D,
+) -> Vector3D {
     // Calculate in
-    
+
     let (rand1, rand2): (f32, f32) = rng.gen();
     // let rand2: f32 = rng.gen();
-    let sq  = (1.0 - rand1 * rand1).sqrt();
-    let pie2  = 2.0 * std::f32::consts::PI * rand2;
+    let sq = (1.0 - rand1 * rand1).sqrt();
+    let pie2 = 2.0 * std::f32::consts::PI * rand2;
     let (pie2_sin, pie2_cos) = pie2.sin_cos();
     let local_x = pie2_cos * sq;
     let local_y = pie2_sin * sq;
     let local_z = rand1;
 
-    // Take back to world normal    
-    let (x, y, z) = local_to_world(e1, e2, normal,Point3D::new(0., 0., 0.), local_x as Float, local_y as Float, local_z as Float);
-    debug_assert!((Vector3D::new(x, y, z).length() - 1.).abs() < 1e-5, "length is {}", Vector3D::new(x, y, z).length());
+    // Take back to world normal
+    let (x, y, z) = local_to_world(
+        e1,
+        e2,
+        normal,
+        Point3D::new(0., 0., 0.),
+        local_x as Float,
+        local_y as Float,
+        local_z as Float,
+    );
+    debug_assert!(
+        (Vector3D::new(x, y, z).length() - 1.).abs() < 1e-5,
+        "length is {}",
+        Vector3D::new(x, y, z).length()
+    );
     Vector3D::new(x, y, z)
 }
 
-pub fn uniform_sample_sphere(rng: &mut RandGen)->Point3D{
-    const TWO_PI : f32 = 2.*std::f32::consts::PI;
+pub fn uniform_sample_sphere(rng: &mut RandGen) -> Point3D {
+    const TWO_PI: f32 = 2. * std::f32::consts::PI;
     // Sample a sphere of radius 1 centered at the origin
-    let (rand1, rand2): (f32, f32) = rng.gen();    
-    let z = 1. - 2.*rand1;
-    let aux = (1. - z*z).sqrt() as Float;
+    let (rand1, rand2): (f32, f32) = rng.gen();
+    let z = 1. - 2. * rand1;
+    let aux = (1. - z * z).sqrt() as Float;
     let z = z as Float;
-    let x = (TWO_PI*rand2).cos() as Float * aux;
-    let y = (TWO_PI*rand2).sin() as Float * aux;
+    let x = (TWO_PI * rand2).cos() as Float * aux;
+    let y = (TWO_PI * rand2).sin() as Float * aux;
 
-    Point3D::new(x,y,z)
+    Point3D::new(x, y, z)
 }
 
 pub fn uniform_sample_disc(
@@ -228,7 +227,15 @@ pub fn uniform_sample_disc(
     // Form the basis
     let e2 = normal.get_perpendicular().unwrap();
     let e1 = e2.cross(normal);
-    let (x, y, z) = local_to_world( e1,e2,normal,centre, x_local as Float, y_local as Float, 0.);
+    let (x, y, z) = local_to_world(
+        e1,
+        e2,
+        normal,
+        centre,
+        x_local as Float,
+        y_local as Float,
+        0.,
+    );
     Point3D::new(x, y, z)
 }
 
@@ -275,14 +282,14 @@ mod tests {
             let normal = normal.get_normalized();
             let e2 = normal.get_perpendicular().unwrap();
             let e1 = e2.cross(normal);
-            
+
             let mut rng = get_rng();
             let dir = uniform_sample_hemisphere(&mut rng, e1, e2, normal);
 
             if (1. - dir.length()).abs() > 1e-5 {
                 return Err(format!("Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})", dir, dir.length()));
             }
-            if dir * normal < -Float::EPSILON*30. {
+            if dir * normal < -Float::EPSILON * 30. {
                 return Err(format!("Sampled direction (from uniform_sample_hemisphere) is not in hemisphere... Normal = {} | Dir = {}", normal, dir));
             }
 
@@ -299,7 +306,7 @@ mod tests {
     }
 
     #[test]
-    fn test_cosine_weighted_sampling(){
+    fn test_cosine_weighted_sampling() {
         let mut rng = get_rng();
         for _ in 0..99999999 {
             let a = sample_cosine_weighted_horizontal_hemisphere(&mut rng);
@@ -307,14 +314,13 @@ mod tests {
         }
     }
 
-       
     // #[test]
     // fn test_approx_sin(){
     //     const MAX_ERR : Float = 0.0105;
     //     let mut x = 0.0;
     //     loop {
     //         if x > 2.*PI {
-    //             break;                
+    //             break;
     //         }
     //         let exp = x.sin();
     //         let found = approx_sin(x);
@@ -336,7 +342,7 @@ mod tests {
     //     let mut x = 0.0;
     //     loop {
     //         if x > 2.*PI {
-    //             break;                
+    //             break;
     //         }
     //         let exp = x.cos();
     //         let found = approx_cos(x);

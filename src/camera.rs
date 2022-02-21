@@ -18,10 +18,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::Float;
 use crate::film::Film;
-use geometry3d::{Point3D, Ray3D, Vector3D};
 use crate::ray::Ray;
+use crate::Float;
+use geometry3d::{Point3D, Ray3D, Vector3D};
 
 pub struct View {
     pub view_point: Point3D,
@@ -50,7 +50,6 @@ pub struct CameraSample {
 
     /// The position within the Lens of the camera
     pub p_lens: (Float, Float),
-
     // /// Time at which the ray will be emmited
     // pub time: Float,
 }
@@ -60,33 +59,31 @@ pub enum Camera {
 }
 
 impl Camera {
-
     /// Creates a new PinholeCamera
     pub fn pinhole(view: View, film: Film) -> Self {
-        Self::Pinhole(PinholeCam::new(view,film))
+        Self::Pinhole(PinholeCam::new(view, film))
     }
 
     /// Generates a ray and
-    pub fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float){
-        match self{
-            Self::Pinhole(c)=>c.gen_ray(sample)
+    pub fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float) {
+        match self {
+            Self::Pinhole(c) => c.gen_ray(sample),
         }
     }
 
     /// Gets the film resolution (width,height) in pixels
-    pub fn film_resolution(&self) -> (usize, usize){
-        match self{
-            Self::Pinhole(c)=>c.film_resolution()
+    pub fn film_resolution(&self) -> (usize, usize) {
+        match self {
+            Self::Pinhole(c) => c.film_resolution(),
         }
     }
 
     /// Borrows the view
-    pub fn view(&self) -> &View{
-        match self{
-            Self::Pinhole(c)=>c.view()
+    pub fn view(&self) -> &View {
+        match self {
+            Self::Pinhole(c) => c.view(),
         }
     }
-    
 }
 
 pub struct PinholeCam {
@@ -112,7 +109,7 @@ impl PinholeCam {
 
     fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float) {
         let (width, height) = self.film.resolution;
-        let aspect_ratio = height as Float/width as Float;
+        let aspect_ratio = height as Float / width as Float;
         let xlim = 2.;
         let ylim = aspect_ratio * xlim;
 
@@ -120,19 +117,18 @@ impl PinholeCam {
         let dx = xlim / width as Float;
         let dy = ylim / height as Float;
 
-        let x = dx / 2. + x_pixel as Float * dx - xlim/2.;
-        let y = dy / 2. + y_pixel as Float * dy - ylim/2.;
+        let x = dx / 2. + x_pixel as Float * dx - xlim / 2.;
+        let y = dy / 2. + y_pixel as Float * dy - ylim / 2.;
 
         let direction =
             self.view.view_direction * self.film_distance + self.u * x - self.view.view_up * y;
 
-        let ray = Ray{
+        let ray = Ray {
             geometry: Ray3D {
                 direction: direction.get_normalized(),
                 origin: self.view.view_point,
-            }, 
-            refraction_index: 1.
-            // time: sample.time,
+            },
+            refraction_index: 1., // time: sample.time,
         };
 
         // return
@@ -147,8 +143,6 @@ impl PinholeCam {
         &self.view
     }
 }
-
-
 
 #[cfg(test)]
 mod tests {

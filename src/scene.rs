@@ -19,21 +19,16 @@ SOFTWARE.
 */
 
 // use std::rc::RefCount;
-use crate::Float;
-use crate::material::{Material};
-use crate::interaction::{Interaction};
-use geometry3d::{
-    Ray3D
-};
-use crate::ray::Ray;
 use crate::bvh::BoundingVolumeTree;
-use crate::primitive::Primitive;
 use crate::from_simple_model::SimpleModelReader;
+use crate::interaction::Interaction;
+use crate::material::Material;
+use crate::primitive::Primitive;
+use crate::ray::Ray;
+use crate::Float;
+use geometry3d::Ray3D;
 // type Texture = fn(Float,Float)->Float;
-use simple_model::{
-    SimpleModel,
-    Substance
-};
+use simple_model::{SimpleModel, Substance};
 
 #[derive(Clone)]
 pub struct Object {
@@ -43,16 +38,13 @@ pub struct Object {
     // pub texture: Option<RefCount<Transform>>,
 }
 
-
-
-
 #[derive(Default)]
 pub struct Scene {
     /// Objects in the scene that are not tested
     /// directly for shadow (e.g., non-luminous objects
     /// and diffuse light)
     pub objects: Vec<Object>,
-    
+
     /// The materials in the scene
     pub materials: Vec<Material>,
 
@@ -68,8 +60,7 @@ pub struct Scene {
     // pub transforms: Vec<RefCount<Transform>>,
 
     // pub textures: Vec<RefCount<Texture>>,
-
-    pub accelerator: Option<BoundingVolumeTree>
+    pub accelerator: Option<BoundingVolumeTree>,
 }
 
 pub enum Wavelengths {
@@ -78,15 +69,13 @@ pub enum Wavelengths {
 }
 
 impl Scene {
-
-
     /// Creates a new `Scene` from a `SimpleModel`. The `enum` `Wavelengths`
     /// can be used to create a `Visible` or a `Solar` model, for calculating
     /// Lighting or Solar Radiation, respectively.
-    pub fn from_simple_model(model: &SimpleModel, wavelength: Wavelengths)->Self{
+    pub fn from_simple_model(model: &SimpleModel, wavelength: Wavelengths) -> Self {
         let mut reader = SimpleModelReader::default();
         reader.build_scene(model, &wavelength)
-    }    
+    }
 
     /// Creates an empty scene
     pub fn new() -> Self {
@@ -94,62 +83,58 @@ impl Scene {
     }
 
     /// Builds the accelerator
-    pub fn build_accelerator(&mut self){
+    pub fn build_accelerator(&mut self) {
         let accelerator = BoundingVolumeTree::new(self);
         self.accelerator = Some(accelerator);
     }
 
-    /// Returns the number of total lights; that is, 
-    /// those in the `lighs` field and those in the `distant_lights` 
+    /// Returns the number of total lights; that is,
+    /// those in the `lighs` field and those in the `distant_lights`
     /// one
-    pub fn count_all_lights(&self)->usize{
+    pub fn count_all_lights(&self) -> usize {
         self.lights.len() + self.distant_lights.len()
     }
 
-   
     /// Casts a [`Ray3D`] and returns an `Option<(Float,SurfaceInteraction)>` in which the
     /// the `Float` is the distance  that the [`Ray3D`] travelled to it.    
-    pub fn cast_ray(&self, ray: &Ray) -> Option<(Float,Interaction)> {
-        
-        let accelerator = match &self.accelerator{
-            Some(s)=>s,
-            None =>{panic!("Trying to cast ray in a Scene without an accelerator");}            
+    pub fn cast_ray(&self, ray: &Ray) -> Option<(Float, Interaction)> {
+        let accelerator = match &self.accelerator {
+            Some(s) => s,
+            None => {
+                panic!("Trying to cast ray in a Scene without an accelerator");
+            }
         };
 
         // Check if we intersect something... otherwise, check distant sources
         let res = accelerator.intersect(&self.objects, &ray.geometry);
-        if res.is_some(){
+        if res.is_some() {
             res
-        }else{        
+        } else {
             None
-        }       
+        }
     }
 
-    
-
     /// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface
-    pub fn unobstructed_distance(&self, ray: &Ray3D, distance: Float) -> bool {
-        let accelerator = match &self.accelerator{
-            Some(s)=>s,
-            None =>{panic!("Trying to cast ray in a Scene without an accelerator");}            
+    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float) -> bool {
+        let accelerator = match &self.accelerator {
+            Some(s) => s,
+            None => {
+                panic!("Trying to cast ray in a Scene without an accelerator");
+            }
         };
 
         // Check if we intersect something... otherwise, check distant sources
-        accelerator.unobstructed_distance(&self.objects, ray, distance)            
+        accelerator.unobstructed_distance(&self.objects, ray, distance_squared)
     }
 
-    
-
     /// Pushes a [`Material`] to the [`Scene`] and return its
-    /// position in the `materials` Vector. 
-    pub fn push_material(&mut self, material: Material) -> usize {        
+    /// position in the `materials` Vector.
+    pub fn push_material(&mut self, material: Material) -> usize {
         self.materials.push(material);
         // return
         self.materials.len() - 1
     }
 
-
-    
     /// Pushes an [`Object`] into the [`Scene`]
     pub fn push_object(
         &mut self,
@@ -171,28 +156,25 @@ impl Scene {
             front_material_index,
             back_material_index,
             primitive,
-            
-            // texture: None,            
+            // texture: None,
         };
 
-        
         // Mark as source
         if self.materials[front_material_index].emits_direct_light()
             || self.materials[back_material_index].emits_direct_light()
         {
-            
             // I know this is not very fast... but we will
             // only do this while creating the scene, not while
             // rendering
-            if ob_id == "source"{                 
+            if ob_id == "source" {
                 self.distant_lights.push(object);
-            }else{                
+            } else {
                 // register object as light
                 self.lights.push(object.clone());
                 // Push object
                 self.objects.push(object)
-            }        
-        }else{
+            }
+        } else {
             // Push
             self.objects.push(object);
         }
@@ -200,16 +182,11 @@ impl Scene {
         // return
         this_index
     }
-
-    
-
-    
 }
 
 #[cfg(test)]
 mod tests {
 
-    
     // #[test]
     // fn test_push_material() {
     //     // Add a material
@@ -217,9 +194,9 @@ mod tests {
     //     // Add the material again
 
     //     // The number of materials should be 1.
-        
+
     //     // Both indexes should be the same (1)
-        
+
     //     assert!(false)
     // }
 }
