@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RGBSpectrum",""]],"type":[["ColourMatrix",""],["Spectrum",""]]});
+initSidebarItems({"struct":[["RGBSpectrum",""]],"type":[["Spectrum",""]]});

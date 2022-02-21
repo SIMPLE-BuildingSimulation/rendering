@@ -387,6 +387,12 @@
 <span id="352">352</span>
 <span id="353">353</span>
 <span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
+<span id="359">359</span>
+<span id="360">360</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -407,22 +413,16 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-
-
-
-
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
-
-
 
 <span class="comment">// // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/</span>
-<span class="comment">// // The problem with these functions is that, due to their errors, they </span>
+<span class="comment">// // The problem with these functions is that, due to their errors, they</span>
 <span class="comment">// // produce a lot of &quot;Missed light&quot; situations and the renders</span>
 <span class="comment">// // become all weird.</span>
 <span class="comment">// // /// Approximates `cos(x)` in radians with a maximum error of `0.002`.</span>
-<span class="comment">// fn fast_cos(mut x: Float) -&gt; Float {    </span>
+<span class="comment">// fn fast_cos(mut x: Float) -&gt; Float {</span>
 <span class="comment">//     x *= 1./ (2. * crate::PI);</span>
 <span class="comment">//     x -= 0.25 + (x + 0.25).floor();</span>
 <span class="comment">//     x *= 16.0 * (x.abs() - 0.5);</span>
@@ -434,21 +434,20 @@ SOFTWARE.
 <span class="comment">//     fast_cos(x - crate::PI / 2.0)</span>
 <span class="comment">// }</span>
 
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_triangle</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,<span class="ident">a</span>:<span class="ident">Point3D</span>,<span class="ident">b</span>:<span class="ident">Point3D</span>,<span class="ident">c</span>:<span class="ident">Point3D</span>)-&gt;<span class="ident">Point3D</span>{
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_triangle</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>, <span class="ident">a</span>: <span class="ident">Point3D</span>, <span class="ident">b</span>: <span class="ident">Point3D</span>, <span class="ident">c</span>: <span class="ident">Point3D</span>) -&gt; <span class="ident">Point3D</span> {
     <span class="kw">let</span> (<span class="ident">rand1</span>, <span class="ident">rand2</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
     <span class="comment">// let rand1 : Float = rng.gen();</span>
     <span class="comment">// let rand2 : Float = rng.gen();</span>
     <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> <span class="ident">rand1</span>.<span class="ident">sqrt</span>();
     <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">aux</span>;
-    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">rand2</span><span class="kw-2">*</span><span class="ident">aux</span>;
-    <span class="kw">let</span> <span class="ident">v1</span> <span class="op">=</span> <span class="ident">b</span><span class="op">-</span><span class="ident">a</span>;
-    <span class="kw">let</span> <span class="ident">v2</span> <span class="op">=</span> <span class="ident">c</span><span class="op">-</span><span class="ident">a</span>;
+    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">rand2</span> <span class="op">*</span> <span class="ident">aux</span>;
+    <span class="kw">let</span> <span class="ident">v1</span> <span class="op">=</span> <span class="ident">b</span> <span class="op">-</span> <span class="ident">a</span>;
+    <span class="kw">let</span> <span class="ident">v2</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">-</span> <span class="ident">a</span>;
     <span class="comment">// return</span>
     <span class="ident">a</span> <span class="op">+</span> <span class="ident">v1</span> <span class="op">*</span> <span class="ident">u</span> <span class="op">+</span> <span class="ident">v2</span> <span class="op">*</span> <span class="ident">v</span>
 }
 
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HorizontalDiskUniformSampler</span>{
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HorizontalDiskUniformSampler</span> {
     <span class="ident">n_samples</span>: <span class="ident">usize</span>,
     <span class="ident">i</span>: <span class="ident">usize</span>,
     <span class="ident">rng</span>: <span class="ident">RandGen</span>,
@@ -456,8 +455,8 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">HorizontalDiskUniformSampler</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">radius</span>: <span class="ident">Float</span>, <span class="ident">n_samples</span>: <span class="ident">usize</span>)-&gt;<span class="self">Self</span>{
-        <span class="self">Self</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">radius</span>: <span class="ident">Float</span>, <span class="ident">n_samples</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="ident">i</span>: <span class="number">0</span>,
             <span class="ident">rng</span>: <span class="ident">get_rng</span>(),
             <span class="ident">radius</span>,
@@ -466,50 +465,47 @@ SOFTWARE.
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">HorizontalDiskUniformSampler</span>{
+<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">HorizontalDiskUniformSampler</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> (<span class="ident">f32</span>, <span class="ident">f32</span>);
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>)-&gt;<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>{
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">n_samples</span> <span class="op">==</span> <span class="self">self</span>.<span class="ident">i</span> {
-            <span class="kw">return</span> <span class="prelude-val">None</span>
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
         <span class="self">self</span>.<span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="prelude-val">Some</span>(<span class="ident">uniform_sample_horizontal_disc</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>.<span class="ident">rng</span>, <span class="self">self</span>.<span class="ident">radius</span>))
     }
 }
 
-
-
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>, <span class="ident">radius</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">f32</span>, <span class="ident">f32</span>) {
-    
     <span class="comment">// Accurate, non-rejection</span>
-    <span class="comment">// sqrt() and cos() and sin() are </span>
-    <span class="comment">// much faster in f32... that is why I am doing </span>
+    <span class="comment">// sqrt() and cos() and sin() are</span>
+    <span class="comment">// much faster in f32... that is why I am doing</span>
     <span class="comment">// this.</span>
     <span class="comment">// let (r, theta): (f32, f32) = rng.gen();</span>
-    
+
     <span class="comment">// let r = radius as f32 * r.sqrt();</span>
     <span class="comment">// let theta = 2. * std::f32::consts::PI * theta;</span>
     <span class="comment">// let (theta_sin, theta_cos) = theta.sin_cos();</span>
-    
+
     <span class="comment">// let local_x = r * theta_sin;</span>
     <span class="comment">// let local_y = r * theta_cos;</span>
     <span class="comment">// (local_x, local_y)</span>
 
     <span class="comment">// rejection sampling</span>
-    <span class="kw">const</span> <span class="ident">MAX_ITER</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">30</span>;
+    <span class="kw">const</span> <span class="ident">MAX_ITER</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">30</span>;
     <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">MAX_ITER</span> {
-
-        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x</span>, <span class="kw-2">mut</span> <span class="ident">y</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>(); 
-        <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
-        <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span><span class="kw-2">*</span><span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
-        <span class="kw">let</span> <span class="ident">found_rsq</span> <span class="op">=</span> <span class="ident">x</span><span class="kw-2">*</span><span class="ident">x</span><span class="op">+</span><span class="ident">y</span><span class="kw-2">*</span><span class="ident">y</span>;
-        <span class="kw">if</span> <span class="ident">found_rsq</span> <span class="op">&lt;</span> <span class="ident">radius</span><span class="kw-2">*</span><span class="ident">radius</span> {
-            <span class="kw">return</span> (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>,<span class="ident">y</span> <span class="kw">as</span> <span class="ident">f32</span>)
+        <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x</span>, <span class="kw-2">mut</span> <span class="ident">y</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+        <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
+        <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="number">2.0</span> <span class="op">*</span> <span class="ident">radius</span>, <span class="op">-</span><span class="ident">radius</span>);
+        <span class="kw">let</span> <span class="ident">found_rsq</span> <span class="op">=</span> <span class="ident">x</span> <span class="op">*</span> <span class="ident">x</span> <span class="op">+</span> <span class="ident">y</span> <span class="op">*</span> <span class="ident">y</span>;
+        <span class="kw">if</span> <span class="ident">found_rsq</span> <span class="op">&lt;</span> <span class="ident">radius</span> <span class="op">*</span> <span class="ident">radius</span> {
+            <span class="kw">return</span> (<span class="ident">x</span> <span class="kw">as</span> <span class="ident">f32</span>, <span class="ident">y</span> <span class="kw">as</span> <span class="ident">f32</span>);
         }
     }
-    <span class="macro">panic!</span>(<span class="string">&quot;Exceeded maximum iterations ({}) when uniform_sample_horizontal_disc()&quot;</span>, <span class="ident">MAX_ITER</span>);
-
-
+    <span class="macro">panic!</span>(
+        <span class="string">&quot;Exceeded maximum iterations ({}) when uniform_sample_horizontal_disc()&quot;</span>,
+        <span class="ident">MAX_ITER</span>
+    );
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_to_world</span>(
@@ -519,91 +515,100 @@ SOFTWARE.
     <span class="ident">centre</span>: <span class="ident">Point3D</span>,
     <span class="ident">x_local</span>: <span class="ident">Float</span>,
     <span class="ident">y_local</span>: <span class="ident">Float</span>,
-    <span class="ident">z_local</span>: <span class="ident">Float</span>,    
-
+    <span class="ident">z_local</span>: <span class="ident">Float</span>,
 ) -&gt; (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>) {
-
     <span class="comment">// Check that they are normalized</span>
     <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">local_e1</span>.<span class="ident">length_squared</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-4</span>);
     <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">local_e2</span>.<span class="ident">length_squared</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-4</span>);
     <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">normal</span>.<span class="ident">length_squared</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-4</span>);
-    
-    
-    <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">centre</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">x_local</span> <span class="op">*</span> <span class="ident">local_e1</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">y_local</span><span class="kw-2">*</span><span class="ident">local_e2</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">z_local</span> <span class="op">*</span> <span class="ident">normal</span>.<span class="ident">x</span>;
-    <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">centre</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">x_local</span> <span class="op">*</span> <span class="ident">local_e1</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">y_local</span><span class="kw-2">*</span><span class="ident">local_e2</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">z_local</span> <span class="op">*</span> <span class="ident">normal</span>.<span class="ident">y</span>;
-    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">centre</span>.<span class="ident">z</span> <span class="op">+</span> <span class="ident">x_local</span> <span class="op">*</span> <span class="ident">local_e1</span>.<span class="ident">z</span> <span class="op">+</span> <span class="ident">y_local</span><span class="kw-2">*</span><span class="ident">local_e2</span>.<span class="ident">z</span> <span class="op">+</span> <span class="ident">z_local</span> <span class="op">*</span> <span class="ident">normal</span>.<span class="ident">z</span>;
+
+    <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">centre</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">x_local</span> <span class="op">*</span> <span class="ident">local_e1</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">y_local</span> <span class="op">*</span> <span class="ident">local_e2</span>.<span class="ident">x</span> <span class="op">+</span> <span class="ident">z_local</span> <span class="op">*</span> <span class="ident">normal</span>.<span class="ident">x</span>;
+    <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">centre</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">x_local</span> <span class="op">*</span> <span class="ident">local_e1</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">y_local</span> <span class="op">*</span> <span class="ident">local_e2</span>.<span class="ident">y</span> <span class="op">+</span> <span class="ident">z_local</span> <span class="op">*</span> <span class="ident">normal</span>.<span class="ident">y</span>;
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">centre</span>.<span class="ident">z</span> <span class="op">+</span> <span class="ident">x_local</span> <span class="op">*</span> <span class="ident">local_e1</span>.<span class="ident">z</span> <span class="op">+</span> <span class="ident">y_local</span> <span class="op">*</span> <span class="ident">local_e2</span>.<span class="ident">z</span> <span class="op">+</span> <span class="ident">z_local</span> <span class="op">*</span> <span class="ident">normal</span>.<span class="ident">z</span>;
 
     (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
-
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HorizontalCosineWeightedHemisphereSampler</span>{            
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HorizontalCosineWeightedHemisphereSampler</span> {
     <span class="ident">disk_sampler</span>: <span class="ident">HorizontalDiskUniformSampler</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">HorizontalCosineWeightedHemisphereSampler</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">n_samples</span>: <span class="ident">usize</span>)-&gt;<span class="self">Self</span>{
-        <span class="self">Self</span>{            
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">n_samples</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="ident">disk_sampler</span>: <span class="ident">HorizontalDiskUniformSampler::new</span>(<span class="number">1.</span>, <span class="ident">n_samples</span>),
         }
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">HorizontalCosineWeightedHemisphereSampler</span>{
+<span class="kw">impl</span> <span class="ident">Iterator</span> <span class="kw">for</span> <span class="ident">HorizontalCosineWeightedHemisphereSampler</span> {
     <span class="kw">type</span> <span class="ident">Item</span> <span class="op">=</span> <span class="ident">Vector3D</span>;
-    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>)-&gt;<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span>{
+    <span class="kw">fn</span> <span class="ident">next</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident"><span class="self">Self</span>::Item</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">local_x</span>, <span class="ident">local_y</span>)) <span class="op">=</span> <span class="self">self</span>.<span class="ident">disk_sampler</span>.<span class="ident">next</span>() {
             <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">local_x</span> <span class="op">*</span> <span class="ident">local_x</span> <span class="op">-</span> <span class="ident">local_y</span> <span class="op">*</span> <span class="ident">local_y</span>).<span class="ident">sqrt</span>();
             <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>);
             <span class="prelude-val">Some</span>(<span class="ident">ret</span>)
-        }<span class="kw">else</span>{
+        } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
 }
 
-
 <span class="doccomment">/// Gets a random `Vector3D`, distributed according to `cos(theta)` according</span>
 <span class="doccomment">/// to a normal `Vector3D(0,0,1)`</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_cosine_weighted_horizontal_hemisphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>) -&gt; <span class="ident">Vector3D</span> {
-    
     <span class="kw">let</span> (<span class="ident">local_x</span>, <span class="ident">local_y</span>) <span class="op">=</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>, <span class="number">1.</span>);
     <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> (<span class="ident">local_x</span> <span class="op">*</span> <span class="ident">local_x</span> <span class="op">+</span> <span class="ident">local_y</span> <span class="op">*</span> <span class="ident">local_y</span>).<span class="ident">clamp</span>(<span class="number">0.</span>, <span class="number">1.</span>);
-    <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">aux</span>).<span class="ident">sqrt</span>();    
+    <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">aux</span>).<span class="ident">sqrt</span>();
     <span class="ident">Vector3D::new</span>(<span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>)
 }
 
-
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>, <span class="ident">e1</span>: <span class="ident">Vector3D</span>, <span class="ident">e2</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Vector3D</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_hemisphere</span>(
+    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
+    <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+) -&gt; <span class="ident">Vector3D</span> {
     <span class="comment">// Calculate in</span>
-    
+
     <span class="kw">let</span> (<span class="ident">rand1</span>, <span class="ident">rand2</span>): (<span class="ident">f32</span>, <span class="ident">f32</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
     <span class="comment">// let rand2: f32 = rng.gen();</span>
-    <span class="kw">let</span> <span class="ident">sq</span>  <span class="op">=</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">rand1</span> <span class="op">*</span> <span class="ident">rand1</span>).<span class="ident">sqrt</span>();
-    <span class="kw">let</span> <span class="ident">pie2</span>  <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">std::f32::consts::PI</span> <span class="op">*</span> <span class="ident">rand2</span>;
+    <span class="kw">let</span> <span class="ident">sq</span> <span class="op">=</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">rand1</span> <span class="op">*</span> <span class="ident">rand1</span>).<span class="ident">sqrt</span>();
+    <span class="kw">let</span> <span class="ident">pie2</span> <span class="op">=</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">std::f32::consts::PI</span> <span class="op">*</span> <span class="ident">rand2</span>;
     <span class="kw">let</span> (<span class="ident">pie2_sin</span>, <span class="ident">pie2_cos</span>) <span class="op">=</span> <span class="ident">pie2</span>.<span class="ident">sin_cos</span>();
     <span class="kw">let</span> <span class="ident">local_x</span> <span class="op">=</span> <span class="ident">pie2_cos</span> <span class="op">*</span> <span class="ident">sq</span>;
     <span class="kw">let</span> <span class="ident">local_y</span> <span class="op">=</span> <span class="ident">pie2_sin</span> <span class="op">*</span> <span class="ident">sq</span>;
     <span class="kw">let</span> <span class="ident">local_z</span> <span class="op">=</span> <span class="ident">rand1</span>;
 
-    <span class="comment">// Take back to world normal    </span>
-    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(<span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>,<span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>);
-    <span class="macro">debug_assert!</span>((<span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;length is {}&quot;</span>, <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>());
+    <span class="comment">// Take back to world normal</span>
+    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(
+        <span class="ident">e1</span>,
+        <span class="ident">e2</span>,
+        <span class="ident">normal</span>,
+        <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>),
+        <span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>,
+        <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>,
+        <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>,
+    );
+    <span class="macro">debug_assert!</span>(
+        (<span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+        <span class="string">&quot;length is {}&quot;</span>,
+        <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">length</span>()
+    );
     <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_sphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>)-&gt;<span class="ident">Point3D</span>{
-    <span class="kw">const</span> <span class="ident">TWO_PI</span> : <span class="ident">f32</span> <span class="op">=</span> <span class="number">2.</span><span class="kw-2">*</span><span class="ident">std::f32::consts::PI</span>;
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_sphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>) -&gt; <span class="ident">Point3D</span> {
+    <span class="kw">const</span> <span class="ident">TWO_PI</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">2.</span> <span class="op">*</span> <span class="ident">std::f32::consts::PI</span>;
     <span class="comment">// Sample a sphere of radius 1 centered at the origin</span>
-    <span class="kw">let</span> (<span class="ident">rand1</span>, <span class="ident">rand2</span>): (<span class="ident">f32</span>, <span class="ident">f32</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();    
-    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="number">2.</span><span class="kw-2">*</span><span class="ident">rand1</span>;
-    <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">z</span><span class="kw-2">*</span><span class="ident">z</span>).<span class="ident">sqrt</span>() <span class="kw">as</span> <span class="ident">Float</span>;
+    <span class="kw">let</span> (<span class="ident">rand1</span>, <span class="ident">rand2</span>): (<span class="ident">f32</span>, <span class="ident">f32</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+    <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="number">2.</span> <span class="op">*</span> <span class="ident">rand1</span>;
+    <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">z</span>).<span class="ident">sqrt</span>() <span class="kw">as</span> <span class="ident">Float</span>;
     <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">z</span> <span class="kw">as</span> <span class="ident">Float</span>;
-    <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">TWO_PI</span><span class="kw-2">*</span><span class="ident">rand2</span>).<span class="ident">cos</span>() <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">aux</span>;
-    <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> (<span class="ident">TWO_PI</span><span class="kw-2">*</span><span class="ident">rand2</span>).<span class="ident">sin</span>() <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">aux</span>;
+    <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">TWO_PI</span> <span class="op">*</span> <span class="ident">rand2</span>).<span class="ident">cos</span>() <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">aux</span>;
+    <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> (<span class="ident">TWO_PI</span> <span class="op">*</span> <span class="ident">rand2</span>).<span class="ident">sin</span>() <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">aux</span>;
 
-    <span class="ident">Point3D::new</span>(<span class="ident">x</span>,<span class="ident">y</span>,<span class="ident">z</span>)
+    <span class="ident">Point3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_disc</span>(
@@ -617,7 +622,15 @@ SOFTWARE.
     <span class="comment">// Form the basis</span>
     <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_perpendicular</span>().<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">e2</span>.<span class="ident">cross</span>(<span class="ident">normal</span>);
-    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>( <span class="ident">e1</span>,<span class="ident">e2</span>,<span class="ident">normal</span>,<span class="ident">centre</span>, <span class="ident">x_local</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">y_local</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="number">0.</span>);
+    <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(
+        <span class="ident">e1</span>,
+        <span class="ident">e2</span>,
+        <span class="ident">normal</span>,
+        <span class="ident">centre</span>,
+        <span class="ident">x_local</span> <span class="kw">as</span> <span class="ident">Float</span>,
+        <span class="ident">y_local</span> <span class="kw">as</span> <span class="ident">Float</span>,
+        <span class="number">0.</span>,
+    );
     <span class="ident">Point3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
@@ -664,14 +677,14 @@ SOFTWARE.
             <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_normalized</span>();
             <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">get_perpendicular</span>().<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">e2</span>.<span class="ident">cross</span>(<span class="ident">normal</span>);
-            
+
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
             <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">uniform_sample_hemisphere</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">normal</span>);
 
             <span class="kw">if</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">1e-5</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Sampled direction (from uniform_sample_hemisphere) was nor normalized... {} (length = {})&quot;</span>, <span class="ident">dir</span>, <span class="ident">dir</span>.<span class="ident">length</span>()));
             }
-            <span class="kw">if</span> <span class="ident">dir</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&lt;</span> <span class="op">-</span><span class="ident">Float::EPSILON</span><span class="kw-2">*</span><span class="number">30.</span> {
+            <span class="kw">if</span> <span class="ident">dir</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&lt;</span> <span class="op">-</span><span class="ident">Float::EPSILON</span> <span class="op">*</span> <span class="number">30.</span> {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Sampled direction (from uniform_sample_hemisphere) is not in hemisphere... Normal = {} | Dir = {}&quot;</span>, <span class="ident">normal</span>, <span class="ident">dir</span>));
             }
 
@@ -688,7 +701,7 @@ SOFTWARE.
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_cosine_weighted_sampling</span>(){
+    <span class="kw">fn</span> <span class="ident">test_cosine_weighted_sampling</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">99999999</span> {
             <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">sample_cosine_weighted_horizontal_hemisphere</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
@@ -696,14 +709,13 @@ SOFTWARE.
         }
     }
 
-       
     <span class="comment">// #[test]</span>
     <span class="comment">// fn test_approx_sin(){</span>
     <span class="comment">//     const MAX_ERR : Float = 0.0105;</span>
     <span class="comment">//     let mut x = 0.0;</span>
     <span class="comment">//     loop {</span>
     <span class="comment">//         if x &gt; 2.*PI {</span>
-    <span class="comment">//             break;                </span>
+    <span class="comment">//             break;</span>
     <span class="comment">//         }</span>
     <span class="comment">//         let exp = x.sin();</span>
     <span class="comment">//         let found = approx_sin(x);</span>
@@ -725,7 +737,7 @@ SOFTWARE.
     <span class="comment">//     let mut x = 0.0;</span>
     <span class="comment">//     loop {</span>
     <span class="comment">//         if x &gt; 2.*PI {</span>
-    <span class="comment">//             break;                </span>
+    <span class="comment">//             break;</span>
     <span class="comment">//         }</span>
     <span class="comment">//         let exp = x.cos();</span>
     <span class="comment">//         let found = approx_cos(x);</span>

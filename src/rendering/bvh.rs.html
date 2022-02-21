@@ -601,6 +601,54 @@
 <span id="566">566</span>
 <span id="567">567</span>
 <span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -621,30 +669,34 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-
-<span class="comment">/* 
-THIS CODE IS HEAVILY INSPIRED (rip-off?) IN 
+<span class="comment">/*
+THIS CODE IS HEAVILY INSPIRED (rip-off?) IN
 Physically Based Rendering: From Theory To Implementation, © 2004-2021 Matt Pharr, Wenzel Jakob, and Greg Humphreys
 https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies
  */</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene</span>::{<span class="ident">Scene</span>, <span class="ident">Object</span>};
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">BBox3D</span>, <span class="ident">BBoxAxis</span>, <span class="ident">Point3D</span>, <span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
-<span class="kw">use</span> <span class="ident">geometry3d::intersection::IntersectionInfo</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>, <span class="ident">ShadingInfo</span>, <span class="ident">SurfaceInteractionData</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene</span>::{<span class="ident">Object</span>, <span class="ident">Scene</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
+<span class="kw">use</span> <span class="ident">geometry3d::intersection::IntersectionInfo</span>;
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">BBox3D</span>, <span class="ident">BBoxAxis</span>, <span class="ident">Point3D</span>, <span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
 <span class="kw">use</span> <span class="ident">std::cmp::Ordering</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>, <span class="ident">SurfaceInteractionData</span>, <span class="ident">ShadingInfo</span>};
-
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">struct</span> <span class="ident">BucketInfo</span>{
+<span class="kw">struct</span> <span class="ident">BucketInfo</span> {
     <span class="ident">count</span>: <span class="ident">usize</span>,
     <span class="ident">bounds</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BBox3D</span><span class="op">&gt;</span>,
 }
 
-<span class="kw">fn</span> <span class="ident">get_bucket_index</span>(<span class="ident">centroid</span>: <span class="ident">Point3D</span>, <span class="ident">len_axis</span>: <span class="ident">Float</span>, <span class="ident">split_axis</span>: <span class="ident">BBoxAxis</span>, <span class="ident">n_buckets</span>: <span class="ident">usize</span>, <span class="ident">min_centroid</span>: <span class="ident">Point3D</span>)-&gt;<span class="ident">usize</span>{
+<span class="kw">fn</span> <span class="ident">get_bucket_index</span>(
+    <span class="ident">centroid</span>: <span class="ident">Point3D</span>,
+    <span class="ident">len_axis</span>: <span class="ident">Float</span>,
+    <span class="ident">split_axis</span>: <span class="ident">BBoxAxis</span>,
+    <span class="ident">n_buckets</span>: <span class="ident">usize</span>,
+    <span class="ident">min_centroid</span>: <span class="ident">Point3D</span>,
+) -&gt; <span class="ident">usize</span> {
     <span class="comment">// Identify which bucket contains this object&#39;s centroid</span>
-    <span class="kw">let</span> (<span class="ident">centroid_pos</span>, <span class="ident">min</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">split_axis</span>{
+    <span class="kw">let</span> (<span class="ident">centroid_pos</span>, <span class="ident">min</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">split_axis</span> {
         <span class="ident">BBoxAxis::X</span> =&gt; (<span class="ident">centroid</span>.<span class="ident">x</span>, <span class="ident">min_centroid</span>.<span class="ident">x</span>),
         <span class="ident">BBoxAxis::Y</span> =&gt; (<span class="ident">centroid</span>.<span class="ident">y</span>, <span class="ident">min_centroid</span>.<span class="ident">y</span>),
         <span class="ident">BBoxAxis::Z</span> =&gt; (<span class="ident">centroid</span>.<span class="ident">z</span>, <span class="ident">min_centroid</span>.<span class="ident">z</span>),
@@ -655,35 +707,33 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
         <span class="comment">// If we are in the upper limit, this can happen</span>
         <span class="ident">bucket_index</span> <span class="op">=</span> <span class="ident">n_buckets</span> <span class="op">-</span> <span class="number">1</span>;
     }
-    
+
     <span class="ident">bucket_index</span>
 }
 
 <span class="doccomment">/// A struct that is instrumental for building the  `BoundingVolumeTree`</span>
-<span class="kw">struct</span> <span class="ident">ObjectInfo</span>{
+<span class="kw">struct</span> <span class="ident">ObjectInfo</span> {
     <span class="ident">index</span>: <span class="ident">usize</span>,
     <span class="ident">bounds</span>: <span class="ident">BBox3D</span>,
     <span class="ident">centroid</span>: <span class="ident">Point3D</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">ObjectInfo</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">index</span>: <span class="ident">usize</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>)-&gt;<span class="self">Self</span>{
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">index</span>: <span class="ident">usize</span>, <span class="ident">object</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">object</span>.<span class="ident">primitive</span>.<span class="ident">world_bounds</span>();
-        <span class="kw">let</span> <span class="ident">centroid</span> <span class="op">=</span> (<span class="ident">bounds</span>.<span class="ident">max</span> <span class="op">+</span> <span class="ident">bounds</span>.<span class="ident">min</span>)<span class="kw-2">*</span><span class="number">0.5</span>;
-        <span class="self">Self</span>{
+        <span class="kw">let</span> <span class="ident">centroid</span> <span class="op">=</span> (<span class="ident">bounds</span>.<span class="ident">max</span> <span class="op">+</span> <span class="ident">bounds</span>.<span class="ident">min</span>) <span class="op">*</span> <span class="number">0.5</span>;
+        <span class="self">Self</span> {
             <span class="ident">index</span>,
             <span class="ident">bounds</span>,
-            <span class="ident">centroid</span>,            
+            <span class="ident">centroid</span>,
         }
     }
 }
 
-
-
 <span class="kw">struct</span> <span class="ident">Leaf</span> {
     <span class="ident">bounds</span>: <span class="ident">BBox3D</span>,
     <span class="ident">n_prims</span>: <span class="ident">usize</span>,
-    <span class="ident">first_prim_offset</span>: <span class="ident">usize</span>
+    <span class="ident">first_prim_offset</span>: <span class="ident">usize</span>,
 }
 
 <span class="kw">struct</span> <span class="ident">Interior</span> {
@@ -692,80 +742,84 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
     <span class="ident">children</span>: (<span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="ident">Node</span><span class="op">&gt;</span>),
 }
 
-<span class="kw">enum</span> <span class="ident">Node</span>{
+<span class="kw">enum</span> <span class="ident">Node</span> {
     <span class="ident">Interior</span>(<span class="ident">Interior</span>),
-    <span class="ident">Leaf</span>(<span class="ident">Leaf</span>)
+    <span class="ident">Leaf</span>(<span class="ident">Leaf</span>),
 }
 
-
 <span class="kw">impl</span> <span class="ident">Node</span> {
-
-    <span class="kw">fn</span> <span class="ident">bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">BBox3D</span>{
+    <span class="kw">fn</span> <span class="ident">bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BBox3D</span> {
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Leaf</span>(<span class="ident">l</span>)=&gt;<span class="ident">l</span>.<span class="ident">bounds</span>,
-            <span class="ident"><span class="self">Self</span>::Interior</span>(<span class="ident">i</span>)=&gt;<span class="ident">i</span>.<span class="ident">bounds</span>,
+            <span class="ident"><span class="self">Self</span>::Leaf</span>(<span class="ident">l</span>) =&gt; <span class="ident">l</span>.<span class="ident">bounds</span>,
+            <span class="ident"><span class="self">Self</span>::Interior</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">bounds</span>,
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">new_leaf</span>( <span class="ident">first</span>: <span class="ident">usize</span>, <span class="ident">n_prims</span>: <span class="ident">usize</span>, <span class="ident">bounds</span>: <span class="ident">BBox3D</span> ) -&gt; <span class="self">Self</span>{
-        <span class="ident"><span class="self">Self</span>::Leaf</span>(<span class="ident">Leaf</span>{
-            <span class="ident">bounds</span>,            
+    <span class="kw">fn</span> <span class="ident">new_leaf</span>(<span class="ident">first</span>: <span class="ident">usize</span>, <span class="ident">n_prims</span>: <span class="ident">usize</span>, <span class="ident">bounds</span>: <span class="ident">BBox3D</span>) -&gt; <span class="self">Self</span> {
+        <span class="ident"><span class="self">Self</span>::Leaf</span>(<span class="ident">Leaf</span> {
+            <span class="ident">bounds</span>,
             <span class="ident">first_prim_offset</span>: <span class="ident">first</span>,
             <span class="ident">n_prims</span>,
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">new_interior</span>( <span class="ident">split_axis</span>: <span class="ident">BBoxAxis</span>, <span class="ident">child1</span>: <span class="ident">Node</span>, <span class="ident">child2</span>: <span class="ident">Node</span>) -&gt; <span class="self">Self</span>{
+    <span class="kw">fn</span> <span class="ident">new_interior</span>(<span class="ident">split_axis</span>: <span class="ident">BBoxAxis</span>, <span class="ident">child1</span>: <span class="ident">Node</span>, <span class="ident">child2</span>: <span class="ident">Node</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">BBox3D::from_union</span>(<span class="kw-2">&amp;</span><span class="ident">child1</span>.<span class="ident">bounds</span>(), <span class="kw-2">&amp;</span><span class="ident">child2</span>.<span class="ident">bounds</span>());
 
-        <span class="ident"><span class="self">Self</span>::Interior</span>(<span class="ident">Interior</span>{
+        <span class="ident"><span class="self">Self</span>::Interior</span>(<span class="ident">Interior</span> {
             <span class="ident">bounds</span>,
             <span class="ident">split_axis</span>,
-            <span class="ident">children</span>: (<span class="ident">Box::new</span>(<span class="ident">child1</span>), <span class="ident">Box::new</span>(<span class="ident">child2</span>)),            
+            <span class="ident">children</span>: (<span class="ident">Box::new</span>(<span class="ident">child1</span>), <span class="ident">Box::new</span>(<span class="ident">child2</span>)),
         })
     }
 
-    <span class="kw">fn</span> <span class="ident">recursive_build</span>(<span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>], <span class="ident">primitives_info</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">ObjectInfo</span>], <span class="ident">start</span>: <span class="ident">usize</span>, <span class="ident">end</span>: <span class="ident">usize</span>, <span class="ident">total_nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>, <span class="ident">ordered_primes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>)-&gt; <span class="self">Self</span> {
-        
-        <span class="macro">debug_assert!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">end</span> );
+    <span class="kw">fn</span> <span class="ident">recursive_build</span>(
+        <span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>],
+        <span class="ident">primitives_info</span>: <span class="kw-2">&amp;mut</span> [<span class="ident">ObjectInfo</span>],
+        <span class="ident">start</span>: <span class="ident">usize</span>,
+        <span class="ident">end</span>: <span class="ident">usize</span>,
+        <span class="ident">total_nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">usize</span>,
+        <span class="ident">ordered_primes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="macro">debug_assert!</span>(<span class="ident">start</span> <span class="op">&lt;</span> <span class="ident">end</span>);
         <span class="kw-2">*</span><span class="ident">total_nodes</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
         <span class="comment">// The whole point of most of this function is to idenfity</span>
-        <span class="comment">// the value this &#39;mid&#39; variable should have... we are creating </span>
+        <span class="comment">// the value this &#39;mid&#39; variable should have... we are creating</span>
         <span class="comment">// a binary tree, you know, so we split things in halves</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mid</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>; 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mid</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="ident">split_axis</span>: <span class="ident">BBoxAxis</span>;
-        
+
         <span class="comment">// Get a BBOX containing EVERYTHING within scope</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">primitives_info</span>[<span class="ident">start</span>].<span class="ident">bounds</span>;
         <span class="comment">// for i in start+1..end{</span>
         <span class="comment">//     bounds = BBox3D::from_union(&amp;bounds, &amp;primitives_info[i].bounds);</span>
         <span class="comment">// }</span>
-        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span><span class="op">+</span><span class="number">1</span>){
-                <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">BBox3D::from_union</span>(<span class="kw-2">&amp;</span><span class="ident">bounds</span>, <span class="kw-2">&amp;</span><span class="ident">info</span>.<span class="ident">bounds</span>);
+        <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span> <span class="op">+</span> <span class="number">1</span>) {
+            <span class="ident">bounds</span> <span class="op">=</span> <span class="ident">BBox3D::from_union</span>(<span class="kw-2">&amp;</span><span class="ident">bounds</span>, <span class="kw-2">&amp;</span><span class="ident">info</span>.<span class="ident">bounds</span>);
         }
         <span class="kw">let</span> <span class="ident">n_primitives</span> <span class="op">=</span> <span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>;
         <span class="kw">if</span> <span class="ident">n_primitives</span> <span class="op">==</span> <span class="number">1</span> {
             <span class="comment">// Create Leaf</span>
-            <span class="kw">let</span> <span class="ident">first_prim_offset</span> <span class="op">=</span> <span class="ident">ordered_primes</span>.<span class="ident">len</span>();            
-            <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>){                
+            <span class="kw">let</span> <span class="ident">first_prim_offset</span> <span class="op">=</span> <span class="ident">ordered_primes</span>.<span class="ident">len</span>();
+            <span class="kw">for</span> <span class="ident">info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>) {
                 <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">index</span>;
                 <span class="ident">ordered_primes</span>.<span class="ident">push</span>(<span class="ident">primitives</span>[<span class="ident">index</span>].<span class="ident">clone</span>())
             }
-            <span class="kw">return</span> <span class="ident">Node::new_leaf</span>(<span class="ident">first_prim_offset</span>, <span class="ident">n_primitives</span>, <span class="ident">bounds</span>)
-        } 
+            <span class="kw">return</span> <span class="ident">Node::new_leaf</span>(<span class="ident">first_prim_offset</span>, <span class="ident">n_primitives</span>, <span class="ident">bounds</span>);
+        }
 
         <span class="comment">// Calculate the the BBOX of the centroids</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">centroids_bbox</span> <span class="op">=</span> <span class="ident">BBox3D::from_point</span>(<span class="ident">primitives_info</span>[<span class="ident">start</span>].<span class="ident">centroid</span>);        
-        <span class="kw">for</span> <span class="ident">prim_info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span><span class="op">+</span><span class="number">1</span>){
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">centroids_bbox</span> <span class="op">=</span> <span class="ident">BBox3D::from_point</span>(<span class="ident">primitives_info</span>[<span class="ident">start</span>].<span class="ident">centroid</span>);
+        <span class="kw">for</span> <span class="ident">prim_info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span> <span class="op">+</span> <span class="number">1</span>) {
             <span class="ident">centroids_bbox</span> <span class="op">=</span> <span class="ident">BBox3D::from_union_point</span>(<span class="kw-2">&amp;</span><span class="ident">centroids_bbox</span>, <span class="ident">prim_info</span>.<span class="ident">centroid</span>);
         }
 
         <span class="ident">split_axis</span> <span class="op">=</span> <span class="ident">centroids_bbox</span>.<span class="ident">max_extent</span>();
         <span class="comment">// the extent of the centroids in the largest dimension</span>
         <span class="kw">let</span> <span class="ident">len_axis</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">split_axis</span> {
-            <span class="ident">BBoxAxis::X</span> =&gt; {<span class="ident">centroids_bbox</span>.<span class="ident">max</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">centroids_bbox</span>.<span class="ident">min</span>.<span class="ident">x</span>},
-            <span class="ident">BBoxAxis::Y</span> =&gt; {<span class="ident">centroids_bbox</span>.<span class="ident">max</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">centroids_bbox</span>.<span class="ident">min</span>.<span class="ident">y</span>},
-            <span class="ident">BBoxAxis::Z</span> =&gt; {<span class="ident">centroids_bbox</span>.<span class="ident">max</span>.<span class="ident">z</span> <span class="op">-</span> <span class="ident">centroids_bbox</span>.<span class="ident">min</span>.<span class="ident">z</span>},
+            <span class="ident">BBoxAxis::X</span> =&gt; <span class="ident">centroids_bbox</span>.<span class="ident">max</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">centroids_bbox</span>.<span class="ident">min</span>.<span class="ident">x</span>,
+            <span class="ident">BBoxAxis::Y</span> =&gt; <span class="ident">centroids_bbox</span>.<span class="ident">max</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">centroids_bbox</span>.<span class="ident">min</span>.<span class="ident">y</span>,
+            <span class="ident">BBoxAxis::Z</span> =&gt; <span class="ident">centroids_bbox</span>.<span class="ident">max</span>.<span class="ident">z</span> <span class="op">-</span> <span class="ident">centroids_bbox</span>.<span class="ident">min</span>.<span class="ident">z</span>,
         };
         <span class="comment">// Define some auxiliary functions</span>
         <span class="kw">let</span> <span class="ident">cmp_float</span> <span class="op">=</span> <span class="op">|</span><span class="ident">a</span>: <span class="ident">Float</span>, <span class="ident">b</span>: <span class="ident">Float</span><span class="op">|</span> -&gt; <span class="ident">Ordering</span> {
@@ -773,69 +827,86 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
                 <span class="ident">Ordering::Less</span>
             } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">a</span> <span class="op">&gt;</span> <span class="ident">b</span> {
                 <span class="ident">Ordering::Greater</span>
-            }<span class="kw">else</span>{
+            } <span class="kw">else</span> {
                 <span class="ident">Ordering::Equal</span>
             }
         };
-        <span class="kw">let</span> <span class="ident">cmp_centroids</span> <span class="op">=</span> <span class="op">|</span><span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">ObjectInfo</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">ObjectInfo</span><span class="op">|</span>-&gt;<span class="ident">Ordering</span> {
+        <span class="kw">let</span> <span class="ident">cmp_centroids</span> <span class="op">=</span> <span class="op">|</span><span class="ident">a</span>: <span class="kw-2">&amp;</span><span class="ident">ObjectInfo</span>, <span class="ident">b</span>: <span class="kw-2">&amp;</span><span class="ident">ObjectInfo</span><span class="op">|</span> -&gt; <span class="ident">Ordering</span> {
             <span class="kw">match</span> <span class="ident">split_axis</span> {
-                <span class="ident">BBoxAxis::X</span> =&gt; <span class="ident">cmp_float</span>(<span class="ident">a</span>.<span class="ident">centroid</span>.<span class="ident">x</span>, <span class="ident">b</span>.<span class="ident">centroid</span>.<span class="ident">x</span>) ,
-                <span class="ident">BBoxAxis::Y</span> =&gt; <span class="ident">cmp_float</span>(<span class="ident">a</span>.<span class="ident">centroid</span>.<span class="ident">y</span>, <span class="ident">b</span>.<span class="ident">centroid</span>.<span class="ident">y</span>) ,
-                <span class="ident">BBoxAxis::Z</span> =&gt; <span class="ident">cmp_float</span>(<span class="ident">a</span>.<span class="ident">centroid</span>.<span class="ident">z</span>, <span class="ident">b</span>.<span class="ident">centroid</span>.<span class="ident">z</span>) , 
-            }            
+                <span class="ident">BBoxAxis::X</span> =&gt; <span class="ident">cmp_float</span>(<span class="ident">a</span>.<span class="ident">centroid</span>.<span class="ident">x</span>, <span class="ident">b</span>.<span class="ident">centroid</span>.<span class="ident">x</span>),
+                <span class="ident">BBoxAxis::Y</span> =&gt; <span class="ident">cmp_float</span>(<span class="ident">a</span>.<span class="ident">centroid</span>.<span class="ident">y</span>, <span class="ident">b</span>.<span class="ident">centroid</span>.<span class="ident">y</span>),
+                <span class="ident">BBoxAxis::Z</span> =&gt; <span class="ident">cmp_float</span>(<span class="ident">a</span>.<span class="ident">centroid</span>.<span class="ident">z</span>, <span class="ident">b</span>.<span class="ident">centroid</span>.<span class="ident">z</span>),
+            }
         };
 
-        <span class="kw">const</span> <span class="ident">TOO_FEW_TO_BUCKET</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">2</span>;
-        <span class="kw">const</span> <span class="ident">N_BUCKETS</span> : <span class="ident">usize</span> <span class="op">=</span> <span class="number">12</span>;
-        <span class="kw">const</span> <span class="ident">RELATIVE_TRANSVERSAL_COST</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="number">2.</span>;
+        <span class="kw">const</span> <span class="ident">TOO_FEW_TO_BUCKET</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">2</span>;
+        <span class="kw">const</span> <span class="ident">N_BUCKETS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">12</span>;
+        <span class="kw">const</span> <span class="ident">RELATIVE_TRANSVERSAL_COST</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">2.</span>;
         <span class="comment">// Now, Proceed</span>
         <span class="kw">if</span> <span class="ident">len_axis</span> <span class="op">&lt;</span> <span class="number">1e-8</span> {
             <span class="comment">// All primitives seem to be aligned in all directions (i.e., overlapping)</span>
             <span class="comment">// Put them al together in a Leaf</span>
             <span class="kw">let</span> <span class="ident">first_prim_offset</span> <span class="op">=</span> <span class="ident">ordered_primes</span>.<span class="ident">len</span>();
             <span class="comment">// for i in start..end{</span>
-            <span class="kw">for</span> <span class="ident">prim_info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>){
+            <span class="kw">for</span> <span class="ident">prim_info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>) {
                 <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">prim_info</span>.<span class="ident">index</span>;
                 <span class="ident">ordered_primes</span>.<span class="ident">push</span>(<span class="ident">primitives</span>[<span class="ident">index</span>].<span class="ident">clone</span>())
             }
             <span class="kw">return</span> <span class="ident">Node::new_leaf</span>(<span class="ident">first_prim_offset</span>, <span class="ident">n_primitives</span>, <span class="ident">bounds</span>);
-
-        }<span class="kw">else</span>{
+        } <span class="kw">else</span> {
             <span class="comment">// Line 306 of https://github.com/mmp/pbrt-v3/blob/master/src/accelerators/bvh.cpp</span>
             <span class="kw">if</span> <span class="ident">n_primitives</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">TOO_FEW_TO_BUCKET</span> {
-                <span class="comment">// too few... just split in half, </span>
-                <span class="kw">let</span> <span class="ident">this_mid</span> <span class="op">=</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>)<span class="op">/</span><span class="number">2</span>;
-                
-                <span class="ident">mid</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">this_mid</span>); <span class="comment">// this operation rounds results                </span>
-                <span class="comment">// and sort the relevant range in the array                </span>
+                <span class="comment">// too few... just split in half,</span>
+                <span class="kw">let</span> <span class="ident">this_mid</span> <span class="op">=</span> (<span class="ident">end</span> <span class="op">-</span> <span class="ident">start</span>) <span class="op">/</span> <span class="number">2</span>;
+
+                <span class="ident">mid</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">this_mid</span>); <span class="comment">// this operation rounds results</span>
+                                      <span class="comment">// and sort the relevant range in the array</span>
                 <span class="ident">primitives_info</span>[<span class="ident">start</span>..<span class="ident">end</span>].<span class="ident">select_nth_unstable_by</span>(<span class="ident">this_mid</span>, <span class="ident">cmp_centroids</span>);
-            }<span class="kw">else</span>{
+            } <span class="kw">else</span> {
                 <span class="comment">// Use the Surface Area Heuristic...</span>
 
                 <span class="comment">// First, put all the elements in a bucket</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buckets</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BucketInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">BucketInfo</span>{<span class="ident">count</span>:<span class="number">0</span>, <span class="ident">bounds</span>:<span class="prelude-val">None</span>}; <span class="ident">N_BUCKETS</span>];
-                
-                <span class="kw">for</span> <span class="ident">prim_info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>){
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buckets</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">BucketInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
+                    <span class="ident">BucketInfo</span> {
+                        <span class="ident">count</span>: <span class="number">0</span>,
+                        <span class="ident">bounds</span>: <span class="prelude-val">None</span>
+                    };
+                    <span class="ident">N_BUCKETS</span>
+                ];
+
+                <span class="kw">for</span> <span class="ident">prim_info</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>) {
                     <span class="comment">// Identify which bucket contains this object&#39;s centroid</span>
-                    <span class="kw">let</span> <span class="ident">bucket_index</span> <span class="op">=</span> <span class="ident">get_bucket_index</span>(<span class="ident">prim_info</span>.<span class="ident">centroid</span>, <span class="ident">len_axis</span>, <span class="ident">split_axis</span>, <span class="ident">N_BUCKETS</span>, <span class="ident">centroids_bbox</span>.<span class="ident">min</span>);                    
+                    <span class="kw">let</span> <span class="ident">bucket_index</span> <span class="op">=</span> <span class="ident">get_bucket_index</span>(
+                        <span class="ident">prim_info</span>.<span class="ident">centroid</span>,
+                        <span class="ident">len_axis</span>,
+                        <span class="ident">split_axis</span>,
+                        <span class="ident">N_BUCKETS</span>,
+                        <span class="ident">centroids_bbox</span>.<span class="ident">min</span>,
+                    );
 
                     <span class="comment">// Register</span>
                     <span class="ident">buckets</span>[<span class="ident">bucket_index</span>].<span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="kw">match</span> <span class="ident">buckets</span>[<span class="ident">bucket_index</span>].<span class="ident">bounds</span> {
-                        <span class="prelude-val">Some</span>(<span class="ident">b</span>)=&gt;  {<span class="ident">buckets</span>[<span class="ident">bucket_index</span>].<span class="ident">bounds</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BBox3D::from_union_point</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>, <span class="ident">prim_info</span>.<span class="ident">centroid</span>))},
-                        <span class="prelude-val">None</span> =&gt; {<span class="ident">buckets</span>[<span class="ident">bucket_index</span>].<span class="ident">bounds</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BBox3D::from_point</span>(<span class="ident">prim_info</span>.<span class="ident">centroid</span>))}
+                        <span class="prelude-val">Some</span>(<span class="ident">b</span>) =&gt; {
+                            <span class="ident">buckets</span>[<span class="ident">bucket_index</span>].<span class="ident">bounds</span> <span class="op">=</span>
+                                <span class="prelude-val">Some</span>(<span class="ident">BBox3D::from_union_point</span>(<span class="kw-2">&amp;</span><span class="ident">b</span>, <span class="ident">prim_info</span>.<span class="ident">centroid</span>))
+                        }
+                        <span class="prelude-val">None</span> =&gt; {
+                            <span class="ident">buckets</span>[<span class="ident">bucket_index</span>].<span class="ident">bounds</span> <span class="op">=</span>
+                                <span class="prelude-val">Some</span>(<span class="ident">BBox3D::from_point</span>(<span class="ident">prim_info</span>.<span class="ident">centroid</span>))
+                        }
                     }
                 }
 
                 <span class="comment">// Compute costs of splitting after each bucket</span>
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">min_cost</span> <span class="op">=</span> <span class="ident">Float::MAX</span>;
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">min_cost_bucket</span> <span class="op">=</span> <span class="number">0</span>;
-                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">N_BUCKETS</span><span class="op">-</span><span class="number">1</span> {
+                <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">N_BUCKETS</span> <span class="op">-</span> <span class="number">1</span> {
                     <span class="comment">// Properties before... initialize as first bucket</span>
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">before</span> <span class="op">=</span> <span class="ident">buckets</span>[<span class="number">0</span>].<span class="ident">bounds</span>.<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_before</span> <span class="op">=</span> <span class="ident">buckets</span>[<span class="number">0</span>].<span class="ident">count</span>;
-                    
-                    <span class="kw">for</span> <span class="ident">bucket</span> <span class="kw">in</span> <span class="ident">buckets</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">i</span><span class="op">+</span><span class="number">1</span>).<span class="ident">skip</span>(<span class="number">1</span>){
+
+                    <span class="kw">for</span> <span class="ident">bucket</span> <span class="kw">in</span> <span class="ident">buckets</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>).<span class="ident">skip</span>(<span class="number">1</span>) {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">bounds</span> {
                             <span class="ident">before</span> <span class="op">=</span> <span class="ident">BBox3D::from_union</span>(<span class="kw-2">&amp;</span><span class="ident">before</span>, <span class="ident">b</span>);
                             <span class="ident">count_before</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bucket</span>.<span class="ident">count</span>;
@@ -845,58 +916,76 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">after</span> <span class="op">=</span> <span class="ident">buckets</span>[<span class="ident">N_BUCKETS</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">bounds</span>.<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count_after</span> <span class="op">=</span> <span class="ident">buckets</span>[<span class="ident">N_BUCKETS</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">count</span>;
                     <span class="comment">// for j in (i+1)..(N_BUCKETS-1){</span>
-                    <span class="kw">for</span> <span class="ident">bucket</span> <span class="kw">in</span> <span class="ident">buckets</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">N_BUCKETS</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">skip</span>(<span class="ident">i</span><span class="op">+</span><span class="number">1</span>){
+                    <span class="kw">for</span> <span class="ident">bucket</span> <span class="kw">in</span> <span class="ident">buckets</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">N_BUCKETS</span> <span class="op">-</span> <span class="number">1</span>).<span class="ident">skip</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>) {
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">b</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">bucket</span>.<span class="ident">bounds</span> {
                             <span class="ident">after</span> <span class="op">=</span> <span class="ident">BBox3D::from_union</span>(<span class="kw-2">&amp;</span><span class="ident">after</span>, <span class="ident">b</span>);
                             <span class="ident">count_after</span> <span class="op">+</span><span class="op">=</span> <span class="ident">bucket</span>.<span class="ident">count</span>;
                         }
                     }
 
-                    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">RELATIVE_TRANSVERSAL_COST</span> <span class="op">+</span> (<span class="ident">count_before</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">before</span>.<span class="ident">surface_area</span>() <span class="op">+</span> <span class="ident">count_after</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">after</span>.<span class="ident">surface_area</span>())<span class="op">/</span><span class="ident">bounds</span>.<span class="ident">surface_area</span>();                    
-                    <span class="kw">if</span> <span class="ident">c</span> <span class="op">&lt;</span> <span class="ident">min_cost</span>{
+                    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">RELATIVE_TRANSVERSAL_COST</span>
+                        <span class="op">+</span> (<span class="ident">count_before</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">before</span>.<span class="ident">surface_area</span>()
+                            <span class="op">+</span> <span class="ident">count_after</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">after</span>.<span class="ident">surface_area</span>())
+                            <span class="op">/</span> <span class="ident">bounds</span>.<span class="ident">surface_area</span>();
+                    <span class="kw">if</span> <span class="ident">c</span> <span class="op">&lt;</span> <span class="ident">min_cost</span> {
                         <span class="ident">min_cost</span> <span class="op">=</span> <span class="ident">c</span>;
-                        <span class="ident">min_cost_bucket</span> <span class="op">=</span> <span class="ident">i</span>;                            
+                        <span class="ident">min_cost_bucket</span> <span class="op">=</span> <span class="ident">i</span>;
                     }
-                }<span class="comment">// end of calculating bucket&#39;s costs</span>
-                
-                
+                } <span class="comment">// end of calculating bucket&#39;s costs</span>
+
                 <span class="comment">// Decide whether to keep splitting or not.</span>
                 <span class="kw">let</span> <span class="ident">leaf_cost</span> <span class="op">=</span> <span class="ident">n_primitives</span> <span class="kw">as</span> <span class="ident">Float</span>;
                 <span class="kw">if</span> <span class="ident">n_primitives</span> <span class="op">&gt;</span> <span class="number">24</span> <span class="op">|</span><span class="op">|</span> <span class="ident">min_cost</span> <span class="op">&lt;</span> <span class="ident">leaf_cost</span> {
                     <span class="comment">// We need or want to subdivide... create interior</span>
-                    
+
                     <span class="comment">// Sort based on centroid position</span>
                     <span class="ident">primitives_info</span>[<span class="ident">start</span>..<span class="ident">end</span>].<span class="ident">sort_unstable_by</span>(<span class="ident">cmp_centroids</span>);
-                    <span class="comment">// Identify the first primitive that is </span>
-                    <span class="kw">for</span> (<span class="ident">index</span>,<span class="ident">i</span>) <span class="kw">in</span> (<span class="ident">start</span>..<span class="ident">end</span>).<span class="ident">into_iter</span>().<span class="ident">enumerate</span>(){
-                        <span class="kw">let</span> <span class="ident">bucket_index</span> <span class="op">=</span> <span class="ident">get_bucket_index</span>(<span class="ident">primitives_info</span>[<span class="ident">i</span>].<span class="ident">centroid</span>, <span class="ident">len_axis</span>, <span class="ident">split_axis</span>, <span class="ident">N_BUCKETS</span>, <span class="ident">centroids_bbox</span>.<span class="ident">min</span>);
-                        <span class="kw">if</span> <span class="ident">bucket_index</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">min_cost_bucket</span> {                            
-                            <span class="ident">mid</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">index</span><span class="op">+</span><span class="number">1</span>) <span class="comment">// update mid.</span>
-                        }<span class="kw">else</span>{
-                            <span class="kw">break</span> <span class="comment">// we are past (these are sorted)... just break and prepare to return.</span>
+                    <span class="comment">// Identify the first primitive that is</span>
+                    <span class="kw">for</span> (<span class="ident">index</span>, <span class="ident">i</span>) <span class="kw">in</span> (<span class="ident">start</span>..<span class="ident">end</span>).<span class="ident">into_iter</span>().<span class="ident">enumerate</span>() {
+                        <span class="kw">let</span> <span class="ident">bucket_index</span> <span class="op">=</span> <span class="ident">get_bucket_index</span>(
+                            <span class="ident">primitives_info</span>[<span class="ident">i</span>].<span class="ident">centroid</span>,
+                            <span class="ident">len_axis</span>,
+                            <span class="ident">split_axis</span>,
+                            <span class="ident">N_BUCKETS</span>,
+                            <span class="ident">centroids_bbox</span>.<span class="ident">min</span>,
+                        );
+                        <span class="kw">if</span> <span class="ident">bucket_index</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">min_cost_bucket</span> {
+                            <span class="ident">mid</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">index</span> <span class="op">+</span> <span class="number">1</span>) <span class="comment">// update mid.</span>
+                        } <span class="kw">else</span> {
+                            <span class="kw">break</span>; <span class="comment">// we are past (these are sorted)... just break and prepare to return.</span>
                         }
                     }
-                }<span class="kw">else</span>{
+                } <span class="kw">else</span> {
                     <span class="comment">// Don&#39;t subdivide... create leaf</span>
                     <span class="kw">let</span> <span class="ident">first</span> <span class="op">=</span> <span class="ident">ordered_primes</span>.<span class="ident">len</span>();
-                    <span class="kw">let</span> <span class="ident">n_prims</span> <span class="op">=</span> <span class="ident">n_primitives</span>;                    
-                    <span class="kw">for</span> <span class="ident">prim</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>){
+                    <span class="kw">let</span> <span class="ident">n_prims</span> <span class="op">=</span> <span class="ident">n_primitives</span>;
+                    <span class="kw">for</span> <span class="ident">prim</span> <span class="kw">in</span> <span class="ident">primitives_info</span>.<span class="ident">iter</span>().<span class="ident">take</span>(<span class="ident">end</span>).<span class="ident">skip</span>(<span class="ident">start</span>) {
                         <span class="kw">let</span> <span class="ident">prim_num</span> <span class="op">=</span> <span class="ident">prim</span>.<span class="ident">index</span>;
                         <span class="ident">ordered_primes</span>.<span class="ident">push</span>(<span class="ident">primitives</span>[<span class="ident">prim_num</span>].<span class="ident">clone</span>());
                     }
                     <span class="kw">return</span> <span class="ident">Node::new_leaf</span>(<span class="ident">first</span>, <span class="ident">n_prims</span>, <span class="ident">bounds</span>);
                 }
-                
             }
         }
         <span class="comment">// If we have not returned a Leaf yet... split!</span>
         <span class="kw">let</span> <span class="ident">mid</span> <span class="op">=</span> <span class="ident">mid</span>.<span class="ident">unwrap</span>() <span class="op">+</span> <span class="ident">start</span>;
-        <span class="kw">let</span> <span class="ident">child1</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::recursive_build</span>(<span class="ident">primitives</span>, <span class="ident">primitives_info</span>, <span class="ident">start</span>, <span class="ident">mid</span>, <span class="ident">total_nodes</span>, <span class="ident">ordered_primes</span>);
-        <span class="kw">let</span> <span class="ident">child2</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::recursive_build</span>(<span class="ident">primitives</span>, <span class="ident">primitives_info</span>, <span class="ident">mid</span>, <span class="ident">end</span>, <span class="ident">total_nodes</span>, <span class="ident">ordered_primes</span>);
+        <span class="kw">let</span> <span class="ident">child1</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::recursive_build</span>(
+            <span class="ident">primitives</span>,
+            <span class="ident">primitives_info</span>,
+            <span class="ident">start</span>,
+            <span class="ident">mid</span>,
+            <span class="ident">total_nodes</span>,
+            <span class="ident">ordered_primes</span>,
+        );
+        <span class="kw">let</span> <span class="ident">child2</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::recursive_build</span>(
+            <span class="ident">primitives</span>,
+            <span class="ident">primitives_info</span>,
+            <span class="ident">mid</span>,
+            <span class="ident">end</span>,
+            <span class="ident">total_nodes</span>,
+            <span class="ident">ordered_primes</span>,
+        );
         <span class="ident">Node::new_interior</span>(<span class="ident">split_axis</span>, <span class="ident">child1</span>, <span class="ident">child2</span>)
-        
-    
-
     }
 }
 
@@ -906,86 +995,92 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
     <span class="ident">bounds</span>: <span class="ident">BBox3D</span>,
     <span class="ident">axis</span>: <span class="ident">BBoxAxis</span>,
 }
-<span class="kw">enum</span> <span class="ident">FlatNode</span>{
+<span class="kw">enum</span> <span class="ident">FlatNode</span> {
     <span class="ident">Interior</span>(<span class="ident">FlatInterior</span>),
-    <span class="ident">Leaf</span>(<span class="ident">FlatLeaf</span>)
+    <span class="ident">Leaf</span>(<span class="ident">FlatLeaf</span>),
 }
 
-<span class="kw">impl</span> <span class="ident">FlatNode</span>{
-    <span class="kw">fn</span> <span class="ident">bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">BBox3D</span>{
-        <span class="kw">match</span> <span class="self">self</span>{
-            <span class="ident"><span class="self">Self</span>::Interior</span>(<span class="ident">i</span>)=&gt;<span class="ident">i</span>.<span class="ident">bounds</span>,
-            <span class="ident"><span class="self">Self</span>::Leaf</span>(<span class="ident">i</span>)=&gt;<span class="ident">i</span>.<span class="ident">bounds</span>
+<span class="kw">impl</span> <span class="ident">FlatNode</span> {
+    <span class="kw">fn</span> <span class="ident">bounds</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">BBox3D</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Interior</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">bounds</span>,
+            <span class="ident"><span class="self">Self</span>::Leaf</span>(<span class="ident">i</span>) =&gt; <span class="ident">i</span>.<span class="ident">bounds</span>,
         }
     }
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoundingVolumeTree</span> (<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span>);
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoundingVolumeTree</span>(<span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span>);
 
 <span class="kw">impl</span> <span class="ident">BoundingVolumeTree</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>)-&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="ident">n_objects</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">objects</span>.<span class="ident">len</span>();
         <span class="kw">if</span> <span class="ident">n_objects</span> <span class="op">==</span> <span class="number">0</span> {
-            <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::default</span>()
+            <span class="kw">return</span> <span class="ident"><span class="self">Self</span>::default</span>();
         }
-        <span class="comment">/* 
-        STEP 1:  First, bounding information about each primitive is computed and 
+        <span class="comment">/*
+        STEP 1:  First, bounding information about each primitive is computed and
         stored in an array that will be used during tree construction
         */</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">primitives_info</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ObjectInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">n_objects</span>);
-        
-        <span class="kw">for</span> (<span class="ident">i</span>,<span class="ident">ob</span>) <span class="kw">in</span> <span class="ident">scene</span>.<span class="ident">objects</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>(){
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">primitives_info</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">ObjectInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">n_objects</span>);
+
+        <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">ob</span>) <span class="kw">in</span> <span class="ident">scene</span>.<span class="ident">objects</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="ident">primitives_info</span>.<span class="ident">push</span>(<span class="ident">ObjectInfo::new</span>(<span class="ident">i</span>, <span class="ident">ob</span>))
         }
 
-        <span class="comment">/* 
-        STEP 2:  Next, the tree is built using the algorithm choice 
-        encoded in splitMethod. The result is a binary tree where 
-        each interior node holds pointers to its children and each 
-        leaf node holds references to one or more primitives. 
+        <span class="comment">/*
+        STEP 2:  Next, the tree is built using the algorithm choice
+        encoded in splitMethod. The result is a binary tree where
+        each interior node holds pointers to its children and each
+        leaf node holds references to one or more primitives.
         */</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">total_nodes</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ordered_primitives</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">n_objects</span>);
-        <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">Node::recursive_build</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">objects</span>, <span class="kw-2">&amp;mut</span> <span class="ident">primitives_info</span>, <span class="number">0</span>, <span class="ident">n_objects</span>, <span class="kw-2">&amp;mut</span> <span class="ident">total_nodes</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ordered_primitives</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ordered_primitives</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">n_objects</span>);
+        <span class="kw">let</span> <span class="ident">root</span> <span class="op">=</span> <span class="ident">Node::recursive_build</span>(
+            <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">objects</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">primitives_info</span>,
+            <span class="number">0</span>,
+            <span class="ident">n_objects</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">total_nodes</span>,
+            <span class="kw-2">&amp;mut</span> <span class="ident">ordered_primitives</span>,
+        );
         <span class="ident">scene</span>.<span class="ident">objects</span> <span class="op">=</span> <span class="ident">ordered_primitives</span>; <span class="comment">// Update the Scene with the ordered primitive.</span>
 
-        <span class="comment">/* 
-        STEP 3: Finally, this tree is converted to a more compact 
-        (and thus more efficient) pointerless representation for 
+        <span class="comment">/*
+        STEP 3: Finally, this tree is converted to a more compact
+        (and thus more efficient) pointerless representation for
         use during rendering.
         */</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">total_nodes</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">total_nodes</span>);
         <span class="ident"><span class="self">Self</span>::flatten_node</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>);
-        
+
         <span class="comment">// return</span>
         <span class="self">Self</span>(<span class="ident">nodes</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">flatten_node</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span>)-&gt;<span class="ident">usize</span>{
-        
-        <span class="kw">let</span> <span class="ident">this_offset</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">len</span>();        
+    <span class="kw">fn</span> <span class="ident">flatten_node</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
+        <span class="kw">let</span> <span class="ident">this_offset</span> <span class="op">=</span> <span class="ident">nodes</span>.<span class="ident">len</span>();
         <span class="kw">match</span> <span class="ident">node</span> {
-            <span class="ident">Node::Leaf</span>(<span class="ident">l</span>)=&gt;{
-                <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">FlatNode::Leaf</span>(<span class="ident">FlatLeaf</span>{
+            <span class="ident">Node::Leaf</span>(<span class="ident">l</span>) =&gt; {
+                <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">FlatNode::Leaf</span>(<span class="ident">FlatLeaf</span> {
                     <span class="ident">bounds</span>: <span class="ident">l</span>.<span class="ident">bounds</span>,
                     <span class="ident">n_prims</span>: <span class="ident">l</span>.<span class="ident">n_prims</span>,
-                    <span class="ident">first_prim_offset</span>: <span class="ident">l</span>.<span class="ident">first_prim_offset</span>
+                    <span class="ident">first_prim_offset</span>: <span class="ident">l</span>.<span class="ident">first_prim_offset</span>,
                 }));
-            },
-            <span class="ident">Node::Interior</span>(<span class="ident">i</span>)=&gt;{
+            }
+            <span class="ident">Node::Interior</span>(<span class="ident">i</span>) =&gt; {
                 <span class="kw">let</span> (<span class="ident">child1</span>, <span class="ident">child2</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">i</span>.<span class="ident">children</span>;
-                <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">FlatNode::Interior</span>(<span class="ident">FlatInterior</span>{
-                    <span class="ident">second_child_offset</span>: <span class="number">0</span>,<span class="comment">// We will fill this in a minute.</span>
+                <span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">FlatNode::Interior</span>(<span class="ident">FlatInterior</span> {
+                    <span class="ident">second_child_offset</span>: <span class="number">0</span>, <span class="comment">// We will fill this in a minute.</span>
                     <span class="ident">bounds</span>: <span class="ident">i</span>.<span class="ident">bounds</span>,
-                    <span class="ident">axis</span>: <span class="ident">i</span>.<span class="ident">split_axis</span>, 
+                    <span class="ident">axis</span>: <span class="ident">i</span>.<span class="ident">split_axis</span>,
                 }));
                 <span class="ident"><span class="self">Self</span>::flatten_node</span>(<span class="ident">child1</span>, <span class="ident">nodes</span>);
                 <span class="kw">let</span> <span class="ident">second_offset</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::flatten_node</span>(<span class="ident">child2</span>, <span class="ident">nodes</span>);
                 <span class="comment">// Patch second offset</span>
                 <span class="kw">if</span> <span class="kw">let</span> <span class="ident">FlatNode::Interior</span>(<span class="ident">this_node</span>) <span class="op">=</span> <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>[<span class="ident">this_offset</span>] {
                     <span class="ident">this_node</span>.<span class="ident">second_child_offset</span> <span class="op">=</span> <span class="ident">second_offset</span>;
-                }<span class="kw">else</span>{
+                } <span class="kw">else</span> {
                     <span class="macro">unreachable!</span>()
                 }
             }
@@ -994,89 +1089,89 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
         <span class="ident">this_offset</span>
     }
 
-    <span class="doccomment">/// Returns an `Option&lt;Float, Interaction&gt;`, where the `Float` is the distance </span>
+    <span class="doccomment">/// Returns an `Option&lt;Float, Interaction&gt;`, where the `Float` is the distance</span>
     <span class="doccomment">/// travelled by the ray.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>], <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Float</span>, <span class="ident">Interaction</span>)<span class="op">&gt;</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>], <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Float</span>, <span class="ident">Interaction</span>)<span class="op">&gt;</span> {
         <span class="kw">const</span> <span class="ident">MIN_T</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.000001</span>;
-        
+
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="prelude-val">None</span>
+            <span class="kw">return</span> <span class="prelude-val">None</span>;
         }
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">info</span> : <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">info</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionInfo</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prim_index</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t_squared</span> <span class="op">=</span> <span class="ident">Float::MAX</span>;
-        
-        <span class="kw">let</span> <span class="ident">inv_dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">1.</span><span class="op">/</span><span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">x</span>, <span class="number">1.</span><span class="op">/</span><span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">y</span>, <span class="number">1.</span><span class="op">/</span><span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">z</span>);
-        <span class="kw">let</span> <span class="ident">dir_is_neg</span> <span class="op">=</span> ( <span class="ident">inv_dir</span>.<span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0.</span>,<span class="ident">inv_dir</span>.<span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0.</span>,<span class="ident">inv_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span>);
+
+        <span class="kw">let</span> <span class="ident">inv_dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(
+            <span class="number">1.</span> <span class="op">/</span> <span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">x</span>,
+            <span class="number">1.</span> <span class="op">/</span> <span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">y</span>,
+            <span class="number">1.</span> <span class="op">/</span> <span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">z</span>,
+        );
+        <span class="kw">let</span> <span class="ident">dir_is_neg</span> <span class="op">=</span> (<span class="ident">inv_dir</span>.<span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_node</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes_to_visit</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">64</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes_to_visit</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">64</span>);
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">current_node</span>];
             <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">bounds</span>().<span class="ident">intersect</span>(<span class="ident">ray</span>, <span class="ident">inv_dir</span>) {
                 <span class="kw">match</span> <span class="ident">node</span> {
-                    <span class="ident">FlatNode::Leaf</span>(<span class="ident">data</span>)=&gt;{
+                    <span class="ident">FlatNode::Leaf</span>(<span class="ident">data</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">first_prim_offset</span>;
                         <span class="comment">// Check all the objects in this Node</span>
-                        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">data</span>.<span class="ident">n_prims</span>{                            
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">intersect_info</span>) <span class="op">=</span> <span class="ident">primitives</span>[<span class="ident">offset</span> <span class="op">+</span> <span class="ident">i</span>].<span class="ident">primitive</span>.<span class="ident">intersect</span>(<span class="ident">ray</span>){
+                        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">data</span>.<span class="ident">n_prims</span> {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">intersect_info</span>) <span class="op">=</span>
+                                <span class="ident">primitives</span>[<span class="ident">offset</span> <span class="op">+</span> <span class="ident">i</span>].<span class="ident">primitive</span>.<span class="ident">intersect</span>(<span class="ident">ray</span>)
+                            {
                                 <span class="comment">// If hit, check the distance.</span>
-                                <span class="kw">let</span> <span class="ident">this_t_squared</span> <span class="op">=</span> (<span class="ident">intersect_info</span>.<span class="ident">p</span> <span class="op">-</span> <span class="ident">ray</span>.<span class="ident">origin</span>).<span class="ident">length_squared</span>();
-                                <span class="kw">if</span> <span class="ident">this_t_squared</span> <span class="op">&gt;</span> <span class="ident">MIN_T</span> <span class="op">&amp;&amp;</span> <span class="ident">this_t_squared</span> <span class="op">&lt;</span> <span class="ident">t_squared</span> {             
-                                    <span class="comment">// If the distance is less than what we had, update return data       </span>
+                                <span class="kw">let</span> <span class="ident">this_t_squared</span> <span class="op">=</span>
+                                    (<span class="ident">intersect_info</span>.<span class="ident">p</span> <span class="op">-</span> <span class="ident">ray</span>.<span class="ident">origin</span>).<span class="ident">length_squared</span>();
+                                <span class="kw">if</span> <span class="ident">this_t_squared</span> <span class="op">&gt;</span> <span class="ident">MIN_T</span> <span class="op">&amp;&amp;</span> <span class="ident">this_t_squared</span> <span class="op">&lt;</span> <span class="ident">t_squared</span> {
+                                    <span class="comment">// If the distance is less than what we had, update return data</span>
                                     <span class="ident">t_squared</span> <span class="op">=</span> <span class="ident">this_t_squared</span>;
-                                    <span class="ident">prim_index</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">offset</span> <span class="op">+</span> <span class="ident">i</span>);                    
-                                    <span class="ident">info</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">intersect_info</span>);                                    
+                                    <span class="ident">prim_index</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">offset</span> <span class="op">+</span> <span class="ident">i</span>);
+                                    <span class="ident">info</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">intersect_info</span>);
                                 }
                             }
                         }
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">nodes_to_visit</span>.<span class="ident">pop</span>() {
                             <span class="ident">current_node</span> <span class="op">=</span> <span class="ident">i</span>;
-                        }<span class="kw">else</span>{
-                            <span class="kw">break</span>
+                        } <span class="kw">else</span> {
+                            <span class="kw">break</span>;
                         }
-                    },
-                    <span class="ident">FlatNode::Interior</span>(<span class="ident">data</span>)=&gt;{
+                    }
+                    <span class="ident">FlatNode::Interior</span>(<span class="ident">data</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">is_neg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span>.<span class="ident">axis</span> {
-                            <span class="ident">BBoxAxis::X</span> =&gt; {
-                                <span class="ident">dir_is_neg</span>.<span class="number">0</span>
-                            },
-                            <span class="ident">BBoxAxis::Y</span> =&gt; {
-                                <span class="ident">dir_is_neg</span>.<span class="number">1</span>
-                            },
-                            <span class="ident">BBoxAxis::Z</span> =&gt; {
-                                <span class="ident">dir_is_neg</span>.<span class="number">2</span>
-                            },
+                            <span class="ident">BBoxAxis::X</span> =&gt; <span class="ident">dir_is_neg</span>.<span class="number">0</span>,
+                            <span class="ident">BBoxAxis::Y</span> =&gt; <span class="ident">dir_is_neg</span>.<span class="number">1</span>,
+                            <span class="ident">BBoxAxis::Z</span> =&gt; <span class="ident">dir_is_neg</span>.<span class="number">2</span>,
                         };
                         <span class="kw">if</span> <span class="ident">is_neg</span> {
                             <span class="ident">nodes_to_visit</span>.<span class="ident">push</span>(<span class="ident">current_node</span> <span class="op">+</span> <span class="number">1</span>);
                             <span class="ident">current_node</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">second_child_offset</span>;
-                        }<span class="kw">else</span>{
+                        } <span class="kw">else</span> {
                             <span class="ident">nodes_to_visit</span>.<span class="ident">push</span>(<span class="ident">data</span>.<span class="ident">second_child_offset</span>);
-                            <span class="ident">current_node</span> <span class="op">+</span><span class="op">=</span><span class="number">1</span>;
+                            <span class="ident">current_node</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                         }
                     }
                 }
-            }<span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">nodes_to_visit</span>.<span class="ident">pop</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">nodes_to_visit</span>.<span class="ident">pop</span>() {
                 <span class="ident">current_node</span> <span class="op">=</span> <span class="ident">i</span>;
-            }<span class="kw">else</span>{
-                <span class="kw">break</span>
-            }                
-            
-        }<span class="comment">// End loop</span>
-        
+            } <span class="kw">else</span> {
+                <span class="kw">break</span>;
+            }
+        } <span class="comment">// End loop</span>
+
         <span class="comment">// return</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">info</span>) <span class="op">=</span> <span class="ident">info</span> {
             <span class="comment">// let info = info.unwrap();</span>
             <span class="comment">// let object = object.unwrap();</span>
             <span class="kw">let</span> <span class="ident">prim_index</span> <span class="op">=</span> <span class="ident">prim_index</span>.<span class="ident">unwrap</span>();
-            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">t_squared</span>.<span class="ident">sqrt</span>();  
+            <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">t_squared</span>.<span class="ident">sqrt</span>();
             <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">project</span>(<span class="ident">t</span>);
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">SurfaceInteractionData</span>{
+            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">SurfaceInteractionData</span> {
                 <span class="ident">point</span>,
                 <span class="comment">// perror: info.perror,</span>
-                <span class="ident">time</span>: <span class="number">0.</span>,<span class="comment">// We are not using this value</span>
+                <span class="ident">time</span>: <span class="number">0.</span>, <span class="comment">// We are not using this value</span>
                 <span class="ident">wo</span>: <span class="ident">ray</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>,
-                <span class="ident">geometry_shading</span>: <span class="ident">ShadingInfo</span>{
+                <span class="ident">geometry_shading</span>: <span class="ident">ShadingInfo</span> {
                     <span class="ident">u</span>: <span class="ident">info</span>.<span class="ident">u</span>,
                     <span class="ident">v</span>: <span class="ident">info</span>.<span class="ident">v</span>,
                     <span class="ident">normal</span>: <span class="ident">info</span>.<span class="ident">normal</span>,
@@ -1084,90 +1179,92 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
                     <span class="ident">dpdv</span>: <span class="ident">info</span>.<span class="ident">dpdv</span>,
                     <span class="ident">dndu</span>: <span class="ident">info</span>.<span class="ident">dndu</span>,
                     <span class="ident">dndv</span>: <span class="ident">info</span>.<span class="ident">dndv</span>,
-                    <span class="ident">side</span>: <span class="ident">info</span>.<span class="ident">side</span>
+                    <span class="ident">side</span>: <span class="ident">info</span>.<span class="ident">side</span>,
                 },
                 <span class="ident">texture_shading</span>: <span class="prelude-val">None</span>,
                 <span class="comment">// object,</span>
-                <span class="ident">prim_index</span>, 
+                <span class="ident">prim_index</span>,
             };
-            <span class="prelude-val">Some</span>((<span class="ident">t</span>,<span class="ident">Interaction::Surface</span>(<span class="ident">data</span>)))
-        }<span class="kw">else</span>{
+            <span class="prelude-val">Some</span>((<span class="ident">t</span>, <span class="ident">Interaction::Surface</span>(<span class="ident">data</span>)))
+        } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
     }
 
-
     <span class="doccomment">/// Checks if a ray can travel a certain distance without hitting anything</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>], <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>, <span class="ident">distance</span>: <span class="ident">Float</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unobstructed_distance</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>],
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>,
+        <span class="ident">distance_squared</span>: <span class="ident">Float</span>,
+    ) -&gt; <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="number">0</span>.<span class="ident">is_empty</span>() {
-            <span class="kw">return</span> <span class="bool-val">true</span>
+            <span class="kw">return</span> <span class="bool-val">true</span>;
         }
-        <span class="kw">let</span> <span class="ident">d_squared</span> <span class="op">=</span> <span class="ident">distance</span> <span class="op">*</span> <span class="ident">distance</span>;
+        <span class="comment">// let d_squared = distance * distance;</span>
         <span class="kw">const</span> <span class="ident">MIN_T</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.000001</span>;
-        
-        
-        <span class="kw">let</span> <span class="ident">inv_dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">1.</span><span class="op">/</span><span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">x</span>, <span class="number">1.</span><span class="op">/</span><span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">y</span>, <span class="number">1.</span><span class="op">/</span><span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">z</span>);
-        <span class="kw">let</span> <span class="ident">dir_is_neg</span> <span class="op">=</span> ( <span class="ident">inv_dir</span>.<span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0.</span>,<span class="ident">inv_dir</span>.<span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0.</span>,<span class="ident">inv_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span>);
+
+        <span class="kw">let</span> <span class="ident">inv_dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(
+            <span class="number">1.</span> <span class="op">/</span> <span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">x</span>,
+            <span class="number">1.</span> <span class="op">/</span> <span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">y</span>,
+            <span class="number">1.</span> <span class="op">/</span> <span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">z</span>,
+        );
+        <span class="kw">let</span> <span class="ident">dir_is_neg</span> <span class="op">=</span> (<span class="ident">inv_dir</span>.<span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_node</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes_to_visit</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">64</span>);
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">nodes_to_visit</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="number">64</span>);
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="number">0</span>[<span class="ident">current_node</span>];
             <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">bounds</span>().<span class="ident">intersect</span>(<span class="ident">ray</span>, <span class="ident">inv_dir</span>) {
                 <span class="kw">match</span> <span class="ident">node</span> {
-                    <span class="ident">FlatNode::Leaf</span>(<span class="ident">data</span>)=&gt;{
+                    <span class="ident">FlatNode::Leaf</span>(<span class="ident">data</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">offset</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">first_prim_offset</span>;
                         <span class="comment">// Check all the objects in this Node</span>
-                        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">data</span>.<span class="ident">n_prims</span>{                            
-                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">primitives</span>[<span class="ident">offset</span> <span class="op">+</span> <span class="ident">i</span>].<span class="ident">primitive</span>.<span class="ident">simple_intersect</span>(<span class="ident">ray</span>){
+                        <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">data</span>.<span class="ident">n_prims</span> {
+                            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">pt</span>) <span class="op">=</span> <span class="ident">primitives</span>[<span class="ident">offset</span> <span class="op">+</span> <span class="ident">i</span>].<span class="ident">primitive</span>.<span class="ident">simple_intersect</span>(<span class="ident">ray</span>)
+                            {
                                 <span class="kw">let</span> <span class="ident">this_d_squared</span> <span class="op">=</span> (<span class="ident">pt</span> <span class="op">-</span> <span class="ident">ray</span>.<span class="ident">origin</span>).<span class="ident">length_squared</span>();
 
                                 <span class="comment">// Is it a valid hit and it is earlier than the rest?</span>
-                                <span class="kw">if</span> <span class="ident">this_d_squared</span> <span class="op">&gt;</span> <span class="ident">MIN_T</span> <span class="op">&amp;&amp;</span> <span class="ident">this_d_squared</span> <span class="op">+</span> <span class="ident">MIN_T</span> <span class="op">&lt;</span> <span class="ident">d_squared</span> <span class="op">&amp;&amp;</span> (<span class="ident">d_squared</span> <span class="op">-</span> <span class="ident">this_d_squared</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">0.0001</span> {
+                                <span class="kw">if</span> <span class="ident">this_d_squared</span> <span class="op">&gt;</span> <span class="ident">MIN_T</span>
+                                    <span class="op">&amp;&amp;</span> <span class="ident">this_d_squared</span> <span class="op">+</span> <span class="ident">MIN_T</span> <span class="op">&lt;</span> <span class="ident">distance_squared</span>
+                                    <span class="op">&amp;&amp;</span> (<span class="ident">distance_squared</span> <span class="op">-</span> <span class="ident">this_d_squared</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">0.0001</span>
+                                {
                                     <span class="kw">return</span> <span class="bool-val">false</span>;
                                 }
                             }
                         }
                         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">nodes_to_visit</span>.<span class="ident">pop</span>() {
                             <span class="ident">current_node</span> <span class="op">=</span> <span class="ident">i</span>;
-                        }<span class="kw">else</span>{
-                            <span class="kw">break</span>
+                        } <span class="kw">else</span> {
+                            <span class="kw">break</span>;
                         }
-                    },
-                    <span class="ident">FlatNode::Interior</span>(<span class="ident">data</span>)=&gt;{
+                    }
+                    <span class="ident">FlatNode::Interior</span>(<span class="ident">data</span>) =&gt; {
                         <span class="kw">let</span> <span class="ident">is_neg</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span>.<span class="ident">axis</span> {
-                            <span class="ident">BBoxAxis::X</span> =&gt; {
-                                <span class="ident">dir_is_neg</span>.<span class="number">0</span>
-                            },
-                            <span class="ident">BBoxAxis::Y</span> =&gt; {
-                                <span class="ident">dir_is_neg</span>.<span class="number">1</span>
-                            },
-                            <span class="ident">BBoxAxis::Z</span> =&gt; {
-                                <span class="ident">dir_is_neg</span>.<span class="number">2</span>
-                            },
+                            <span class="ident">BBoxAxis::X</span> =&gt; <span class="ident">dir_is_neg</span>.<span class="number">0</span>,
+                            <span class="ident">BBoxAxis::Y</span> =&gt; <span class="ident">dir_is_neg</span>.<span class="number">1</span>,
+                            <span class="ident">BBoxAxis::Z</span> =&gt; <span class="ident">dir_is_neg</span>.<span class="number">2</span>,
                         };
                         <span class="kw">if</span> <span class="ident">is_neg</span> {
                             <span class="ident">nodes_to_visit</span>.<span class="ident">push</span>(<span class="ident">current_node</span> <span class="op">+</span> <span class="number">1</span>);
                             <span class="ident">current_node</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">second_child_offset</span>;
-                        }<span class="kw">else</span>{
+                        } <span class="kw">else</span> {
                             <span class="ident">nodes_to_visit</span>.<span class="ident">push</span>(<span class="ident">data</span>.<span class="ident">second_child_offset</span>);
                             <span class="ident">current_node</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                         }
                     }
                 }
-            }<span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">nodes_to_visit</span>.<span class="ident">pop</span>() {
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">i</span>) <span class="op">=</span> <span class="ident">nodes_to_visit</span>.<span class="ident">pop</span>() {
                 <span class="ident">current_node</span> <span class="op">=</span> <span class="ident">i</span>;
-            }<span class="kw">else</span>{
-                <span class="kw">break</span>
-            }                
-        
-        }<span class="comment">// End loop</span>
-        
+            } <span class="kw">else</span> {
+                <span class="kw">break</span>;
+            }
+        } <span class="comment">// End loop</span>
+
         <span class="comment">// otherwise, return true</span>
         <span class="bool-val">true</span>
     }
-
-    
-    
-}</code></pre></div>
+}
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
 </body></html>

@@ -195,6 +195,8 @@
 <span id="160">160</span>
 <span id="161">161</span>
 <span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -219,62 +221,75 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident">geometry3d::Vector3D</span>;
 
 <span class="doccomment">/// Fresnel Coefficient for TE-Polarized Light (i.e., perpendicular), according to PBR-book</span>
-<span class="doccomment">/// </span>
-<span class="doccomment">/// `n1` is the index of refraction on the ray&#39;s side; `cos1` is the </span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `n1` is the index of refraction on the ray&#39;s side; `cos1` is the</span>
 <span class="doccomment">/// cosine of the angle between the surface&#39;s normal and ray.</span>
-<span class="doccomment">/// </span>
-<span class="doccomment">/// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the </span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the</span>
 <span class="doccomment">/// cosine of the angle between the surface&#39;s normal and transmitted ray</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_te</span>(<span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Float</span>{
-    (<span class="ident">n1</span><span class="kw-2">*</span><span class="ident">cos1</span><span class="op">-</span><span class="ident">n2</span><span class="kw-2">*</span><span class="ident">cos2</span>)<span class="op">/</span>(<span class="ident">n1</span><span class="kw-2">*</span><span class="ident">cos1</span><span class="op">+</span><span class="ident">n2</span><span class="kw-2">*</span><span class="ident">cos2</span>)
-    
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_te</span>(<span class="ident">n1</span>: <span class="ident">Float</span>, <span class="ident">cos1</span>: <span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {
+    (<span class="ident">n1</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">-</span> <span class="ident">n2</span> <span class="op">*</span> <span class="ident">cos2</span>) <span class="op">/</span> (<span class="ident">n1</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">+</span> <span class="ident">n2</span> <span class="op">*</span> <span class="ident">cos2</span>)
 }
 
 <span class="doccomment">/// Fresnel Coefficient for TM-Polarized Light (i.e., parallel), according to PBR-book</span>
-<span class="doccomment">/// </span>
-<span class="doccomment">/// `n1` is the index of refraction on the ray&#39;s side; `cos1` is the </span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `n1` is the index of refraction on the ray&#39;s side; `cos1` is the</span>
 <span class="doccomment">/// cosine of the angle between the surface&#39;s normal and ray.</span>
-<span class="doccomment">/// </span>
-<span class="doccomment">/// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the </span>
+<span class="doccomment">///</span>
+<span class="doccomment">/// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the</span>
 <span class="doccomment">/// cosine of the angle between the surface&#39;s normal and transmitted ray</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_tm</span>(<span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Float</span>{    
-    (<span class="ident">n2</span><span class="kw-2">*</span><span class="ident">cos1</span><span class="op">-</span><span class="ident">n1</span><span class="kw-2">*</span><span class="ident">cos2</span>)<span class="op">/</span>(<span class="ident">n2</span><span class="kw-2">*</span><span class="ident">cos1</span><span class="op">+</span><span class="ident">n1</span><span class="kw-2">*</span><span class="ident">cos2</span>)    
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_tm</span>(<span class="ident">n1</span>: <span class="ident">Float</span>, <span class="ident">cos1</span>: <span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {
+    (<span class="ident">n2</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">-</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">cos2</span>) <span class="op">/</span> (<span class="ident">n2</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">+</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">cos2</span>)
 }
 
-
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Float</span>{
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>: <span class="ident">Float</span>, <span class="ident">cos1</span>: <span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {
     <span class="kw">let</span> <span class="ident">parallel</span> <span class="op">=</span> <span class="ident">fresnel_tm</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
     <span class="kw">let</span> <span class="ident">perpendicular</span> <span class="op">=</span> <span class="ident">fresnel_te</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
-    <span class="number">0.5</span><span class="kw-2">*</span>(<span class="ident">parallel</span><span class="kw-2">*</span><span class="ident">parallel</span> <span class="op">+</span> <span class="ident">perpendicular</span><span class="kw-2">*</span><span class="ident">perpendicular</span>)
+    <span class="number">0.5</span> <span class="op">*</span> (<span class="ident">parallel</span> <span class="op">*</span> <span class="ident">parallel</span> <span class="op">+</span> <span class="ident">perpendicular</span> <span class="op">*</span> <span class="ident">perpendicular</span>)
 }
 
-
 <span class="doccomment">/// Calculates the direction of the transmision</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_transmission_dir</span>(<span class="ident">vin</span>:<span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">n1</span>:<span class="ident">Float</span>, <span class="ident">cos1</span>:<span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>:<span class="ident">Float</span> )-&gt;<span class="ident">Vector3D</span>{
-    
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_transmission_dir</span>(
+    <span class="ident">vin</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">n1</span>: <span class="ident">Float</span>,
+    <span class="ident">cos1</span>: <span class="ident">Float</span>,
+    <span class="ident">n2</span>: <span class="ident">Float</span>,
+    <span class="ident">cos2</span>: <span class="ident">Float</span>,
+) -&gt; <span class="ident">Vector3D</span> {
     <span class="comment">// Check inputs</span>
-    <span class="macro">debug_assert!</span>( (<span class="number">1.</span> <span class="op">-</span> <span class="ident">vin</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;length is {}&quot;</span>, <span class="ident">vin</span>.<span class="ident">length</span>());
-    <span class="macro">debug_assert!</span>( (<span class="number">1.</span> <span class="op">-</span> <span class="ident">normal</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;length is {}&quot;</span>, <span class="ident">normal</span>.<span class="ident">length</span>());
+    <span class="macro">debug_assert!</span>(
+        (<span class="number">1.</span> <span class="op">-</span> <span class="ident">vin</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+        <span class="string">&quot;length is {}&quot;</span>,
+        <span class="ident">vin</span>.<span class="ident">length</span>()
+    );
+    <span class="macro">debug_assert!</span>(
+        (<span class="number">1.</span> <span class="op">-</span> <span class="ident">normal</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+        <span class="string">&quot;length is {}&quot;</span>,
+        <span class="ident">normal</span>.<span class="ident">length</span>()
+    );
 
     <span class="macro">debug_assert!</span>(<span class="ident">cos1</span> <span class="op">&gt;</span> <span class="number">0.</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">cos2</span> <span class="op">&gt;</span> <span class="number">0.</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">n1</span> <span class="op">&gt;</span> <span class="number">0.</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">n2</span> <span class="op">&gt;</span> <span class="number">0.</span>);
-    <span class="macro">debug_assert!</span>(<span class="ident">vin</span><span class="kw-2">*</span><span class="ident">normal</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="string">&quot;vin*normal = {}&quot;</span>, <span class="ident">vin</span><span class="kw-2">*</span><span class="ident">normal</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="string">&quot;vin*normal = {}&quot;</span>, <span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>);
 
-    <span class="kw">let</span> <span class="ident">n_ratio</span> <span class="op">=</span> <span class="ident">n1</span><span class="op">/</span><span class="ident">n2</span>;
-    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">*</span> <span class="ident">n_ratio</span> <span class="op">+</span> <span class="ident">normal</span><span class="kw-2">*</span>(<span class="ident">n_ratio</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">-</span> <span class="ident">cos2</span>);
+    <span class="kw">let</span> <span class="ident">n_ratio</span> <span class="op">=</span> <span class="ident">n1</span> <span class="op">/</span> <span class="ident">n2</span>;
+    <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">*</span> <span class="ident">n_ratio</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> (<span class="ident">n_ratio</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">-</span> <span class="ident">cos2</span>);
     <span class="comment">// check that it is normalized</span>
-    <span class="macro">debug_assert!</span>( (<span class="number">1.</span> <span class="op">-</span> <span class="ident">ret</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;length is {}&quot;</span>, <span class="ident">ret</span>.<span class="ident">length</span>());
+    <span class="macro">debug_assert!</span>(
+        (<span class="number">1.</span> <span class="op">-</span> <span class="ident">ret</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+        <span class="string">&quot;length is {}&quot;</span>,
+        <span class="ident">ret</span>.<span class="ident">length</span>()
+    );
     <span class="comment">// check that it is not pointing in the same direction as normal.</span>
-    <span class="macro">debug_assert!</span>(<span class="ident">normal</span><span class="kw-2">*</span><span class="ident">ret</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="string">&quot;normal = {}, ret = {}&quot;</span>, <span class="ident">normal</span>, <span class="ident">ret</span>);
+    <span class="macro">debug_assert!</span>(<span class="ident">normal</span> <span class="op">*</span> <span class="ident">ret</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="string">&quot;normal = {}, ret = {}&quot;</span>, <span class="ident">normal</span>, <span class="ident">ret</span>);
     <span class="ident">ret</span>
-         
 }
 
 <span class="doccomment">/// Calculates the purely specular reflection direction.</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Vector3D</span> {
-
     <span class="macro">debug_assert!</span>((<span class="ident">vin</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">normal</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> (<span class="number">2.</span> <span class="op">*</span> (<span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>));
@@ -283,18 +298,12 @@ SOFTWARE.
     <span class="ident">ret</span>
 }
 
-
-
-
-
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_transmitted_direction</span>(){
-
-    }
+    <span class="kw">fn</span> <span class="ident">test_transmitted_direction</span>() {}
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_mirror_direction</span>() {
@@ -333,29 +342,25 @@ SOFTWARE.
         .<span class="ident">unwrap</span>();
     }
 
-    
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_angles</span>(){
+    <span class="kw">fn</span> <span class="ident">test_angles</span>() {
         <span class="comment">// Example found online</span>
         <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="number">1.</span>; <span class="comment">// air</span>
         <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="number">1.5</span>; <span class="comment">// glass</span>
-        
-        
 
-
-        <span class="comment">// TE and TM polarized light are indistinguishble at 0 degrees </span>
+        <span class="comment">// TE and TM polarized light are indistinguishble at 0 degrees</span>
         <span class="kw">let</span> <span class="ident">cos1</span> <span class="op">=</span> <span class="number">1.</span>; <span class="comment">// 0</span>
-        <span class="kw">let</span> <span class="ident">cos2</span> <span class="op">=</span> <span class="ident">cos1</span>;        
+        <span class="kw">let</span> <span class="ident">cos2</span> <span class="op">=</span> <span class="ident">cos1</span>;
         <span class="kw">let</span> <span class="ident">te</span> <span class="op">=</span> <span class="ident">fresnel_te</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
         <span class="kw">let</span> <span class="ident">tm</span> <span class="op">=</span> <span class="ident">fresnel_tm</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
-        <span class="macro">assert!</span>( (<span class="ident">te</span>.<span class="ident">abs</span>()<span class="op">-</span><span class="ident">tm</span>.<span class="ident">abs</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>, <span class="string">&quot;te = {}, tm = {}&quot;</span>, <span class="ident">te</span>, <span class="ident">tm</span> );
-
-        
-
-        
-
-
+        <span class="macro">assert!</span>(
+            (<span class="ident">te</span>.<span class="ident">abs</span>() <span class="op">-</span> <span class="ident">tm</span>.<span class="ident">abs</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>,
+            <span class="string">&quot;te = {}, tm = {}&quot;</span>,
+            <span class="ident">te</span>,
+            <span class="ident">tm</span>
+        );
     }
-}</code></pre></div>
+}
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-search-index-js="../../../search-index.js" data-search-js="../../../search.js"></div>
 </body></html>

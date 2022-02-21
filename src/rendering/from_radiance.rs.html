@@ -474,50 +474,6 @@
 <span id="439">439</span>
 <span id="440">440</span>
 <span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -538,25 +494,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">PlasticMetal</span>, <span class="ident">Material</span>, <span class="ident">Dielectric</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Dielectric</span>, <span class="ident">Material</span>, <span class="ident">PlasticMetal</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Scene</span>;
 
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{
-    <span class="ident">DistantSource3D</span>,
-    <span class="ident">Loop3D</span>,
-    <span class="ident">Point3D</span>,
-    <span class="ident">Polygon3D</span>,
-    <span class="ident">Sphere3D</span>,
-    <span class="ident">Vector3D</span>,
-    <span class="ident">Triangulation3D</span>
+    <span class="ident">DistantSource3D</span>, <span class="ident">Loop3D</span>, <span class="ident">Point3D</span>, <span class="ident">Polygon3D</span>, <span class="ident">Sphere3D</span>, <span class="ident">Triangulation3D</span>, <span class="ident">Vector3D</span>,
 };
-
 
 <span class="kw">use</span> <span class="ident">std::fs</span>;
 
@@ -696,13 +644,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Consumes a Metal material</span>
-    <span class="kw">fn</span> <span class="ident">consume_metal</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_metal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
@@ -718,7 +660,7 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">to_string</span>());
 
         <span class="kw">let</span> <span class="ident">metal</span> <span class="op">=</span> <span class="ident">PlasticMetal</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum</span>{<span class="ident">red</span>,<span class="ident">green</span>,<span class="ident">blue</span>},
+            <span class="ident">color</span>: <span class="ident">Spectrum</span> { <span class="ident">red</span>, <span class="ident">green</span>, <span class="ident">blue</span> },
             <span class="ident">specularity</span>,
             <span class="ident">roughness</span>,
         };
@@ -726,13 +668,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Consumes a Plastic material</span>
-    <span class="kw">fn</span> <span class="ident">consume_plastic</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_plastic</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
@@ -748,7 +684,7 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">to_string</span>());
 
         <span class="kw">let</span> <span class="ident">plastic</span> <span class="op">=</span> <span class="ident">PlasticMetal</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum</span>{<span class="ident">red</span>,<span class="ident">green</span>,<span class="ident">blue</span>},
+            <span class="ident">color</span>: <span class="ident">Spectrum</span> { <span class="ident">red</span>, <span class="ident">green</span>, <span class="ident">blue</span> },
             <span class="ident">specularity</span>,
             <span class="ident">roughness</span>,
         };
@@ -756,13 +692,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Consumes a Light material</span>
-    <span class="kw">fn</span> <span class="ident">consume_light</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_light</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
@@ -780,13 +710,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Consumes a Light material</span>
-    <span class="kw">fn</span> <span class="ident">consume_mirror</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_mirror</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
@@ -826,19 +750,14 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">to_string</span>());
 
         <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">Spectrum</span> { <span class="ident">red</span>, <span class="ident">green</span>, <span class="ident">blue</span> };
-        <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Dielectric</span>(<span class="ident">Dielectric</span>{
-            <span class="ident">color</span>,<span class="ident">refraction_index</span>
+        <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Dielectric</span>(<span class="ident">Dielectric</span> {
+            <span class="ident">color</span>,
+            <span class="ident">refraction_index</span>,
         }));
     }
 
     <span class="doccomment">/// Consumes a sphere</span>
-    <span class="kw">fn</span> <span class="ident">consume_sphere</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_sphere</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
@@ -857,13 +776,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Consumes a sphere</span>
-    <span class="kw">fn</span> <span class="ident">consume_source</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_source</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
@@ -873,20 +786,18 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">dir_x</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">dir_y</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">dir_z</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>().<span class="ident">to_radians</span>();        
+        <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> <span class="self">self</span>
+            .<span class="ident">consume_token</span>(<span class="ident">source</span>)
+            .<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>()
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">to_radians</span>();
         <span class="kw">let</span> <span class="ident">distant_source</span> <span class="op">=</span> <span class="ident">DistantSource3D::new</span>(<span class="ident">Vector3D::new</span>(<span class="ident">dir_x</span>, <span class="ident">dir_y</span>, <span class="ident">dir_z</span>), <span class="ident">angle</span>);
 
         <span class="kw">let</span> <span class="ident">mod_index</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_modifier_index</span>(<span class="ident">modifier</span>);
         <span class="ident">scene</span>.<span class="ident">push_object</span>(<span class="ident">mod_index</span>, <span class="ident">mod_index</span>, <span class="ident">Primitive::Source</span>(<span class="ident">distant_source</span>));
     }
     <span class="doccomment">/// Consumes a polygon</span>
-    <span class="kw">fn</span> <span class="ident">consume_polygon</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_polygon</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">_name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
@@ -909,9 +820,11 @@ SOFTWARE.
 
         <span class="ident">the_loop</span>.<span class="ident">close</span>().<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">polygon</span> <span class="op">=</span> <span class="ident">Polygon3D::new</span>(<span class="ident">the_loop</span>).<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="ident">triangles</span> <span class="op">=</span> <span class="ident">Triangulation3D::from_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">polygon</span>).<span class="ident">unwrap</span>().<span class="ident">get_trilist</span>();
+        <span class="kw">let</span> <span class="ident">triangles</span> <span class="op">=</span> <span class="ident">Triangulation3D::from_polygon</span>(<span class="kw-2">&amp;</span><span class="ident">polygon</span>)
+            .<span class="ident">unwrap</span>()
+            .<span class="ident">get_trilist</span>();
 
-        <span class="kw">for</span> <span class="ident">tri</span> <span class="kw">in</span> <span class="ident">triangles</span>{
+        <span class="kw">for</span> <span class="ident">tri</span> <span class="kw">in</span> <span class="ident">triangles</span> {
             <span class="ident">scene</span>.<span class="ident">push_object</span>(<span class="ident">mod_index</span>, <span class="ident">mod_index</span>, <span class="ident">Primitive::Triangle</span>(<span class="ident">tri</span>));
         }
     }
@@ -924,7 +837,7 @@ SOFTWARE.
         <span class="ident">Scene::from_radiance_source</span>(<span class="kw-2">&amp;</span><span class="ident">src</span>)
     }
 
-    <span class="doccomment">/// Creates a scene from a slice of bytes read from a </span>
+    <span class="doccomment">/// Creates a scene from a slice of bytes read from a</span>
     <span class="doccomment">/// Radiance file</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_radiance_source</span>(<span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>]) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::default</span>();
@@ -942,7 +855,6 @@ SOFTWARE.
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_default</span>() {

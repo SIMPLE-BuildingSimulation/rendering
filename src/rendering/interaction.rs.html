@@ -247,7 +247,6 @@
 <span id="212">212</span>
 <span id="213">213</span>
 <span id="214">214</span>
-<span id="215">215</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -268,79 +267,90 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RefCount</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Transform</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::RefCount</span>;
 <span class="kw">use</span> <span class="ident">geometry3d::intersection::SurfaceSide</span>;
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Transform</span>, <span class="ident">Vector3D</span>};
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Object</span>;
 
-
-<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>,<span class="ident">Copy</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShadingInfo</span>{
+<span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">ShadingInfo</span> {
     <span class="doccomment">/// The normal [`Vector3D`] at the interaction.</span>
     <span class="doccomment">/// Must have the value of (dpdu x dpdv).normalize() ... use</span>
     <span class="doccomment">/// ShadingInfo::new(..) and this is done automatically</span>
-    <span class="kw">pub</span> <span class="ident">normal</span> : <span class="ident">Vector3D</span>,
+    <span class="kw">pub</span> <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
 
     <span class="doccomment">/// Partial derivative of the position `p` with respect to `u`</span>
-    <span class="kw">pub</span> <span class="ident">dpdu</span>: <span class="ident">Vector3D</span>, 
+    <span class="kw">pub</span> <span class="ident">dpdu</span>: <span class="ident">Vector3D</span>,
 
     <span class="doccomment">/// Partial derivative of the position `p` with respect to `v`</span>
-    <span class="kw">pub</span> <span class="ident">dpdv</span>: <span class="ident">Vector3D</span>, 
+    <span class="kw">pub</span> <span class="ident">dpdv</span>: <span class="ident">Vector3D</span>,
 
     <span class="doccomment">/// Partial derivative of the normal `n` with respect to u</span>
-    <span class="kw">pub</span> <span class="ident">dndu</span>: <span class="ident">Vector3D</span>,  
+    <span class="kw">pub</span> <span class="ident">dndu</span>: <span class="ident">Vector3D</span>,
 
     <span class="doccomment">/// Partial derivative of the normal `n` with respect to v</span>
-    <span class="kw">pub</span> <span class="ident">dndv</span>: <span class="ident">Vector3D</span>, 
+    <span class="kw">pub</span> <span class="ident">dndv</span>: <span class="ident">Vector3D</span>,
 
     <span class="kw">pub</span> <span class="ident">u</span>: <span class="ident">Float</span>,
     <span class="kw">pub</span> <span class="ident">v</span>: <span class="ident">Float</span>,
     <span class="kw">pub</span> <span class="ident">side</span>: <span class="ident">SurfaceSide</span>,
 }
 
-<span class="kw">impl</span> <span class="ident">ShadingInfo</span>{
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">u</span>: <span class="ident">Float</span>, <span class="ident">v</span>: <span class="ident">Float</span>, <span class="ident">dpdu</span>: <span class="ident">Vector3D</span>, <span class="ident">dpdv</span>: <span class="ident">Vector3D</span>, <span class="ident">dndu</span>: <span class="ident">Vector3D</span>, <span class="ident">dndv</span>: <span class="ident">Vector3D</span>, <span class="ident">side</span>: <span class="ident">SurfaceSide</span>)-&gt;<span class="self">Self</span>{
-        <span class="macro">debug_assert!</span>(<span class="ident">u</span><span class="op">&gt;</span><span class="op">=</span><span class="number">0.</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">u</span><span class="op">&lt;</span><span class="op">=</span><span class="number">1.</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">v</span><span class="op">&gt;</span><span class="op">=</span><span class="number">0.</span>);
-        <span class="macro">debug_assert!</span>(<span class="ident">v</span><span class="op">&lt;</span><span class="op">=</span><span class="number">1.</span>);
+<span class="kw">impl</span> <span class="ident">ShadingInfo</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">u</span>: <span class="ident">Float</span>,
+        <span class="ident">v</span>: <span class="ident">Float</span>,
+        <span class="ident">dpdu</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">dpdv</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">dndu</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">dndv</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">side</span>: <span class="ident">SurfaceSide</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="macro">debug_assert!</span>(<span class="ident">u</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">u</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1.</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">v</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.</span>);
+        <span class="macro">debug_assert!</span>(<span class="ident">v</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1.</span>);
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">dpdu</span>.<span class="ident">cross</span>(<span class="ident">dpdv</span>).<span class="ident">get_normalized</span>();
-        <span class="self">Self</span>{
-            <span class="ident">dpdv</span>,<span class="ident">dpdu</span>,<span class="ident">dndu</span>,<span class="ident">dndv</span>,<span class="ident">normal</span>, <span class="ident">u</span>, <span class="ident">v</span>, <span class="ident">side</span>
-        }        
+        <span class="self">Self</span> {
+            <span class="ident">dpdv</span>,
+            <span class="ident">dpdu</span>,
+            <span class="ident">dndu</span>,
+            <span class="ident">dndv</span>,
+            <span class="ident">normal</span>,
+            <span class="ident">u</span>,
+            <span class="ident">v</span>,
+            <span class="ident">side</span>,
+        }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Transform</span>)-&gt;<span class="self">Self</span>{
-        <span class="self">Self</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Transform</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="ident">u</span>: <span class="self">self</span>.<span class="ident">u</span>,
             <span class="ident">v</span>: <span class="self">self</span>.<span class="ident">v</span>,
             <span class="ident">normal</span>: <span class="ident">t</span>.<span class="ident">transform_normal</span>(<span class="self">self</span>.<span class="ident">normal</span>),
-            <span class="ident">dpdu</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dpdu</span>), 
-            <span class="ident">dpdv</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dpdv</span>), 
-            <span class="ident">dndu</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dndu</span>), 
-            <span class="ident">dndv</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dndv</span>), 
-            <span class="ident">side</span>: <span class="self">self</span>.<span class="ident">side</span>
+            <span class="ident">dpdu</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dpdu</span>),
+            <span class="ident">dpdv</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dpdv</span>),
+            <span class="ident">dndu</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dndu</span>),
+            <span class="ident">dndv</span>: <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">dndv</span>),
+            <span class="ident">side</span>: <span class="self">self</span>.<span class="ident">side</span>,
         }
     }
 }
 
-
 <span class="doccomment">/// The data for a SurfaceInteraction</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SurfaceInteractionData</span>{
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SurfaceInteractionData</span> {
     <span class="comment">/* GENERAL INTERACTION DATA */</span>
-
     <span class="doccomment">/// The [`Point3D`] of the interaction</span>
     <span class="kw">pub</span> <span class="ident">point</span>: <span class="ident">Point3D</span>,
 
     <span class="comment">// The floating point error at the intersection</span>
     <span class="comment">// pub perror: Point3D,</span>
-
     <span class="doccomment">/// The time of the intersection</span>
     <span class="kw">pub</span> <span class="ident">time</span>: <span class="ident">Float</span>,
 
-    <span class="doccomment">/// The outgoing direction at the interaction. </span>
+    <span class="doccomment">/// The outgoing direction at the interaction.</span>
     <span class="doccomment">/// This is the negative ray direction</span>
     <span class="kw">pub</span> <span class="ident">wo</span>: <span class="ident">Vector3D</span>,
 
@@ -348,25 +358,22 @@ SOFTWARE.
     <span class="comment">// pub medium_interface: MediumInterface,</span>
 
     <span class="comment">/* FOR SURFACE INTERACTION */</span>
-
     <span class="doccomment">/// Stores the shading information based on</span>
     <span class="doccomment">/// pure geometry</span>
     <span class="kw">pub</span> <span class="ident">geometry_shading</span>: <span class="ident">ShadingInfo</span>,
 
-    <span class="doccomment">/// Stores the shading information after being </span>
+    <span class="doccomment">/// Stores the shading information after being</span>
     <span class="doccomment">/// perturbed by a texture</span>
     <span class="kw">pub</span> <span class="ident">texture_shading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">ShadingInfo</span><span class="op">&gt;</span>,
 
-    <span class="comment">// /// The [`Object`] in the scene </span>
-    <span class="comment">// pub object: RefCount&lt;Object&gt;,    </span>
-
+    <span class="comment">// /// The [`Object`] in the scene</span>
+    <span class="comment">// pub object: RefCount&lt;Object&gt;,</span>
     <span class="doccomment">/// The index of the primitive in the primitives array</span>
     <span class="kw">pub</span> <span class="ident">prim_index</span>: <span class="ident">usize</span>,
 }
 
-
 <span class="kw">impl</span> <span class="ident">SurfaceInteractionData</span> {
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Transform</span>)-&gt;<span class="self">Self</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">transform</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">t</span>: <span class="kw-2">&amp;</span><span class="ident">Transform</span>) -&gt; <span class="self">Self</span> {
         <span class="comment">// let (point, perror) = t.transform_pt_propagate_error(self.point, self.perror);</span>
         <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">transform_pt</span>(<span class="self">self</span>.<span class="ident">point</span>);
         <span class="kw">let</span> <span class="ident">wo</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">transform_vec</span>(<span class="self">self</span>.<span class="ident">wo</span>);
@@ -380,67 +387,59 @@ SOFTWARE.
         <span class="comment">//     None=&gt;None</span>
         <span class="comment">// };</span>
         <span class="kw">let</span> <span class="ident">texture_shading</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">texture_shading</span>.<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">transform</span>(<span class="ident">t</span>));
-        
-        <span class="self">Self</span>{
+
+        <span class="self">Self</span> {
             <span class="ident">point</span>,
             <span class="comment">// perror,</span>
             <span class="ident">wo</span>,
             <span class="ident">time</span>,
             <span class="ident">geometry_shading</span>,
-            <span class="ident">texture_shading</span>,            
+            <span class="ident">texture_shading</span>,
             <span class="comment">// object: RefCount::clone(&amp;self.object)</span>
-            <span class="ident">prim_index</span>: <span class="self">self</span>.<span class="ident">prim_index</span>
+            <span class="ident">prim_index</span>: <span class="self">self</span>.<span class="ident">prim_index</span>,
         }
     }
 
     <span class="doccomment">/// Retrieves the normal of the [`SurfaceInteractionData`].</span>
     <span class="doccomment">/// Prioritizes the texture geometry (which can deviate the normal).</span>
     <span class="doccomment">/// If there is `None`, then the geometry shading is used.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">Vector3D</span>{
-        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">texture_shading</span>{
-            <span class="prelude-val">Some</span>(<span class="ident">info</span>)=&gt;<span class="ident">info</span>.<span class="ident">normal</span>,
-            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vector3D</span> {
+        <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">texture_shading</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">info</span>) =&gt; <span class="ident">info</span>.<span class="ident">normal</span>,
+            <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span>,
         }
     }
 }
 
-
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Interaction</span>{
-    <span class="ident">Surface</span>(<span class="ident">SurfaceInteractionData</span>), 
-    <span class="ident">Endpoint</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span><span class="op">&gt;</span>) 
+<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Interaction</span> {
+    <span class="ident">Surface</span>(<span class="ident">SurfaceInteractionData</span>),
+    <span class="ident">Endpoint</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Debug</span> <span class="kw">for</span> <span class="ident">Interaction</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="kw">match</span> <span class="self">self</span>{
-            <span class="ident"><span class="self">Self</span>::Surface</span>(<span class="kw">_</span>)=&gt;{
-                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;SurfaceInteraction(..)&quot;</span>).<span class="ident">finish</span>()
-            },    
-            <span class="ident"><span class="self">Self</span>::Endpoint</span>(<span class="ident">light</span>)=&gt;{
-                <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">light</span>.<span class="ident">is_some</span>(){
-                    <span class="string">&quot;Light&quot;</span>
-                }<span class="kw">else</span>{
-                    <span class="string">&quot;Camera&quot;</span>
-                };
-                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;EndpointInteraction({})&quot;</span>, <span class="ident">kind</span>)).<span class="ident">finish</span>()
-            },            
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Surface</span>(<span class="kw">_</span>) =&gt; <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="string">&quot;SurfaceInteraction(..)&quot;</span>).<span class="ident">finish</span>(),
+            <span class="ident"><span class="self">Self</span>::Endpoint</span>(<span class="ident">light</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">kind</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">light</span>.<span class="ident">is_some</span>() { <span class="string">&quot;Light&quot;</span> } <span class="kw">else</span> { <span class="string">&quot;Camera&quot;</span> };
+                <span class="ident">f</span>.<span class="ident">debug_struct</span>(<span class="kw-2">&amp;</span><span class="macro">format!</span>(<span class="string">&quot;EndpointInteraction({})&quot;</span>, <span class="ident">kind</span>))
+                    .<span class="ident">finish</span>()
+            }
         }
-        
     }
 }
 
-<span class="kw">impl</span> <span class="ident">Interaction</span>{
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_surface</span>(<span class="ident">data</span>: <span class="ident">SurfaceInteractionData</span>, <span class="ident">flip_normal</span>: <span class="ident">bool</span>)-&gt;<span class="self">Self</span>{
+<span class="kw">impl</span> <span class="ident">Interaction</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_surface</span>(<span class="ident">data</span>: <span class="ident">SurfaceInteractionData</span>, <span class="ident">flip_normal</span>: <span class="ident">bool</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">data</span>;
-        <span class="kw">if</span> <span class="ident">flip_normal</span>{
+        <span class="kw">if</span> <span class="ident">flip_normal</span> {
             <span class="ident">data</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1.</span>
         }
         <span class="ident"><span class="self">Self</span>::Surface</span>(<span class="ident">data</span>)
     }
 
     <span class="doccomment">/// Checks whether an [`Interaction`] is Surface</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_surface_interaction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">bool</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_surface_interaction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// match self{</span>
         <span class="comment">//     Self::Surface(_) =&gt; true,</span>
         <span class="comment">//     _ =&gt; false</span>
@@ -448,11 +447,10 @@ SOFTWARE.
         <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Surface</span>(<span class="kw">_</span>))
     }
 
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">Vector3D</span>{
-        <span class="kw">match</span> <span class="self">self</span>{
-            <span class="ident"><span class="self">Self</span>::Surface</span>(<span class="ident">d</span>)=&gt;<span class="ident">d</span>.<span class="ident">normal</span>(),
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{:?} has no normals&quot;</span>, <span class="self">self</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vector3D</span> {
+        <span class="kw">match</span> <span class="self">self</span> {
+            <span class="ident"><span class="self">Self</span>::Surface</span>(<span class="ident">d</span>) =&gt; <span class="ident">d</span>.<span class="ident">normal</span>(),
+            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;{:?} has no normals&quot;</span>, <span class="self">self</span>),
         }
     }
 
@@ -462,6 +460,7 @@ SOFTWARE.
     <span class="comment">//         _ =&gt; panic!(&quot;{:?} has no normals&quot;, self)</span>
     <span class="comment">//     }</span>
     <span class="comment">// }</span>
-}</code></pre></div>
+}
+</code></pre></div>
 </section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
 </body></html>

@@ -263,19 +263,6 @@
 <span id="228">228</span>
 <span id="229">229</span>
 <span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -296,7 +283,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-
 <span class="comment">/*
  PART OF THIS FILE contains code to write four byte rgbe file format
  developed by Greg Ward. It handles the conversions between rgbe and
@@ -307,8 +293,8 @@ SOFTWARE.
  written by Bruce Walter  (bjw@graphics.cornell.edu)  5/26/95
  based on code written by Greg Ward
 */</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 
 <span class="kw">fn</span> <span class="ident">rusty_frexp</span>(<span class="ident">s</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">i32</span>) {
@@ -381,8 +367,6 @@ SOFTWARE.
     }
 }
 
-
-
 <span class="kw">impl</span> <span class="ident">ImageBuffer</span> {
     <span class="doccomment">/// Creates a new empty [`ImageBuffer`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">width</span>: <span class="ident">usize</span>, <span class="ident">height</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
@@ -394,7 +378,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Creates a new empty [`ImageBuffer`]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pixels</span>(<span class="ident">width</span>: <span class="ident">usize</span>, <span class="ident">height</span>: <span class="ident">usize</span>, <span class="ident">pixels</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_pixels</span>(<span class="ident">width</span>: <span class="ident">usize</span>, <span class="ident">height</span>: <span class="ident">usize</span>, <span class="ident">pixels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span>) -&gt; <span class="self">Self</span> {
         <span class="kw">if</span> <span class="ident">pixels</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;Width ({}) and Height ({}) does not match the number of pixels (n_pixels is {}... expecting width*height={})&quot;</span>, <span class="ident">width</span>, <span class="ident">height</span>, <span class="ident">pixels</span>.<span class="ident">len</span>(), <span class="ident">width</span><span class="kw-2">*</span><span class="ident">height</span>)
         }
@@ -428,13 +412,13 @@ SOFTWARE.
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PI</span>;
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_int</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PI</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>))]</span>
-    <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_double</span>};
+    <span class="kw">use</span> <span class="ident">std::os::raw::c_double</span>;
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>)]</span>
-    <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_float</span>};
+    <span class="kw">use</span> <span class="ident">std::os::raw::c_float</span>;
+    <span class="kw">use</span> <span class="ident">std::os::raw::c_int</span>;
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>))]</span>
     <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
@@ -454,17 +438,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_frexp</span>() {
-        <span class="kw">let</span> <span class="ident">xs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="number">1e6</span>,
-            <span class="number">2.</span>,
-            <span class="ident">PI</span>,
-            <span class="number">123987.</span>,
-            <span class="number">0.</span>,
-            <span class="number">99.</span>,
-            <span class="number">2.3123</span>,
-            <span class="number">1024.</span>,
-            <span class="number">0.1</span>,
-        ];
+        <span class="kw">let</span> <span class="ident">xs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1e6</span>, <span class="number">2.</span>, <span class="ident">PI</span>, <span class="number">123987.</span>, <span class="number">0.</span>, <span class="number">99.</span>, <span class="number">2.3123</span>, <span class="number">1024.</span>, <span class="number">0.1</span>];
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">xs</span>.<span class="ident">iter</span>() {
             <span class="kw">let</span> (<span class="ident">c_mantissa</span>, <span class="ident">c_exp</span>) <span class="op">=</span> <span class="ident">c_frexp</span>(<span class="kw-2">*</span><span class="ident">x</span>);
             <span class="kw">let</span> (<span class="ident">mantissa</span>, <span class="ident">exp</span>) <span class="op">=</span> <span class="ident">rusty_frexp</span>(<span class="kw-2">*</span><span class="ident">x</span>);

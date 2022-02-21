@@ -316,6 +316,18 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
+<span id="295">295</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -338,9 +350,7 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 
-
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Spectrum</span> <span class="op">=</span> <span class="ident">RGBSpectrum</span>;
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ColourMatrix</span> <span class="op">=</span> <span class="ident">matrix::GenericMatrix</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">RGBSpectrum</span> {
@@ -349,18 +359,18 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">blue</span>: <span class="ident">Float</span>,
 }
 
-
 <span class="kw">impl</span> <span class="ident">matrix::OneZero</span> <span class="kw">for</span> <span class="ident">RGBSpectrum</span> {
-    <span class="kw">fn</span> <span class="ident">one</span>()-&gt;<span class="self">Self</span>{
+    <span class="kw">fn</span> <span class="ident">one</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::gray</span>(<span class="number">1.</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">zero</span>()-&gt;<span class="self">Self</span>{
+    <span class="kw">fn</span> <span class="ident">zero</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::black</span>()
     }
 }
 
 <span class="kw">impl</span> <span class="ident">RGBSpectrum</span> {
+    <span class="doccomment">/// Creates a new Spectrum full of Zeroes</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">black</span>() -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">red</span>: <span class="number">0.</span>,
@@ -369,6 +379,7 @@ SOFTWARE.
         }
     }
 
+    <span class="doccomment">/// Creates a new Spectrum full of equal values `v`</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">gray</span>(<span class="ident">v</span>: <span class="ident">Float</span>) -&gt; <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">red</span>: <span class="ident">v</span>,
@@ -377,18 +388,32 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_black</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">bool</span>{
+    <span class="doccomment">/// Checks whether `Spectrum::black() == self`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_black</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="self">self</span>.<span class="ident">red</span> <span class="op">==</span> <span class="number">0.</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">green</span> <span class="op">==</span> <span class="number">0.</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">blue</span> <span class="op">==</span> <span class="number">0.</span>
     }
+
+    <span class="doccomment">/// Calculates a weighted average of RGB colours, returning</span>
+    <span class="doccomment">/// a single value representing Radiance</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_radiance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Float</span> {
+        <span class="comment">// self.red*47.9 + self.green*119.9 + self.blue*11.6</span>
+        <span class="self">self</span>.<span class="ident">red</span> <span class="op">*</span> <span class="number">0.265</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">green</span> <span class="op">*</span> <span class="number">0.670</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">blue</span> <span class="op">*</span> <span class="number">0.065</span>
+    }
+
+    <span class="doccomment">/// Calculates a weighted average of RGB colours, returning</span>
+    <span class="doccomment">/// a single value representing Radiance</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">to_luminance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Float</span> {
+        <span class="self">self</span>.<span class="ident">to_radiance</span>() <span class="op">/</span> <span class="ident"><span class="self">Self</span>::WHITE_EFFICACY</span>
+    }
+
+    <span class="doccomment">/// The standard Luminious Efficacy of equal white light energy</span>
+    <span class="doccomment">/// as defined in Radiance</span>
+    <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">WHITE_EFFICACY</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">179.</span>;
 }
 
 <span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">RGBSpectrum</span> {
     <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span><span class="op">&lt;</span><span class="lifetime">&#39;_</span><span class="op">&gt;</span>) -&gt; <span class="ident">std::fmt::Result</span> {
-        <span class="macro">write!</span>(
-            <span class="ident">f</span>,
-            <span class="string">&quot;RGB({:.5},{:.5},{:.5})&quot;</span>,
-            <span class="self">self</span>.<span class="ident">red</span>, <span class="self">self</span>.<span class="ident">green</span>, <span class="self">self</span>.<span class="ident">blue</span>
-        )
+        <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{:.5} {:.5} {:.5}&quot;</span>, <span class="self">self</span>.<span class="ident">red</span>, <span class="self">self</span>.<span class="ident">green</span>, <span class="self">self</span>.<span class="ident">blue</span>)
     }
 }
 
@@ -430,7 +455,6 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">blue</span> <span class="op">-</span><span class="op">=</span> <span class="ident">other</span>.<span class="ident">blue</span>;
     }
 }
-
 
 <span class="kw">impl</span> <span class="ident">std::ops::Mul</span> <span class="kw">for</span> <span class="ident">RGBSpectrum</span> {
     <span class="kw">type</span> <span class="ident">Output</span> <span class="op">=</span> <span class="self">Self</span>;
