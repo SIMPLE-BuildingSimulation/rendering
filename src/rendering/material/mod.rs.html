@@ -457,7 +457,7 @@ SOFTWARE.
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray1</span> <span class="op">=</span> <span class="ident">ray</span>;
                 <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
                 <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
-                <span class="kw">let</span> <span class="ident">pair1</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ray1</span>, <span class="ident">refl</span>, <span class="ident">refl</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>)));
+                <span class="kw">let</span> <span class="ident">pair1</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ray1</span>, <span class="ident">refl</span>, <span class="ident">cos1</span><span class="kw-2">*</span><span class="ident">refl</span> <span class="comment">/*refl / (refl + trans)*/</span>));
 
                 <span class="comment">// process transmission</span>
                 <span class="kw">let</span> <span class="ident">pair2</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">trans</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
@@ -466,7 +466,7 @@ SOFTWARE.
                     <span class="kw">let</span> <span class="ident">trans_dir</span> <span class="op">=</span>
                         <span class="ident">fresnel_transmission_dir</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>, <span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>.<span class="ident">unwrap</span>());
                     <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>;
-                    <span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">trans</span>, <span class="ident">trans</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>)))
+                    <span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">trans</span>, <span class="comment">/*trans / (refl + trans)*/</span><span class="number">1.</span><span class="op">-</span><span class="ident">cos1</span><span class="kw-2">*</span><span class="ident">refl</span>))
                 } <span class="kw">else</span> {
                     <span class="prelude-val">None</span>
                 };

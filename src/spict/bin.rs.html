@@ -133,7 +133,6 @@
 <span id="98"> 98</span>
 <span id="99"> 99</span>
 <span id="100">100</span>
-<span id="101">101</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -199,9 +198,8 @@ SOFTWARE.
 
     <span class="comment">// Create camera</span>
     <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
-        <span class="ident">resolution</span>: (<span class="number">600</span> <span class="op">/</span> <span class="number">2</span>, <span class="number">437</span> <span class="op">/</span> <span class="number">2</span>),
-        <span class="comment">// resolution: (600, 437),</span>
-        <span class="comment">// resolution: (1024, 768),</span>
+        <span class="comment">// resolution: (512, 367),</span>
+        <span class="ident">resolution</span>: (<span class="number">1024</span>, <span class="number">768</span>),
         <span class="comment">// resolution: (512, 512),</span>
     };
 
@@ -221,7 +219,7 @@ SOFTWARE.
         <span class="ident">n_shadow_samples</span>: <span class="number">10</span>,
         <span class="ident">max_depth</span>: <span class="number">3</span>,
         <span class="ident">limit_weight</span>: <span class="number">0.001</span>,
-        <span class="ident">n_ambient_samples</span>: <span class="number">290</span>,
+        <span class="ident">n_ambient_samples</span>: <span class="number">1890</span>,
         ..<span class="ident">RayTracer::default</span>()
     };
 
