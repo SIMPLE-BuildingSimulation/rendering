@@ -78,6 +78,7 @@ impl Dielectric {
             let rhs = n2 * sin2_sq.sqrt();
             debug_assert!((lhs - rhs).abs() < 1e-5, "rhs = {}, lhs = {}", lhs, rhs);
         }
+        debug_assert!(sin2_sq >= 0.0);
         if sin2_sq >= 1. {
             // Pure reflection...
             return (n1, cos1, n2, None);
@@ -96,16 +97,25 @@ impl Dielectric {
         n2: Float,
         cos2: Option<Float>,
     ) -> (Float, Float) {
+        debug_assert!(cos1 > 0.0);
         if let Some(cos2) = cos2 {
             // There is refraction
             let refl = fresnel_reflectance(n1, cos1, n2, cos2);
-            let refl_comp = refl / cos1.abs();
+            let refl_comp = refl / cos1;
+            // This is one source of non-symmetrical BSDF 
+            // (check Eric Veach's thesis, chapter 5 )
+            /* IF RADIANCE */
             let ratio = n2 / n1;
             let n_ratio2 = ratio * ratio;
-            let t_comp = (1. - refl) * n_ratio2 / cos1.abs();
+            let t_comp = (1. - refl) * n_ratio2 / cos1;
+            /* IF IMPORTANCE */
+            // let t_comp = (1. - refl) / cos1;
+
+            // return
             (refl_comp, t_comp)
         } else {
             // pure reflection
+            // (1. / cos1, 0.)
             (1. / cos1, 0.)
         }
     }

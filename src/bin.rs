@@ -63,9 +63,8 @@ fn main() {
 
     // Create camera
     let film = Film {
-        resolution: (600 / 2, 437 / 2),
-        // resolution: (600, 437),
-        // resolution: (1024, 768),
+        // resolution: (512, 367),
+        resolution: (1024, 768),
         // resolution: (512, 512),
     };
 
@@ -85,7 +84,7 @@ fn main() {
         n_shadow_samples: 10,
         max_depth: 3,
         limit_weight: 0.001,
-        n_ambient_samples: 290,
+        n_ambient_samples: 1890,
         ..RayTracer::default()
     };
 

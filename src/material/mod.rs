@@ -125,7 +125,7 @@ impl Material {
                 let mut ray1 = ray;
                 ray1.geometry.direction = mirror_dir;
                 ray1.geometry.origin = intersection_pt + normal * 0.00001;
-                let pair1 = Some((ray1, refl, refl / (refl + trans)));
+                let pair1 = Some((ray1, refl, cos1*refl /*refl / (refl + trans)*/));
 
                 // process transmission
                 let pair2 = if trans > 0.0 {
@@ -134,7 +134,7 @@ impl Material {
                     let trans_dir =
                         fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
                     ray.geometry.direction = trans_dir;
-                    Some((ray, trans, trans / (refl + trans)))
+                    Some((ray, trans, /*trans / (refl + trans)*/1.-cos1*refl))
                 } else {
                     None
                 };

@@ -68,7 +68,7 @@ impl RayTracer {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
         // If hits an object
-        if let Some((t, Interaction::Surface(data))) = scene.cast_ray(&ray) {
+        if let Some((_t, Interaction::Surface(data))) = scene.cast_ray(&ray) {
             let object = &scene.objects[data.prim_index];
             let material = match data.geometry_shading.side {
                 SurfaceSide::Front => &scene.materials[object.front_material_index],
@@ -79,7 +79,8 @@ impl RayTracer {
                 }
             };
 
-            let intersection_pt = ray.geometry.project(t);
+            // let intersection_pt = ray.geometry.project(t);
+            let intersection_pt = data.point;
 
             // for now, emmiting materials don't reflect... but they
             // are visible when viewed directly from the camera
@@ -113,7 +114,7 @@ impl RayTracer {
                 let mut specular_li = Spectrum::black();
                 let paths = material.get_possible_paths(normal, intersection_pt, ray);
                 // let mut n = 0;
-                for (new_ray, bsdf_value, weight) in paths.iter().flatten() {
+                for (new_ray, bsdf_value, pdf) in paths.iter().flatten() {
                     // n += 1;
 
                     let new_ray_dir = new_ray.geometry.direction;
@@ -133,7 +134,7 @@ impl RayTracer {
                     let color = material.colour();
                     // let total_samples = n + n_lights * self.n_shadow_samples;
                     // let bsdf_c = 1.;//n as Float / total_samples as Float;
-                    specular_li += (li * cos_theta) * (color) * *weight; // / ( bsdf_c * bsdf_value );
+                    specular_li += (li * cos_theta * *bsdf_value) * (color) * *pdf; // / ( bsdf_c * bsdf_value );
                 }
                 // return Some(specular_li + local)
                 return (specular_li, 0.0);
@@ -152,11 +153,12 @@ impl RayTracer {
                     wt = d;
                 }
                 let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
+                const EXTRA:usize = 1;
                 const MIN_AMBS: usize = 1;
-                if n < MIN_AMBS {
-                    MIN_AMBS
+                if n < MIN_AMBS * EXTRA {
+                    MIN_AMBS * EXTRA
                 } else {
-                    n
+                    n * EXTRA
                 }
             };
 
@@ -165,7 +167,7 @@ impl RayTracer {
             let direct_n = if current_depth == 0 {
                 self.n_shadow_samples
             } else {
-                3
+                1
             };
 
             /* DIRECT LIGHT */
