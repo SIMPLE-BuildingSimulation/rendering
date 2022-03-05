@@ -73,7 +73,7 @@ impl RGBSpectrum {
     /// Calculates a weighted average of RGB colours, returning
     /// a single value representing Radiance
     pub fn to_luminance(&self) -> Float {
-        self.to_radiance() / Self::WHITE_EFFICACY
+        self.to_radiance() * Self::WHITE_EFFICACY
     }
 
     /// The standard Luminious Efficacy of equal white light energy
