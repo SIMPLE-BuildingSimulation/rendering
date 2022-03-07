@@ -28,7 +28,7 @@ use crate::ray::Ray;
 use crate::Float;
 use geometry3d::Ray3D;
 // type Texture = fn(Float,Float)->Float;
-use simple_model::{SimpleModel, Substance};
+use simple_model::SimpleModel;
 
 #[derive(Clone)]
 pub struct Object {

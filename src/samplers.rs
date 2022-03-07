@@ -113,6 +113,9 @@ pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32,
     );
 }
 
+
+/// Transforms a Point from Local Coordinates (defined by the triad `local_e1`, `local_e2` and `normal`, 
+/// centered at `centre`) into world coordinates. For converting a vector, set `centre = Point3D::new(0.0, 0., 0.)`
 pub fn local_to_world(
     local_e1: Vector3D,
     local_e2: Vector3D,

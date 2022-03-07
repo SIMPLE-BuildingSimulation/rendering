@@ -114,7 +114,7 @@ impl RayTracer {
                 let mut specular_li = Spectrum::black();
                 let paths = material.get_possible_paths(normal, intersection_pt, ray);
                 // let mut n = 0;
-                for (new_ray, bsdf_value, pdf) in paths.iter().flatten() {
+                for (new_ray, bsdf_value, ray_weight) in paths.iter().flatten() {
                     // n += 1;
 
                     let new_ray_dir = new_ray.geometry.direction;
@@ -134,7 +134,7 @@ impl RayTracer {
                     let color = material.colour();
                     // let total_samples = n + n_lights * self.n_shadow_samples;
                     // let bsdf_c = 1.;//n as Float / total_samples as Float;
-                    specular_li += (li * cos_theta * *bsdf_value) * (color) * *pdf; // / ( bsdf_c * bsdf_value );
+                    specular_li += (li * cos_theta * *bsdf_value) * (color) * *ray_weight; // / ( bsdf_c * bsdf_value );
                 }
                 // return Some(specular_li + local)
                 return (specular_li, 0.0);
@@ -290,7 +290,7 @@ impl RayTracer {
         for light in lights.iter() {
             // let this_origin = this_origin + normal * 0.001;
             let mut i = 0;
-            let mut missed = 0;
+            // let mut missed = 0;
             while i < n_shadow_samples {
                 let direction = light.primitive.sample_direction(rng, point);
                 let shadow_ray = Ray3D {
@@ -322,7 +322,7 @@ impl RayTracer {
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
                     local_illum += fx / denominator;
                 } else {
-                    missed += 1;
+                    // missed += 1;
                     // eprintln!("Missed Light! {} (i = {})", missed, i)
                 }
                 // ... missed light. Try again
