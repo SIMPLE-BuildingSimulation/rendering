@@ -333,9 +333,9 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">lights</span>.<span class="ident">len</span>() <span class="op">+</span> <span class="self">self</span>.<span class="ident">distant_lights</span>.<span class="ident">len</span>()
     }
 
-    <span class="doccomment">/// Casts a [`Ray3D`] and returns an `Option&lt;(Float,SurfaceInteraction)&gt;` in which the</span>
-    <span class="doccomment">/// the `Float` is the distance  that the [`Ray3D`] travelled to it.    </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Float</span>, <span class="ident">Interaction</span>)<span class="op">&gt;</span> {
+    <span class="doccomment">/// Casts a [`Ray3D`] and returns an `Option&lt;Interaction&gt;` describing the </span>
+    <span class="doccomment">/// interaction with the first primitive hit by the ray, if any.    </span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Interaction</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">accelerator</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span> {
             <span class="prelude-val">Some</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>,
             <span class="prelude-val">None</span> =&gt; {
