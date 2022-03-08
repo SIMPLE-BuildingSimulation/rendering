@@ -95,9 +95,9 @@ impl Scene {
         self.lights.len() + self.distant_lights.len()
     }
 
-    /// Casts a [`Ray3D`] and returns an `Option<(Float,SurfaceInteraction)>` in which the
-    /// the `Float` is the distance  that the [`Ray3D`] travelled to it.    
-    pub fn cast_ray(&self, ray: &Ray) -> Option<(Float, Interaction)> {
+    /// Casts a [`Ray3D`] and returns an `Option<Interaction>` describing the 
+    /// interaction with the first primitive hit by the ray, if any.    
+    pub fn cast_ray(&self, ray: &Ray) -> Option<Interaction> {
         let accelerator = match &self.accelerator {
             Some(s) => s,
             None => {

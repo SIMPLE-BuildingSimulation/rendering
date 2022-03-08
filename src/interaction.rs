@@ -39,53 +39,72 @@ pub struct ShadingInfo {
     pub dpdv: Vector3D,
 
     /// Partial derivative of the normal `n` with respect to u
+    #[cfg(feature="textures")]
     pub dndu: Vector3D,
 
     /// Partial derivative of the normal `n` with respect to v
+    #[cfg(feature="textures")]
     pub dndv: Vector3D,
 
+    #[cfg(feature="textures")]
     pub u: Float,
+
+    #[cfg(feature="textures")]
     pub v: Float,
+    
     pub side: SurfaceSide,
 }
 
 impl ShadingInfo {
     pub fn new(
-        u: Float,
-        v: Float,
+        _u: Float,
+        _v: Float,
         dpdu: Vector3D,
         dpdv: Vector3D,
-        dndu: Vector3D,
-        dndv: Vector3D,
+        _dndu: Vector3D,
+        _dndv: Vector3D,
         side: SurfaceSide,
     ) -> Self {
-        debug_assert!(u >= 0.);
-        debug_assert!(u <= 1.);
-        debug_assert!(v >= 0.);
-        debug_assert!(v <= 1.);
+        #[cfg(feature="textures")]
+        {
+            debug_assert!(_u >= 0.);
+            debug_assert!(_u <= 1.);
+            debug_assert!(_v >= 0.);
+            debug_assert!(_v <= 1.);
+        }
         let normal = dpdu.cross(dpdv).get_normalized();
         Self {
             dpdv,
             dpdu,
-            dndu,
-            dndv,
-            normal,
-            u,
-            v,
             side,
+            normal,
+
+            #[cfg(feature="textures")]
+            dndu: _dndu,
+            #[cfg(feature="textures")]
+            dndv: _dndv,
+            #[cfg(feature="textures")]
+            u: _u,
+            #[cfg(feature="textures")]
+            v: _v,
         }
     }
 
     pub fn transform(&self, t: &Transform) -> Self {
         Self {
-            u: self.u,
-            v: self.v,
             normal: t.transform_normal(self.normal),
             dpdu: t.transform_vec(self.dpdu),
             dpdv: t.transform_vec(self.dpdv),
-            dndu: t.transform_vec(self.dndu),
-            dndv: t.transform_vec(self.dndv),
             side: self.side,
+
+            #[cfg(feature="textures")]
+            u: self.u,
+            #[cfg(feature="textures")]
+            v: self.v,
+            #[cfg(feature="textures")]
+            dndu: t.transform_vec(self.dndu),
+            #[cfg(feature="textures")]
+            dndv: t.transform_vec(self.dndv),
         }
     }
 }
@@ -115,6 +134,7 @@ pub struct SurfaceInteractionData {
 
     /// Stores the shading information after being
     /// perturbed by a texture
+    #[cfg(feature="textures")]
     pub texture_shading: Option<ShadingInfo>,
 
     // /// The [`Object`] in the scene
@@ -132,11 +152,8 @@ impl SurfaceInteractionData {
         // let object = self.object;
 
         // shading
-        let geometry_shading = self.geometry_shading.transform(t);
-        // let texture_shading = match self.texture_shading{
-        //     Some(s)=>Some(s.transform(t)),
-        //     None=>None
-        // };
+        let geometry_shading = self.geometry_shading.transform(t);        
+        #[cfg(feature="textures")]
         let texture_shading = self.texture_shading.map(|s| s.transform(t));
 
         Self {
@@ -145,8 +162,9 @@ impl SurfaceInteractionData {
             wo,
             time,
             geometry_shading,
+
+            #[cfg(feature="textures")]
             texture_shading,
-            // object: RefCount::clone(&self.object)
             prim_index: self.prim_index,
         }
     }
@@ -155,15 +173,18 @@ impl SurfaceInteractionData {
     /// Prioritizes the texture geometry (which can deviate the normal).
     /// If there is `None`, then the geometry shading is used.
     pub fn normal(&self) -> Vector3D {
+        #[cfg(feature="textures")]
         match &self.texture_shading {
             Some(info) => info.normal,
             None => self.geometry_shading.normal,
         }
+        #[cfg(not(feature="textures"))]
+        self.geometry_shading.normal
     }
 }
 
 pub enum Interaction {
-    Surface(SurfaceInteractionData),
+    Surface(SurfaceInteractionData),    
     Endpoint(Option<RefCount<Object>>),
 }
 

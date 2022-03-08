@@ -438,9 +438,9 @@ impl BoundingVolumeTree {
         this_offset
     }
 
-    /// Returns an `Option<Float, Interaction>`, where the `Float` is the distance
-    /// travelled by the ray.
-    pub fn intersect(&self, primitives: &[Object], ray: &Ray3D) -> Option<(Float, Interaction)> {
+    /// Returns an `Option<Interaction>`, containing the first primitive
+    /// to be hit by the ray, if any
+    pub fn intersect(&self, primitives: &[Object], ray: &Ray3D) -> Option<Interaction> {
         const MIN_T: Float = 0.000001;
 
         if self.0.is_empty() {
@@ -515,6 +515,7 @@ impl BoundingVolumeTree {
             let prim_index = prim_index.unwrap();
             let t = t_squared.sqrt();
             let point = ray.project(t);
+            #[cfg(feature = "textures")]
             let data = SurfaceInteractionData {
                 point,
                 // perror: info.perror,
@@ -534,7 +535,26 @@ impl BoundingVolumeTree {
                 // object,
                 prim_index,
             };
-            Some((t, Interaction::Surface(data)))
+            #[cfg(not(feature = "textures"))]
+            let data = SurfaceInteractionData {
+                point,
+                // perror: info.perror,
+                time: 0., // We are not using this value
+                wo: ray.direction * -1.,
+                geometry_shading: ShadingInfo {                    
+                    normal: info.normal,
+                    dpdu: info.dpdu,
+                    dpdv: info.dpdv,
+                    side: info.side,                    
+                },
+                #[cfg(feature="textures")]
+                texture_shading: None,
+                // object,
+                prim_index,
+            };
+
+
+            Some(Interaction::Surface(data))
         } else {
             None
         }

@@ -20,7 +20,7 @@ SOFTWARE.
 
 use rendering::scene::Scene;
 // use rendering::from_radiance::from
-use clap::{App, Arg};
+use clap::{Command, Arg};
 
 use geometry3d::{Point3D, Vector3D};
 use rendering::camera::{Camera, View};
@@ -29,7 +29,7 @@ use rendering::ray_tracer::RayTracer;
 use std::time::Instant;
 
 fn main() {
-    let matches = App::new("SIMPLE ray tracer")
+    let matches = Command::new("SIMPLE ray tracer")
         .version("0.1 (but it is still awesome!)")
         .author("(c) German Molina")
         .about("A simple ray-tracing renderer")

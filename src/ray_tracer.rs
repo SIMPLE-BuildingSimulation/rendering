@@ -68,7 +68,7 @@ impl RayTracer {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
         // If hits an object
-        if let Some((_t, Interaction::Surface(data))) = scene.cast_ray(&ray) {
+        if let Some(Interaction::Surface(data)) = scene.cast_ray(&ray) {
             let object = &scene.objects[data.prim_index];
             let material = match data.geometry_shading.side {
                 SurfaceSide::Front => &scene.materials[object.front_material_index],
@@ -537,7 +537,9 @@ mod tests {
     #[ignore]
     #[test]
     fn render_scenes() {
-        
+        // 82 seconds
+        // time cargo test --features parallel --release  -- --ignored --nocapture render_scenes
+
         compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
         compare_with_radiance("exterior_0_mirror.rad".to_string());
@@ -545,7 +547,10 @@ mod tests {
 
     #[ignore]
     #[test]
-    fn render_dielectric() {        
+    fn render_dielectric() {   
+        // 0 seconds
+        // time cargo test --features parallel --release  -- --ignored --nocapture render_dielectric
+
         let filename = "exterior_0_dielectric.rad".to_string();
         let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
         scene.build_accelerator();
@@ -566,7 +571,7 @@ mod tests {
         let camera = Camera::pinhole(view, film);
 
         let integrator = RayTracer {
-            n_shadow_samples: 0,
+            n_shadow_samples: 10,
             max_depth: 3,
             limit_weight: 0.001,
             n_ambient_samples: 20,
@@ -602,7 +607,10 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn test_render_room() {        
+    fn test_render_room() { 
+        // 82 seconds
+        // time cargo test --features parallel --release  -- --ignored --nocapture test_render_room
+
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
 
         scene.build_accelerator();
@@ -641,6 +649,8 @@ mod tests {
     #[ignore]
     #[test]
     fn test_2() {
+        // 2 seconds
+        // time cargo test --features parallel --release  -- --ignored --nocapture test_2
         
         // Build scene
         let mut scene = Scene::default();

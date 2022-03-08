@@ -74,6 +74,8 @@ pub fn triangle_solid_angle_pdf(
 
 /* END OF TRIANGLE */
 
+
+
 /* SPHERE */
 
 pub fn sphere_solid_angle_pdf(sphere: &Sphere3D, _info: &IntersectionInfo, ray: &Ray3D) -> Float {
@@ -109,6 +111,11 @@ pub fn sample_sphere_surface(sphere: &Sphere3D, rng: &mut RandGen) -> Point3D {
 }
 
 /* END SPHERE */
+
+
+/* DISK */ 
+
+
 
 /* DISTANT SOURCE */
 

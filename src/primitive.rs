@@ -21,7 +21,7 @@ SOFTWARE.
 use crate::rand::RandGen;
 use crate::Float;
 use geometry3d::{
-    BBox3D, Cylinder3D, DistantSource3D, Point3D, Ray3D, Sphere3D, Triangle3D, Vector3D,
+    BBox3D, Cylinder3D, DistantSource3D, Point3D, Ray3D, Sphere3D, Triangle3D, Vector3D
 };
 
 use crate::primitive_samplers::*;
@@ -44,6 +44,7 @@ impl Primitive {
             Self::Triangle(s) => s.id(),
             Self::Cylinder(s) => s.id(),
             Self::Source(s) => s.id(),
+            
         }
     }
 
@@ -52,7 +53,7 @@ impl Primitive {
         match self {
             Self::Sphere(s) => s.world_bounds(),
             Self::Triangle(s) => s.world_bounds(),
-            Self::Cylinder(s) => s.world_bounds(),
+            Self::Cylinder(s) => s.world_bounds(),            
             Self::Source(_) => panic!("Trying to get the bounds of a DistantSource3D"),
         }
     }
@@ -67,6 +68,7 @@ impl Primitive {
             Self::Triangle(s) => s.intersect(ray),
             Self::Cylinder(s) => s.intersect(ray),
             Self::Source(s) => s.intersect(ray),
+
         }
     }
 
