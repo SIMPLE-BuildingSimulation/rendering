@@ -534,17 +534,18 @@ mod tests {
         buffer.save_hdre(format!("./test_data/images/self_{}.hdr", filename));
     }
 
+    #[ignore]
     #[test]
     fn render_scenes() {
-        return;
+        
         compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
         compare_with_radiance("exterior_0_mirror.rad".to_string());
     }
 
+    #[ignore]
     #[test]
-    fn render_dielectric() {
-        return;
+    fn render_dielectric() {        
         let filename = "exterior_0_dielectric.rad".to_string();
         let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
         scene.build_accelerator();
@@ -600,8 +601,8 @@ mod tests {
     }
 
     #[test]
-    fn test_render_room() {
-        return;
+    #[ignore]
+    fn test_render_room() {        
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
 
         scene.build_accelerator();
@@ -637,9 +638,10 @@ mod tests {
     use crate::material::{Material, PlasticMetal};
     use crate::primitive::Primitive;
     use geometry3d::{DistantSource3D, Sphere3D, Triangle3D};
+    #[ignore]
     #[test]
     fn test_2() {
-        return;
+        
         // Build scene
         let mut scene = Scene::default();
 

@@ -159,8 +159,9 @@ mod tests {
     use std::time::Instant;
 
     #[test]
+    #[ignore]
     fn test_scene_from_model() {
-        return;
+        
         // BUILD SCENE
         let (model, _state_header) =
             SimpleModel::from_file("./test_data/room.spl".to_string()).unwrap();

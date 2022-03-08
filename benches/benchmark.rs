@@ -5,7 +5,6 @@ use rendering::colour::Spectrum;
 use rendering::material::*;
 use rendering::ray::Ray;
 
-use rand::prelude::*;
 
 // use rand::distributions::{Distribution, Uniform};
 pub fn criterion_benchmark(c: &mut Criterion) {
