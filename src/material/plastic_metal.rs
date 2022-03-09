@@ -36,15 +36,17 @@ pub struct PlasticMetal {
 impl PlasticMetal {
     pub fn bsdf(
         &self,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
-        intersection_pt: Point3D,
-        mut ray: Ray,
+        normal: &Vector3D,
+        e1: &Vector3D,
+        e2: &Vector3D,
+        intersection_pt: &Point3D,
+        ray: &Ray,
         rng: &mut RandGen,
     ) -> (Ray, Float, bool) {
         // avoid self shading
-        ray.geometry.origin = intersection_pt + normal * 0.00001;
+        let normal = *normal;
+        let mut ray = *ray;
+        ray.geometry.origin = *intersection_pt + normal * 0.00001;
 
         if self.specularity > 0. {
             unimplemented!()
@@ -60,8 +62,8 @@ impl PlasticMetal {
                 local_dir.length()
             );
             let (x, y, z) = local_to_world(
-                e1,
-                e2,
+                *e1,
+                *e2,
                 normal,
                 Point3D::new(0., 0., 0.),
                 local_dir.x,

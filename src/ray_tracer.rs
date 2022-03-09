@@ -112,7 +112,7 @@ impl RayTracer {
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
                 let mut specular_li = Spectrum::black();
-                let paths = material.get_possible_paths(normal, intersection_pt, ray);
+                let paths = material.get_possible_paths(&normal, &intersection_pt, &ray);
                 // let mut n = 0;
                 for (new_ray, bsdf_value, ray_weight) in paths.iter().flatten() {
                     // n += 1;
@@ -400,7 +400,7 @@ impl RayTracer {
         for _ in 0..n_ambient_samples {
             // Choose a direction.
             let (new_ray, bsdf_value, _is_specular) =
-                material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
+                material.sample_bsdf(&normal, &e1, &e2, &intersection_pt, &ray, rng);
             let new_ray_dir = new_ray.geometry.direction;
             debug_assert!(
                 (1. - new_ray_dir.length()).abs() < 1e-5,

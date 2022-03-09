@@ -23,9 +23,12 @@ use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
-pub fn mirror_bsdf(intersection_pt: Point3D, mut ray: Ray, normal: Vector3D) -> (Ray, Float, bool) {
+pub fn mirror_bsdf(intersection_pt: &Point3D, ray: &Ray, normal: &Vector3D) -> (Ray, Float, bool) {
     // avoid self shading
-    ray.geometry.origin = intersection_pt + normal * 0.00001;
+    let mut ray = *ray;
+    let normal = *normal;
+
+    ray.geometry.origin = *intersection_pt + normal * 0.00001;
     let ray_dir = ray.geometry.direction;
     let cos = (ray_dir * normal).abs();
     ray.geometry.direction = mirror_direction(ray_dir, normal);

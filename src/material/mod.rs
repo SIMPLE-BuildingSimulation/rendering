@@ -100,9 +100,9 @@ impl Material {
 
     pub fn get_possible_paths(
         &self,
-        normal: Vector3D,
-        intersection_pt: Point3D,
-        mut ray: Ray,
+        normal: &Vector3D,
+        intersection_pt: &Point3D,
+        ray: &Ray,
     ) -> [Option<(Ray, Float, Float)>; 2] {
         match self {
             Self::Mirror(_) => {
@@ -111,6 +111,10 @@ impl Material {
                 [Some((ray, v, 1.)), None]
             }
             Self::Dielectric(mat) => {
+                let normal = *normal;
+                let mut ray = *ray;
+                let intersection_pt = *intersection_pt;
+
                 let (n1, cos1, n2, cos2) = mat.cos_and_n(ray, normal);
                 let (refl, trans) = mat.refl_trans(n1, cos1, n2, cos2);
                 let ray_dir = ray.geometry.direction;
@@ -149,11 +153,11 @@ impl Material {
     /// indicating whether this is a specular or a diffuse interaction
     pub fn sample_bsdf(
         &self,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
-        intersection_pt: Point3D,
-        ray: Ray,
+        normal: &Vector3D,
+        e1: &Vector3D,
+        e2: &Vector3D,
+        intersection_pt: &Point3D,
+        ray: &Ray,
         rng: &mut RandGen,
     ) -> (Ray, Float, bool) {
         debug_assert!(
@@ -161,9 +165,9 @@ impl Material {
             "Length was {}",
             ray.geometry.direction.length()
         );
-        debug_assert!((e1 * e2).abs() < 1e-8);
-        debug_assert!((e1 * normal).abs() < 1e-8);
-        debug_assert!((e2 * normal).abs() < 1e-8);
+        debug_assert!((*e1 * *e2).abs() < 1e-8);
+        debug_assert!((*e1 * *normal).abs() < 1e-8);
+        debug_assert!((*e2 * *normal).abs() < 1e-8);
 
         match self {
             Self::Plastic(s) => s.bsdf(normal, e1, e2, intersection_pt, ray, rng),
@@ -233,7 +237,7 @@ mod tests {
         for _ in 0..999999 {
             let (normal, e1, e2, ray, vout) = get_vectors(&mut rng);
             let (new_ray, pdf, _is_specular) =
-                material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+                material.sample_bsdf(&normal, &e1, &e2, &Point3D::new(0., 0., 0.), &ray, &mut rng);
             assert!(pdf.is_finite());
             assert!(new_ray.geometry.direction.length().is_finite());
             assert!(new_ray.geometry.origin.as_vector3d().length().is_finite());

@@ -31,10 +31,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         specularity: 0.0,
         roughness: 0.0,
     }));
+    
+
     c.bench_function("sample_plastic", |b| {
         b.iter(|| {
             let (_new_ray, _pdf, _is_specular) =
-                plastic.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+                plastic.sample_bsdf(&normal, &e1, &e2, &Point3D::new(0., 0., 0.), &ray, &mut rng);
         })
     });
     c.bench_function("eval_plastic", |b| {
@@ -55,7 +57,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("sample_metal", |b| {
         b.iter(|| {
             let (_new_ray, _pdf, _is_specular) =
-                metal.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+                metal.sample_bsdf(&normal, &e1, &e2, &Point3D::new(0., 0., 0.), &ray, &mut rng);
         })
     });
 
@@ -73,7 +75,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("sample_mirror", |b| {
         b.iter(|| {
             let (_new_ray, _pdf, _is_specular) =
-                mirror.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+                mirror.sample_bsdf(&normal, &e1, &e2, &Point3D::new(0., 0., 0.), &ray, &mut rng);
         })
     });
     c.bench_function("eval_mirror", |b| {
@@ -93,7 +95,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("sample_dielectric", |b| {
         b.iter(|| {
             let (_new_ray, _pdf, _is_specular) =
-                dielectric.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+                dielectric.sample_bsdf(&normal, &e1, &e2, &Point3D::new(0., 0., 0.), &ray, &mut rng);
         })
     });
     c.bench_function("eval_dielectric", |b| {
