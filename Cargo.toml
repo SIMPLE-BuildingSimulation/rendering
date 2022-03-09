@@ -32,7 +32,7 @@ default = []
 float = ["geometry3d/float", "matrix/float", "simple_model/float"]
 parallel = ["geometry3d/parallel", "rayon"]
 textures = ["geometry3d/textures"]
-
+unsafe_speed = ["geometry3d/quick_inv_sqrt"]
 
 
 [profile.release]

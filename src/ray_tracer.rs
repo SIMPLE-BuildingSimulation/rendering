@@ -608,7 +608,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_render_room() { 
-        // 82 seconds
+        // 73 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture test_render_room
 
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
