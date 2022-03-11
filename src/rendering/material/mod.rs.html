@@ -331,6 +331,10 @@
 <span id="295">295</span>
 <span id="296">296</span>
 <span id="297">297</span>
+<span id="298">298</span>
+<span id="299">299</span>
+<span id="300">300</span>
+<span id="301">301</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -433,9 +437,9 @@ SOFTWARE.
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_possible_paths</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
-        <span class="kw-2">mut</span> <span class="ident">ray</span>: <span class="ident">Ray</span>,
+        <span class="ident">normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
+        <span class="ident">intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
     ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>] {
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) =&gt; {
@@ -444,6 +448,10 @@ SOFTWARE.
                 [<span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">v</span>, <span class="number">1.</span>)), <span class="prelude-val">None</span>]
             }
             <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">mat</span>) =&gt; {
+                <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">normal</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
+                <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">intersection_pt</span>;
+
                 <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
                 <span class="kw">let</span> (<span class="ident">refl</span>, <span class="ident">trans</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">refl_trans</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
                 <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
@@ -482,11 +490,11 @@ SOFTWARE.
     <span class="doccomment">/// indicating whether this is a specular or a diffuse interaction</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
-        <span class="ident">ray</span>: <span class="ident">Ray</span>,
+        <span class="ident">normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
+        <span class="ident">e1</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
+        <span class="ident">e2</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
+        <span class="ident">intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
     ) -&gt; (<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) {
         <span class="macro">debug_assert!</span>(
@@ -494,9 +502,9 @@ SOFTWARE.
             <span class="string">&quot;Length was {}&quot;</span>,
             <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>()
         );
-        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
-        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
-        <span class="macro">debug_assert!</span>((<span class="ident">e2</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
+        <span class="macro">debug_assert!</span>((<span class="kw-2">*</span><span class="ident">e1</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
+        <span class="macro">debug_assert!</span>((<span class="kw-2">*</span><span class="ident">e1</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
+        <span class="macro">debug_assert!</span>((<span class="kw-2">*</span><span class="ident">e2</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
 
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
@@ -566,7 +574,7 @@ SOFTWARE.
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">999999</span> {
             <span class="kw">let</span> (<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>) <span class="op">=</span> <span class="ident">get_vectors</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="kw">let</span> (<span class="ident">new_ray</span>, <span class="ident">pdf</span>, <span class="ident">_is_specular</span>) <span class="op">=</span>
-                <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+                <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="ident">normal</span>, <span class="kw-2">&amp;</span><span class="ident">e1</span>, <span class="kw-2">&amp;</span><span class="ident">e2</span>, <span class="kw-2">&amp;</span><span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
             <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
             <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>.<span class="ident">as_vector3d</span>().<span class="ident">length</span>().<span class="ident">is_finite</span>());

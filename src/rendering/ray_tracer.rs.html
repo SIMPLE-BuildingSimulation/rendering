@@ -947,7 +947,7 @@ SOFTWARE.
             <span class="comment">// Handle specular materials... we have 1 or 2 rays... spawn those.</span>
             <span class="kw">if</span> <span class="ident">material</span>.<span class="ident">specular_only</span>() {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">specular_li</span> <span class="op">=</span> <span class="ident">Spectrum::black</span>();
-                <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">get_possible_paths</span>(<span class="ident">normal</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>);
+                <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">get_possible_paths</span>(<span class="kw-2">&amp;</span><span class="ident">normal</span>, <span class="kw-2">&amp;</span><span class="ident">intersection_pt</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>);
                 <span class="comment">// let mut n = 0;</span>
                 <span class="kw">for</span> (<span class="ident">new_ray</span>, <span class="ident">bsdf_value</span>, <span class="ident">ray_weight</span>) <span class="kw">in</span> <span class="ident">paths</span>.<span class="ident">iter</span>().<span class="ident">flatten</span>() {
                     <span class="comment">// n += 1;</span>
@@ -1235,7 +1235,7 @@ SOFTWARE.
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n_ambient_samples</span> {
             <span class="comment">// Choose a direction.</span>
             <span class="kw">let</span> (<span class="ident">new_ray</span>, <span class="ident">bsdf_value</span>, <span class="ident">_is_specular</span>) <span class="op">=</span>
-                <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>);
+                <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="kw-2">&amp;</span><span class="ident">normal</span>, <span class="kw-2">&amp;</span><span class="ident">e1</span>, <span class="kw-2">&amp;</span><span class="ident">e2</span>, <span class="kw-2">&amp;</span><span class="ident">intersection_pt</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">rng</span>);
             <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
             <span class="macro">debug_assert!</span>(
                 (<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_ray_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
@@ -1443,7 +1443,7 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_render_room</span>() { 
-        <span class="comment">// 82 seconds</span>
+        <span class="comment">// 73 seconds</span>
         <span class="comment">// time cargo test --features parallel --release  -- --ignored --nocapture test_render_room</span>
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="string">&quot;./test_data/room.rad&quot;</span>.<span class="ident">to_string</span>());
