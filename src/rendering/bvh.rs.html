@@ -646,30 +646,6 @@
 <span id="610">610</span>
 <span id="611">611</span>
 <span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -696,7 +672,7 @@ Physically Based Rendering: From Theory To Implementation, © 2004-2021 Matt Pha
 https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies
  */</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>, <span class="ident">ShadingInfo</span>, <span class="ident">SurfaceInteractionData</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>, <span class="ident">SurfaceInteractionData</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene</span>::{<span class="ident">Object</span>, <span class="ident">Scene</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d::intersection::IntersectionInfo</span>;
@@ -1187,43 +1163,19 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
             <span class="kw">let</span> <span class="ident">prim_index</span> <span class="op">=</span> <span class="ident">prim_index</span>.<span class="ident">unwrap</span>();
             <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">t_squared</span>.<span class="ident">sqrt</span>();
             <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">project</span>(<span class="ident">t</span>);
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;textures&quot;</span>)]</span>
+            
             <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">SurfaceInteractionData</span> {
                 <span class="ident">point</span>,
                 <span class="comment">// perror: info.perror,</span>
                 <span class="ident">time</span>: <span class="number">0.</span>, <span class="comment">// We are not using this value</span>
                 <span class="ident">wo</span>: <span class="ident">ray</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>,
-                <span class="ident">geometry_shading</span>: <span class="ident">ShadingInfo</span> {
-                    <span class="ident">u</span>: <span class="ident">info</span>.<span class="ident">u</span>,
-                    <span class="ident">v</span>: <span class="ident">info</span>.<span class="ident">v</span>,
-                    <span class="ident">normal</span>: <span class="ident">info</span>.<span class="ident">normal</span>,
-                    <span class="ident">dpdu</span>: <span class="ident">info</span>.<span class="ident">dpdu</span>,
-                    <span class="ident">dpdv</span>: <span class="ident">info</span>.<span class="ident">dpdv</span>,
-                    <span class="ident">dndu</span>: <span class="ident">info</span>.<span class="ident">dndu</span>,
-                    <span class="ident">dndv</span>: <span class="ident">info</span>.<span class="ident">dndv</span>,
-                    <span class="ident">side</span>: <span class="ident">info</span>.<span class="ident">side</span>,
-                },
-                <span class="ident">texture_shading</span>: <span class="prelude-val">None</span>,
-                <span class="comment">// object,</span>
+                <span class="ident">geometry_shading</span>: <span class="ident">info</span>,
                 <span class="ident">prim_index</span>,
-            };
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;textures&quot;</span>))]</span>
-            <span class="kw">let</span> <span class="ident">data</span> <span class="op">=</span> <span class="ident">SurfaceInteractionData</span> {
-                <span class="ident">point</span>,
-                <span class="comment">// perror: info.perror,</span>
-                <span class="ident">time</span>: <span class="number">0.</span>, <span class="comment">// We are not using this value</span>
-                <span class="ident">wo</span>: <span class="ident">ray</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>,
-                <span class="ident">geometry_shading</span>: <span class="ident">ShadingInfo</span> {                    
-                    <span class="ident">normal</span>: <span class="ident">info</span>.<span class="ident">normal</span>,
-                    <span class="ident">dpdu</span>: <span class="ident">info</span>.<span class="ident">dpdu</span>,
-                    <span class="ident">dpdv</span>: <span class="ident">info</span>.<span class="ident">dpdv</span>,
-                    <span class="ident">side</span>: <span class="ident">info</span>.<span class="ident">side</span>,                    
-                },
+                
                 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;textures&quot;</span>)]</span>
                 <span class="ident">texture_shading</span>: <span class="prelude-val">None</span>,
-                <span class="comment">// object,</span>
-                <span class="ident">prim_index</span>,
-            };
+                
+            };            
 
 
             <span class="prelude-val">Some</span>(<span class="ident">Interaction::Surface</span>(<span class="ident">data</span>))

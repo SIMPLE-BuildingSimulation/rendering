@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Interaction",""]],"struct":[["ShadingInfo",""],["SurfaceInteractionData","The data for a SurfaceInteraction"]]});
+initSidebarItems({"enum":[["Interaction",""]],"struct":[["SurfaceInteractionData","The data for a SurfaceInteraction"]]});

@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Camera",""]],"struct":[["CameraSample","Used for getting a sample ray from the [`Camera`]"],["PinholeCam",""],["View",""]]});
+initSidebarItems({"mod":[["camera",""],["film",""],["pinhole",""],["sample",""],["view",""]],"struct":[["CameraSample","Used for getting a sample ray from the [`Camera`]"],["Film",""],["View",""]],"trait":[["Camera",""]]});

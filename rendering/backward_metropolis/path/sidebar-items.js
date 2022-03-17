@@ -1,0 +1,1 @@
+initSidebarItems({"fn":[["get_local_illumination",""]],"struct":[["Path",""],["PathNode",""]]});
