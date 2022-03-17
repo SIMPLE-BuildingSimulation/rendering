@@ -18,32 +18,36 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::material::specular::mirror_direction;
+
 use crate::ray::Ray;
 use crate::Float;
-use geometry3d::{Point3D, Vector3D};
+use crate::rand::*;
+use crate::camera::{View,  CameraSample};
+use geometry3d::{ Ray3D};
 
-#[inline(always)]
-pub fn mirror_bsdf(intersection_pt: Point3D, mut ray: Ray, normal: Vector3D) -> (Ray, Float, bool) {
-    // avoid self shading
-    // let mut ray = *ray;
-    // let normal = *normal;
 
-    ray.geometry.origin = intersection_pt + normal * 0.00001;
-    let ray_dir = ray.geometry.direction;
-    let cos = (ray_dir * normal).abs();
-    ray.geometry.direction = mirror_direction(ray_dir, normal);
-    debug_assert!((ray.geometry.direction.length() - 1.).abs() < 1e-8);
-    (ray, 1. / cos, true)
-    // (ray, 1., true)
-}
+pub trait Camera : Sync {
 
-pub fn eval_mirror_bsdf(normal: Vector3D, vin: Vector3D, vout: Vector3D) -> Float {
-    let mirror = mirror_direction(vin, normal);
-    if vout.is_parallel(mirror) {
-        let cos = (vin * normal).abs();
-        1. / cos
-    } else {
-        0.
+    fn pixel_from_ray(&self, ray: &Ray3D)->Option<(usize,usize)>;
+
+    /// Generates a ray that will go through the View Point and a
+    /// certain `CameraSample`
+    fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float);
+
+    /// Generates a random CameraSample 
+    fn gen_random_sample(&self, rng: &mut RandGen)->CameraSample;
+
+    /// Gets the film resolution (width,height) in pixels
+    fn film_resolution(&self) -> (usize, usize);
+
+    /// Borrows the view
+    fn view(&self) -> &View;
+
+    fn pixel_index(&self, pxl : (usize,usize))->usize{
+        let (x,y) = pxl;
+        let (width, _height) = self.film_resolution();        
+        width * y + x
+
     }
 }
+

@@ -151,8 +151,7 @@ impl SimpleModelReader {
 mod tests {
 
     use super::*;
-    use crate::camera::{Camera, View};
-    use crate::film::Film;
+    use crate::camera::{Pinhole, View, Film};    
     use crate::ray_tracer::RayTracer;
     use crate::Float;
     use geometry3d::{DistantSource3D, Point3D, Vector3D};
@@ -193,7 +192,7 @@ mod tests {
             ..View::default()
         };
         // Create camera
-        let camera = Camera::pinhole(view, film);
+        let camera = Pinhole::new(view, film);
 
         let integrator = RayTracer {
             n_ambient_samples: 220,
@@ -206,6 +205,6 @@ mod tests {
 
         let buffer = integrator.render(&scene, &camera);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre("./test_data/images/simple_room.hdr".to_string());
+        buffer.save_hdre( std::path::Path::new("./test_data/images/simple_room.hdr"));
     }
 }

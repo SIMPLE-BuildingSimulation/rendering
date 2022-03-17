@@ -120,16 +120,18 @@ impl Dielectric {
         }
     }
 
+    
+    #[inline]
     pub fn bsdf(
         &self,
-        normal: &Vector3D,
-        intersection_pt: &Point3D,
-        ray: &Ray,
+        normal: Vector3D,
+        intersection_pt: Point3D,
+        mut ray: Ray,
         rng: &mut RandGen,
     ) -> (Ray, Float, bool) {
-        let mut ray = *ray;
-        let normal = *normal;
-        let intersection_pt = *intersection_pt;
+        // let mut ray = *ray;
+        // let normal = *normal;
+        // let intersection_pt = *intersection_pt;
 
         let (n1, cos1, n2, cos2) = self.cos_and_n(ray, normal);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
@@ -368,7 +370,7 @@ mod tests {
         // Get INTO the material
         for _ in 0..30 {
             let (new_ray, _pdf, _is_specular) =
-                mat.bsdf(&normal, &Point3D::new(0., 0., 0.), &ray, &mut rng);
+                mat.bsdf(normal, Point3D::new(0., 0., 0.), ray, &mut rng);
             println!("A -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {
@@ -393,7 +395,7 @@ mod tests {
         ray.geometry.direction = trans_dir.unwrap();
         for _ in 0..30 {
             let (new_ray, _pdf, _is_specular) =
-                mat.bsdf(&normal, &Point3D::new(0., 0., 0.), &ray, &mut rng);
+                mat.bsdf(normal, Point3D::new(0., 0., 0.), ray, &mut rng);
             println!("B -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {

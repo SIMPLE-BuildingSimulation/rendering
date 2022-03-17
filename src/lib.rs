@@ -43,7 +43,6 @@ type RefCount<T> = std::rc::Rc<T>;
 pub mod bvh;
 pub mod camera;
 pub mod colour;
-pub mod film;
 pub mod from_radiance;
 pub mod image;
 pub mod interaction;
@@ -54,9 +53,15 @@ pub mod rand;
 pub mod ray;
 pub mod samplers;
 pub mod scene;
-// pub mod lights;
+
 
 mod from_simple_model;
 
 // Ray-tracer
 pub mod ray_tracer;
+mod backward_metropolis;
+pub use crate::backward_metropolis::{
+    BackwardMetropolis,
+    Mutation,MutationSet,
+    mutation::RestartRay
+};

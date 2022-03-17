@@ -68,7 +68,6 @@ impl Primitive {
             Self::Triangle(s) => s.intersect(ray),
             Self::Cylinder(s) => s.intersect(ray),
             Self::Source(s) => s.intersect(ray),
-
         }
     }
 

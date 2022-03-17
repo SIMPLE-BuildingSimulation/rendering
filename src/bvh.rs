@@ -24,7 +24,7 @@ Physically Based Rendering: From Theory To Implementation, © 2004-2021 Matt Pha
 https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies
  */
 
-use crate::interaction::{Interaction, ShadingInfo, SurfaceInteractionData};
+use crate::interaction::{Interaction, SurfaceInteractionData};
 use crate::scene::{Object, Scene};
 use crate::Float;
 use geometry3d::intersection::IntersectionInfo;
@@ -515,43 +515,19 @@ impl BoundingVolumeTree {
             let prim_index = prim_index.unwrap();
             let t = t_squared.sqrt();
             let point = ray.project(t);
-            #[cfg(feature = "textures")]
+            
             let data = SurfaceInteractionData {
                 point,
                 // perror: info.perror,
                 time: 0., // We are not using this value
                 wo: ray.direction * -1.,
-                geometry_shading: ShadingInfo {
-                    u: info.u,
-                    v: info.v,
-                    normal: info.normal,
-                    dpdu: info.dpdu,
-                    dpdv: info.dpdv,
-                    dndu: info.dndu,
-                    dndv: info.dndv,
-                    side: info.side,
-                },
-                texture_shading: None,
-                // object,
+                geometry_shading: info,
                 prim_index,
-            };
-            #[cfg(not(feature = "textures"))]
-            let data = SurfaceInteractionData {
-                point,
-                // perror: info.perror,
-                time: 0., // We are not using this value
-                wo: ray.direction * -1.,
-                geometry_shading: ShadingInfo {                    
-                    normal: info.normal,
-                    dpdu: info.dpdu,
-                    dpdv: info.dpdv,
-                    side: info.side,                    
-                },
+                
                 #[cfg(feature="textures")]
                 texture_shading: None,
-                // object,
-                prim_index,
-            };
+                
+            };            
 
 
             Some(Interaction::Surface(data))

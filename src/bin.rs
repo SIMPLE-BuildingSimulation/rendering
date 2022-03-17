@@ -23,8 +23,7 @@ use rendering::scene::Scene;
 use clap::{Command, Arg};
 
 use geometry3d::{Point3D, Vector3D};
-use rendering::camera::{Camera, View};
-use rendering::film::Film;
+use rendering::camera::{Pinhole, View, Film};
 use rendering::ray_tracer::RayTracer;
 use std::time::Instant;
 
@@ -78,13 +77,13 @@ fn main() {
     };
 
     // Create camera
-    let camera = Camera::pinhole(view, film);
+    let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
         n_shadow_samples: 10,
         max_depth: 3,
         limit_weight: 0.001,
-        n_ambient_samples: 1890,
+        n_ambient_samples: 190,
         ..RayTracer::default()
     };
 
@@ -96,5 +95,5 @@ fn main() {
         input_file,
         now.elapsed().as_secs()
     );
-    buffer.save_hdre(output_file.to_string());
+    buffer.save_hdre( std::path::Path::new(output_file));
 }

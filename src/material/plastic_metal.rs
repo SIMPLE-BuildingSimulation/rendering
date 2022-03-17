@@ -33,20 +33,24 @@ pub struct PlasticMetal {
     pub roughness: Float,
 }
 
+
+
 impl PlasticMetal {
+
+    #[inline(always)]
     pub fn bsdf(
         &self,
-        normal: &Vector3D,
-        e1: &Vector3D,
-        e2: &Vector3D,
-        intersection_pt: &Point3D,
-        ray: &Ray,
+        normal: Vector3D,
+        e1: Vector3D,
+        e2: Vector3D,
+        intersection_pt: Point3D,
+        mut ray: Ray,
         rng: &mut RandGen,
     ) -> (Ray, Float, bool) {
         // avoid self shading
-        let normal = *normal;
-        let mut ray = *ray;
-        ray.geometry.origin = *intersection_pt + normal * 0.00001;
+        // let normal = *normal;
+        // let mut ray = *ray;
+        ray.geometry.origin = intersection_pt + normal * 0.00001;
 
         if self.specularity > 0. {
             unimplemented!()
@@ -60,23 +64,24 @@ impl PlasticMetal {
                 (local_dir.length() - 1.).abs() < 1e-6,
                 "Length was {}",
                 local_dir.length()
-            );
+            );            
             let (x, y, z) = local_to_world(
-                *e1,
-                *e2,
+                e1,
+                e2,
                 normal,
                 Point3D::new(0., 0., 0.),
                 local_dir.x,
                 local_dir.y,
                 local_dir.z,
             );
-            let dir = Vector3D::new(x, y, z);
+            let dir = Vector3D::new(x, y, z);            
             ray.geometry.direction = dir;
-            // debug_assert!( (dir.length() - 1.).abs() < 1e-4);
+            debug_assert!( (dir.length() - 1.).abs() < 1e-4);
             (ray, prob, false)
         }
     }
 
+    #[inline]
     pub fn eval_bsdf(
         &self,
         _normal: Vector3D,

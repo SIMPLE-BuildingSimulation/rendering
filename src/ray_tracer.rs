@@ -216,59 +216,7 @@ impl RayTracer {
         }
     }
 
-    /// Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses
-    /// the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)`
-    /// if the light is hit.
-    fn sample_light(
-        &self,
-        scene: &Scene,
-        light: &Object,
-        shadow_ray: &Ray3D,
-    ) -> Option<(Spectrum, Float)> {
-        let light_direction = shadow_ray.direction;
-        let origin = shadow_ray.origin;
-
-        debug_assert!(scene.materials[light.front_material_index].emits_direct_light());
-
-        // Expect direction to be normalized
-        debug_assert!((1. - light_direction.length()).abs() < 0.0001);
-
-        let p = match light.primitive.simple_intersect(shadow_ray) {
-            Some(p) => p,
-            None => {
-                return None; //(Spectrum::black(),0.0)
-            }
-        };
-
-        let light_distance_squared = (origin - p).length_squared();
-
-        // If the light is not visible (this does not consider
-        // transparent surfaces, yet.)
-        if !scene.unobstructed_distance(shadow_ray, light_distance_squared) {
-            return Some((Spectrum::black(), 0.0));
-        }
-
-        // let light_material = match intersection_info.side {
-        //     SurfaceSide::Front => {
-        //         &scene.materials[light.front_material_index]
-        //     }
-        //     SurfaceSide::Back => {
-        //         &scene.materials[light.back_material_index]
-        //     },
-        //     SurfaceSide::NonApplicable => {
-        //         // Hit parallel to the surface
-        //         return Some((Spectrum::black(), 0.0)) ;
-        //     }
-        // };
-        let light_material = &scene.materials[light.front_material_index];
-
-        let light_colour = light_material.colour();
-
-        let light_pdf = 1. / light.primitive.omega(origin);
-
-        // return
-        Some((light_colour, light_pdf))
-    }
+    
 
     fn sample_light_array(
         &self,
@@ -299,7 +247,7 @@ impl RayTracer {
                 };
 
                 if let Some((light_colour, light_pdf)) =
-                    self.sample_light(scene, light, &shadow_ray)
+                    sample_light(scene, light, &shadow_ray)
                 {
                     i += 1;
                     if light_pdf < 1e-18 {
@@ -400,7 +348,7 @@ impl RayTracer {
         for _ in 0..n_ambient_samples {
             // Choose a direction.
             let (new_ray, bsdf_value, _is_specular) =
-                material.sample_bsdf(&normal, &e1, &e2, &intersection_pt, &ray, rng);
+                material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
             let new_ray_dir = new_ray.geometry.direction;
             debug_assert!(
                 (1. - new_ray_dir.length()).abs() < 1e-5,
@@ -440,7 +388,7 @@ impl RayTracer {
         global
     }
 
-    pub fn render(&self, scene: &Scene, camera: &Camera) -> ImageBuffer {
+    pub fn render(self, scene: &Scene, camera: &dyn Camera) -> ImageBuffer {
         let (width, height) = camera.film_resolution();
 
         let total_pixels = width * height;
@@ -455,11 +403,11 @@ impl RayTracer {
 
         let pixels: Vec<Spectrum> = aux_iter
             .map(|pixel| {
-                let y = (pixel as f32 / width as f32).floor() as usize;
+                let y = (pixel as Float / width as Float).floor() as usize;
                 let x = pixel - y * width;
                 let (ray, weight) = camera.gen_ray(&CameraSample {
                     p_film: (x, y),
-                    p_lens: (0., 0.), // we will not use this
+                    // p_lens: (0., 0.), // we will not use this
                 });
 
                 let mut rng = get_rng();
@@ -485,15 +433,72 @@ impl RayTracer {
     }
 }
 
+
+
+/// Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses
+/// the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)`
+/// if the light is hit.
+pub fn sample_light(        
+    scene: &Scene,
+    light: &Object,
+    shadow_ray: &Ray3D,
+) -> Option<(Spectrum, Float)> {
+    let light_direction = shadow_ray.direction;
+    let origin = shadow_ray.origin;
+
+    debug_assert!(scene.materials[light.front_material_index].emits_direct_light());
+
+    // Expect direction to be normalized
+    debug_assert!((1. - light_direction.length()).abs() < 0.0001);
+
+    let p = match light.primitive.simple_intersect(shadow_ray) {
+        Some(p) => p,
+        None => {
+            return None; //(Spectrum::black(),0.0)
+        }
+    };
+
+    let light_distance_squared = (origin - p).length_squared();
+
+    // If the light is not visible (this does not consider
+    // transparent surfaces, yet.)
+    if !scene.unobstructed_distance(shadow_ray, light_distance_squared) {
+        return Some((Spectrum::black(), 0.0));
+    }
+
+    // let light_material = match intersection_info.side {
+    //     SurfaceSide::Front => {
+    //         &scene.materials[light.front_material_index]
+    //     }
+    //     SurfaceSide::Back => {
+    //         &scene.materials[light.back_material_index]
+    //     },
+    //     SurfaceSide::NonApplicable => {
+    //         // Hit parallel to the surface
+    //         return Some((Spectrum::black(), 0.0)) ;
+    //     }
+    // };
+    let light_material = &scene.materials[light.front_material_index];
+
+    let light_colour = light_material.colour();
+
+    let light_pdf = 1. / light.primitive.omega(origin);
+
+    // return
+    Some((light_colour, light_pdf))
+}
+
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
     // use geometry3d::ray3d::Ray3D;
     use geometry3d::{Point3D, Vector3D};
+    use crate::camera::Pinhole;
 
-    use crate::camera::{Camera, View};
-    use crate::film::Film;
+    use crate::camera::{Camera, View, Film};    
     use std::time::Instant;
 
     fn compare_with_radiance(filename: String) {
@@ -513,7 +518,7 @@ mod tests {
         };
 
         // Create camera
-        let camera = Camera::pinhole(view, film);
+        let camera = Pinhole::new(view, film);
 
         let integrator = RayTracer {
             n_shadow_samples: 38,
@@ -531,7 +536,8 @@ mod tests {
             now.elapsed().as_secs()
         );
 
-        buffer.save_hdre(format!("./test_data/images/self_{}.hdr", filename));
+        let filename = format!("./test_data/images/self_{}.hdr", filename);
+        buffer.save_hdre(std::path::Path::new(&filename));
     }
 
     #[ignore]
@@ -568,7 +574,7 @@ mod tests {
         };
 
         // Create camera
-        let camera = Camera::pinhole(view, film);
+        let camera = Pinhole::new(view, film);
 
         let integrator = RayTracer {
             n_shadow_samples: 10,
@@ -590,7 +596,7 @@ mod tests {
 
         let (ray, weight) = camera.gen_ray(&CameraSample {
             p_film: (x, y),
-            p_lens: (0., 0.),
+            // p_lens: (0., 0.),
         });
 
         let (i, _) = integrator.trace_ray(&mut rng, &scene, ray, 0, weight);
@@ -627,7 +633,7 @@ mod tests {
             ..View::default()
         };
         // Create camera
-        let camera = Camera::pinhole(view, film);
+        let camera = Pinhole::new(view, film);
 
         let integrator = RayTracer {
             n_ambient_samples: 220,
@@ -640,7 +646,7 @@ mod tests {
 
         let buffer = integrator.render(&scene, &camera);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre("./test_data/images/room.hdr".to_string());
+        buffer.save_hdre( std::path::Path::new("./test_data/images/room.hdr"));
     }
 
     use crate::material::{Material, PlasticMetal};
@@ -783,7 +789,7 @@ mod tests {
         };
 
         // Create camera
-        let camera = Camera::pinhole(view, film);
+        let camera = Pinhole::new(view, film);
 
         let integrator = RayTracer {
             n_ambient_samples: 18,
@@ -794,6 +800,6 @@ mod tests {
         let now = Instant::now();
         let buffer = integrator.render(&scene, &camera);
         println!("Scene took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre("./test_data/images/ray_tracer.hdr".to_string());
+        buffer.save_hdre( std::path::Path::new("./test_data/images/ray_tracer.hdr"));
     }
 }

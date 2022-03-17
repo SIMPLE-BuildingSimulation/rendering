@@ -60,25 +60,44 @@ impl RGBSpectrum {
 
     /// Checks whether `Spectrum::black() == self`
     pub fn is_black(&self) -> bool {
-        self.red == 0. && self.green == 0. && self.blue == 0.
+        self.red < 1e-24 && self.green < 1e-24 && self.blue < 1e-24
+    }
+
+
+    /// Scales the chanels in order to make the 
+    /// radiance equals to 1
+    pub fn normalize(&self)-> Self {
+        *self / self.radiance()
     }
 
     /// Calculates a weighted average of RGB colours, returning
     /// a single value representing Radiance
-    pub fn to_radiance(&self) -> Float {
+    pub fn radiance(&self) -> Float {
         // self.red*47.9 + self.green*119.9 + self.blue*11.6
         self.red * 0.265 + self.green * 0.670 + self.blue * 0.065
     }
 
     /// Calculates a weighted average of RGB colours, returning
     /// a single value representing Radiance
-    pub fn to_luminance(&self) -> Float {
-        self.to_radiance() * Self::WHITE_EFFICACY
+    pub fn luminance(&self) -> Float {
+        self.radiance() * Self::WHITE_EFFICACY
     }
 
     /// The standard Luminious Efficacy of equal white light energy
     /// as defined in Radiance
     pub const WHITE_EFFICACY: Float = 179.;
+
+    /// Gets the maximum of the R, G, and B values
+    pub fn max(&self)->Float{
+        let mut v = self.red;
+        if self.green > v{
+            v = self.green;
+        }
+        if self.blue > v{
+            v = self.blue;
+        }
+        v
+    }
 }
 
 impl std::fmt::Display for RGBSpectrum {

@@ -22,23 +22,8 @@ use crate::rand::*;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
-// // from Micromath crate... https://docs.rs/micromath/2.0.0/micromath/
-// // The problem with these functions is that, due to their errors, they
-// // produce a lot of "Missed light" situations and the renders
-// // become all weird.
-// // /// Approximates `cos(x)` in radians with a maximum error of `0.002`.
-// fn fast_cos(mut x: Float) -> Float {
-//     x *= 1./ (2. * crate::PI);
-//     x -= 0.25 + (x + 0.25).floor();
-//     x *= 16.0 * (x.abs() - 0.5);
-//     x += 0.225 * x * (x.abs() - 1.0);
-//     x
-// }
 
-// fn fast_sin(x: Float) -> Float {
-//     fast_cos(x - crate::PI / 2.0)
-// }
-
+#[inline]
 pub fn uniform_sample_triangle(rng: &mut RandGen, a: Point3D, b: Point3D, c: Point3D) -> Point3D {
     let (rand1, rand2): (Float, Float) = rng.gen();
     // let rand1 : Float = rng.gen();
@@ -52,70 +37,72 @@ pub fn uniform_sample_triangle(rng: &mut RandGen, a: Point3D, b: Point3D, c: Poi
     a + v1 * u + v2 * v
 }
 
-pub struct HorizontalDiskUniformSampler {
-    n_samples: usize,
-    i: usize,
-    rng: RandGen,
-    radius: Float,
-}
+// pub struct HorizontalDiskUniformSampler {
+//     n_samples: usize,
+//     i: usize,
+//     rng: RandGen,
+//     radius: Float,
+// }
 
-impl HorizontalDiskUniformSampler {
-    pub fn new(radius: Float, n_samples: usize) -> Self {
-        Self {
-            i: 0,
-            rng: get_rng(),
-            radius,
-            n_samples,
-        }
-    }
-}
+// impl HorizontalDiskUniformSampler {
+//     pub fn new(radius: Float, n_samples: usize) -> Self {
+//         Self {
+//             i: 0,
+//             rng: get_rng(),
+//             radius,
+//             n_samples,
+//         }
+//     }
+// }
 
-impl Iterator for HorizontalDiskUniformSampler {
-    type Item = (f32, f32);
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.n_samples == self.i {
-            return None;
-        }
-        self.i += 1;
-        Some(uniform_sample_horizontal_disc(&mut self.rng, self.radius))
-    }
-}
+// impl Iterator for HorizontalDiskUniformSampler {
+//     type Item = (f32, f32);
+//     fn next(&mut self) -> Option<Self::Item> {
+//         if self.n_samples == self.i {
+//             return None;
+//         }
+//         self.i += 1;
+//         Some(uniform_sample_horizontal_disc(&mut self.rng, self.radius))
+//     }
+// }
 
+#[inline]
 pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32, f32) {
     // Accurate, non-rejection
     // sqrt() and cos() and sin() are
     // much faster in f32... that is why I am doing
     // this.
-    // let (r, theta): (f32, f32) = rng.gen();
+    let (r, theta): (f32, f32) = rng.gen();
 
-    // let r = radius as f32 * r.sqrt();
-    // let theta = 2. * std::f32::consts::PI * theta;
-    // let (theta_sin, theta_cos) = theta.sin_cos();
+    let r = radius as f32 * r.sqrt();
+    let theta = 2. * std::f32::consts::PI * theta;
+    let (theta_sin, theta_cos) = theta.sin_cos();
 
-    // let local_x = r * theta_sin;
-    // let local_y = r * theta_cos;
-    // (local_x, local_y)
+    let local_x = r * theta_sin;
+    let local_y = r * theta_cos;
+    (local_x, local_y)
 
     // rejection sampling
-    const MAX_ITER: usize = 30;
-    for _ in 0..MAX_ITER {
-        let (mut x, mut y): (Float, Float) = rng.gen();
-        x = x.mul_add(2.0 * radius, -radius);
-        y = y.mul_add(2.0 * radius, -radius);
-        let found_rsq = x * x + y * y;
-        if found_rsq < radius * radius {
-            return (x as f32, y as f32);
-        }
-    }
-    panic!(
-        "Exceeded maximum iterations ({}) when uniform_sample_horizontal_disc()",
-        MAX_ITER
-    );
+    // const MAX_ITER: usize = 30;
+    // for _ in 0..MAX_ITER {
+    //     let (mut x, mut y): (Float, Float) = rng.gen();
+    //     x = x.mul_add(2.0 * radius, -radius);
+    //     y = y.mul_add(2.0 * radius, -radius);
+    //     let found_rsq = x * x + y * y;
+    //     if found_rsq < radius * radius {
+    //         return (x as f32, y as f32);
+    //     }
+    // }
+    // panic!(
+    //     "Exceeded maximum iterations ({}) when uniform_sample_horizontal_disc()",
+    //     MAX_ITER
+    // );
 }
 
 
 /// Transforms a Point from Local Coordinates (defined by the triad `local_e1`, `local_e2` and `normal`, 
 /// centered at `centre`) into world coordinates. For converting a vector, set `centre = Point3D::new(0.0, 0., 0.)`
+#[inline]
 pub fn local_to_world(
     local_e1: Vector3D,
     local_e2: Vector3D,
@@ -137,30 +124,6 @@ pub fn local_to_world(
     (x, y, z)
 }
 
-pub struct HorizontalCosineWeightedHemisphereSampler {
-    disk_sampler: HorizontalDiskUniformSampler,
-}
-
-impl HorizontalCosineWeightedHemisphereSampler {
-    pub fn new(n_samples: usize) -> Self {
-        Self {
-            disk_sampler: HorizontalDiskUniformSampler::new(1., n_samples),
-        }
-    }
-}
-
-impl Iterator for HorizontalCosineWeightedHemisphereSampler {
-    type Item = Vector3D;
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some((local_x, local_y)) = self.disk_sampler.next() {
-            let local_z = (1. - local_x * local_x - local_y * local_y).sqrt();
-            let ret = Vector3D::new(local_x as Float, local_y as Float, local_z as Float);
-            Some(ret)
-        } else {
-            None
-        }
-    }
-}
 
 /// Gets a random `Vector3D`, distributed according to `cos(theta)` according
 /// to a normal `Vector3D(0,0,1)`
@@ -171,6 +134,7 @@ pub fn sample_cosine_weighted_horizontal_hemisphere(rng: &mut RandGen) -> Vector
     Vector3D::new(local_x as Float, local_y as Float, local_z as Float)
 }
 
+#[inline]
 pub fn uniform_sample_hemisphere(
     rng: &mut RandGen,
     e1: Vector3D,
@@ -206,6 +170,7 @@ pub fn uniform_sample_hemisphere(
     Vector3D::new(x, y, z)
 }
 
+#[inline]
 pub fn uniform_sample_sphere(rng: &mut RandGen) -> Point3D {
     const TWO_PI: f32 = 2. * std::f32::consts::PI;
     // Sample a sphere of radius 1 centered at the origin
@@ -219,6 +184,7 @@ pub fn uniform_sample_sphere(rng: &mut RandGen) -> Point3D {
     Point3D::new(x, y, z)
 }
 
+#[inline]
 pub fn uniform_sample_disc(
     rng: &mut RandGen,
     radius: Float,

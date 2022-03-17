@@ -18,32 +18,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::material::specular::mirror_direction;
-use crate::ray::Ray;
-use crate::Float;
-use geometry3d::{Point3D, Vector3D};
+pub mod pinhole;
+pub use pinhole::Pinhole;
 
-#[inline(always)]
-pub fn mirror_bsdf(intersection_pt: Point3D, mut ray: Ray, normal: Vector3D) -> (Ray, Float, bool) {
-    // avoid self shading
-    // let mut ray = *ray;
-    // let normal = *normal;
+mod view;
+pub use view::View;
 
-    ray.geometry.origin = intersection_pt + normal * 0.00001;
-    let ray_dir = ray.geometry.direction;
-    let cos = (ray_dir * normal).abs();
-    ray.geometry.direction = mirror_direction(ray_dir, normal);
-    debug_assert!((ray.geometry.direction.length() - 1.).abs() < 1e-8);
-    (ray, 1. / cos, true)
-    // (ray, 1., true)
-}
+mod film;
+pub use film::Film;
 
-pub fn eval_mirror_bsdf(normal: Vector3D, vin: Vector3D, vout: Vector3D) -> Float {
-    let mirror = mirror_direction(vin, normal);
-    if vout.is_parallel(mirror) {
-        let cos = (vin * normal).abs();
-        1. / cos
-    } else {
-        0.
-    }
-}
+mod sample;
+pub use sample::CameraSample;
+
+mod camera;
+pub use camera::Camera;
+

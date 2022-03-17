@@ -98,6 +98,7 @@ impl Material {
         matches!(self, Self::Mirror(_) | Self::Dielectric(_))
     }
 
+    
     pub fn get_possible_paths(
         &self,
         normal: &Vector3D,
@@ -107,7 +108,7 @@ impl Material {
         match self {
             Self::Mirror(_) => {
                 // Calculate the ray direction and BSDF
-                let (ray, v, _) = mirror_bsdf(intersection_pt, ray, normal);
+                let (ray, v, _) = mirror_bsdf(*intersection_pt, *ray, *normal);
                 [Some((ray, v, 1.)), None]
             }
             Self::Dielectric(mat) => {
@@ -151,13 +152,14 @@ impl Material {
 
     /// Samples the bsdf, returns a new direction, the value of the BSDF, and a boolean
     /// indicating whether this is a specular or a diffuse interaction
+    #[inline]
     pub fn sample_bsdf(
         &self,
-        normal: &Vector3D,
-        e1: &Vector3D,
-        e2: &Vector3D,
-        intersection_pt: &Point3D,
-        ray: &Ray,
+        normal: Vector3D,
+        e1: Vector3D,
+        e2: Vector3D,
+        intersection_pt: Point3D,
+        ray: Ray,
         rng: &mut RandGen,
     ) -> (Ray, Float, bool) {
         debug_assert!(
@@ -165,16 +167,17 @@ impl Material {
             "Length was {}",
             ray.geometry.direction.length()
         );
-        debug_assert!((*e1 * *e2).abs() < 1e-8);
-        debug_assert!((*e1 * *normal).abs() < 1e-8);
-        debug_assert!((*e2 * *normal).abs() < 1e-8);
+        debug_assert!((e1 * e2).abs() < 1e-8);
+        debug_assert!((e1 * normal).abs() < 1e-8);
+        debug_assert!((e2 * normal).abs() < 1e-8);
 
         match self {
             Self::Plastic(s) => s.bsdf(normal, e1, e2, intersection_pt, ray, rng),
             Self::Metal(s) => s.bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            Self::Light(_) => panic!("Trying to build a BSDF for a Light material"),
-            Self::Mirror(_) => mirror_bsdf(intersection_pt, ray, normal),
-            Self::Dielectric(s) => s.bsdf(normal, intersection_pt, ray, rng),
+            _ => unreachable!()
+            // Self::Light(_) => panic!("Trying to build a BSDF for a Light material"),
+            // Self::Mirror(_) => mirror_bsdf(intersection_pt, ray, normal),
+            // Self::Dielectric(s) => s.bsdf(normal, intersection_pt, ray, rng),
         }
     }
 
@@ -237,7 +240,7 @@ mod tests {
         for _ in 0..999999 {
             let (normal, e1, e2, ray, vout) = get_vectors(&mut rng);
             let (new_ray, pdf, _is_specular) =
-                material.sample_bsdf(&normal, &e1, &e2, &Point3D::new(0., 0., 0.), &ray, &mut rng);
+                material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
             assert!(pdf.is_finite());
             assert!(new_ray.geometry.direction.length().is_finite());
             assert!(new_ray.geometry.origin.as_vector3d().length().is_finite());

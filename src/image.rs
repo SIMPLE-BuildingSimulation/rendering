@@ -31,7 +31,9 @@ SOFTWARE.
 use crate::colour::Spectrum;
 use crate::Float;
 use std::io::Write;
+use std::path::Path;
 
+/// Equivalent to C's `frexp` function
 fn rusty_frexp(s: Float) -> (Float, i32) {
     if 0.0 == s {
         (s, 0)
@@ -43,7 +45,12 @@ fn rusty_frexp(s: Float) -> (Float, i32) {
     }
 }
 
-fn float_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
+/// Equivalent to C's `ldexp` function
+fn rusty_ldexp(x: Float, n: i32)->Float{    
+    x * (2. as Float).powi(n)
+}
+
+fn colour_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
     let mut v: Float;
 
     v = red;
@@ -53,7 +60,7 @@ fn float_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
     if blue > v {
         v = blue;
     }
-    if v < Float::EPSILON {
+    if v < 1e-19 {
         [0, 0, 0, 0]
     } else {
         let (mut mantissa, e) = rusty_frexp(v);
@@ -62,6 +69,7 @@ fn float_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
         let g = (green * mantissa).floor() as u8;
         let b = (blue * mantissa).floor() as u8;
 
+        
         debug_assert!(e + 128 >= 0);
         debug_assert!(e + 128 <= u8::MAX as i32);
 
@@ -69,6 +77,20 @@ fn float_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
 
         [r, g, b, e]
     }
+}
+
+fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8 )->Spectrum{    
+    if e == 0 {
+        return Spectrum::black()
+    }
+
+    let n = e as i32 - (128+8) as i32;
+    let f = rusty_ldexp(1., n);
+    let red = r as Float * f;
+    let green = g as Float * f;
+    let blue = b as Float * f;
+
+    Spectrum{red,green,blue}
 }
 
 /// A buffer with all the physical values in the image
@@ -81,7 +103,7 @@ pub struct ImageBuffer {
     pub height: usize,
     /// All the pixels, iterating from top
     /// to bottom, left to right
-    pixels: Vec<Spectrum>,
+    pub pixels: Vec<Spectrum>,
 }
 
 impl std::ops::IndexMut<(usize, usize)> for ImageBuffer {
@@ -124,8 +146,10 @@ impl ImageBuffer {
         }
     }
 
+   
+
     /// Saves the image in HDRE format
-    pub fn save_hdre(&self, filename: String) {
+    pub fn save_hdre(&self, filename: &Path) {
         // Create the file
         let mut file = std::fs::File::create(filename).unwrap();
         // Write header
@@ -139,10 +163,128 @@ impl ImageBuffer {
             .unwrap();
 
         for pixel in self.pixels.iter() {
-            file.write_all(&float_to_rgbe(pixel.red, pixel.green, pixel.blue))
+            file.write_all(&colour_to_rgbe(pixel.red, pixel.green, pixel.blue))
                 .unwrap();
         }
     }
+
+
+    /// Creates a new empty [`ImageBuffer`] from a File
+    pub fn from_file(filename: &Path) -> Result<Self, String> {
+        
+        let content = match std::fs::read(filename) {
+            Ok(v) => v,
+            Err(_) => {
+                return Err(format!(
+                    "Could not read image file '{}'",
+                    filename.to_str().unwrap()
+                ))
+            }
+        };
+        let filename = filename.to_str().unwrap();
+        
+
+        // Read header
+        let mut height: Option<usize> = None;
+        let mut width: Option<usize> = None;
+        let mut lines = content.split(|c| (*c as char) == '\n');
+        // READ HEADER
+        while let Some(line) = lines.next() {
+            
+            if line.starts_with(b"-Y") {
+                let errmsg = {
+                    let l = std::str::from_utf8(line).unwrap();
+                    Err(format!("When reading file '{}' : Expecting SIZE line to be in the format '-Y number +X number'... found '{}'",filename, l))
+                };
+
+                // Size
+                let tuple: Vec<&[u8]> = line.split(|c| c.is_ascii_whitespace()).into_iter().collect();
+                if tuple.len() != 4 || tuple[2].ne(b"+X") {
+                    return errmsg;
+                }
+                let l = std::str::from_utf8(tuple[1]).unwrap();
+                height = match l.parse::<usize>() {
+                    Ok(v) => Some(v),
+                    Err(_) => {return errmsg;}                    
+                };
+                let l = std::str::from_utf8(tuple[3]).unwrap();
+                width = match l.parse::<usize>() {
+                    Ok(v) => Some(v),
+                    Err(_) =>{return errmsg;  }                  
+                };
+                
+                break; // Done with header
+            }
+
+            if line.starts_with(b"FORMAT") {
+                // Format
+                let tuple: Vec<&[u8]> = line.split(|c| *c == '=' as u8).into_iter().collect();
+                if tuple.len() != 2 {
+                    let l = std::str::from_utf8(line).unwrap();
+                    return Err(format!(
+                        "Expecting FORMAT line to be in the format 'FORMAT=number'... found '{}'",
+                        l
+                    ));
+                }
+                let exp_format = b"32-bit_rle_rgbe";
+                if tuple[1].ne(exp_format) {
+                    let exp_format = std::str::from_utf8(exp_format).unwrap();
+                    let found_format = std::str::from_utf8(tuple[1]).unwrap();
+                    return Err(format!(
+                        "Expecting FORMAT to be '{}'... found '{}'", exp_format, found_format
+                    ))
+                };
+                continue;
+            }            
+        }// Done with header
+    
+        let width = width.unwrap();
+        let height = height.unwrap();
+        let mut pixels : Vec<Spectrum> = Vec::with_capacity(width * height);
+        
+        // Now the body
+        let mut r : u8 = 0;
+        let mut g : u8 = 0;
+        let mut b : u8 = 0;
+        let mut counter : u8 = 0; // Keep note on whether we are in r, g, b, or e
+        while let Some(line) = lines.next(){
+            // if !line.is_empty(){
+            //     println!("Line length = {}", line.len());
+            //     print!("Line --> ");
+            //     for c in line.iter(){
+            //         print!("{}|", *c);
+            //     }                
+            //     println!("");
+            // }
+            // break;
+            // for each line and 
+            // for each Byte in line            
+            for i in 0..line.len() {                
+                match counter{
+                    0 => { r = line[i] },
+                    1 => { g = line[i] },
+                    2 => { b = line[i] },
+                    3 => { 
+                        // When we register an e, we push value
+                        let e = line[i];
+                        pixels.push(rgbe_to_colour(r, g, b, e));
+                     },
+                    _ => unreachable!()
+                }
+                counter +=1;
+                counter = counter %4;                            
+            }
+        }// Finished iterating lines
+    
+        // return
+        Ok(Self{
+            width,
+            height,
+            pixels,
+        })
+    } // end of from_file()
+
+
 }
 
 #[cfg(test)]
@@ -158,17 +300,23 @@ mod tests {
     #[cfg(not(feature = "float"))]
     extern "C" {
         fn frexp(x: c_double, exp: *mut c_int) -> c_double;
+        fn ldexp(x: c_double, ex: c_int)->c_double;
     }
 
     #[cfg(feature = "float")]
     extern "C" {
         fn frexp(x: c_float, exp: *mut c_int) -> c_float;
+        fn ldexp(x: c_float, ex: c_int)->c_double;
     }
 
     fn c_frexp(x: Float) -> (Float, i32) {
         let mut exp: c_int = 0;
         let res = unsafe { frexp(x, &mut exp) };
         (res, exp as i32)
+    }
+
+    fn c_ldexp(x: Float, n: i32) -> Float{
+        unsafe {ldexp(x, n)}
     }
 
     #[test]
@@ -187,44 +335,85 @@ mod tests {
     }
 
     #[test]
-    fn test_float_to_rgbe() {
+    fn test_ldexp() {
+        let is : Vec<i32> = vec![1, 2, 3, 4, 5, 6, -1, -2, -3, -4];
+        let xs: Vec<Float> = vec![1e6, 2., PI, 123987., 0., 99., 2.3123, 1024., 0.1];
+        for x in xs.iter() {
+            for i in is.iter(){                
+                let c = c_ldexp(*x, *i);
+                let r = rusty_ldexp(*x, *i);
+                println!(
+                    "{}*2^{} = {} in C and {} in Rust", x, i, c, r
+                );
+                assert_eq!(c, r);                
+            }
+        }
+    }
+
+    #[test]
+    fn test_colour_to_rgbe() {
         // Produced automatically
-        assert_eq!(float_to_rgbe(807., 249., 73.), [201, 62, 18, 138]);
+        assert_eq!(colour_to_rgbe(807., 249., 73.), [201, 62, 18, 138]);
         assert_eq!(
-            float_to_rgbe(984943658.000000, 1144108930.000000, 470211272.000000),
+            colour_to_rgbe(984943658.000000, 1144108930.000000, 470211272.000000),
             [117, 136, 56, 159]
         );
         assert_eq!(
-            float_to_rgbe(101027544.000000, 1457850878.000000, 1458777923.000000),
+            colour_to_rgbe(101027544.000000, 1457850878.000000, 1458777923.000000),
             [12, 173, 173, 159]
         );
         assert_eq!(
-            float_to_rgbe(2007237709.000000, 823564440.000000, 1115438165.000000),
+            colour_to_rgbe(2007237709.000000, 823564440.000000, 1115438165.000000),
             [239, 98, 132, 159]
         );
         assert_eq!(
-            float_to_rgbe(1784484492.000000, 74243042.000000, 114807987.000000),
+            colour_to_rgbe(1784484492.000000, 74243042.000000, 114807987.000000),
             [212, 8, 13, 159]
         );
         assert_eq!(
-            float_to_rgbe(1137522503.000000, 1441282327.000000, 16531729.000000),
+            colour_to_rgbe(1137522503.000000, 1441282327.000000, 16531729.000000),
             [135, 171, 1, 159]
         );
         assert_eq!(
-            float_to_rgbe(823378840.000000, 143542612.000000, 896544303.000000),
+            colour_to_rgbe(823378840.000000, 143542612.000000, 896544303.000000),
             [196, 34, 213, 158]
         );
         assert_eq!(
-            float_to_rgbe(1474833169.000000, 1264817709.000000, 1998097157.000000),
+            colour_to_rgbe(1474833169.000000, 1264817709.000000, 1998097157.000000),
             [175, 150, 238, 159]
         );
         assert_eq!(
-            float_to_rgbe(1817129560.000000, 1131570933.000000, 197493099.000000),
+            colour_to_rgbe(1817129560.000000, 1131570933.000000, 197493099.000000),
             [216, 134, 23, 159]
         );
         assert_eq!(
-            float_to_rgbe(1404280278.000000, 893351816.000000, 1505795335.000000),
+            colour_to_rgbe(1404280278.000000, 893351816.000000, 1505795335.000000),
             [167, 106, 179, 159]
         );
+    }
+
+    #[test]
+    fn test_rgbe_to_colour() {
+        // Produced automatically
+        assert_eq!(rgbe_to_colour(201, 62, 18, 138), Spectrum{red: 807., green: 249., blue: 73.});                
+        assert_eq!(rgbe_to_colour(117, 136, 56, 159), Spectrum{red: 984943658.000000, green: 1144108930., blue: 470211272.});        
+        assert_eq!(rgbe_to_colour(12, 173, 173, 159), Spectrum{red: 101027544.000000, green: 1457850878., blue: 1458777923.});        
+        assert_eq!(rgbe_to_colour(239, 98, 132, 159), Spectrum{red: 2007237709.000000, green: 823564440., blue: 1115438165.});        
+        assert_eq!(rgbe_to_colour(212, 8, 13, 159), Spectrum{red: 1784484492.000000, green: 74243042., blue: 114807987.});        
+        assert_eq!(rgbe_to_colour(135, 171, 1, 159), Spectrum{red: 1137522503.000000, green: 1441282327., blue: 16531729.});        
+        assert_eq!(rgbe_to_colour(196, 34, 213, 158), Spectrum{red: 823378840.000000, green: 143542612., blue: 896544303.});        
+        assert_eq!(rgbe_to_colour(175, 150, 238, 159), Spectrum{red: 1474833169.000000, green: 1264817709., blue: 1998097157.});        
+        assert_eq!(rgbe_to_colour(216, 134, 23, 159), Spectrum{red: 1817129560.000000, green: 1131570933., blue: 197493099.});        
+        assert_eq!(rgbe_to_colour(167, 106, 179, 159), Spectrum{red: 1404280278.000000, green: 893351816., blue: 1505795335.});
+    }
+
+    #[test]
+    // #[ignore]
+    fn test_from_file(){
+        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/cornell.hdr")).unwrap();
+        assert_eq!(buffer.width, 1024);
+        assert_eq!(buffer.height, 768);
+        // assert_eq!(buffer.pixels.len(), 1024*768);
+        buffer.save_hdre(Path::new("./test_data/images/cornell_COPIED.hdr"))
     }
 }
