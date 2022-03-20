@@ -117,7 +117,7 @@ SOFTWARE.
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Camera</span> : <span class="ident">Sync</span> {
 
-    <span class="kw">fn</span> <span class="ident">pixel_from_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>)-&gt;<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>,<span class="ident">usize</span>)<span class="op">&gt;</span>;
+    <span class="kw">fn</span> <span class="ident">pixel_from_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>)-&gt;((<span class="ident">usize</span>,<span class="ident">usize</span>), <span class="ident">Float</span>);
 
     <span class="doccomment">/// Generates a ray that will go through the View Point and a</span>
     <span class="doccomment">/// certain `CameraSample`</span>

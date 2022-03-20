@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["LocalExploration",""],["MutationSet","A set of mutations and their respective probabilities."],["RestartRay",""]],"trait":[["Mutation",""]]});
+initSidebarItems({"struct":[["LocalExploration","Chooses one node to modify and mutates it randomly."],["MutationSet","A set of mutations and their respective probabilities."],["RestartRay",""]],"trait":[["Mutation",""]]});

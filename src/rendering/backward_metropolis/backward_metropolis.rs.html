@@ -232,6 +232,28 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -275,6 +297,7 @@ SOFTWARE.
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BackwardMetropolis</span> {
     <span class="kw">pub</span> <span class="ident">mutations_per_pixel</span>: <span class="ident">usize</span>,
     <span class="kw">pub</span> <span class="ident">min_path_length</span>: <span class="ident">usize</span>,
+    <span class="kw">pub</span> <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>
 }
 
 <span class="kw">impl</span> <span class="ident">BackwardMetropolis</span> {
@@ -300,7 +323,7 @@ SOFTWARE.
 
         
         <span class="comment">// Initialize the direction that will start it all.</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">camera_sample</span> <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">gen_random_sample</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+        <span class="kw">let</span> <span class="ident">camera_sample</span> <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">gen_random_sample</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);        
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">primary_ray</span>, <span class="ident">weight</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">gen_ray</span>(<span class="kw-2">&amp;</span><span class="ident">camera_sample</span>);
         
         <span class="comment">// Calculate an anchor that will be used later for calibrating</span>
@@ -319,15 +342,15 @@ SOFTWARE.
         
         <span class="comment">// Initialize mutations</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">mutation</span> <span class="op">=</span> <span class="ident">MutationSet::default</span>();
-        <span class="ident">mutation</span>.<span class="ident">push</span>(<span class="number">0.25</span>, <span class="ident">Box::new</span>(<span class="ident">RestartRay</span>{}));
-        <span class="comment">// mutation.push(0.75, Box::new(LocalExploration{}));</span>
+        <span class="ident">mutation</span>.<span class="ident">push</span>(<span class="number">0.1</span>, <span class="ident">Box::new</span>(<span class="ident">RestartRay</span>{}));
+        <span class="ident">mutation</span>.<span class="ident">push</span>(<span class="number">0.9</span>, <span class="ident">Box::new</span>(<span class="ident">LocalExploration</span>{}));
         
         
         <span class="comment">// Run</span>
         <span class="kw">let</span> <span class="ident">n_samples</span> <span class="op">=</span> <span class="ident">total_pixels</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">mutations_per_pixel</span>;  
               
         <span class="comment">// Initialize values... path and its value        </span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x1</span> : <span class="ident">Path</span> <span class="op">=</span> <span class="ident">Path::new_from_random_walk</span>(<span class="kw-2">&amp;</span><span class="ident">primary_ray</span>, <span class="ident">scene</span>, <span class="self">self</span>.<span class="ident">min_path_length</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>); 
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">x1</span> : <span class="ident">Path</span> <span class="op">=</span> <span class="ident">Path::new_from_random_walk</span>(<span class="kw-2">&amp;</span><span class="ident">primary_ray</span>, <span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>); 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fx1</span> <span class="op">=</span> <span class="ident">x1</span>.<span class="ident">eval_from_node</span>(<span class="number">0</span>, <span class="ident">scene</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pixel1</span> <span class="op">=</span> <span class="ident">anchor_i</span>;
 
@@ -336,7 +359,8 @@ SOFTWARE.
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lp</span> <span class="op">=</span> <span class="number">0.0</span>;
         <span class="comment">// Now loop.</span>
-        <span class="kw">for</span> <span class="ident">n</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n_samples</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">while</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="ident">n_samples</span> {         
             <span class="kw">let</span> <span class="ident">progress</span> <span class="op">=</span> (<span class="number">100.</span> <span class="op">*</span> <span class="ident">n</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">/</span> <span class="ident">n_samples</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">Float</span>;
             <span class="kw">if</span> (<span class="ident">lp</span> <span class="op">-</span> <span class="ident">progress</span>.<span class="ident">floor</span>()) <span class="op">&lt;</span> <span class="number">0.1</span> <span class="op">&amp;&amp;</span> (<span class="ident">progress</span> <span class="op">-</span> <span class="ident">lp</span>).<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">1.</span> {
                 <span class="ident">lp</span> <span class="op">=</span> <span class="ident">progress</span>;
@@ -344,35 +368,42 @@ SOFTWARE.
             }
             
             <span class="comment">// Mutate and evaluate</span>
-            <span class="kw">let</span> <span class="ident">x2</span> <span class="op">=</span> <span class="ident">mutation</span>.<span class="ident">mutate</span>(<span class="kw-2">&amp;</span><span class="ident">x1</span>, <span class="ident">scene</span>, <span class="ident">camera</span>, <span class="self">self</span>.<span class="ident">min_path_length</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+            <span class="kw">let</span> <span class="ident">x2</span> <span class="op">=</span> <span class="ident">mutation</span>.<span class="ident">mutate</span>(<span class="kw-2">&amp;</span><span class="ident">x1</span>, <span class="ident">scene</span>, <span class="ident">camera</span>, <span class="kw-2">&amp;</span><span class="self">self</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="kw">let</span> <span class="ident">ray2</span> <span class="op">=</span> <span class="ident">Ray3D</span>{
                 <span class="ident">origin</span>: <span class="ident">x2</span>.<span class="ident">start</span>,
                 <span class="ident">direction</span>: <span class="ident">x2</span>.<span class="ident">primary_dir</span>.<span class="ident">unwrap</span>()
             };
-            <span class="kw">let</span> <span class="ident">pixel2</span> <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">pixel_from_ray</span>(<span class="kw-2">&amp;</span><span class="ident">ray2</span>).<span class="ident">unwrap</span>();            
-            <span class="kw">let</span> <span class="ident">pixel2</span> <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">pixel_index</span>(<span class="ident">pixel2</span>);
-            <span class="kw">let</span> <span class="ident">fx2</span> <span class="op">=</span> <span class="ident">x2</span>.<span class="ident">eval_from_node</span>(<span class="number">0</span>, <span class="ident">scene</span>);
-
-            <span class="comment">// Calculate probability of accepting the mutation        </span>
-            <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">mutation</span>.<span class="ident">prob_of_accept</span>( <span class="ident">fx1</span>, <span class="ident">fx2</span> );
-
-            <span class="comment">// Add both contributions</span>
-            <span class="ident">pixels</span>[<span class="ident">pixel1</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">fx1</span>.<span class="ident">normalize</span>() <span class="kw-2">*</span>(<span class="number">1.</span><span class="op">-</span><span class="ident">a</span>) ;
-            <span class="ident">pixels</span>[<span class="ident">pixel2</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">fx2</span>.<span class="ident">normalize</span>() <span class="op">*</span> <span class="ident">a</span>;
-                                            
-            <span class="comment">// Accept mutation... maybe</span>
-            <span class="kw">let</span> <span class="ident">r</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
-            <span class="kw">if</span> <span class="ident">r</span> <span class="op">&lt;</span> <span class="ident">a</span> {
-                <span class="comment">// update values</span>
-                <span class="ident">x1</span> <span class="op">=</span> <span class="ident">x2</span>;
-                <span class="ident">fx1</span> <span class="op">=</span> <span class="ident">fx2</span>;
-                <span class="ident">pixel1</span> <span class="op">=</span> <span class="ident">pixel2</span>;
-            }
+            <span class="kw">let</span> (<span class="ident">pixel2</span>, <span class="ident">weight</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">pixel_from_ray</span>(<span class="kw-2">&amp;</span><span class="ident">ray2</span>);
+            
+            <span class="comment">// the ray is outside of FOV</span>
+            <span class="kw">if</span> <span class="ident">weight</span> <span class="op">&gt;</span> <span class="number">1e-22</span> {
+                <span class="ident">n</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="comment">// All good.</span>
+                <span class="kw">let</span> <span class="ident">pixel2</span> <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">pixel_index</span>(<span class="ident">pixel2</span>);
+                <span class="kw">let</span> <span class="ident">fx2</span> <span class="op">=</span> <span class="ident">x2</span>.<span class="ident">eval_from_node</span>(<span class="number">0</span>, <span class="ident">scene</span>);
+    
+                <span class="comment">// Calculate probability of accepting the mutation        </span>
+                <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">mutation</span>.<span class="ident">prob_of_accept</span>( <span class="ident">fx1</span>, <span class="ident">fx2</span> );
+    
+                <span class="comment">// Add both contributions</span>
+                <span class="ident">pixels</span>[<span class="ident">pixel1</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">fx1</span>.<span class="ident">normalize</span>() <span class="kw-2">*</span>(<span class="number">1.</span><span class="op">-</span><span class="ident">a</span>) ;
+                <span class="ident">pixels</span>[<span class="ident">pixel2</span>] <span class="op">+</span><span class="op">=</span> <span class="ident">fx2</span>.<span class="ident">normalize</span>() <span class="op">*</span> <span class="ident">a</span>;
+                                                
+                <span class="comment">// Accept mutation... maybe</span>
+                <span class="kw">let</span> <span class="ident">r</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+                <span class="kw">if</span> <span class="ident">r</span> <span class="op">&lt;</span> <span class="ident">a</span> {
+                    <span class="comment">// update values</span>
+                    <span class="ident">x1</span> <span class="op">=</span> <span class="ident">x2</span>;
+                    <span class="ident">fx1</span> <span class="op">=</span> <span class="ident">fx2</span>;
+                    <span class="ident">pixel1</span> <span class="op">=</span> <span class="ident">pixel2</span>;
+                }
+            }            
         }
 
         <span class="comment">// return</span>
         <span class="comment">// let found_in_anchor = pixels[anchor_i];</span>
         <span class="comment">// let scale_constant = anchor_f / found_in_anchor;</span>
+        <span class="comment">// let scale_constant = 1./ n_samples as Float;</span>
         <span class="comment">// for p in pixels.iter_mut(){            </span>
         <span class="comment">//     *p *= scale_constant;</span>
         <span class="comment">// } </span>
@@ -394,9 +425,14 @@ SOFTWARE.
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Film</span>, <span class="ident">View</span>, <span class="ident">Pinhole</span>};
     <span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
+    <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>    
     <span class="kw">fn</span> <span class="ident">basic_test</span>(){
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="string">&quot;./test_data/room.rad&quot;</span>.<span class="ident">to_string</span>());
+        <span class="comment">// cargo test --features parallel --release  -- --ignored --nocapture basic_test</span>
+        <span class="kw">let</span> <span class="ident">file</span> <span class="op">=</span> <span class="string">&quot;./test_data/exterior_0_diffuse_plastic.rad&quot;</span>;
+        <span class="comment">// let file = &quot;./test_data/room.rad&quot;;</span>
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="ident">file</span>.<span class="ident">to_string</span>());
 
         <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
@@ -406,17 +442,25 @@ SOFTWARE.
         };
 
         <span class="comment">// Create view</span>
+        <span class="comment">// let view = View {</span>
+        <span class="comment">//     view_direction: Vector3D::new(0., 1., 0.).get_normalized(),</span>
+        <span class="comment">//     view_point: Point3D::new(2., 1., 1.),</span>
+        <span class="comment">//     ..View::default()</span>
+        <span class="comment">// };</span>
+        <span class="comment">// Create view</span>
         <span class="kw">let</span> <span class="ident">view</span> <span class="op">=</span> <span class="ident">View</span> {
-            <span class="ident">view_direction</span>: <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>).<span class="ident">get_normalized</span>(),
-            <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">1.</span>, <span class="number">1.</span>),
+            <span class="ident">view_direction</span>: <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>),
+            <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="op">-</span><span class="number">13.</span>, <span class="number">0.</span>),
             ..<span class="ident">View::default</span>()
         };
+
         <span class="comment">// Create camera</span>
         <span class="kw">let</span> <span class="ident">camera</span> <span class="op">=</span> <span class="ident">Pinhole::new</span>(<span class="ident">view</span>, <span class="ident">film</span>);
 
         <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">BackwardMetropolis</span> {
-            <span class="ident">mutations_per_pixel</span>: <span class="number">300</span>,
+            <span class="ident">mutations_per_pixel</span>: <span class="number">1000</span>,
             <span class="ident">min_path_length</span>: <span class="number">3</span>,
+            <span class="ident">n_shadow_samples</span>: <span class="number">1</span>,
         };
 
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();

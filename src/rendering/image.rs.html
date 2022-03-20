@@ -453,6 +453,7 @@
 <span id="417">417</span>
 <span id="418">418</span>
 <span id="419">419</span>
+<span id="420">420</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -848,6 +849,7 @@ SOFTWARE.
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_rgbe_to_colour</span>() {
         <span class="comment">// Produced automatically</span>
         <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">201</span>, <span class="number">62</span>, <span class="number">18</span>, <span class="number">138</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">807.</span>, <span class="ident">green</span>: <span class="number">249.</span>, <span class="ident">blue</span>: <span class="number">73.</span>});                
@@ -863,7 +865,7 @@ SOFTWARE.
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="comment">// #[ignore]</span>
+    <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_from_file</span>(){
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">ImageBuffer::from_file</span>(<span class="ident">Path::new</span>(<span class="string">&quot;./test_data/images/cornell.hdr&quot;</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">buffer</span>.<span class="ident">width</span>, <span class="number">1024</span>);

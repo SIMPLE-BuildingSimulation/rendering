@@ -514,10 +514,10 @@ SOFTWARE.
         <span class="kw">match</span> <span class="self">self</span> {
             <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
             <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
-            <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>()
-            <span class="comment">// Self::Light(_) =&gt; panic!(&quot;Trying to build a BSDF for a Light material&quot;),</span>
-            <span class="comment">// Self::Mirror(_) =&gt; mirror_bsdf(intersection_pt, ray, normal),</span>
-            <span class="comment">// Self::Dielectric(s) =&gt; s.bsdf(normal, intersection_pt, ray, rng),</span>
+            <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Trying to build a BSDF for a Light material&quot;</span>),
+            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) =&gt; <span class="ident">mirror_bsdf</span>(<span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">normal</span>),
+            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
+            <span class="comment">// _ =&gt; unreachable!()</span>
         }
     }
 
