@@ -174,10 +174,10 @@ impl Material {
         match self {
             Self::Plastic(s) => s.bsdf(normal, e1, e2, intersection_pt, ray, rng),
             Self::Metal(s) => s.bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            _ => unreachable!()
-            // Self::Light(_) => panic!("Trying to build a BSDF for a Light material"),
-            // Self::Mirror(_) => mirror_bsdf(intersection_pt, ray, normal),
-            // Self::Dielectric(s) => s.bsdf(normal, intersection_pt, ray, rng),
+            Self::Light(_) => panic!("Trying to build a BSDF for a Light material"),
+            Self::Mirror(_) => mirror_bsdf(intersection_pt, ray, normal),
+            Self::Dielectric(s) => s.bsdf(normal, intersection_pt, ray, rng),
+            // _ => unreachable!()
         }
     }
 

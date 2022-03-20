@@ -23,11 +23,15 @@ use crate::colour::Spectrum;
 use crate::Float;
 use crate::scene::Scene;
 use crate::camera::Camera;
+use crate::ray::Ray;
+use geometry3d::Ray3D;
 
-use crate::backward_metropolis::path::Path;
+use crate::backward_metropolis::path::{Path,PathNode};
+use crate::backward_metropolis::BackwardMetropolis;
+
 
 pub trait Mutation<'a> {    
-    fn mutate(&self, _x: &Path,  scene: &'a Scene, camera: &dyn Camera, min_length: usize, rng: &mut SmallRng) -> Path<'a>;
+    fn mutate(&self, _x: &Path<'a>,  scene: &'a Scene, camera: &dyn Camera, integrator: &BackwardMetropolis, rng: &mut SmallRng) -> Path<'a>;
 }
 
 
@@ -58,8 +62,8 @@ impl <'a>MutationSet<'a> {
     /// Calculates the probability of accepting a mutation
     pub fn prob_of_accept(&self, fx1: Spectrum, fx2: Spectrum) -> Float {        
 
-        // Nothing can be worse... mutate
         if fx1.is_black(){
+            // Nothing can be worse... mutate
             return 1.            
         }
         let fx1 = fx1.radiance();
@@ -72,12 +76,12 @@ impl <'a>MutationSet<'a> {
 
 impl <'a>Mutation<'a> for MutationSet<'a> {
     
-    fn mutate(&self, x: &Path,  scene: &'a Scene, camera: &dyn Camera, min_length: usize, rng: &mut SmallRng) -> Path<'a> {
+    fn mutate(&self, x: &Path<'a>,  scene: &'a Scene, camera: &dyn Camera, integrator: &BackwardMetropolis, rng: &mut SmallRng) -> Path<'a> {
         let p : Float = rng.gen();
         let p = p * self.total_prob;
         for (acc_prob, mutation) in &self.mutations{
             if p < *acc_prob {
-                return mutation.mutate(x, scene, camera, min_length, rng)
+                return mutation.mutate(x, scene, camera, integrator, rng)
             }
         }
         unreachable!();
@@ -94,20 +98,128 @@ impl <'a>Mutation<'a> for MutationSet<'a> {
 
 pub struct RestartRay {}
 impl <'a>Mutation<'a> for RestartRay {    
-    fn mutate(&self, _x: &Path,  scene: &'a Scene, camera: &dyn Camera, min_length: usize, rng: &mut SmallRng) -> Path<'a> {
+    fn mutate(&self, _x: &Path<'a>,  scene: &'a Scene, camera: &dyn Camera, integrator: &BackwardMetropolis, rng: &mut SmallRng) -> Path<'a> {
         
         let camera_sample = camera.gen_random_sample(rng);
         let (primary_ray, _weight) = camera.gen_ray(&camera_sample);
         
         
         // Create a random path
-        Path::new_from_random_walk(&primary_ray, scene, min_length, rng)
+        Path::new_from_random_walk(&primary_ray, scene, integrator, rng)
     }
 }
 
+
+
+
+/// Chooses one node to modify and mutates it randomly.
 pub struct LocalExploration {}
 impl <'a>Mutation<'a> for LocalExploration {    
-    fn mutate(&self, x: &Path,  scene: &'a Scene, camera: &dyn Camera, min_length: usize, rng: &mut SmallRng) -> Path<'a> {
-        todo!()
+    fn mutate(&self, x: &Path<'a>,  scene: &'a Scene, camera: &dyn Camera, integrator: &BackwardMetropolis, rng: &mut SmallRng) -> Path<'a> {
+        
+        let mut ret= x.clone();
+
+        if ret.nodes.is_empty(){
+            // just restart
+            let m = RestartRay{};
+            return m.mutate( x,  scene, camera, integrator, rng)
+        }
+        
+        let mut i : usize = rng.gen();
+        i = i % ret.nodes.len();
+
+        let prev_pt = if i == 0 { 
+            ret.start 
+        } else {
+            ret.nodes[i-1].point
+        };
+
+        let next_point = ret.nodes[i].point;
+
+        let aim_to = next_point - prev_pt;        
+
+        // Calculate new direction... sampling a disk in the next node.
+        let radius : Float = aim_to.length() * 0.01;
+        let target = crate::samplers::uniform_sample_disc(rng, radius, next_point, aim_to.get_normalized());
+
+        let ray = Ray{
+            geometry: Ray3D{
+                origin: prev_pt,
+                direction: (target - prev_pt).get_normalized(),
+            },
+            refraction_index: 1.
+        };
+
+
+        if let Some(new_node) = PathNode::new(scene, &ray, integrator.n_shadow_samples, rng){
+
+            // update
+            ret.nodes[i] = new_node;
+
+            if i == 0{
+                // primary_dir has changed
+                ret.primary_dir = Some((ret.nodes[i].point - ret.start).get_normalized());
+            }
+
+            ret
+        }else{
+            // did not work... try again
+            self.mutate(x, scene, camera, integrator, rng)
+        }
+        
     }
 }
+
+
+
+// /// Extend path
+// pub struct Extend {}
+// impl <'a>Mutation<'a> for Extend {    
+//     fn mutate(&self, x: &Path<'a>,  scene: &'a Scene, camera: &dyn Camera, integrator: &BackwardMetropolis, rng: &mut SmallRng) -> Path<'a> {
+        
+//         let mut ret= x.clone();
+
+//         if ret.nodes.is_empty(){
+//             // just restart
+//             let m = RestartRay{};
+//             return m.mutate( x,  scene, camera, integrator, rng)
+//         }
+        
+//         let mut i : usize = rng.gen();
+//         i = i % ret.nodes.len();
+
+//         let prev_pt = if i == 0 { 
+//             ret.start 
+//         } else {
+//             ret.nodes[i-1].point
+//         };
+
+//         let next_point = ret.nodes[i].point;
+
+//         let aim_to = next_point - prev_pt;        
+
+//         // Calculate new direction... sampling a disk in the next node.
+//         let radius : Float = aim_to.length() * 0.001;
+//         let target = crate::samplers::uniform_sample_disc(rng, radius, next_point, aim_to.get_normalized());
+
+//         let ray = Ray{
+//             geometry: Ray3D{
+//                 origin: prev_pt,
+//                 direction: (target - prev_pt).get_normalized(),
+//             },
+//             refraction_index: 1.
+//         };
+
+
+//         if let Some(new_node) = PathNode::new(scene, &ray, integrator.n_shadow_samples, rng){
+
+//             // update
+//             ret.nodes[i] = new_node;
+//             ret
+//         }else{
+//             // did not work... try again
+//             self.mutate(x, scene, camera, integrator, rng)
+//         }
+        
+//     }
+// }

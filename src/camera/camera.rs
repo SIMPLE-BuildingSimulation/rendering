@@ -28,7 +28,7 @@ use geometry3d::{ Ray3D};
 
 pub trait Camera : Sync {
 
-    fn pixel_from_ray(&self, ray: &Ray3D)->Option<(usize,usize)>;
+    fn pixel_from_ray(&self, ray: &Ray3D)->((usize,usize), Float);
 
     /// Generates a ray that will go through the View Point and a
     /// certain `CameraSample`

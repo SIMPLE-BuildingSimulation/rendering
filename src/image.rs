@@ -393,6 +393,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore]
     fn test_rgbe_to_colour() {
         // Produced automatically
         assert_eq!(rgbe_to_colour(201, 62, 18, 138), Spectrum{red: 807., green: 249., blue: 73.});                
@@ -408,7 +409,7 @@ mod tests {
     }
 
     #[test]
-    // #[ignore]
+    #[ignore]
     fn test_from_file(){
         let buffer = ImageBuffer::from_file(Path::new("./test_data/images/cornell.hdr")).unwrap();
         assert_eq!(buffer.width, 1024);

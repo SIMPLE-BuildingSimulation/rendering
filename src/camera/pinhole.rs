@@ -58,7 +58,7 @@ impl Camera for Pinhole {
     }
 
 
-    fn pixel_from_ray(&self, ray: &Ray3D)->Option<(usize,usize)>{
+    fn pixel_from_ray(&self, ray: &Ray3D)->((usize,usize), Float){
 
         if (ray.origin - self.view.view_point).length_squared() > 1e-24{
             panic!("Trying to get a pixel of a camera through a ray that does not start at its view point... ViewPoint = {}, ray.origin = {} | distance = {}", self.view.view_point, ray.origin, (self.view.view_point-ray.origin).length());
@@ -69,8 +69,8 @@ impl Camera for Pinhole {
         let normal = self.view.view_direction;
         let cos = normal * direction;
         if cos.abs() < 1e-12 {
-            // The ray does not intersect at all.
-            return None
+            // The ray does not intersect at all.... its weight is Zero
+            return ((0,0),0.)
         }
 
         // Calculate a point in the plane
@@ -89,7 +89,7 @@ impl Camera for Pinhole {
 
         // If it is out of the FOV, return None.
         if z.abs() > 1. || x.abs() > 1. {
-            return None;
+            return ((0,0),0.)
         }
 
         let (width, height) = self.film.resolution;
@@ -104,7 +104,8 @@ impl Camera for Pinhole {
         let x = ( x + 1. )/dx;
         let y = ( 1. - z )/dy;
 
-        Some((x.floor() as usize, y.floor() as usize))
+        // return
+        ((x.floor() as usize, y.floor() as usize), 1.)
         
             
     }
@@ -179,7 +180,7 @@ mod tests {
         };
         // Let's assume this is right
         let (ray,_weight) = camera.gen_ray(&sample);
-        let found_pixel = camera.pixel_from_ray(&ray.geometry).unwrap();
+        let (found_pixel, _weight) = camera.pixel_from_ray(&ray.geometry);
         assert_eq!(sample.p_film, found_pixel);
 
     }

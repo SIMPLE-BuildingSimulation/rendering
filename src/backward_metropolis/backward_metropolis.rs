@@ -41,6 +41,7 @@ use crate::ray_tracer::RayTracer;
 pub struct BackwardMetropolis {
     pub mutations_per_pixel: usize,
     pub min_path_length: usize,
+    pub n_shadow_samples: usize
 }
 
 impl BackwardMetropolis {
@@ -66,7 +67,7 @@ impl BackwardMetropolis {
 
         
         // Initialize the direction that will start it all.
-        let mut camera_sample = camera.gen_random_sample(&mut rng);
+        let camera_sample = camera.gen_random_sample(&mut rng);        
         let (mut primary_ray, weight) = camera.gen_ray(&camera_sample);
         
         // Calculate an anchor that will be used later for calibrating
@@ -85,15 +86,15 @@ impl BackwardMetropolis {
         
         // Initialize mutations
         let mut mutation = MutationSet::default();
-        mutation.push(0.25, Box::new(RestartRay{}));
-        // mutation.push(0.75, Box::new(LocalExploration{}));
+        mutation.push(0.1, Box::new(RestartRay{}));
+        mutation.push(0.9, Box::new(LocalExploration{}));
         
         
         // Run
         let n_samples = total_pixels * self.mutations_per_pixel;  
               
         // Initialize values... path and its value        
-        let mut x1 : Path = Path::new_from_random_walk(&primary_ray, scene, self.min_path_length, &mut rng); 
+        let mut x1 : Path = Path::new_from_random_walk(&primary_ray, scene, &self, &mut rng); 
         let mut fx1 = x1.eval_from_node(0, scene);
         let mut pixel1 = anchor_i;
 
@@ -102,7 +103,8 @@ impl BackwardMetropolis {
 
         let mut lp = 0.0;
         // Now loop.
-        for n in 0..n_samples {
+        let mut n = 0;
+        while n < n_samples {         
             let progress = (100. * n as Float / n_samples as Float).round() as Float;
             if (lp - progress.floor()) < 0.1 && (progress - lp).abs() > 1. {
                 lp = progress;
@@ -110,35 +112,42 @@ impl BackwardMetropolis {
             }
             
             // Mutate and evaluate
-            let x2 = mutation.mutate(&x1, scene, camera, self.min_path_length, &mut rng);
+            let x2 = mutation.mutate(&x1, scene, camera, &self, &mut rng);
             let ray2 = Ray3D{
                 origin: x2.start,
                 direction: x2.primary_dir.unwrap()
             };
-            let pixel2 = camera.pixel_from_ray(&ray2).unwrap();            
-            let pixel2 = camera.pixel_index(pixel2);
-            let fx2 = x2.eval_from_node(0, scene);
-
-            // Calculate probability of accepting the mutation        
-            let a = mutation.prob_of_accept( fx1, fx2 );
-
-            // Add both contributions
-            pixels[pixel1] += fx1.normalize() *(1.-a) ;
-            pixels[pixel2] += fx2.normalize() * a;
-                                            
-            // Accept mutation... maybe
-            let r : Float = rng.gen();
-            if r < a {
-                // update values
-                x1 = x2;
-                fx1 = fx2;
-                pixel1 = pixel2;
-            }
+            let (pixel2, weight) = camera.pixel_from_ray(&ray2);
+            
+            // the ray is outside of FOV
+            if weight > 1e-22 {
+                n += 1;
+                // All good.
+                let pixel2 = camera.pixel_index(pixel2);
+                let fx2 = x2.eval_from_node(0, scene);
+    
+                // Calculate probability of accepting the mutation        
+                let a = mutation.prob_of_accept( fx1, fx2 );
+    
+                // Add both contributions
+                pixels[pixel1] += fx1.normalize() *(1.-a) ;
+                pixels[pixel2] += fx2.normalize() * a;
+                                                
+                // Accept mutation... maybe
+                let r : Float = rng.gen();
+                if r < a {
+                    // update values
+                    x1 = x2;
+                    fx1 = fx2;
+                    pixel1 = pixel2;
+                }
+            }            
         }
 
         // return
         // let found_in_anchor = pixels[anchor_i];
         // let scale_constant = anchor_f / found_in_anchor;
+        // let scale_constant = 1./ n_samples as Float;
         // for p in pixels.iter_mut(){            
         //     *p *= scale_constant;
         // } 
@@ -160,9 +169,14 @@ mod tests {
     use crate::camera::{Film, View, Pinhole};
     use std::time::Instant;
 
+    #[ignore]
     #[test]    
     fn basic_test(){
-        let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
+        // cargo test --features parallel --release  -- --ignored --nocapture basic_test
+        let file = "./test_data/exterior_0_diffuse_plastic.rad";
+        // let file = "./test_data/room.rad";
+
+        let mut scene = Scene::from_radiance(file.to_string());
 
         scene.build_accelerator();
 
@@ -172,17 +186,25 @@ mod tests {
         };
 
         // Create view
+        // let view = View {
+        //     view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
+        //     view_point: Point3D::new(2., 1., 1.),
+        //     ..View::default()
+        // };
+        // Create view
         let view = View {
-            view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
-            view_point: Point3D::new(2., 1., 1.),
+            view_direction: Vector3D::new(0., 1., 0.),
+            view_point: Point3D::new(0., -13., 0.),
             ..View::default()
         };
+
         // Create camera
         let camera = Pinhole::new(view, film);
 
         let integrator = BackwardMetropolis {
-            mutations_per_pixel: 300,
+            mutations_per_pixel: 1000,
             min_path_length: 3,
+            n_shadow_samples: 1,
         };
 
         let now = Instant::now();

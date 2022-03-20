@@ -548,7 +548,7 @@ mod tests {
 
         compare_with_radiance("exterior_0_diffuse_plastic.rad".to_string());
         // compare_with_radiance("exterior_0_specularity.rad".to_string());
-        compare_with_radiance("exterior_0_mirror.rad".to_string());
+        // compare_with_radiance("exterior_0_mirror.rad".to_string());
     }
 
     #[ignore]
