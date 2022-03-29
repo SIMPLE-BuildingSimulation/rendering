@@ -515,7 +515,7 @@ impl BoundingVolumeTree {
             let prim_index = prim_index.unwrap();
             let t = t_squared.sqrt();
             let point = ray.project(t);
-            
+
             let data = SurfaceInteractionData {
                 point,
                 // perror: info.perror,
@@ -523,12 +523,10 @@ impl BoundingVolumeTree {
                 wo: ray.direction * -1.,
                 geometry_shading: info,
                 prim_index,
-                
-                #[cfg(feature="textures")]
-                texture_shading: None,
-                
-            };            
 
+                #[cfg(feature = "textures")]
+                texture_shading: None,
+            };
 
             Some(Interaction::Surface(data))
         } else {

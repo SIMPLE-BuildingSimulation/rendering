@@ -32,4 +32,3 @@ pub use sample::CameraSample;
 
 mod camera;
 pub use camera::Camera;
-

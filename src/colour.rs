@@ -63,10 +63,9 @@ impl RGBSpectrum {
         self.red < 1e-24 && self.green < 1e-24 && self.blue < 1e-24
     }
 
-
-    /// Scales the chanels in order to make the 
+    /// Scales the chanels in order to make the
     /// radiance equals to 1
-    pub fn normalize(&self)-> Self {
+    pub fn normalize(&self) -> Self {
         *self / self.radiance()
     }
 
@@ -88,12 +87,12 @@ impl RGBSpectrum {
     pub const WHITE_EFFICACY: Float = 179.;
 
     /// Gets the maximum of the R, G, and B values
-    pub fn max(&self)->Float{
+    pub fn max(&self) -> Float {
         let mut v = self.red;
-        if self.green > v{
+        if self.green > v {
             v = self.green;
         }
-        if self.blue > v{
+        if self.blue > v {
             v = self.blue;
         }
         v

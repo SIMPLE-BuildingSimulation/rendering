@@ -102,7 +102,7 @@ impl Dielectric {
             // There is refraction
             let refl = fresnel_reflectance(n1, cos1, n2, cos2);
             let refl_comp = refl / cos1;
-            // This is one source of non-symmetrical BSDF 
+            // This is one source of non-symmetrical BSDF
             // (check Eric Veach's thesis, chapter 5 )
             /* IF RADIANCE */
             let ratio = n2 / n1;
@@ -120,7 +120,6 @@ impl Dielectric {
         }
     }
 
-    
     #[inline]
     pub fn bsdf(
         &self,

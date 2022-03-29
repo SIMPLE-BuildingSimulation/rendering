@@ -22,7 +22,6 @@ SOFTWARE.
 pub struct CameraSample {
     /// The position (x,y) within the [`Film`]
     pub p_film: (usize, usize),
-
     // /// The position within the Lens of the camera
     // pub p_lens: (Float, Float),
     // /// Time at which the ray will be emmited

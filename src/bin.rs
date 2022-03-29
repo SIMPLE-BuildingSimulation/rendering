@@ -20,10 +20,10 @@ SOFTWARE.
 
 use rendering::scene::Scene;
 // use rendering::from_radiance::from
-use clap::{Command, Arg};
+use clap::{Arg, Command};
 
 use geometry3d::{Point3D, Vector3D};
-use rendering::camera::{Pinhole, View, Film};
+use rendering::camera::{Film, Pinhole, View};
 use rendering::ray_tracer::RayTracer;
 use std::time::Instant;
 
@@ -95,5 +95,5 @@ fn main() {
         input_file,
         now.elapsed().as_secs()
     );
-    buffer.save_hdre( std::path::Path::new(output_file));
+    buffer.save_hdre(std::path::Path::new(output_file));
 }

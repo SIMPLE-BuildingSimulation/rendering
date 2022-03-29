@@ -19,7 +19,7 @@ SOFTWARE.
 */
 
 use crate::Float;
-use geometry3d::{Vector3D,Point3D};
+use geometry3d::{Point3D, Vector3D};
 
 pub struct View {
     pub view_point: Point3D,

@@ -22,7 +22,6 @@ use crate::rand::*;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
-
 #[inline]
 pub fn uniform_sample_triangle(rng: &mut RandGen, a: Point3D, b: Point3D, c: Point3D) -> Point3D {
     let (rand1, rand2): (Float, Float) = rng.gen();
@@ -99,8 +98,7 @@ pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32,
     // );
 }
 
-
-/// Transforms a Point from Local Coordinates (defined by the triad `local_e1`, `local_e2` and `normal`, 
+/// Transforms a Point from Local Coordinates (defined by the triad `local_e1`, `local_e2` and `normal`,
 /// centered at `centre`) into world coordinates. For converting a vector, set `centre = Point3D::new(0.0, 0., 0.)`
 #[inline]
 pub fn local_to_world(
@@ -123,7 +121,6 @@ pub fn local_to_world(
 
     (x, y, z)
 }
-
 
 /// Gets a random `Vector3D`, distributed according to `cos(theta)` according
 /// to a normal `Vector3D(0,0,1)`

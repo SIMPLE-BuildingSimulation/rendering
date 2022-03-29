@@ -3,6 +3,9 @@
 ![build badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/build.yaml/badge.svg)
 ![docs badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/docs.yaml/badge.svg)
 ![tests badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/tests.yaml/badge.svg)
+![Codecov](https://codecov.io/github/IMPLE-BuildingSimulation/simple_model/coverage.svg?branch=master)](https://codecov.io/gh/IMPLE-BuildingSimulation/simple_model)
+![style badge](https://github.com/SIMPLE-BuildingSimulation/simple_model/actions/workflows/style.yaml/badge.svg)
+
 
 This is a library for developing rendering engines... but it is not finished yet. In fact, 
 it has not reached a stable structure.

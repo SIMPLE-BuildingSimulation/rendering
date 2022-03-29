@@ -134,7 +134,8 @@ impl RayTracer {
                     let color = material.colour();
                     // let total_samples = n + n_lights * self.n_shadow_samples;
                     // let bsdf_c = 1.;//n as Float / total_samples as Float;
-                    specular_li += (li * cos_theta * *bsdf_value) * (color) * *ray_weight; // / ( bsdf_c * bsdf_value );
+                    specular_li += (li * cos_theta * *bsdf_value) * (color) * *ray_weight;
+                    // / ( bsdf_c * bsdf_value );
                 }
                 // return Some(specular_li + local)
                 return (specular_li, 0.0);
@@ -153,7 +154,7 @@ impl RayTracer {
                     wt = d;
                 }
                 let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
-                const EXTRA:usize = 1;
+                const EXTRA: usize = 1;
                 const MIN_AMBS: usize = 1;
                 if n < MIN_AMBS * EXTRA {
                     MIN_AMBS * EXTRA
@@ -216,8 +217,6 @@ impl RayTracer {
         }
     }
 
-    
-
     fn sample_light_array(
         &self,
         scene: &Scene,
@@ -246,9 +245,7 @@ impl RayTracer {
                     direction,
                 };
 
-                if let Some((light_colour, light_pdf)) =
-                    sample_light(scene, light, &shadow_ray)
-                {
+                if let Some((light_colour, light_pdf)) = sample_light(scene, light, &shadow_ray) {
                     i += 1;
                     if light_pdf < 1e-18 {
                         // The light is obstructed... don't add light, but count it.
@@ -433,12 +430,10 @@ impl RayTracer {
     }
 }
 
-
-
 /// Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses
 /// the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)`
 /// if the light is hit.
-pub fn sample_light(        
+pub fn sample_light(
     scene: &Scene,
     light: &Object,
     shadow_ray: &Ray3D,
@@ -488,17 +483,15 @@ pub fn sample_light(
     Some((light_colour, light_pdf))
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     // use geometry3d::ray3d::Ray3D;
-    use geometry3d::{Point3D, Vector3D};
     use crate::camera::Pinhole;
+    use geometry3d::{Point3D, Vector3D};
 
-    use crate::camera::{Camera, View, Film};    
+    use crate::camera::{Camera, Film, View};
     use std::time::Instant;
 
     fn compare_with_radiance(filename: String) {
@@ -553,7 +546,7 @@ mod tests {
 
     #[ignore]
     #[test]
-    fn render_dielectric() {   
+    fn render_dielectric() {
         // 0 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture render_dielectric
 
@@ -613,7 +606,7 @@ mod tests {
 
     #[test]
     #[ignore]
-    fn test_render_room() { 
+    fn test_render_room() {
         // 73 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture test_render_room
 
@@ -646,7 +639,7 @@ mod tests {
 
         let buffer = integrator.render(&scene, &camera);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre( std::path::Path::new("./test_data/images/room.hdr"));
+        buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
     }
 
     use crate::material::{Material, PlasticMetal};
@@ -657,7 +650,7 @@ mod tests {
     fn test_2() {
         // 2 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture test_2
-        
+
         // Build scene
         let mut scene = Scene::default();
 
@@ -800,6 +793,6 @@ mod tests {
         let now = Instant::now();
         let buffer = integrator.render(&scene, &camera);
         println!("Scene took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre( std::path::Path::new("./test_data/images/ray_tracer.hdr"));
+        buffer.save_hdre(std::path::Path::new("./test_data/images/ray_tracer.hdr"));
     }
 }

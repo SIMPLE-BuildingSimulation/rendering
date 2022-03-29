@@ -25,8 +25,6 @@ use geometry3d::{Point3D, Transform, Vector3D};
 
 use crate::scene::Object;
 
-
-
 /// The data for a SurfaceInteraction
 pub struct SurfaceInteractionData {
     /* GENERAL INTERACTION DATA */
@@ -52,7 +50,7 @@ pub struct SurfaceInteractionData {
 
     /// Stores the shading information after being
     /// perturbed by a texture
-    #[cfg(feature="textures")]
+    #[cfg(feature = "textures")]
     pub texture_shading: Option<IntersectionInfo>,
 
     // /// The [`Object`] in the scene
@@ -70,9 +68,9 @@ impl SurfaceInteractionData {
         // let object = self.object;
 
         // shading
-        let geometry_shading = self.geometry_shading.transform(t);        
+        let geometry_shading = self.geometry_shading.transform(t);
 
-        #[cfg(feature="textures")]
+        #[cfg(feature = "textures")]
         let texture_shading = self.texture_shading.as_ref().map(|s| s.transform(t));
 
         Self {
@@ -83,7 +81,7 @@ impl SurfaceInteractionData {
             geometry_shading,
             prim_index: self.prim_index,
 
-            #[cfg(feature="textures")]
+            #[cfg(feature = "textures")]
             texture_shading,
         }
     }
@@ -92,18 +90,18 @@ impl SurfaceInteractionData {
     /// Prioritizes the texture geometry (which can deviate the normal).
     /// If there is `None`, then the geometry shading is used.
     pub fn normal(&self) -> Vector3D {
-        #[cfg(feature="textures")]
+        #[cfg(feature = "textures")]
         match &self.texture_shading {
             Some(info) => info.normal,
             None => self.geometry_shading.normal,
         }
-        #[cfg(not(feature="textures"))]
+        #[cfg(not(feature = "textures"))]
         self.geometry_shading.normal
     }
 }
 
 pub enum Interaction {
-    Surface(SurfaceInteractionData),    
+    Surface(SurfaceInteractionData),
     Endpoint(Option<RefCount<Object>>),
 }
 

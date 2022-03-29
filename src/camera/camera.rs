@@ -18,24 +18,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
+use crate::camera::{CameraSample, View};
+use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
-use crate::rand::*;
-use crate::camera::{View,  CameraSample};
-use geometry3d::{ Ray3D};
+use geometry3d::Ray3D;
 
-
-pub trait Camera : Sync {
-
-    fn pixel_from_ray(&self, ray: &Ray3D)->((usize,usize), Float);
+pub trait Camera: Sync {
+    fn pixel_from_ray(&self, ray: &Ray3D) -> ((usize, usize), Float);
 
     /// Generates a ray that will go through the View Point and a
     /// certain `CameraSample`
     fn gen_ray(&self, sample: &CameraSample) -> (Ray, Float);
 
-    /// Generates a random CameraSample 
-    fn gen_random_sample(&self, rng: &mut RandGen)->CameraSample;
+    /// Generates a random CameraSample
+    fn gen_random_sample(&self, rng: &mut RandGen) -> CameraSample;
 
     /// Gets the film resolution (width,height) in pixels
     fn film_resolution(&self) -> (usize, usize);
@@ -43,11 +40,9 @@ pub trait Camera : Sync {
     /// Borrows the view
     fn view(&self) -> &View;
 
-    fn pixel_index(&self, pxl : (usize,usize))->usize{
-        let (x,y) = pxl;
-        let (width, _height) = self.film_resolution();        
+    fn pixel_index(&self, pxl: (usize, usize)) -> usize {
+        let (x, y) = pxl;
+        let (width, _height) = self.film_resolution();
         width * y + x
-
     }
 }
-

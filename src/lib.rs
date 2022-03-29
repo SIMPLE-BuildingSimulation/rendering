@@ -54,14 +54,11 @@ pub mod ray;
 pub mod samplers;
 pub mod scene;
 
-
 mod from_simple_model;
 
 // Ray-tracer
-pub mod ray_tracer;
 mod backward_metropolis;
+pub mod ray_tracer;
 pub use crate::backward_metropolis::{
-    BackwardMetropolis,
-    Mutation,MutationSet,
-    mutation::RestartRay
+    mutation::RestartRay, BackwardMetropolis, Mutation, MutationSet,
 };

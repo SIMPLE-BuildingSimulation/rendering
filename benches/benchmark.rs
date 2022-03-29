@@ -8,9 +8,7 @@ use rendering::ray::Ray;
 use rendering::rand::*;
 use rendering::samplers::*;
 
-
 type Float = f64;
-
 
 pub fn this_local_to_world(
     local_e1: Vector3D,
@@ -33,37 +31,31 @@ pub fn this_local_to_world(
     (x, y, z)
 }
 
-
-
 // use rand::distributions::{Distribution, Uniform};
 pub fn criterion_benchmark(c: &mut Criterion) {
-
     /* ********* */
     /* SAMPLERS */
     /* ********* */
     // let mut rng = black_box(get_rng());
     // c.bench_function("SmallRng", move |b| {
-    //     b.iter(|| {            
+    //     b.iter(|| {
     //         let _a : f64 = rng.gen();
     //     })
     // });
 
-    
     // let mut rng = black_box(get_rng());
     // c.bench_function("uniform_sample_horizontal_disc", |b| {
-    //     b.iter(|| {            
+    //     b.iter(|| {
     //         let (_a,_b) = uniform_sample_horizontal_disc(black_box(&mut rng), 1.);
     //     })
     // });
 
-
     // let mut rng = black_box(get_rng());
     // c.bench_function("sample_cosine_weighted_horizontal_hemisphere", |b| {
-    //     b.iter(|| {            
+    //     b.iter(|| {
     //         let _a = sample_cosine_weighted_horizontal_hemisphere(black_box(&mut rng));
     //     })
     // });
-
 
     // let e1 = black_box(Vector3D::new(1., 0., 0.).get_normalized());
     // let e2 = black_box(Vector3D::new(0., 1., 0.).get_normalized());
@@ -77,8 +69,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     //         let _dir = Vector3D::new(x, y, z);
     //     })
     // });
-    
-
 
     /* ********* */
     /* MATERIALS */
@@ -104,11 +94,17 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         },
         specularity: 0.0,
         roughness: 0.0,
-    };    
+    };
     c.bench_function("direct_sample_plastic", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) =
-            p.bsdf(black_box(normal), black_box(e1), black_box(e2), black_box(Point3D::new(0., 0., 0.)), black_box(ray), black_box(&mut rng));
+            let (_new_ray, _pdf, _is_specular) = p.bsdf(
+                black_box(normal),
+                black_box(e1),
+                black_box(e2),
+                black_box(Point3D::new(0., 0., 0.)),
+                black_box(ray),
+                black_box(&mut rng),
+            );
         })
     });
 
@@ -125,8 +121,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plastic = black_box(Material::Plastic(p));
     c.bench_function("sample_plastic", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) =
-                plastic.sample_bsdf(black_box(normal), black_box(e1), black_box(e2), black_box(Point3D::new(0., 0., 0.)), black_box(ray), black_box(&mut rng));
+            let (_new_ray, _pdf, _is_specular) = plastic.sample_bsdf(
+                black_box(normal),
+                black_box(e1),
+                black_box(e2),
+                black_box(Point3D::new(0., 0., 0.)),
+                black_box(ray),
+                black_box(&mut rng),
+            );
         })
     });
 
@@ -147,8 +149,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }));
     c.bench_function("sample_metal", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) =
-                metal.sample_bsdf(black_box(normal), black_box(e1), black_box(e2), black_box(Point3D::new(0., 0., 0.)), black_box(ray), black_box(&mut rng));
+            let (_new_ray, _pdf, _is_specular) = metal.sample_bsdf(
+                black_box(normal),
+                black_box(e1),
+                black_box(e2),
+                black_box(Point3D::new(0., 0., 0.)),
+                black_box(ray),
+                black_box(&mut rng),
+            );
         })
     });
 
@@ -171,7 +179,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // });
     c.bench_function("get_possible_paths_mirror", |b| {
         b.iter(|| {
-            let _a = mirror.get_possible_paths(black_box(&normal), black_box(&Point3D::new(0., 0., 0.)), black_box(&ray));
+            let _a = mirror.get_possible_paths(
+                black_box(&normal),
+                black_box(&Point3D::new(0., 0., 0.)),
+                black_box(&ray),
+            );
         })
     });
     c.bench_function("eval_mirror", |b| {
@@ -190,7 +202,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }));
     c.bench_function("get_possible_paths_dielectric", |b| {
         b.iter(|| {
-            let _a = dielectric.get_possible_paths(black_box(&normal), black_box(&Point3D::new(0., 0., 0.)), black_box(&ray));
+            let _a = dielectric.get_possible_paths(
+                black_box(&normal),
+                black_box(&Point3D::new(0., 0., 0.)),
+                black_box(&ray),
+            );
         })
     });
     // c.bench_function("sample_dielectric", |b| {

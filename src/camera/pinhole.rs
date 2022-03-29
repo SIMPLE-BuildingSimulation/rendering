@@ -18,11 +18,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use geometry3d::{Vector3D, Ray3D};
-use crate::Float;
-use crate::camera::{Film, View, Camera, CameraSample};
+use crate::camera::{Camera, CameraSample, Film, View};
 use crate::rand::*;
 use crate::ray::Ray;
+use crate::Float;
+use geometry3d::{Ray3D, Vector3D};
 
 pub struct Pinhole {
     view: View,
@@ -47,20 +47,17 @@ impl Pinhole {
 }
 
 impl Camera for Pinhole {
-
-    /// Generates a random CameraSample 
-    fn gen_random_sample(&self, rng: &mut RandGen)->CameraSample{
+    /// Generates a random CameraSample
+    fn gen_random_sample(&self, rng: &mut RandGen) -> CameraSample {
         let (width, height) = self.film.resolution;
-        let (x,y):(usize,usize) = rng.gen();
-        CameraSample{
-            p_film : ( x%width, y%height )
-        }        
+        let (x, y): (usize, usize) = rng.gen();
+        CameraSample {
+            p_film: (x % width, y % height),
+        }
     }
 
-
-    fn pixel_from_ray(&self, ray: &Ray3D)->((usize,usize), Float){
-
-        if (ray.origin - self.view.view_point).length_squared() > 1e-24{
+    fn pixel_from_ray(&self, ray: &Ray3D) -> ((usize, usize), Float) {
+        if (ray.origin - self.view.view_point).length_squared() > 1e-24 {
             panic!("Trying to get a pixel of a camera through a ray that does not start at its view point... ViewPoint = {}, ray.origin = {} | distance = {}", self.view.view_point, ray.origin, (self.view.view_point-ray.origin).length());
         }
 
@@ -70,26 +67,31 @@ impl Camera for Pinhole {
         let cos = normal * direction;
         if cos.abs() < 1e-12 {
             // The ray does not intersect at all.... its weight is Zero
-            return ((0,0),0.)
+            return ((0, 0), 0.);
         }
 
         // Calculate a point in the plane
         let s = self.view.view_point + normal * self.film_distance;
-        let ray_length = (s - ray.origin)*normal/cos;
+        let ray_length = (s - ray.origin) * normal / cos;
         // Let's get the intersection point centered at the origin
         let intersection_pt = direction * ray_length;
         // Transform that point to be aligned with u and up and normal
         let x = intersection_pt * self.u;
         #[cfg(debug_assertions)]
-        {   
+        {
             let y = intersection_pt * normal;
-            assert!( (y - self.film_distance).abs() < 1e-12, "y = {} | film distance = {}", y, self.film_distance );
+            assert!(
+                (y - self.film_distance).abs() < 1e-12,
+                "y = {} | film distance = {}",
+                y,
+                self.film_distance
+            );
         }
         let z = intersection_pt * self.view.view_up;
 
         // If it is out of the FOV, return None.
         if z.abs() > 1. || x.abs() > 1. {
-            return ((0,0),0.)
+            return ((0, 0), 0.);
         }
 
         let (width, height) = self.film.resolution;
@@ -99,15 +101,12 @@ impl Camera for Pinhole {
         let dx = xlim / width as Float;
         let dy = ylim / height as Float;
 
-
         // Else, calculate:
-        let x = ( x + 1. )/dx;
-        let y = ( 1. - z )/dy;
+        let x = (x + 1.) / dx;
+        let y = (1. - z) / dy;
 
         // return
         ((x.floor() as usize, y.floor() as usize), 1.)
-        
-            
     }
 
     /// Generates a ray that will go through the View Point and a
@@ -149,11 +148,6 @@ impl Camera for Pinhole {
     }
 }
 
-
-
-
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -175,13 +169,10 @@ mod tests {
         // Create camera
         let camera = Pinhole::new(view, film);
 
-        let sample = CameraSample{
-            p_film: (10,20)
-        };
+        let sample = CameraSample { p_film: (10, 20) };
         // Let's assume this is right
-        let (ray,_weight) = camera.gen_ray(&sample);
+        let (ray, _weight) = camera.gen_ray(&sample);
         let (found_pixel, _weight) = camera.pixel_from_ray(&ray.geometry);
         assert_eq!(sample.p_film, found_pixel);
-
     }
 }

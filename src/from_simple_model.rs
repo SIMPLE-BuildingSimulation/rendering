@@ -151,7 +151,7 @@ impl SimpleModelReader {
 mod tests {
 
     use super::*;
-    use crate::camera::{Pinhole, View, Film};    
+    use crate::camera::{Film, Pinhole, View};
     use crate::ray_tracer::RayTracer;
     use crate::Float;
     use geometry3d::{DistantSource3D, Point3D, Vector3D};
@@ -160,7 +160,6 @@ mod tests {
     #[test]
     #[ignore]
     fn test_scene_from_model() {
-        
         // BUILD SCENE
         let (model, _state_header) =
             SimpleModel::from_file("./test_data/room.spl".to_string()).unwrap();
@@ -205,6 +204,6 @@ mod tests {
 
         let buffer = integrator.render(&scene, &camera);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre( std::path::Path::new("./test_data/images/simple_room.hdr"));
+        buffer.save_hdre(std::path::Path::new("./test_data/images/simple_room.hdr"));
     }
 }

@@ -33,10 +33,7 @@ pub struct PlasticMetal {
     pub roughness: Float,
 }
 
-
-
 impl PlasticMetal {
-
     #[inline(always)]
     pub fn bsdf(
         &self,
@@ -64,7 +61,7 @@ impl PlasticMetal {
                 (local_dir.length() - 1.).abs() < 1e-6,
                 "Length was {}",
                 local_dir.length()
-            );            
+            );
             let (x, y, z) = local_to_world(
                 e1,
                 e2,
@@ -74,9 +71,9 @@ impl PlasticMetal {
                 local_dir.y,
                 local_dir.z,
             );
-            let dir = Vector3D::new(x, y, z);            
+            let dir = Vector3D::new(x, y, z);
             ray.geometry.direction = dir;
-            debug_assert!( (dir.length() - 1.).abs() < 1e-4);
+            debug_assert!((dir.length() - 1.).abs() < 1e-4);
             (ray, prob, false)
         }
     }
