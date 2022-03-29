@@ -98,9 +98,6 @@
 <span id="62">62</span>
 <span id="63">63</span>
 <span id="64">64</span>
-<span id="65">65</span>
-<span id="66">66</span>
-<span id="67">67</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -157,16 +154,14 @@ SOFTWARE.
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">samplers</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">scene</span>;
 
-
 <span class="kw">mod</span> <span class="ident">from_simple_model</span>;
 
 <span class="comment">// Ray-tracer</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ray_tracer</span>;
 <span class="kw">mod</span> <span class="ident">backward_metropolis</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">ray_tracer</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backward_metropolis</span>::{
-    <span class="ident">BackwardMetropolis</span>,
-    <span class="ident">Mutation</span>,<span class="ident">MutationSet</span>,
-    <span class="ident">mutation::RestartRay</span>
-};</code></pre></div>
+    <span class="ident">mutation::RestartRay</span>, <span class="ident">BackwardMetropolis</span>, <span class="ident">Mutation</span>, <span class="ident">MutationSet</span>,
+};
+</code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
 </body></html>

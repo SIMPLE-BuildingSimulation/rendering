@@ -360,9 +360,6 @@
 <span id="324">324</span>
 <span id="325">325</span>
 <span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -386,7 +383,6 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
-
 
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_triangle</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>, <span class="ident">a</span>: <span class="ident">Point3D</span>, <span class="ident">b</span>: <span class="ident">Point3D</span>, <span class="ident">c</span>: <span class="ident">Point3D</span>) -&gt; <span class="ident">Point3D</span> {
@@ -464,8 +460,7 @@ SOFTWARE.
     <span class="comment">// );</span>
 }
 
-
-<span class="doccomment">/// Transforms a Point from Local Coordinates (defined by the triad `local_e1`, `local_e2` and `normal`, </span>
+<span class="doccomment">/// Transforms a Point from Local Coordinates (defined by the triad `local_e1`, `local_e2` and `normal`,</span>
 <span class="doccomment">/// centered at `centre`) into world coordinates. For converting a vector, set `centre = Point3D::new(0.0, 0., 0.)`</span>
 <span class="attribute">#[<span class="ident">inline</span>]</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">local_to_world</span>(
@@ -488,7 +483,6 @@ SOFTWARE.
 
     (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
-
 
 <span class="doccomment">/// Gets a random `Vector3D`, distributed according to `cos(theta)` according</span>
 <span class="doccomment">/// to a normal `Vector3D(0,0,1)`</span>

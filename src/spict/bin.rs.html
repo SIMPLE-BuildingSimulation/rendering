@@ -155,10 +155,10 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident">rendering::scene::Scene</span>;
 <span class="comment">// use rendering::from_radiance::from</span>
-<span class="kw">use</span> <span class="ident">clap</span>::{<span class="ident">Command</span>, <span class="ident">Arg</span>};
+<span class="kw">use</span> <span class="ident">clap</span>::{<span class="ident">Arg</span>, <span class="ident">Command</span>};
 
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
-<span class="kw">use</span> <span class="ident">rendering::camera</span>::{<span class="ident">Pinhole</span>, <span class="ident">View</span>, <span class="ident">Film</span>};
+<span class="kw">use</span> <span class="ident">rendering::camera</span>::{<span class="ident">Film</span>, <span class="ident">Pinhole</span>, <span class="ident">View</span>};
 <span class="kw">use</span> <span class="ident">rendering::ray_tracer::RayTracer</span>;
 <span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
@@ -230,7 +230,7 @@ SOFTWARE.
         <span class="ident">input_file</span>,
         <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_secs</span>()
     );
-    <span class="ident">buffer</span>.<span class="ident">save_hdre</span>( <span class="ident">std::path::Path::new</span>(<span class="ident">output_file</span>));
+    <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">std::path::Path::new</span>(<span class="ident">output_file</span>));
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="spict" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>

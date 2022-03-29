@@ -590,31 +590,6 @@
 <span id="554">554</span>
 <span id="555">555</span>
 <span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -635,57 +610,55 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction</span>::{<span class="ident">Interaction</span>};
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Vector3D</span>, <span class="ident">Ray3D</span>, <span class="ident">Point3D</span>};
-<span class="kw">use</span> <span class="ident">geometry3d::intersection::SurfaceSide</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Scene</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Object</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray_tracer::sample_light</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::backward_metropolis::BackwardMetropolis</span>;
-
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction::Interaction</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray_tracer::sample_light</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Object</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Scene</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
+<span class="kw">use</span> <span class="ident">geometry3d::intersection::SurfaceSide</span>;
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
     <span class="kw">pub</span> <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">PathNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">start</span>: <span class="ident">Point3D</span>,
     <span class="kw">pub</span> <span class="ident">primary_dir</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vector3D</span><span class="op">&gt;</span>,
-} 
+}
 
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="ident">Path</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">start</span>: <span class="ident">Point3D</span>)-&gt;<span class="self">Self</span>{
-        <span class="self">Self</span>{
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">Path</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">start</span>: <span class="ident">Point3D</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="ident">nodes</span>: <span class="ident">Vec::new</span>(),
             <span class="ident">start</span>,
             <span class="ident">primary_dir</span>: <span class="prelude-val">None</span>,
         }
     }
 
-    
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">start</span>: <span class="ident">Point3D</span>, <span class="ident">capacity</span>: <span class="ident">usize</span>)-&gt;<span class="self">Self</span>{
-        <span class="self">Self</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">with_capacity</span>(<span class="ident">start</span>: <span class="ident">Point3D</span>, <span class="ident">capacity</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
+        <span class="self">Self</span> {
             <span class="ident">nodes</span>: <span class="ident">Vec::with_capacity</span>(<span class="ident">capacity</span>),
             <span class="ident">start</span>,
             <span class="ident">primary_dir</span>: <span class="prelude-val">None</span>,
         }
     }
 
-    
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_random_walk</span>(<span class="ident">primary_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scene</span>,  <span class="ident">integrator</span>: <span class="kw-2">&amp;</span><span class="ident">BackwardMetropolis</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>)-&gt;<span class="self">Self</span>{
-        
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident"><span class="self">Self</span>::with_capacity</span>(<span class="ident">primary_ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>, <span class="ident">integrator</span>.<span class="ident">min_path_length</span> <span class="op">*</span> <span class="number">2</span>); <span class="comment">// leave some room for future expansions</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new_from_random_walk</span>(
+        <span class="ident">primary_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
+        <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scene</span>,
+        <span class="ident">integrator</span>: <span class="kw-2">&amp;</span><span class="ident">BackwardMetropolis</span>,
+        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
+    ) -&gt; <span class="self">Self</span> {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span>
+            <span class="ident"><span class="self">Self</span>::with_capacity</span>(<span class="ident">primary_ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>, <span class="ident">integrator</span>.<span class="ident">min_path_length</span> <span class="op">*</span> <span class="number">2</span>); <span class="comment">// leave some room for future expansions</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">primary_ray</span>;
         <span class="ident">ret</span>.<span class="ident">primary_dir</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>);
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">integrator</span>.<span class="ident">min_path_length</span> {
-
-            <span class="kw">if</span> <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">integrator</span>.<span class="ident">n_shadow_samples</span>, <span class="ident">rng</span>){
+            <span class="kw">if</span> <span class="ident">ret</span>.<span class="ident">extend</span>(<span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">integrator</span>.<span class="ident">n_shadow_samples</span>, <span class="ident">rng</span>) {
                 <span class="comment">// Create new ray.</span>
                 <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="ident">ret</span>.<span class="ident">nodes</span>.<span class="ident">last</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">material</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">material</span>;
@@ -696,20 +669,18 @@ SOFTWARE.
 
                 <span class="kw">let</span> (<span class="ident">new_ray</span>, <span class="kw">_</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">point</span>, <span class="ident">ray</span>, <span class="ident">rng</span>);
                 <span class="ident">ray</span> <span class="op">=</span> <span class="ident">new_ray</span>;
-
-            }<span class="kw">else</span>{
+            } <span class="kw">else</span> {
                 <span class="comment">// Did not hit anything... no point in keeping going.</span>
                 <span class="kw">return</span> <span class="ident">ret</span>;
             }
-
         }
 
         <span class="comment">// return</span>
         <span class="ident">ret</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="ident">PathNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>){
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">is_empty</span>(){
+    <span class="kw">fn</span> <span class="ident">push</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">node</span>: <span class="ident">PathNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span>) {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">is_empty</span>() {
             <span class="comment">// Fill primary_dir</span>
             <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> (<span class="ident">node</span>.<span class="ident">point</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">start</span>).<span class="ident">get_normalized</span>();
             <span class="self">self</span>.<span class="ident">primary_dir</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">dir</span>);
@@ -717,111 +688,112 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">push</span>(<span class="ident">node</span>)
     }
 
-
     <span class="doccomment">/// Adds one level to the Path by sending a `ray` through the `scene`.</span>
-    <span class="doccomment">/// </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// If the object that the ray hits has a fully specular material—e.g., Dielectric—</span>
-    <span class="doccomment">/// then another ray will be sent to reflect the quasi-deterministic nature of </span>
+    <span class="doccomment">/// then another ray will be sent to reflect the quasi-deterministic nature of</span>
     <span class="doccomment">/// specular reflections.</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scene</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>)-&gt; <span class="ident">bool</span> {
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">node</span>) <span class="op">=</span> <span class="ident">PathNode::new</span>(<span class="ident">scene</span>, <span class="ident">ray</span>, <span class="ident">n_shadow_samples</span>, <span class="ident">rng</span>){
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">extend</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scene</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
+        <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>,
+        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
+    ) -&gt; <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">node</span>) <span class="op">=</span> <span class="ident">PathNode::new</span>(<span class="ident">scene</span>, <span class="ident">ray</span>, <span class="ident">n_shadow_samples</span>, <span class="ident">rng</span>) {
             <span class="self">self</span>.<span class="ident">push</span>(<span class="ident">node</span>);
             <span class="bool-val">true</span>
-        }<span class="kw">else</span>{
+        } <span class="kw">else</span> {
             <span class="bool-val">false</span>
         }
-        
     }
 
-
-
-    <span class="doccomment">/// Walks from start to end, adding the contribution of the different </span>
+    <span class="doccomment">/// Walks from start to end, adding the contribution of the different</span>
     <span class="doccomment">/// nodes.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_from_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>) -&gt; <span class="ident">Spectrum</span> {        
-        
-        
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">is_empty</span>(){
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_from_node</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">i</span>: <span class="ident">usize</span>, <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>) -&gt; <span class="ident">Spectrum</span> {
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">is_empty</span>() {
             <span class="kw">return</span> <span class="ident">Spectrum::black</span>();
         }
-        <span class="macro">assert!</span>( <span class="ident">i</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>(), <span class="string">&quot;Trying to evaluate path of {} starting from node {}&quot;</span>, <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>(), <span class="ident">i</span> );
-        
-        <span class="kw">let</span> <span class="ident">prev_pt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> { 
-            <span class="self">self</span>.<span class="ident">start</span> 
+        <span class="macro">assert!</span>(
+            <span class="ident">i</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>(),
+            <span class="string">&quot;Trying to evaluate path of {} starting from node {}&quot;</span>,
+            <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">len</span>(),
+            <span class="ident">i</span>
+        );
+
+        <span class="kw">let</span> <span class="ident">prev_pt</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">i</span> <span class="op">==</span> <span class="number">0</span> {
+            <span class="self">self</span>.<span class="ident">start</span>
         } <span class="kw">else</span> {
-            <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">i</span><span class="op">-</span><span class="number">1</span>].<span class="ident">point</span>
+            <span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>].<span class="ident">point</span>
         };
-        
-        
+
         <span class="comment">// Add local</span>
         <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">i</span>];
-        
+
         <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> (<span class="ident">node</span>.<span class="ident">point</span> <span class="op">-</span> <span class="ident">prev_pt</span>).<span class="ident">get_normalized</span>();
         <span class="kw">let</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">eval</span>(<span class="ident">vin</span>);
 
-
         <span class="comment">// Add next node</span>
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next_node</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">i</span><span class="op">+</span><span class="number">1</span>){
-            
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">next_node</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">get</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>) {
             <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">next_node</span>.<span class="ident">point</span> <span class="op">-</span> <span class="ident">node</span>.<span class="ident">point</span>;
-            <span class="kw">let</span> <span class="ident">distance_squared</span> <span class="op">=</span> <span class="ident">vout</span>.<span class="ident">length_squared</span>();          
+            <span class="kw">let</span> <span class="ident">distance_squared</span> <span class="op">=</span> <span class="ident">vout</span>.<span class="ident">length_squared</span>();
             <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">vout</span>.<span class="ident">get_normalized</span>();
             <span class="comment">// Ray frim this node to the next one</span>
             <span class="kw">let</span> <span class="ident">shadow_ray</span> <span class="op">=</span> <span class="ident">Ray3D</span> {
                 <span class="ident">origin</span>: <span class="ident">node</span>.<span class="ident">point</span>,
-                <span class="ident">direction</span>: <span class="ident">vout</span>
+                <span class="ident">direction</span>: <span class="ident">vout</span>,
             };
 
-            <span class="comment">// if next node is obstructed... then don&#39;t bother.            </span>
+            <span class="comment">// if next node is obstructed... then don&#39;t bother.</span>
             <span class="kw">if</span> <span class="op">!</span><span class="ident">scene</span>.<span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="ident">shadow_ray</span>, <span class="ident">distance_squared</span>) {
-                <span class="kw">return</span> <span class="ident">ret</span>
+                <span class="kw">return</span> <span class="ident">ret</span>;
             }
 
             <span class="comment">// Ray from prev_point to this node</span>
-            <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span>{
+            <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span> {
                 <span class="ident">geometry</span>: <span class="ident">Ray3D</span> {
                     <span class="ident">origin</span>: <span class="ident">prev_pt</span>,
-                    <span class="ident">direction</span>: <span class="ident">vin</span>
+                    <span class="ident">direction</span>: <span class="ident">vin</span>,
                 },
                 <span class="ident">refraction_index</span>: <span class="number">1.</span>,
             };
 
-            
-            <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span> <span class="ident">node</span>.<span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">node</span>.<span class="ident">normal</span>, <span class="ident">node</span>.<span class="ident">e1</span>, <span class="ident">node</span>.<span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);
+            <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span> <span class="ident">node</span>
+                .<span class="ident">material</span>
+                .<span class="ident">eval_bsdf</span>(<span class="ident">node</span>.<span class="ident">normal</span>, <span class="ident">node</span>.<span class="ident">e1</span>, <span class="ident">node</span>.<span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);
             <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">node</span>.<span class="ident">normal</span> <span class="op">*</span> <span class="ident">vout</span>).<span class="ident">abs</span>();
 
             <span class="comment">// return this + the next node.</span>
-            <span class="ident">ret</span> <span class="op">+</span> <span class="ident">node</span>.<span class="ident">material</span>.<span class="ident">colour</span>() <span class="op">*</span> <span class="ident">bsdf</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">eval_from_node</span>(<span class="ident">i</span><span class="op">+</span><span class="number">1</span>, <span class="ident">scene</span>)
-        }<span class="kw">else</span>{
-            <span class="comment">// return </span>
+            <span class="ident">ret</span> <span class="op">+</span> <span class="ident">node</span>.<span class="ident">material</span>.<span class="ident">colour</span>() <span class="op">*</span> <span class="ident">bsdf</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">eval_from_node</span>(<span class="ident">i</span> <span class="op">+</span> <span class="number">1</span>, <span class="ident">scene</span>)
+        } <span class="kw">else</span> {
+            <span class="comment">// return</span>
             <span class="ident">ret</span>
         }
-        
-        
     }
 }
 
-
-
-
-
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {    
-    <span class="kw">pub</span> <span class="ident">normal</span> : <span class="ident">Vector3D</span>,
-    <span class="kw">pub</span> <span class="ident">e1</span> : <span class="ident">Vector3D</span>,
-    <span class="kw">pub</span> <span class="ident">e2</span> : <span class="ident">Vector3D</span>,
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">PathNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+    <span class="kw">pub</span> <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
+    <span class="kw">pub</span> <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
     <span class="kw">pub</span> <span class="ident">point</span>: <span class="ident">Point3D</span>,
 
-    <span class="doccomment">/// A vector containing the radiance and the direction of direct lighting </span>
+    <span class="doccomment">/// A vector containing the radiance and the direction of direct lighting</span>
     <span class="doccomment">/// reaching a point</span>
     <span class="ident">local_illuminance</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vector3D</span>, <span class="ident">Spectrum</span>)<span class="op">&gt;</span>,
 
-    <span class="kw">pub</span> <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Material</span>
+    <span class="kw">pub</span> <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Material</span>,
 }
 
-<span class="kw">impl</span> <span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span><span class="ident">PathNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scene</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>)-&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> <span class="ident">PathNode</span><span class="op">&lt;</span><span class="lifetime">&#39;a</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
+        <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="lifetime">&#39;a</span> <span class="ident">Scene</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
+        <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>,
+        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
+    ) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="self">Self</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">Interaction::Surface</span>(<span class="ident">data</span>)) <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">cast_ray</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>) {
             <span class="kw">let</span> <span class="ident">object</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">objects</span>[<span class="ident">data</span>.<span class="ident">prim_index</span>];
             <span class="kw">let</span> <span class="ident">material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">data</span>.<span class="ident">geometry_shading</span>.<span class="ident">side</span> {
@@ -849,37 +821,25 @@ SOFTWARE.
             <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">geometry_shading</span>.<span class="ident">dpdu</span>.<span class="ident">get_normalized</span>();
             <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">normal</span>.<span class="ident">cross</span>(<span class="ident">e1</span>); <span class="comment">//.get_normalized();</span>
             <span class="kw">let</span> <span class="ident">point</span> <span class="op">=</span> <span class="ident">data</span>.<span class="ident">point</span>;
-                        
+
             <span class="kw">let</span> <span class="ident">n_lights</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">count_all_lights</span>();
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_illuminance</span>: <span class="ident">Vec</span><span class="op">&lt;</span>(<span class="ident">Vector3D</span>, <span class="ident">Spectrum</span>)<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">n_lights</span>);
             <span class="kw">for</span> <span class="ident">light</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">lights</span> {
-                <span class="kw">let</span> (<span class="ident">dir</span>,<span class="ident">colour</span>) <span class="op">=</span> <span class="ident">get_local_illumination</span>(
-                    <span class="ident">point</span>,
-                    <span class="ident">normal</span>,
-                    <span class="ident">n_shadow_samples</span>,
-                    <span class="ident">light</span>,
-                    <span class="ident">rng</span>,
-                    <span class="ident">scene</span>
-                );
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">colour</span>.<span class="ident">is_black</span>(){
-                    <span class="ident">local_illuminance</span>.<span class="ident">push</span>((<span class="ident">dir</span>,<span class="ident">colour</span>))
+                <span class="kw">let</span> (<span class="ident">dir</span>, <span class="ident">colour</span>) <span class="op">=</span>
+                    <span class="ident">get_local_illumination</span>(<span class="ident">point</span>, <span class="ident">normal</span>, <span class="ident">n_shadow_samples</span>, <span class="ident">light</span>, <span class="ident">rng</span>, <span class="ident">scene</span>);
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">colour</span>.<span class="ident">is_black</span>() {
+                    <span class="ident">local_illuminance</span>.<span class="ident">push</span>((<span class="ident">dir</span>, <span class="ident">colour</span>))
                 }
             }
             <span class="kw">for</span> <span class="ident">light</span> <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">distant_lights</span> {
-                <span class="kw">let</span> (<span class="ident">dir</span>,<span class="ident">colour</span>) <span class="op">=</span> <span class="ident">get_local_illumination</span>(
-                    <span class="ident">point</span>,
-                    <span class="ident">normal</span>,
-                    <span class="ident">n_shadow_samples</span>,
-                    <span class="ident">light</span>,
-                    <span class="ident">rng</span>,
-                    <span class="ident">scene</span>
-                );
-                <span class="kw">if</span> <span class="op">!</span><span class="ident">colour</span>.<span class="ident">is_black</span>(){
-                    <span class="ident">local_illuminance</span>.<span class="ident">push</span>((<span class="ident">dir</span>,<span class="ident">colour</span>))
+                <span class="kw">let</span> (<span class="ident">dir</span>, <span class="ident">colour</span>) <span class="op">=</span>
+                    <span class="ident">get_local_illumination</span>(<span class="ident">point</span>, <span class="ident">normal</span>, <span class="ident">n_shadow_samples</span>, <span class="ident">light</span>, <span class="ident">rng</span>, <span class="ident">scene</span>);
+                <span class="kw">if</span> <span class="op">!</span><span class="ident">colour</span>.<span class="ident">is_black</span>() {
+                    <span class="ident">local_illuminance</span>.<span class="ident">push</span>((<span class="ident">dir</span>, <span class="ident">colour</span>))
                 }
             }
 
-            <span class="comment">// Build and push            </span>
+            <span class="comment">// Build and push</span>
             <span class="prelude-val">Some</span>(<span class="ident">PathNode</span> {
                 <span class="ident">local_illuminance</span>,
                 <span class="ident">normal</span>,
@@ -888,74 +848,68 @@ SOFTWARE.
                 <span class="ident">point</span>,
                 <span class="ident">material</span>,
             })
-                    
-        }<span class="kw">else</span>{
-
+        } <span class="kw">else</span> {
             <span class="prelude-val">None</span>
         }
-        
-        
     }
 
     <span class="doccomment">/// Evaluates the local illumination of a node, as seen</span>
     <span class="doccomment">/// from a certain point.</span>
-    <span class="doccomment">/// </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// `vout` goes from the intersection point to the point of view</span>
     <span class="attribute">#[<span class="ident">must_use</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">vin</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Spectrum</span> {
-        <span class="macro">debug_assert!</span>( (<span class="number">1.</span> <span class="op">-</span> <span class="ident">vin</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;length is {}&quot;</span>, <span class="ident">vin</span>.<span class="ident">length</span>() );
+        <span class="macro">debug_assert!</span>(
+            (<span class="number">1.</span> <span class="op">-</span> <span class="ident">vin</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+            <span class="string">&quot;length is {}&quot;</span>,
+            <span class="ident">vin</span>.<span class="ident">length</span>()
+        );
 
-        <span class="comment">// These variables relate to </span>
+        <span class="comment">// These variables relate to</span>
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">normal</span>;
-        
+
         <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span> {
             <span class="ident">geometry</span>: <span class="ident">Ray3D</span> {
                 <span class="ident">origin</span>: <span class="self">self</span>.<span class="ident">point</span>,
-                <span class="ident">direction</span>: <span class="ident">vin</span>
+                <span class="ident">direction</span>: <span class="ident">vin</span>,
             },
-            <span class="ident">refraction_index</span>: <span class="number">1.</span>
+            <span class="ident">refraction_index</span>: <span class="number">1.</span>,
         };
         <span class="kw">let</span> <span class="ident">mat_colour</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">material</span>.<span class="ident">colour</span>();
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">Spectrum::black</span>();
 
         <span class="comment">// Denominator of the Balance Heuristic... I am assuming that</span>
-        
-        <span class="kw">for</span> (<span class="ident">direction</span>, <span class="ident">radiance</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">local_illuminance</span>{
+
+        <span class="kw">for</span> (<span class="ident">direction</span>, <span class="ident">radiance</span>) <span class="kw">in</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">local_illuminance</span> {
             <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">direction</span>;
             <span class="kw">let</span> <span class="ident">radiance</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">radiance</span>;
 
             <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">direction</span>).<span class="ident">abs</span>();
             <span class="comment">// let vout = shadow_ray.direction * -1.;</span>
-            
-            <span class="kw">let</span> <span class="ident">mat_bsdf_value</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="self">self</span>.<span class="ident">e1</span>, <span class="self">self</span>.<span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">direction</span><span class="kw-2">*</span><span class="op">-</span><span class="number">1.</span>);            
-            <span class="ident">ret</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">radiance</span> <span class="op">*</span> <span class="ident">cos_theta</span>) <span class="op">*</span> (<span class="ident">mat_colour</span> <span class="op">*</span> <span class="ident">mat_bsdf_value</span>);                        
+
+            <span class="kw">let</span> <span class="ident">mat_bsdf_value</span> <span class="op">=</span>
+                <span class="self">self</span>.<span class="ident">material</span>
+                    .<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="self">self</span>.<span class="ident">e1</span>, <span class="self">self</span>.<span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>);
+            <span class="ident">ret</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">radiance</span> <span class="op">*</span> <span class="ident">cos_theta</span>) <span class="op">*</span> (<span class="ident">mat_colour</span> <span class="op">*</span> <span class="ident">mat_bsdf_value</span>);
         }
 
         <span class="ident">ret</span>
-        
     }
 }
 
-
-
-
-
 <span class="kw">fn</span> <span class="ident">get_local_illumination</span>(
-    <span class="kw-2">mut</span> <span class="ident">point</span>: <span class="ident">Point3D</span>, 
-    <span class="ident">normal</span>: <span class="ident">Vector3D</span>, 
-    <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>, 
-    <span class="ident">light</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>, 
-    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>, 
-    <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>
-)-&gt;(<span class="ident">Vector3D</span>, <span class="ident">Spectrum</span>)
-{
+    <span class="kw-2">mut</span> <span class="ident">point</span>: <span class="ident">Point3D</span>,
+    <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>,
+    <span class="ident">light</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>,
+    <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
+    <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
+) -&gt; (<span class="ident">Vector3D</span>, <span class="ident">Spectrum</span>) {
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret_light</span> <span class="op">=</span> <span class="ident">Spectrum::black</span>();
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">average_direction</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
 
-    
-
-    <span class="comment">// prevent self-shading... this assumes we are reflecting   </span>
+    <span class="comment">// prevent self-shading... this assumes we are reflecting</span>
     <span class="ident">point</span> <span class="op">+</span><span class="op">=</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.001</span>;
 
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
@@ -965,18 +919,15 @@ SOFTWARE.
             <span class="ident">origin</span>: <span class="ident">point</span>,
             <span class="ident">direction</span>,
         };
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">light_colour</span>, <span class="ident">light_pdf</span>)) <span class="op">=</span> <span class="ident">sample_light</span>(<span class="ident">scene</span>, <span class="ident">light</span>, <span class="kw-2">&amp;</span><span class="ident">shadow_ray</span>)
-        {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">light_colour</span>, <span class="ident">light_pdf</span>)) <span class="op">=</span> <span class="ident">sample_light</span>(<span class="ident">scene</span>, <span class="ident">light</span>, <span class="kw-2">&amp;</span><span class="ident">shadow_ray</span>) {
             <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="kw">if</span> <span class="ident">light_pdf</span> <span class="op">&lt;</span> <span class="number">1e-18</span> {
                 <span class="comment">// The light is obstructed... don&#39;t add light, but count it.</span>
                 <span class="kw">continue</span>;
             }
-            
-            
+
             <span class="ident">average_direction</span> <span class="op">+</span><span class="op">=</span> <span class="ident">direction</span>;
-            <span class="ident">ret_light</span> <span class="op">+</span><span class="op">=</span> <span class="ident">light_colour</span> <span class="op">/</span>( <span class="ident">light_pdf</span> <span class="op">*</span> <span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span> );
-            
+            <span class="ident">ret_light</span> <span class="op">+</span><span class="op">=</span> <span class="ident">light_colour</span> <span class="op">/</span> (<span class="ident">light_pdf</span> <span class="op">*</span> <span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span>);
         } <span class="kw">else</span> {
             <span class="comment">// missed += 1;</span>
             <span class="comment">// eprintln!(&quot;Missed Light! {} (i = {})&quot;, missed, i)</span>
@@ -984,26 +935,22 @@ SOFTWARE.
     }
 
     <span class="comment">// return</span>
-    (<span class="ident">average_direction</span>,<span class="ident">ret_light</span>)
-
+    (<span class="ident">average_direction</span>, <span class="ident">ret_light</span>)
 }
 
 <span class="comment">// primitive.intersect(ray) --&gt; IntersectionInfo</span>
 
-
-
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
-    <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Triangle3D</span>,<span class="ident">DistantSource3D</span>};
+
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::PlasticMetal</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::PI</span>;
+    <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">DistantSource3D</span>, <span class="ident">Triangle3D</span>};
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_path_get_local_illumination</span>(){
-        
+    <span class="kw">fn</span> <span class="ident">test_path_get_local_illumination</span>() {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::new</span>();
         <span class="kw">let</span> <span class="ident">pt</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
 
@@ -1014,51 +961,44 @@ SOFTWARE.
             <span class="ident">green</span>: <span class="ident">brightness</span>,
             <span class="ident">blue</span>: <span class="ident">brightness</span>,
         }));
-        
+
         <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">Primitive::Source</span>(<span class="ident">DistantSource3D::new</span>(
             <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>),   <span class="comment">// direction</span>
             (<span class="number">0.5</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>(), <span class="comment">// angle</span>
         ));
         <span class="kw">let</span> <span class="ident">omega</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">omega</span>(<span class="ident">pt</span>);
-        <span class="ident">scene</span>.<span class="ident">push_object</span>(
-            <span class="ident">bright_mat</span>,
-            <span class="ident">bright_mat</span>,
-            <span class="ident">source</span>,
-        );
-
+        <span class="ident">scene</span>.<span class="ident">push_object</span>(<span class="ident">bright_mat</span>, <span class="ident">bright_mat</span>, <span class="ident">source</span>);
 
         <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
-        <span class="kw">let</span> (<span class="ident">found_dir</span>, <span class="ident">found</span>) <span class="op">=</span> <span class="ident">get_local_illumination</span>(<span class="ident">pt</span>, <span class="ident">normal</span>, <span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">distant_lights</span>[<span class="number">0</span>], <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>);
+        <span class="kw">let</span> (<span class="ident">found_dir</span>, <span class="ident">found</span>) <span class="op">=</span>
+            <span class="ident">get_local_illumination</span>(<span class="ident">pt</span>, <span class="ident">normal</span>, <span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">distant_lights</span>[<span class="number">0</span>], <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>);
 
         <span class="kw">let</span> <span class="ident">exp</span> <span class="op">=</span> <span class="ident">brightness</span> <span class="op">*</span> <span class="ident">omega</span>;
 
-        <span class="macro">assert!</span>( (<span class="ident">exp</span> <span class="op">-</span> <span class="ident">found</span>.<span class="ident">radiance</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> );
-        <span class="macro">assert!</span>( (<span class="number">1.</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="ident">found_dir</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> );
+        <span class="macro">assert!</span>((<span class="ident">exp</span> <span class="op">-</span> <span class="ident">found</span>.<span class="ident">radiance</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>);
+        <span class="macro">assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="ident">found_dir</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>);
 
-        <span class="macro">println!</span>(<span class="string">&quot;found_dir = {} | found = {} | exp = {}&quot;</span>, <span class="ident">found_dir</span>, <span class="ident">found</span>, <span class="ident">exp</span>);
-
+        <span class="macro">println!</span>(
+            <span class="string">&quot;found_dir = {} | found = {} | exp = {}&quot;</span>,
+            <span class="ident">found_dir</span>, <span class="ident">found</span>, <span class="ident">exp</span>
+        );
     }
 
-
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_path_build_and_eval_1node</span>(){
-        
-        
+    <span class="kw">fn</span> <span class="ident">test_path_build_and_eval_1node</span>() {
         <span class="comment">// setup params</span>
         <span class="kw">let</span> <span class="ident">start</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
         <span class="kw">let</span> <span class="ident">exp_pt0</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
         <span class="kw">let</span> <span class="ident">exp_pt1</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
-        <span class="kw">let</span> <span class="ident">dir_1</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span> ).<span class="ident">get_normalized</span>();
-        <span class="kw">let</span> <span class="ident">dir_2</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>, <span class="op">-</span><span class="number">1.</span> ).<span class="ident">get_normalized</span>();
+        <span class="kw">let</span> <span class="ident">dir_1</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>).<span class="ident">get_normalized</span>();
+        <span class="kw">let</span> <span class="ident">dir_2</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>, <span class="op">-</span><span class="number">1.</span>).<span class="ident">get_normalized</span>();
         <span class="kw">let</span> <span class="ident">floor_reflectance</span> <span class="op">=</span> <span class="number">0.3</span>;
         <span class="kw">let</span> <span class="ident">ceiling_reflectance</span> <span class="op">=</span> <span class="number">0.73</span>;
         <span class="kw">let</span> <span class="ident">light_brightness</span> <span class="op">=</span> <span class="number">100.</span>;
-        
-        
-        
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::new</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
 
@@ -1131,7 +1071,6 @@ SOFTWARE.
                 .<span class="ident">unwrap</span>(),
             ),
         );
-        
 
         <span class="comment">// Add light source</span>
         <span class="kw">let</span> <span class="ident">bright_mat</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Light</span>(<span class="ident">Spectrum</span> {
@@ -1141,59 +1080,70 @@ SOFTWARE.
         }));
 
         <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">DistantSource3D::new</span>(
-            <span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>),   <span class="comment">// direction</span>
+            <span class="ident">Vector3D::new</span>(<span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>, <span class="number">1.</span>),  <span class="comment">// direction</span>
             (<span class="number">0.5</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>(), <span class="comment">// angle</span>
         );
         <span class="kw">let</span> <span class="ident">omega</span> <span class="op">=</span> <span class="ident">source</span>.<span class="ident">omega</span>;
-        <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">Primitive::Source</span>(<span class="ident">source</span>);        
-        <span class="ident">scene</span>.<span class="ident">push_object</span>(
-            <span class="ident">bright_mat</span>,
-            <span class="ident">bright_mat</span>,
-            <span class="ident">source</span>,
-        );
+        <span class="kw">let</span> <span class="ident">source</span> <span class="op">=</span> <span class="ident">Primitive::Source</span>(<span class="ident">source</span>);
+        <span class="ident">scene</span>.<span class="ident">push_object</span>(<span class="ident">bright_mat</span>, <span class="ident">bright_mat</span>, <span class="ident">source</span>);
 
         <span class="comment">// Scene done... compile</span>
         <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
-        
         <span class="comment">// Start the test</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="ident">start</span>);
-        <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span>{
+        <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span> {
             <span class="ident">refraction_index</span>: <span class="number">1.</span>,
-            <span class="ident">geometry</span> : <span class="ident">Ray3D</span>{
+            <span class="ident">geometry</span>: <span class="ident">Ray3D</span> {
                 <span class="ident">origin</span>: <span class="ident">start</span>,
                 <span class="ident">direction</span>: <span class="ident">dir_1</span>,
-            }
+            },
         };
         <span class="comment">// Extend</span>
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="number">1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>));
         <span class="comment">// Check node position</span>
-        <span class="macro">assert!</span>( (<span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">0</span>].<span class="ident">point</span> <span class="op">-</span> <span class="ident">exp_pt0</span>).<span class="ident">length</span>() <span class="op">&lt;</span> <span class="number">1e-20</span>, <span class="string">&quot;expecting {} ... found {}&quot;</span>, <span class="ident">exp_pt0</span>,  <span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">0</span>].<span class="ident">point</span>);
+        <span class="macro">assert!</span>(
+            (<span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">0</span>].<span class="ident">point</span> <span class="op">-</span> <span class="ident">exp_pt0</span>).<span class="ident">length</span>() <span class="op">&lt;</span> <span class="number">1e-20</span>,
+            <span class="string">&quot;expecting {} ... found {}&quot;</span>,
+            <span class="ident">exp_pt0</span>,
+            <span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">0</span>].<span class="ident">point</span>
+        );
 
-
-        <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span>{
+        <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span> {
             <span class="ident">refraction_index</span>: <span class="number">1.</span>,
-            <span class="ident">geometry</span> : <span class="ident">Ray3D</span> {
+            <span class="ident">geometry</span>: <span class="ident">Ray3D</span> {
                 <span class="ident">origin</span>: <span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">0</span>].<span class="ident">point</span>,
                 <span class="ident">direction</span>: <span class="ident">dir_2</span>,
-            }
-        };        
+            },
+        };
         <span class="comment">// Extend</span>
         <span class="macro">assert!</span>(<span class="ident">path</span>.<span class="ident">extend</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="number">1</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>));
         <span class="comment">// Check node position</span>
-        <span class="macro">assert!</span>( (<span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">1</span>].<span class="ident">point</span> <span class="op">-</span> <span class="ident">exp_pt1</span>).<span class="ident">length</span>() <span class="op">&lt;</span> <span class="number">1e-20</span>, <span class="string">&quot;expecting {} ... found {}&quot;</span>, <span class="ident">exp_pt1</span>,  <span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">1</span>].<span class="ident">point</span>);
+        <span class="macro">assert!</span>(
+            (<span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">1</span>].<span class="ident">point</span> <span class="op">-</span> <span class="ident">exp_pt1</span>).<span class="ident">length</span>() <span class="op">&lt;</span> <span class="number">1e-20</span>,
+            <span class="string">&quot;expecting {} ... found {}&quot;</span>,
+            <span class="ident">exp_pt1</span>,
+            <span class="ident">path</span>.<span class="ident">nodes</span>[<span class="number">1</span>].<span class="ident">point</span>
+        );
 
-        
         <span class="kw">let</span> <span class="ident">found_v1</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">eval_from_node</span>(<span class="number">1</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>);
-        <span class="kw">let</span> <span class="ident">exp_v1</span> <span class="op">=</span> (<span class="ident">light_brightness</span> <span class="op">*</span> <span class="ident">omega</span>) <span class="op">*</span> (<span class="number">45.</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>().<span class="ident">cos</span>() <span class="op">*</span> <span class="ident">floor_reflectance</span><span class="op">/</span><span class="ident">PI</span>; <span class="comment">//</span>
-        <span class="macro">assert!</span>( (<span class="ident">exp_v1</span> <span class="op">-</span> <span class="ident">found_v1</span>.<span class="ident">radiance</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> ,<span class="string">&quot;found_v1 = {} | exp_v1 = {}&quot;</span>, <span class="ident">found_v1</span>.<span class="ident">radiance</span>(), <span class="ident">exp_v1</span>);
+        <span class="kw">let</span> <span class="ident">exp_v1</span> <span class="op">=</span>
+            (<span class="ident">light_brightness</span> <span class="op">*</span> <span class="ident">omega</span>) <span class="op">*</span> (<span class="number">45.</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>().<span class="ident">cos</span>() <span class="op">*</span> <span class="ident">floor_reflectance</span> <span class="op">/</span> <span class="ident">PI</span>; <span class="comment">//</span>
+        <span class="macro">assert!</span>(
+            (<span class="ident">exp_v1</span> <span class="op">-</span> <span class="ident">found_v1</span>.<span class="ident">radiance</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+            <span class="string">&quot;found_v1 = {} | exp_v1 = {}&quot;</span>,
+            <span class="ident">found_v1</span>.<span class="ident">radiance</span>(),
+            <span class="ident">exp_v1</span>
+        );
 
         <span class="kw">let</span> <span class="ident">found_v0</span> <span class="op">=</span> <span class="ident">path</span>.<span class="ident">eval_from_node</span>(<span class="number">0</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>);
-        <span class="kw">let</span> <span class="ident">exp_v0</span> <span class="op">=</span> <span class="ident">exp_v1</span> <span class="op">*</span> (<span class="number">45.</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>().<span class="ident">cos</span>() <span class="op">*</span> <span class="ident">ceiling_reflectance</span><span class="op">/</span><span class="ident">PI</span>;
-        <span class="macro">assert!</span>((<span class="ident">exp_v0</span> <span class="op">-</span> <span class="ident">found_v0</span>.<span class="ident">radiance</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> ,<span class="string">&quot;found_v0 = {} | exp_v0 = {}&quot;</span>, <span class="ident">found_v0</span>.<span class="ident">radiance</span>(), <span class="ident">exp_v0</span>);
-                
-
-
+        <span class="kw">let</span> <span class="ident">exp_v0</span> <span class="op">=</span> <span class="ident">exp_v1</span> <span class="op">*</span> (<span class="number">45.</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>().<span class="ident">cos</span>() <span class="op">*</span> <span class="ident">ceiling_reflectance</span> <span class="op">/</span> <span class="ident">PI</span>;
+        <span class="macro">assert!</span>(
+            (<span class="ident">exp_v0</span> <span class="op">-</span> <span class="ident">found_v0</span>.<span class="ident">radiance</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+            <span class="string">&quot;found_v0 = {} | exp_v0 = {}&quot;</span>,
+            <span class="ident">found_v0</span>.<span class="ident">radiance</span>(),
+            <span class="ident">exp_v0</span>
+        );
     }
 }
 </code></pre></div>

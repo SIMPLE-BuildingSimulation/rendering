@@ -243,7 +243,6 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-<span id="210">210</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -397,7 +396,7 @@ SOFTWARE.
 <span class="kw">mod</span> <span class="ident">tests</span> {
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Pinhole</span>, <span class="ident">View</span>, <span class="ident">Film</span>};    
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Film</span>, <span class="ident">Pinhole</span>, <span class="ident">View</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray_tracer::RayTracer</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
     <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">DistantSource3D</span>, <span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
@@ -406,7 +405,6 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_scene_from_model</span>() {
-        
         <span class="comment">// BUILD SCENE</span>
         <span class="kw">let</span> (<span class="ident">model</span>, <span class="ident">_state_header</span>) <span class="op">=</span>
             <span class="ident">SimpleModel::from_file</span>(<span class="string">&quot;./test_data/room.spl&quot;</span>.<span class="ident">to_string</span>()).<span class="ident">unwrap</span>();
@@ -451,7 +449,7 @@ SOFTWARE.
 
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
         <span class="macro">println!</span>(<span class="string">&quot;Room took {} seconds to render&quot;</span>, <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_secs</span>());
-        <span class="ident">buffer</span>.<span class="ident">save_hdre</span>( <span class="ident">std::path::Path::new</span>(<span class="string">&quot;./test_data/images/simple_room.hdr&quot;</span>));
+        <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">std::path::Path::new</span>(<span class="string">&quot;./test_data/images/simple_room.hdr&quot;</span>));
     }
 }
 </code></pre></div>

@@ -130,9 +130,6 @@
 <span id="94">94</span>
 <span id="95">95</span>
 <span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -168,10 +165,7 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">roughness</span>: <span class="ident">Float</span>,
 }
 
-
-
 <span class="kw">impl</span> <span class="ident">PlasticMetal</span> {
-
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -199,7 +193,7 @@ SOFTWARE.
                 (<span class="ident">local_dir</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>,
                 <span class="string">&quot;Length was {}&quot;</span>,
                 <span class="ident">local_dir</span>.<span class="ident">length</span>()
-            );            
+            );
             <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) <span class="op">=</span> <span class="ident">local_to_world</span>(
                 <span class="ident">e1</span>,
                 <span class="ident">e2</span>,
@@ -209,9 +203,9 @@ SOFTWARE.
                 <span class="ident">local_dir</span>.<span class="ident">y</span>,
                 <span class="ident">local_dir</span>.<span class="ident">z</span>,
             );
-            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>);            
+            <span class="kw">let</span> <span class="ident">dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>);
             <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">dir</span>;
-            <span class="macro">debug_assert!</span>( (<span class="ident">dir</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-4</span>);
+            <span class="macro">debug_assert!</span>((<span class="ident">dir</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-4</span>);
             (<span class="ident">ray</span>, <span class="ident">prob</span>, <span class="bool-val">false</span>)
         }
     }

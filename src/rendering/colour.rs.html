@@ -347,7 +347,6 @@
 <span id="311">311</span>
 <span id="312">312</span>
 <span id="313">313</span>
-<span id="314">314</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -413,10 +412,9 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">red</span> <span class="op">&lt;</span> <span class="number">1e-24</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">green</span> <span class="op">&lt;</span> <span class="number">1e-24</span> <span class="op">&amp;&amp;</span> <span class="self">self</span>.<span class="ident">blue</span> <span class="op">&lt;</span> <span class="number">1e-24</span>
     }
 
-
-    <span class="doccomment">/// Scales the chanels in order to make the </span>
+    <span class="doccomment">/// Scales the chanels in order to make the</span>
     <span class="doccomment">/// radiance equals to 1</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt; <span class="self">Self</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normalize</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="self">Self</span> {
         <span class="kw-2">*</span><span class="self">self</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">radiance</span>()
     }
 
@@ -438,12 +436,12 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">WHITE_EFFICACY</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">179.</span>;
 
     <span class="doccomment">/// Gets the maximum of the R, G, and B values</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">Float</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">max</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Float</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">red</span>;
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">green</span> <span class="op">&gt;</span> <span class="ident">v</span>{
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">green</span> <span class="op">&gt;</span> <span class="ident">v</span> {
             <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">green</span>;
         }
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">blue</span> <span class="op">&gt;</span> <span class="ident">v</span>{
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">blue</span> <span class="op">&gt;</span> <span class="ident">v</span> {
             <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">blue</span>;
         }
         <span class="ident">v</span>

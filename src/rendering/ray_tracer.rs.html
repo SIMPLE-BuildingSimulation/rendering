@@ -832,13 +832,6 @@
 <span id="796">796</span>
 <span id="797">797</span>
 <span id="798">798</span>
-<span id="799">799</span>
-<span id="800">800</span>
-<span id="801">801</span>
-<span id="802">802</span>
-<span id="803">803</span>
-<span id="804">804</span>
-<span id="805">805</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -975,7 +968,8 @@ SOFTWARE.
                     <span class="kw">let</span> <span class="ident">color</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">colour</span>();
                     <span class="comment">// let total_samples = n + n_lights * self.n_shadow_samples;</span>
                     <span class="comment">// let bsdf_c = 1.;//n as Float / total_samples as Float;</span>
-                    <span class="ident">specular_li</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">li</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">bsdf_value</span>) <span class="op">*</span> (<span class="ident">color</span>) <span class="op">*</span> <span class="kw-2">*</span><span class="ident">ray_weight</span>; <span class="comment">// / ( bsdf_c * bsdf_value );</span>
+                    <span class="ident">specular_li</span> <span class="op">+</span><span class="op">=</span> (<span class="ident">li</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="kw-2">*</span><span class="ident">bsdf_value</span>) <span class="op">*</span> (<span class="ident">color</span>) <span class="op">*</span> <span class="kw-2">*</span><span class="ident">ray_weight</span>;
+                    <span class="comment">// / ( bsdf_c * bsdf_value );</span>
                 }
                 <span class="comment">// return Some(specular_li + local)</span>
                 <span class="kw">return</span> (<span class="ident">specular_li</span>, <span class="number">0.0</span>);
@@ -994,7 +988,7 @@ SOFTWARE.
                     <span class="ident">wt</span> <span class="op">=</span> <span class="ident">d</span>;
                 }
                 <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> ((<span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">wt</span>).<span class="ident">sqrt</span>() <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-                <span class="kw">const</span> <span class="ident">EXTRA</span>:<span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
+                <span class="kw">const</span> <span class="ident">EXTRA</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">const</span> <span class="ident">MIN_AMBS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
                 <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="ident">MIN_AMBS</span> <span class="op">*</span> <span class="ident">EXTRA</span> {
                     <span class="ident">MIN_AMBS</span> <span class="op">*</span> <span class="ident">EXTRA</span>
@@ -1057,8 +1051,6 @@ SOFTWARE.
         }
     }
 
-    
-
     <span class="kw">fn</span> <span class="ident">sample_light_array</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
@@ -1087,9 +1079,7 @@ SOFTWARE.
                     <span class="ident">direction</span>,
                 };
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">light_colour</span>, <span class="ident">light_pdf</span>)) <span class="op">=</span>
-                    <span class="ident">sample_light</span>(<span class="ident">scene</span>, <span class="ident">light</span>, <span class="kw-2">&amp;</span><span class="ident">shadow_ray</span>)
-                {
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">light_colour</span>, <span class="ident">light_pdf</span>)) <span class="op">=</span> <span class="ident">sample_light</span>(<span class="ident">scene</span>, <span class="ident">light</span>, <span class="kw-2">&amp;</span><span class="ident">shadow_ray</span>) {
                     <span class="ident">i</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
                     <span class="kw">if</span> <span class="ident">light_pdf</span> <span class="op">&lt;</span> <span class="number">1e-18</span> {
                         <span class="comment">// The light is obstructed... don&#39;t add light, but count it.</span>
@@ -1274,12 +1264,10 @@ SOFTWARE.
     }
 }
 
-
-
 <span class="doccomment">/// Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses</span>
 <span class="doccomment">/// the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)`</span>
 <span class="doccomment">/// if the light is hit.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_light</span>(        
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_light</span>(
     <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
     <span class="ident">light</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>,
     <span class="ident">shadow_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>,
@@ -1329,17 +1317,15 @@ SOFTWARE.
     <span class="prelude-val">Some</span>((<span class="ident">light_colour</span>, <span class="ident">light_pdf</span>))
 }
 
-
-
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="comment">// use geometry3d::ray3d::Ray3D;</span>
-    <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera::Pinhole</span>;
+    <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Camera</span>, <span class="ident">View</span>, <span class="ident">Film</span>};    
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Camera</span>, <span class="ident">Film</span>, <span class="ident">View</span>};
     <span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
     <span class="kw">fn</span> <span class="ident">compare_with_radiance</span>(<span class="ident">filename</span>: <span class="ident">String</span>) {
@@ -1394,7 +1380,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">render_dielectric</span>() {   
+    <span class="kw">fn</span> <span class="ident">render_dielectric</span>() {
         <span class="comment">// 0 seconds</span>
         <span class="comment">// time cargo test --features parallel --release  -- --ignored --nocapture render_dielectric</span>
 
@@ -1454,7 +1440,7 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_render_room</span>() { 
+    <span class="kw">fn</span> <span class="ident">test_render_room</span>() {
         <span class="comment">// 73 seconds</span>
         <span class="comment">// time cargo test --features parallel --release  -- --ignored --nocapture test_render_room</span>
 
@@ -1487,7 +1473,7 @@ SOFTWARE.
 
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
         <span class="macro">println!</span>(<span class="string">&quot;Room took {} seconds to render&quot;</span>, <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_secs</span>());
-        <span class="ident">buffer</span>.<span class="ident">save_hdre</span>( <span class="ident">std::path::Path::new</span>(<span class="string">&quot;./test_data/images/room.hdr&quot;</span>));
+        <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">std::path::Path::new</span>(<span class="string">&quot;./test_data/images/room.hdr&quot;</span>));
     }
 
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Material</span>, <span class="ident">PlasticMetal</span>};
@@ -1498,7 +1484,7 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">test_2</span>() {
         <span class="comment">// 2 seconds</span>
         <span class="comment">// time cargo test --features parallel --release  -- --ignored --nocapture test_2</span>
-        
+
         <span class="comment">// Build scene</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::default</span>();
 
@@ -1641,7 +1627,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
         <span class="macro">println!</span>(<span class="string">&quot;Scene took {} seconds to render&quot;</span>, <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_secs</span>());
-        <span class="ident">buffer</span>.<span class="ident">save_hdre</span>( <span class="ident">std::path::Path::new</span>(<span class="string">&quot;./test_data/images/ray_tracer.hdr&quot;</span>));
+        <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">std::path::Path::new</span>(<span class="string">&quot;./test_data/images/ray_tracer.hdr&quot;</span>));
     }
 }
 </code></pre></div>

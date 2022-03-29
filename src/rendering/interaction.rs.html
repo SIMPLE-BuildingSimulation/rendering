@@ -186,8 +186,6 @@
 <span id="150">150</span>
 <span id="151">151</span>
 <span id="152">152</span>
-<span id="153">153</span>
-<span id="154">154</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -215,8 +213,6 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Object</span>;
 
-
-
 <span class="doccomment">/// The data for a SurfaceInteraction</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">SurfaceInteractionData</span> {
     <span class="comment">/* GENERAL INTERACTION DATA */</span>
@@ -242,7 +238,7 @@ SOFTWARE.
 
     <span class="doccomment">/// Stores the shading information after being</span>
     <span class="doccomment">/// perturbed by a texture</span>
-    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;textures&quot;</span>)]</span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;textures&quot;</span>)]</span>
     <span class="kw">pub</span> <span class="ident">texture_shading</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">IntersectionInfo</span><span class="op">&gt;</span>,
 
     <span class="comment">// /// The [`Object`] in the scene</span>
@@ -260,9 +256,9 @@ SOFTWARE.
         <span class="comment">// let object = self.object;</span>
 
         <span class="comment">// shading</span>
-        <span class="kw">let</span> <span class="ident">geometry_shading</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">transform</span>(<span class="ident">t</span>);        
+        <span class="kw">let</span> <span class="ident">geometry_shading</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">transform</span>(<span class="ident">t</span>);
 
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;textures&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;textures&quot;</span>)]</span>
         <span class="kw">let</span> <span class="ident">texture_shading</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">texture_shading</span>.<span class="ident">as_ref</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">s</span><span class="op">|</span> <span class="ident">s</span>.<span class="ident">transform</span>(<span class="ident">t</span>));
 
         <span class="self">Self</span> {
@@ -273,7 +269,7 @@ SOFTWARE.
             <span class="ident">geometry_shading</span>,
             <span class="ident">prim_index</span>: <span class="self">self</span>.<span class="ident">prim_index</span>,
 
-            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;textures&quot;</span>)]</span>
+            <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;textures&quot;</span>)]</span>
             <span class="ident">texture_shading</span>,
         }
     }
@@ -282,18 +278,18 @@ SOFTWARE.
     <span class="doccomment">/// Prioritizes the texture geometry (which can deviate the normal).</span>
     <span class="doccomment">/// If there is `None`, then the geometry shading is used.</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">normal</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vector3D</span> {
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;textures&quot;</span>)]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;textures&quot;</span>)]</span>
         <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">texture_shading</span> {
             <span class="prelude-val">Some</span>(<span class="ident">info</span>) =&gt; <span class="ident">info</span>.<span class="ident">normal</span>,
             <span class="prelude-val">None</span> =&gt; <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span>,
         }
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;textures&quot;</span>))]</span>
+        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;textures&quot;</span>))]</span>
         <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span>
     }
 }
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Interaction</span> {
-    <span class="ident">Surface</span>(<span class="ident">SurfaceInteractionData</span>),    
+    <span class="ident">Surface</span>(<span class="ident">SurfaceInteractionData</span>),
     <span class="ident">Endpoint</span>(<span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">RefCount</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span><span class="op">&gt;</span>),
 }
 

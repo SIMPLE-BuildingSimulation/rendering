@@ -212,15 +212,6 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
-<span id="179">179</span>
-<span id="180">180</span>
-<span id="181">181</span>
-<span id="182">182</span>
-<span id="183">183</span>
-<span id="184">184</span>
-<span id="185">185</span>
-<span id="186">186</span>
-<span id="187">187</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -241,11 +232,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Vector3D</span>, <span class="ident">Ray3D</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Film</span>, <span class="ident">View</span>, <span class="ident">Camera</span>, <span class="ident">CameraSample</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Camera</span>, <span class="ident">CameraSample</span>, <span class="ident">Film</span>, <span class="ident">View</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pinhole</span> {
     <span class="ident">view</span>: <span class="ident">View</span>,
@@ -270,20 +261,17 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">Camera</span> <span class="kw">for</span> <span class="ident">Pinhole</span> {
-
-    <span class="doccomment">/// Generates a random CameraSample </span>
-    <span class="kw">fn</span> <span class="ident">gen_random_sample</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>)-&gt;<span class="ident">CameraSample</span>{
+    <span class="doccomment">/// Generates a random CameraSample</span>
+    <span class="kw">fn</span> <span class="ident">gen_random_sample</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>) -&gt; <span class="ident">CameraSample</span> {
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">film</span>.<span class="ident">resolution</span>;
-        <span class="kw">let</span> (<span class="ident">x</span>,<span class="ident">y</span>):(<span class="ident">usize</span>,<span class="ident">usize</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
-        <span class="ident">CameraSample</span>{
-            <span class="ident">p_film</span> : ( <span class="ident">x</span><span class="op">%</span><span class="ident">width</span>, <span class="ident">y</span><span class="op">%</span><span class="ident">height</span> )
-        }        
+        <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>): (<span class="ident">usize</span>, <span class="ident">usize</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+        <span class="ident">CameraSample</span> {
+            <span class="ident">p_film</span>: (<span class="ident">x</span> <span class="op">%</span> <span class="ident">width</span>, <span class="ident">y</span> <span class="op">%</span> <span class="ident">height</span>),
+        }
     }
 
-
-    <span class="kw">fn</span> <span class="ident">pixel_from_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>)-&gt;((<span class="ident">usize</span>,<span class="ident">usize</span>), <span class="ident">Float</span>){
-
-        <span class="kw">if</span> (<span class="ident">ray</span>.<span class="ident">origin</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">view</span>.<span class="ident">view_point</span>).<span class="ident">length_squared</span>() <span class="op">&gt;</span> <span class="number">1e-24</span>{
+    <span class="kw">fn</span> <span class="ident">pixel_from_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>) -&gt; ((<span class="ident">usize</span>, <span class="ident">usize</span>), <span class="ident">Float</span>) {
+        <span class="kw">if</span> (<span class="ident">ray</span>.<span class="ident">origin</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">view</span>.<span class="ident">view_point</span>).<span class="ident">length_squared</span>() <span class="op">&gt;</span> <span class="number">1e-24</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;Trying to get a pixel of a camera through a ray that does not start at its view point... ViewPoint = {}, ray.origin = {} | distance = {}&quot;</span>, <span class="self">self</span>.<span class="ident">view</span>.<span class="ident">view_point</span>, <span class="ident">ray</span>.<span class="ident">origin</span>, (<span class="self">self</span>.<span class="ident">view</span>.<span class="ident">view_point</span><span class="op">-</span><span class="ident">ray</span>.<span class="ident">origin</span>).<span class="ident">length</span>());
         }
 
@@ -293,26 +281,31 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">cos</span> <span class="op">=</span> <span class="ident">normal</span> <span class="op">*</span> <span class="ident">direction</span>;
         <span class="kw">if</span> <span class="ident">cos</span>.<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-12</span> {
             <span class="comment">// The ray does not intersect at all.... its weight is Zero</span>
-            <span class="kw">return</span> ((<span class="number">0</span>,<span class="number">0</span>),<span class="number">0.</span>)
+            <span class="kw">return</span> ((<span class="number">0</span>, <span class="number">0</span>), <span class="number">0.</span>);
         }
 
         <span class="comment">// Calculate a point in the plane</span>
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">view</span>.<span class="ident">view_point</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">film_distance</span>;
-        <span class="kw">let</span> <span class="ident">ray_length</span> <span class="op">=</span> (<span class="ident">s</span> <span class="op">-</span> <span class="ident">ray</span>.<span class="ident">origin</span>)<span class="kw-2">*</span><span class="ident">normal</span><span class="op">/</span><span class="ident">cos</span>;
+        <span class="kw">let</span> <span class="ident">ray_length</span> <span class="op">=</span> (<span class="ident">s</span> <span class="op">-</span> <span class="ident">ray</span>.<span class="ident">origin</span>) <span class="op">*</span> <span class="ident">normal</span> <span class="op">/</span> <span class="ident">cos</span>;
         <span class="comment">// Let&#39;s get the intersection point centered at the origin</span>
         <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="ident">direction</span> <span class="op">*</span> <span class="ident">ray_length</span>;
         <span class="comment">// Transform that point to be aligned with u and up and normal</span>
         <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">u</span>;
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-        {   
+        {
             <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">*</span> <span class="ident">normal</span>;
-            <span class="macro">assert!</span>( (<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">film_distance</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-12</span>, <span class="string">&quot;y = {} | film distance = {}&quot;</span>, <span class="ident">y</span>, <span class="self">self</span>.<span class="ident">film_distance</span> );
+            <span class="macro">assert!</span>(
+                (<span class="ident">y</span> <span class="op">-</span> <span class="self">self</span>.<span class="ident">film_distance</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-12</span>,
+                <span class="string">&quot;y = {} | film distance = {}&quot;</span>,
+                <span class="ident">y</span>,
+                <span class="self">self</span>.<span class="ident">film_distance</span>
+            );
         }
         <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">view</span>.<span class="ident">view_up</span>;
 
         <span class="comment">// If it is out of the FOV, return None.</span>
         <span class="kw">if</span> <span class="ident">z</span>.<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">1.</span> <span class="op">|</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">abs</span>() <span class="op">&gt;</span> <span class="number">1.</span> {
-            <span class="kw">return</span> ((<span class="number">0</span>,<span class="number">0</span>),<span class="number">0.</span>)
+            <span class="kw">return</span> ((<span class="number">0</span>, <span class="number">0</span>), <span class="number">0.</span>);
         }
 
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">film</span>.<span class="ident">resolution</span>;
@@ -322,15 +315,12 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">dx</span> <span class="op">=</span> <span class="ident">xlim</span> <span class="op">/</span> <span class="ident">width</span> <span class="kw">as</span> <span class="ident">Float</span>;
         <span class="kw">let</span> <span class="ident">dy</span> <span class="op">=</span> <span class="ident">ylim</span> <span class="op">/</span> <span class="ident">height</span> <span class="kw">as</span> <span class="ident">Float</span>;
 
-
         <span class="comment">// Else, calculate:</span>
-        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> ( <span class="ident">x</span> <span class="op">+</span> <span class="number">1.</span> )<span class="op">/</span><span class="ident">dx</span>;
-        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> ( <span class="number">1.</span> <span class="op">-</span> <span class="ident">z</span> )<span class="op">/</span><span class="ident">dy</span>;
+        <span class="kw">let</span> <span class="ident">x</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">+</span> <span class="number">1.</span>) <span class="op">/</span> <span class="ident">dx</span>;
+        <span class="kw">let</span> <span class="ident">y</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">z</span>) <span class="op">/</span> <span class="ident">dy</span>;
 
         <span class="comment">// return</span>
         ((<span class="ident">x</span>.<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">usize</span>, <span class="ident">y</span>.<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">usize</span>), <span class="number">1.</span>)
-        
-            
     }
 
     <span class="doccomment">/// Generates a ray that will go through the View Point and a</span>
@@ -372,11 +362,6 @@ SOFTWARE.
     }
 }
 
-
-
-
-
-
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
@@ -398,14 +383,11 @@ SOFTWARE.
         <span class="comment">// Create camera</span>
         <span class="kw">let</span> <span class="ident">camera</span> <span class="op">=</span> <span class="ident">Pinhole::new</span>(<span class="ident">view</span>, <span class="ident">film</span>);
 
-        <span class="kw">let</span> <span class="ident">sample</span> <span class="op">=</span> <span class="ident">CameraSample</span>{
-            <span class="ident">p_film</span>: (<span class="number">10</span>,<span class="number">20</span>)
-        };
+        <span class="kw">let</span> <span class="ident">sample</span> <span class="op">=</span> <span class="ident">CameraSample</span> { <span class="ident">p_film</span>: (<span class="number">10</span>, <span class="number">20</span>) };
         <span class="comment">// Let&#39;s assume this is right</span>
-        <span class="kw">let</span> (<span class="ident">ray</span>,<span class="ident">_weight</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">gen_ray</span>(<span class="kw-2">&amp;</span><span class="ident">sample</span>);
+        <span class="kw">let</span> (<span class="ident">ray</span>, <span class="ident">_weight</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">gen_ray</span>(<span class="kw-2">&amp;</span><span class="ident">sample</span>);
         <span class="kw">let</span> (<span class="ident">found_pixel</span>, <span class="ident">_weight</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">pixel_from_ray</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>.<span class="ident">geometry</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">sample</span>.<span class="ident">p_film</span>, <span class="ident">found_pixel</span>);
-
     }
 }
 </code></pre></div>

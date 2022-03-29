@@ -454,6 +454,73 @@
 <span id="418">418</span>
 <span id="419">419</span>
 <span id="420">420</span>
+<span id="421">421</span>
+<span id="422">422</span>
+<span id="423">423</span>
+<span id="424">424</span>
+<span id="425">425</span>
+<span id="426">426</span>
+<span id="427">427</span>
+<span id="428">428</span>
+<span id="429">429</span>
+<span id="430">430</span>
+<span id="431">431</span>
+<span id="432">432</span>
+<span id="433">433</span>
+<span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
+<span id="440">440</span>
+<span id="441">441</span>
+<span id="442">442</span>
+<span id="443">443</span>
+<span id="444">444</span>
+<span id="445">445</span>
+<span id="446">446</span>
+<span id="447">447</span>
+<span id="448">448</span>
+<span id="449">449</span>
+<span id="450">450</span>
+<span id="451">451</span>
+<span id="452">452</span>
+<span id="453">453</span>
+<span id="454">454</span>
+<span id="455">455</span>
+<span id="456">456</span>
+<span id="457">457</span>
+<span id="458">458</span>
+<span id="459">459</span>
+<span id="460">460</span>
+<span id="461">461</span>
+<span id="462">462</span>
+<span id="463">463</span>
+<span id="464">464</span>
+<span id="465">465</span>
+<span id="466">466</span>
+<span id="467">467</span>
+<span id="468">468</span>
+<span id="469">469</span>
+<span id="470">470</span>
+<span id="471">471</span>
+<span id="472">472</span>
+<span id="473">473</span>
+<span id="474">474</span>
+<span id="475">475</span>
+<span id="476">476</span>
+<span id="477">477</span>
+<span id="478">478</span>
+<span id="479">479</span>
+<span id="480">480</span>
+<span id="481">481</span>
+<span id="482">482</span>
+<span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -502,7 +569,7 @@ SOFTWARE.
 }
 
 <span class="doccomment">/// Equivalent to C&#39;s `ldexp` function</span>
-<span class="kw">fn</span> <span class="ident">rusty_ldexp</span>(<span class="ident">x</span>: <span class="ident">Float</span>, <span class="ident">n</span>: <span class="ident">i32</span>)-&gt;<span class="ident">Float</span>{    
+<span class="kw">fn</span> <span class="ident">rusty_ldexp</span>(<span class="ident">x</span>: <span class="ident">Float</span>, <span class="ident">n</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Float</span> {
     <span class="ident">x</span> <span class="op">*</span> (<span class="number">2.</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">powi</span>(<span class="ident">n</span>)
 }
 
@@ -525,7 +592,6 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> (<span class="ident">green</span> <span class="op">*</span> <span class="ident">mantissa</span>).<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">u8</span>;
         <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> (<span class="ident">blue</span> <span class="op">*</span> <span class="ident">mantissa</span>).<span class="ident">floor</span>() <span class="kw">as</span> <span class="ident">u8</span>;
 
-        
         <span class="macro">debug_assert!</span>(<span class="ident">e</span> <span class="op">+</span> <span class="number">128</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0</span>);
         <span class="macro">debug_assert!</span>(<span class="ident">e</span> <span class="op">+</span> <span class="number">128</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">u8::MAX</span> <span class="kw">as</span> <span class="ident">i32</span>);
 
@@ -535,18 +601,18 @@ SOFTWARE.
     }
 }
 
-<span class="kw">fn</span> <span class="ident">rgbe_to_colour</span>(<span class="ident">r</span>: <span class="ident">u8</span>, <span class="ident">g</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>, <span class="ident">e</span>: <span class="ident">u8</span> )-&gt;<span class="ident">Spectrum</span>{    
+<span class="kw">fn</span> <span class="ident">rgbe_to_colour</span>(<span class="ident">r</span>: <span class="ident">u8</span>, <span class="ident">g</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>, <span class="ident">e</span>: <span class="ident">u8</span>) -&gt; <span class="ident">Spectrum</span> {
     <span class="kw">if</span> <span class="ident">e</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="ident">Spectrum::black</span>()
+        <span class="kw">return</span> <span class="ident">Spectrum::black</span>();
     }
 
-    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">e</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">-</span> (<span class="number">128</span><span class="op">+</span><span class="number">8</span>) <span class="kw">as</span> <span class="ident">i32</span>;
+    <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">e</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">-</span> (<span class="number">128</span> <span class="op">+</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">i32</span>;
     <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">rusty_ldexp</span>(<span class="number">1.</span>, <span class="ident">n</span>);
     <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="ident">r</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">f</span>;
     <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">g</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">f</span>;
     <span class="kw">let</span> <span class="ident">blue</span> <span class="op">=</span> <span class="ident">b</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">f</span>;
 
-    <span class="ident">Spectrum</span>{<span class="ident">red</span>,<span class="ident">green</span>,<span class="ident">blue</span>}
+    <span class="ident">Spectrum</span> { <span class="ident">red</span>, <span class="ident">green</span>, <span class="ident">blue</span> }
 }
 
 <span class="doccomment">/// A buffer with all the physical values in the image</span>
@@ -602,8 +668,6 @@ SOFTWARE.
         }
     }
 
-   
-
     <span class="doccomment">/// Saves the image in HDRE format</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save_hdre</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) {
         <span class="comment">// Create the file</span>
@@ -624,10 +688,8 @@ SOFTWARE.
         }
     }
 
-
     <span class="doccomment">/// Creates a new empty [`ImageBuffer`] from a File</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_file</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        
         <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">std::fs::read</span>(<span class="ident">filename</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
@@ -638,7 +700,6 @@ SOFTWARE.
             }
         };
         <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="ident">filename</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>();
-        
 
         <span class="comment">// Read header</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">height</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
@@ -646,7 +707,6 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">split</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">char</span>) <span class="op">==</span> <span class="string">&#39;\n&#39;</span>);
         <span class="comment">// READ HEADER</span>
         <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">line</span>) <span class="op">=</span> <span class="ident">lines</span>.<span class="ident">next</span>() {
-            
             <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;-Y&quot;</span>) {
                 <span class="kw">let</span> <span class="ident">errmsg</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">line</span>).<span class="ident">unwrap</span>();
@@ -654,21 +714,28 @@ SOFTWARE.
                 };
 
                 <span class="comment">// Size</span>
-                <span class="kw">let</span> <span class="ident">tuple</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line</span>.<span class="ident">split</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_whitespace</span>()).<span class="ident">into_iter</span>().<span class="ident">collect</span>();
+                <span class="kw">let</span> <span class="ident">tuple</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span>[<span class="ident">u8</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">line</span>
+                    .<span class="ident">split</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="ident">c</span>.<span class="ident">is_ascii_whitespace</span>())
+                    .<span class="ident">into_iter</span>()
+                    .<span class="ident">collect</span>();
                 <span class="kw">if</span> <span class="ident">tuple</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">4</span> <span class="op">|</span><span class="op">|</span> <span class="ident">tuple</span>[<span class="number">2</span>].<span class="ident">ne</span>(<span class="string">b&quot;+X&quot;</span>) {
                     <span class="kw">return</span> <span class="ident">errmsg</span>;
                 }
                 <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">tuple</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>();
                 <span class="ident">height</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">l</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
                     <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">v</span>),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {<span class="kw">return</span> <span class="ident">errmsg</span>;}                    
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                        <span class="kw">return</span> <span class="ident">errmsg</span>;
+                    }
                 };
                 <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">tuple</span>[<span class="number">3</span>]).<span class="ident">unwrap</span>();
                 <span class="ident">width</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">l</span>.<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>() {
                     <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="prelude-val">Some</span>(<span class="ident">v</span>),
-                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt;{<span class="kw">return</span> <span class="ident">errmsg</span>;  }                  
+                    <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                        <span class="kw">return</span> <span class="ident">errmsg</span>;
+                    }
                 };
-                
+
                 <span class="kw">break</span>; <span class="comment">// Done with header</span>
             }
 
@@ -687,60 +754,59 @@ SOFTWARE.
                     <span class="kw">let</span> <span class="ident">exp_format</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">exp_format</span>).<span class="ident">unwrap</span>();
                     <span class="kw">let</span> <span class="ident">found_format</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">tuple</span>[<span class="number">1</span>]).<span class="ident">unwrap</span>();
                     <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;Expecting FORMAT to be &#39;{}&#39;... found &#39;{}&#39;&quot;</span>, <span class="ident">exp_format</span>, <span class="ident">found_format</span>
-                    ))
+                        <span class="string">&quot;Expecting FORMAT to be &#39;{}&#39;... found &#39;{}&#39;&quot;</span>,
+                        <span class="ident">exp_format</span>, <span class="ident">found_format</span>
+                    ));
                 };
                 <span class="kw">continue</span>;
-            }            
-        }<span class="comment">// Done with header</span>
-    
+            }
+        } <span class="comment">// Done with header</span>
+
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">height</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pixels</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>);
-        
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pixels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>);
+
         <span class="comment">// Now the body</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span> : <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">g</span> : <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span> : <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counter</span> : <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>; <span class="comment">// Keep note on whether we are in r, g, b, or e</span>
-        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">line</span>) <span class="op">=</span> <span class="ident">lines</span>.<span class="ident">next</span>(){
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counter</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>; <span class="comment">// Keep note on whether we are in r, g, b, or e</span>
+        <span class="kw">while</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">line</span>) <span class="op">=</span> <span class="ident">lines</span>.<span class="ident">next</span>() {
             <span class="comment">// if !line.is_empty(){</span>
             <span class="comment">//     println!(&quot;Line length = {}&quot;, line.len());</span>
             <span class="comment">//     print!(&quot;Line --&gt; &quot;);</span>
             <span class="comment">//     for c in line.iter(){</span>
             <span class="comment">//         print!(&quot;{}|&quot;, *c);</span>
-            <span class="comment">//     }                </span>
+            <span class="comment">//     }</span>
             <span class="comment">//     println!(&quot;&quot;);</span>
             <span class="comment">// }</span>
             <span class="comment">// break;</span>
-            <span class="comment">// for each line and </span>
-            <span class="comment">// for each Byte in line            </span>
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">line</span>.<span class="ident">len</span>() {                
-                <span class="kw">match</span> <span class="ident">counter</span>{
-                    <span class="number">0</span> =&gt; { <span class="ident">r</span> <span class="op">=</span> <span class="ident">line</span>[<span class="ident">i</span>] },
-                    <span class="number">1</span> =&gt; { <span class="ident">g</span> <span class="op">=</span> <span class="ident">line</span>[<span class="ident">i</span>] },
-                    <span class="number">2</span> =&gt; { <span class="ident">b</span> <span class="op">=</span> <span class="ident">line</span>[<span class="ident">i</span>] },
-                    <span class="number">3</span> =&gt; { 
+            <span class="comment">// for each line and</span>
+            <span class="comment">// for each Byte in line</span>
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">line</span>.<span class="ident">len</span>() {
+                <span class="kw">match</span> <span class="ident">counter</span> {
+                    <span class="number">0</span> =&gt; <span class="ident">r</span> <span class="op">=</span> <span class="ident">line</span>[<span class="ident">i</span>],
+                    <span class="number">1</span> =&gt; <span class="ident">g</span> <span class="op">=</span> <span class="ident">line</span>[<span class="ident">i</span>],
+                    <span class="number">2</span> =&gt; <span class="ident">b</span> <span class="op">=</span> <span class="ident">line</span>[<span class="ident">i</span>],
+                    <span class="number">3</span> =&gt; {
                         <span class="comment">// When we register an e, we push value</span>
                         <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="ident">line</span>[<span class="ident">i</span>];
                         <span class="ident">pixels</span>.<span class="ident">push</span>(<span class="ident">rgbe_to_colour</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">e</span>));
-                     },
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>()
+                    }
+                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
                 }
-                <span class="ident">counter</span> <span class="op">+</span><span class="op">=</span><span class="number">1</span>;
-                <span class="ident">counter</span> <span class="op">=</span> <span class="ident">counter</span> <span class="op">%</span><span class="number">4</span>;                            
+                <span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
+                <span class="ident">counter</span> <span class="op">=</span> <span class="ident">counter</span> <span class="op">%</span> <span class="number">4</span>;
             }
-        }<span class="comment">// Finished iterating lines</span>
-    
+        } <span class="comment">// Finished iterating lines</span>
+
         <span class="comment">// return</span>
-        <span class="prelude-val">Ok</span>(<span class="self">Self</span>{
+        <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
             <span class="ident">width</span>,
             <span class="ident">height</span>,
             <span class="ident">pixels</span>,
         })
     } <span class="comment">// end of from_file()</span>
-
-
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -756,13 +822,13 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>))]</span>
     <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
         <span class="kw">fn</span> <span class="ident">frexp</span>(<span class="ident">x</span>: <span class="ident">c_double</span>, <span class="ident">exp</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>) -&gt; <span class="ident">c_double</span>;
-        <span class="kw">fn</span> <span class="ident">ldexp</span>(<span class="ident">x</span>: <span class="ident">c_double</span>, <span class="ident">ex</span>: <span class="ident">c_int</span>)-&gt;<span class="ident">c_double</span>;
+        <span class="kw">fn</span> <span class="ident">ldexp</span>(<span class="ident">x</span>: <span class="ident">c_double</span>, <span class="ident">ex</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_double</span>;
     }
 
     <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>)]</span>
     <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> {
         <span class="kw">fn</span> <span class="ident">frexp</span>(<span class="ident">x</span>: <span class="ident">c_float</span>, <span class="ident">exp</span>: <span class="kw-2">*mut</span> <span class="ident">c_int</span>) -&gt; <span class="ident">c_float</span>;
-        <span class="kw">fn</span> <span class="ident">ldexp</span>(<span class="ident">x</span>: <span class="ident">c_float</span>, <span class="ident">ex</span>: <span class="ident">c_int</span>)-&gt;<span class="ident">c_double</span>;
+        <span class="kw">fn</span> <span class="ident">ldexp</span>(<span class="ident">x</span>: <span class="ident">c_float</span>, <span class="ident">ex</span>: <span class="ident">c_int</span>) -&gt; <span class="ident">c_double</span>;
     }
 
     <span class="kw">fn</span> <span class="ident">c_frexp</span>(<span class="ident">x</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">i32</span>) {
@@ -771,8 +837,8 @@ SOFTWARE.
         (<span class="ident">res</span>, <span class="ident">exp</span> <span class="kw">as</span> <span class="ident">i32</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">c_ldexp</span>(<span class="ident">x</span>: <span class="ident">Float</span>, <span class="ident">n</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Float</span>{
-        <span class="kw">unsafe</span> {<span class="ident">ldexp</span>(<span class="ident">x</span>, <span class="ident">n</span>)}
+    <span class="kw">fn</span> <span class="ident">c_ldexp</span>(<span class="ident">x</span>: <span class="ident">Float</span>, <span class="ident">n</span>: <span class="ident">i32</span>) -&gt; <span class="ident">Float</span> {
+        <span class="kw">unsafe</span> { <span class="ident">ldexp</span>(<span class="ident">x</span>, <span class="ident">n</span>) }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
@@ -792,16 +858,14 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_ldexp</span>() {
-        <span class="kw">let</span> <span class="ident">is</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="op">-</span><span class="number">1</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">4</span>];
+        <span class="kw">let</span> <span class="ident">is</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="op">-</span><span class="number">1</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">4</span>];
         <span class="kw">let</span> <span class="ident">xs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1e6</span>, <span class="number">2.</span>, <span class="ident">PI</span>, <span class="number">123987.</span>, <span class="number">0.</span>, <span class="number">99.</span>, <span class="number">2.3123</span>, <span class="number">1024.</span>, <span class="number">0.1</span>];
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">xs</span>.<span class="ident">iter</span>() {
-            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">is</span>.<span class="ident">iter</span>(){                
+            <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="ident">is</span>.<span class="ident">iter</span>() {
                 <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">c_ldexp</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">i</span>);
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">rusty_ldexp</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">i</span>);
-                <span class="macro">println!</span>(
-                    <span class="string">&quot;{}*2^{} = {} in C and {} in Rust&quot;</span>, <span class="ident">x</span>, <span class="ident">i</span>, <span class="ident">c</span>, <span class="ident">r</span>
-                );
-                <span class="macro">assert_eq!</span>(<span class="ident">c</span>, <span class="ident">r</span>);                
+                <span class="macro">println!</span>(<span class="string">&quot;{}*2^{} = {} in C and {} in Rust&quot;</span>, <span class="ident">x</span>, <span class="ident">i</span>, <span class="ident">c</span>, <span class="ident">r</span>);
+                <span class="macro">assert_eq!</span>(<span class="ident">c</span>, <span class="ident">r</span>);
             }
         }
     }
@@ -852,21 +916,91 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_rgbe_to_colour</span>() {
         <span class="comment">// Produced automatically</span>
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">201</span>, <span class="number">62</span>, <span class="number">18</span>, <span class="number">138</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">807.</span>, <span class="ident">green</span>: <span class="number">249.</span>, <span class="ident">blue</span>: <span class="number">73.</span>});                
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">117</span>, <span class="number">136</span>, <span class="number">56</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">984943658.000000</span>, <span class="ident">green</span>: <span class="number">1144108930.</span>, <span class="ident">blue</span>: <span class="number">470211272.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">12</span>, <span class="number">173</span>, <span class="number">173</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">101027544.000000</span>, <span class="ident">green</span>: <span class="number">1457850878.</span>, <span class="ident">blue</span>: <span class="number">1458777923.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">239</span>, <span class="number">98</span>, <span class="number">132</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">2007237709.000000</span>, <span class="ident">green</span>: <span class="number">823564440.</span>, <span class="ident">blue</span>: <span class="number">1115438165.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">212</span>, <span class="number">8</span>, <span class="number">13</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">1784484492.000000</span>, <span class="ident">green</span>: <span class="number">74243042.</span>, <span class="ident">blue</span>: <span class="number">114807987.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">135</span>, <span class="number">171</span>, <span class="number">1</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">1137522503.000000</span>, <span class="ident">green</span>: <span class="number">1441282327.</span>, <span class="ident">blue</span>: <span class="number">16531729.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">196</span>, <span class="number">34</span>, <span class="number">213</span>, <span class="number">158</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">823378840.000000</span>, <span class="ident">green</span>: <span class="number">143542612.</span>, <span class="ident">blue</span>: <span class="number">896544303.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">175</span>, <span class="number">150</span>, <span class="number">238</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">1474833169.000000</span>, <span class="ident">green</span>: <span class="number">1264817709.</span>, <span class="ident">blue</span>: <span class="number">1998097157.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">216</span>, <span class="number">134</span>, <span class="number">23</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">1817129560.000000</span>, <span class="ident">green</span>: <span class="number">1131570933.</span>, <span class="ident">blue</span>: <span class="number">197493099.</span>});        
-        <span class="macro">assert_eq!</span>(<span class="ident">rgbe_to_colour</span>(<span class="number">167</span>, <span class="number">106</span>, <span class="number">179</span>, <span class="number">159</span>), <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">1404280278.000000</span>, <span class="ident">green</span>: <span class="number">893351816.</span>, <span class="ident">blue</span>: <span class="number">1505795335.</span>});
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">201</span>, <span class="number">62</span>, <span class="number">18</span>, <span class="number">138</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">807.</span>,
+                <span class="ident">green</span>: <span class="number">249.</span>,
+                <span class="ident">blue</span>: <span class="number">73.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">117</span>, <span class="number">136</span>, <span class="number">56</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">984943658.000000</span>,
+                <span class="ident">green</span>: <span class="number">1144108930.</span>,
+                <span class="ident">blue</span>: <span class="number">470211272.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">12</span>, <span class="number">173</span>, <span class="number">173</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">101027544.000000</span>,
+                <span class="ident">green</span>: <span class="number">1457850878.</span>,
+                <span class="ident">blue</span>: <span class="number">1458777923.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">239</span>, <span class="number">98</span>, <span class="number">132</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">2007237709.000000</span>,
+                <span class="ident">green</span>: <span class="number">823564440.</span>,
+                <span class="ident">blue</span>: <span class="number">1115438165.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">212</span>, <span class="number">8</span>, <span class="number">13</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">1784484492.000000</span>,
+                <span class="ident">green</span>: <span class="number">74243042.</span>,
+                <span class="ident">blue</span>: <span class="number">114807987.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">135</span>, <span class="number">171</span>, <span class="number">1</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">1137522503.000000</span>,
+                <span class="ident">green</span>: <span class="number">1441282327.</span>,
+                <span class="ident">blue</span>: <span class="number">16531729.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">196</span>, <span class="number">34</span>, <span class="number">213</span>, <span class="number">158</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">823378840.000000</span>,
+                <span class="ident">green</span>: <span class="number">143542612.</span>,
+                <span class="ident">blue</span>: <span class="number">896544303.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">175</span>, <span class="number">150</span>, <span class="number">238</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">1474833169.000000</span>,
+                <span class="ident">green</span>: <span class="number">1264817709.</span>,
+                <span class="ident">blue</span>: <span class="number">1998097157.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">216</span>, <span class="number">134</span>, <span class="number">23</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">1817129560.000000</span>,
+                <span class="ident">green</span>: <span class="number">1131570933.</span>,
+                <span class="ident">blue</span>: <span class="number">197493099.</span>
+            }
+        );
+        <span class="macro">assert_eq!</span>(
+            <span class="ident">rgbe_to_colour</span>(<span class="number">167</span>, <span class="number">106</span>, <span class="number">179</span>, <span class="number">159</span>),
+            <span class="ident">Spectrum</span> {
+                <span class="ident">red</span>: <span class="number">1404280278.000000</span>,
+                <span class="ident">green</span>: <span class="number">893351816.</span>,
+                <span class="ident">blue</span>: <span class="number">1505795335.</span>
+            }
+        );
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_from_file</span>(){
+    <span class="kw">fn</span> <span class="ident">test_from_file</span>() {
         <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">ImageBuffer::from_file</span>(<span class="ident">Path::new</span>(<span class="string">&quot;./test_data/images/cornell.hdr&quot;</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">buffer</span>.<span class="ident">width</span>, <span class="number">1024</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">buffer</span>.<span class="ident">height</span>, <span class="number">768</span>);

@@ -523,7 +523,6 @@
 <span id="487">487</span>
 <span id="488">488</span>
 <span id="489">489</span>
-<span id="490">490</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -628,7 +627,7 @@ SOFTWARE.
             <span class="comment">// There is refraction</span>
             <span class="kw">let</span> <span class="ident">refl</span> <span class="op">=</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
             <span class="kw">let</span> <span class="ident">refl_comp</span> <span class="op">=</span> <span class="ident">refl</span> <span class="op">/</span> <span class="ident">cos1</span>;
-            <span class="comment">// This is one source of non-symmetrical BSDF </span>
+            <span class="comment">// This is one source of non-symmetrical BSDF</span>
             <span class="comment">// (check Eric Veach&#39;s thesis, chapter 5 )</span>
             <span class="comment">/* IF RADIANCE */</span>
             <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> <span class="ident">n2</span> <span class="op">/</span> <span class="ident">n1</span>;
@@ -646,7 +645,6 @@ SOFTWARE.
         }
     }
 
-    
     <span class="attribute">#[<span class="ident">inline</span>]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
