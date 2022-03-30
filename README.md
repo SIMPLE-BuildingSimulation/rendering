@@ -3,7 +3,7 @@
 ![build badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/build.yaml/badge.svg)
 ![docs badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/docs.yaml/badge.svg)
 ![tests badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/tests.yaml/badge.svg)
-
+[![codecov](https://codecov.io/gh/SIMPLE-BuildingSimulation/rendering/branch/main/graph/badge.svg?token=DPUWCNLBRF)](https://codecov.io/gh/SIMPLE-BuildingSimulation/rendering)
 ![style badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/style.yaml/badge.svg)
 
 
