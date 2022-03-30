@@ -236,7 +236,7 @@ mod tests {
 
     fn test_material(material: Material) {
         let mut rng = crate::rand::get_rng();
-        for _ in 0..999999 {
+        for _ in 0..99999 {
             let (normal, e1, e2, ray, vout) = get_vectors(&mut rng);
             let (new_ray, pdf, _is_specular) =
                 material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
@@ -260,6 +260,8 @@ mod tests {
             roughness: 0.0,
         });
 
+        
+        println!("{}", std::mem::size_of_val(&plastic));
         test_material(plastic)
     }
 
