@@ -40,7 +40,7 @@ fn main() {
                 .help("This is the SIMPLE Model or a Radiance file")
                 .takes_value(true)
                 .required(true)
-                .index(1),
+                // .index(1),
         )
         .arg(
             Arg::new("output")
@@ -50,7 +50,7 @@ fn main() {
                 .help("The file where to write the image")
                 .takes_value(true)
                 .required(true)
-                .index(2),
+                // .index(2),
         )
         .get_matches();
 
@@ -62,8 +62,8 @@ fn main() {
 
     // Create camera
     let film = Film {
-        // resolution: (512, 367),
-        resolution: (1024, 768),
+        resolution: (512, 367),
+        // resolution: (1024, 768),
         // resolution: (512, 512),
     };
 
@@ -80,10 +80,10 @@ fn main() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_shadow_samples: 10,
+        n_shadow_samples: 1,
         max_depth: 3,
         limit_weight: 0.001,
-        n_ambient_samples: 190,
+        n_ambient_samples: 200,
         ..RayTracer::default()
     };
 

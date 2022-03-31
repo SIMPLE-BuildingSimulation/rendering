@@ -20,6 +20,65 @@ SOFTWARE.
 
 use crate::Float;
 use geometry3d::Vector3D;
+use crate::ray::Ray;
+
+/// Calculates the parameters necessary for calculating the
+/// Fresnel's equations. `cos2`—i.e., the cosine of the
+/// angle between the normal and the transmitted ray—is wrapped in
+/// an `Option` because it does not exist if the angle of incidence
+/// is larger than the critical angle.
+///
+/// # Example
+/// ```
+/// use geometry3d::{Point3D,Vector3D, Ray3D};
+/// use rendering::colour::Spectrum;
+/// use rendering::material::Dielectric;
+/// use rendering::ray::Ray;
+/// 
+/// let mat_refraction_index = 1.52;
+/// let normal = Vector3D::new(0., 0., 1.);
+/// let ray = Ray{
+///     geometry: Ray3D{
+///         origin: Point3D::new(0., 0., 1.),
+///         direction: Vector3D::new(0., 1., -2.).get_normalized()
+///     },
+///     refraction_index : 1.
+/// };
+/// let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, mat_refraction_index);
+/// ```
+pub fn cos_and_n(ray: &Ray, normal: Vector3D, refraction_index: Float) -> (Float, Float, Float, Option<Float>) {
+    let vin = ray.geometry.direction;
+
+    let cos1 = (vin * normal).abs();
+    let n1 = ray.refraction_index;
+    let mut n2 = refraction_index;
+    // If the ray already has this refraction index, assume
+    // we are leaving a volume, entering air.
+    if (n1 - n2).abs() < 1e-7 {
+        n2 = 1.0;
+        // std::mem::swap(&mut n1, &mut n2);
+    }
+    // Calculate cos2
+    let sin1_sq = (1. - cos1 * cos1).clamp(0., Float::MAX);
+    let sin2_sq = n1 * n1 * sin1_sq / (n2 * n2); // Snell's law squared
+    #[cfg(debug_assertions)]
+    {
+        let lhs = n1 * sin1_sq.sqrt();
+        let rhs = n2 * sin2_sq.sqrt();
+        debug_assert!((lhs - rhs).abs() < 1e-5, "rhs = {}, lhs = {}", lhs, rhs);
+    }
+    debug_assert!(sin2_sq >= 0.0);
+    if sin2_sq >= 1. {
+        // Pure reflection...
+        return (n1, cos1, n2, None);
+    }
+
+    let cos2 = (1. - sin2_sq).sqrt();
+
+    (n1, cos1, n2, Some(cos2))
+}
+
+
 
 /// Fresnel Coefficient for TE-Polarized Light (i.e., perpendicular), according to PBR-book
 ///

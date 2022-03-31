@@ -23,6 +23,7 @@ use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
+
 mod light;
 pub use light::Light;
 
@@ -37,6 +38,9 @@ pub use dielectric::Dielectric;
 
 mod mirror;
 pub use mirror::Mirror;
+
+mod glass;
+pub use glass::Glass;
 
 mod specular;
 pub use specular::*;
@@ -65,26 +69,13 @@ pub trait Material {
     fn emits_direct_light(&self) -> bool{
         false
     }
-    // {
-    //     matches!(self, Self::Light(_))
-    //     // match self{
-    //     //     Self::Light(_)=>true,
-    //     //     _ => false
-    //     // }
-    // }
+    
 
     /// Should this material emits light    
     fn emits_light(&self) -> bool{
         false
     }
-    //  {
-    //     matches!(self, Self::Light(_))
-    //     // match self{
-    //     //     Self::Light(_)=>true,
-    //     //     _ => false
-    //     // }
-    // }
-
+    
     /// Does this material scatter (e.g., like [`Plastic`]) or does it
     /// only transmit/reflects specularly (e.g., like [`Mirror`])?
     ///
@@ -92,15 +83,7 @@ pub trait Material {
     fn specular_only(&self) -> bool{
         false
     }
-    // {
-        // match self{
-        //     Self::Mirror(_)=>true,
-        //     Self::Dielectric(_)=>true,
-        //     _ => false
-        // }
-    //     matches!(self, Self::Mirror(_) | Self::Dielectric(_))
-    // }
-
+    
     fn get_possible_paths(
         &self,
         normal: &Vector3D,
@@ -109,51 +92,7 @@ pub trait Material {
     ) -> [Option<(Ray, Float, Float)>; 2]{
         panic!("Calling unimplemented method get_possible_paths() for material '{}'", self.id())
     }
-    // {
-    //     match self {
-    //         Self::Mirror(_) => {
-    //             // Calculate the ray direction and BSDF
-    //             let (ray, v, _) = mirror_bsdf(*intersection_pt, *ray, *normal);
-    //             [Some((ray, v, 1.)), None]
-    //         }
-    //         Self::Dielectric(mat) => {
-    //             let normal = *normal;
-    //             let mut ray = *ray;
-    //             let intersection_pt = *intersection_pt;
-
-    //             let (n1, cos1, n2, cos2) = mat.cos_and_n(ray, normal);
-    //             let (refl, trans) = mat.refl_trans(n1, cos1, n2, cos2);
-    //             let ray_dir = ray.geometry.direction;
-    //             let mirror_dir = mirror_direction(ray_dir, normal);
-    //             debug_assert!(
-    //                 (1. - mirror_dir.length()).abs() < 1e-5,
-    //                 "length is {}",
-    //                 mirror_dir.length()
-    //             );
-
-    //             // Process reflection...
-    //             let mut ray1 = ray;
-    //             ray1.geometry.direction = mirror_dir;
-    //             ray1.geometry.origin = intersection_pt + normal * 0.00001;
-    //             let pair1 = Some((ray1, refl, cos1 * refl /*refl / (refl + trans)*/));
-
-    //             // process transmission
-    //             let pair2 = if trans > 0.0 {
-    //                 ray.geometry.origin = intersection_pt - normal * 0.00001;
-    //                 ray.refraction_index = n2;
-    //                 let trans_dir =
-    //                     fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
-    //                 ray.geometry.direction = trans_dir;
-    //                 Some((ray, trans, /*trans / (refl + trans)*/ 1. - cos1 * refl))
-    //             } else {
-    //                 None
-    //             };
-
-    //             [pair1, pair2]
-    //         }
-    //         _ => panic!("We should never get here"),
-    //     }
-    // }
+    
 
     /// Samples the bsdf, returns a new direction, the value of the BSDF, and a boolean
     /// indicating whether this is a specular or a diffuse interaction    
@@ -166,26 +105,7 @@ pub trait Material {
         ray: Ray,
         rng: &mut RandGen,
     ) -> (Ray, Float, bool) ;
-    // {
-    //     debug_assert!(
-    //         (ray.geometry.direction.length() - 1.).abs() < 1e-5,
-    //         "Length was {}",
-    //         ray.geometry.direction.length()
-    //     );
-    //     debug_assert!((e1 * e2).abs() < 1e-8);
-    //     debug_assert!((e1 * normal).abs() < 1e-8);
-    //     debug_assert!((e2 * normal).abs() < 1e-8);
-
-    //     match self {
-    //         Self::Plastic(s) => s.bsdf(normal, e1, e2, intersection_pt, ray, rng),
-    //         Self::Metal(s) => s.bsdf(normal, e1, e2, intersection_pt, ray, rng),
-    //         Self::Light(_) => panic!("Trying to build a BSDF for a Light material"),
-    //         Self::Mirror(_) => mirror_bsdf(intersection_pt, ray, normal),
-    //         Self::Dielectric(s) => s.bsdf(normal, intersection_pt, ray, rng),
-    //         // _ => unreachable!()
-    //     }
-    // }
-
+    
 
     /// Evaluates a BSDF based on an input and outpt directions
     fn eval_bsdf(
@@ -196,24 +116,7 @@ pub trait Material {
         ray: &Ray,
         vout: Vector3D,
     ) -> Float; 
-    // {
-    //     let vin = ray.geometry.direction;
-    //     debug_assert!(
-    //         (vin.length() - 1.).abs() < 1e-5,
-    //         "Length was {}",
-    //         vin.length()
-    //     );
-    //     debug_assert!((e1 * e2).abs() < 1e-5);
-    //     debug_assert!((e1 * normal).abs() < 1e-5);
-    //     debug_assert!((e2 * normal).abs() < 1e-5);
-    //     match self {
-    //         Self::Plastic(s) => s.eval_bsdf(normal, e1, e2, vin, vout),
-    //         Self::Metal(s) => s.eval_bsdf(normal, e1, e2, vin, vout),
-    //         Self::Light(_) => panic!("Trying to evaluate a BSDF for a Light material"),
-    //         Self::Mirror(_) => eval_mirror_bsdf(normal, vin, vout),
-    //         Self::Dielectric(s) => s.eval_bsdf(normal, ray, vout),
-    //     }
-    // }
+    
 }
 
 #[cfg(test)]

@@ -21,7 +21,7 @@ SOFTWARE.
 use crate::colour::Spectrum;
 use crate::Float;
 
-use crate::material::{ Dielectric, Metal, Plastic, Mirror, Light};
+use crate::material::{ Dielectric, Metal, Plastic, Mirror, Light, Glass};
 use crate::primitive::Primitive;
 
 use crate::scene::Scene;
@@ -155,6 +155,7 @@ impl Scanner {
             b"light" => self.consume_light(source, scene, &modifier, &name),
             b"mirror" => self.consume_mirror(source, scene, &modifier, &name),
             b"dielectric" => self.consume_dielectric(source, scene, &modifier, &name),
+            b"glass" => self.consume_glass(source, scene, &modifier, &name),
 
             // objects
             b"sphere" => self.consume_sphere(source, scene, &modifier, &name),
@@ -278,6 +279,50 @@ impl Scanner {
             colour: colour,
             refraction_index,
         }));
+    }
+
+    /// Consumes a Light material
+    fn consume_glass(
+        &mut self,
+        source: &[u8],
+        scene: &mut Scene,
+        _modifier: &str,
+        name: &str,
+    ) {
+        let t = self.consume_token(source);
+        assert_eq!(t, "0".to_string());
+        let t = self.consume_token(source);
+        assert_eq!(t, "0".to_string());
+        let t = self.consume_token(source);
+        let mat = match t.as_bytes(){
+            b"4"=>{
+                let red = self.consume_token(source).parse::<Float>().unwrap();
+                let green = self.consume_token(source).parse::<Float>().unwrap();
+                let blue = self.consume_token(source).parse::<Float>().unwrap();
+                let refraction_index = self.consume_token(source).parse::<Float>().unwrap();
+                let colour = Spectrum { red, green, blue };
+                Glass {
+                    colour,
+                    refraction_index,
+                }
+            },
+            b"3"=>{
+                let red = self.consume_token(source).parse::<Float>().unwrap();
+                let green = self.consume_token(source).parse::<Float>().unwrap();
+                let blue = self.consume_token(source).parse::<Float>().unwrap();
+                let refraction_index = 1.52;
+                let colour = Spectrum { red, green, blue };
+                Glass {
+                    colour,
+                    refraction_index,
+                }
+            },
+            _ => {panic!("Incorrect Glass definition... expected 3 or 4 arguments; found '{}'", t)}
+        };
+        
+                
+        self.modifiers.push(name.to_string());        
+        scene.push_material(Box::new(mat));
     }
 
     /// Consumes a sphere

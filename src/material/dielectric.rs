@@ -32,64 +32,7 @@ pub struct Dielectric {
 }
 
 impl Dielectric {
-    /// Calculates the parameters necessary for calculating the
-    /// Fresnel's equations. `cos2`—i.e., the cosine of the
-    /// angle between the normal and the transmitted ray—is wrapped in
-    /// an `Option` because it does not exist if the angle of incidence
-    /// is larger than the critical angle.
-    ///
-    /// # Example
-    /// ```
-    /// use geometry3d::{Point3D,Vector3D, Ray3D};
-    /// use rendering::colour::Spectrum;
-    /// use rendering::material::Dielectric;
-    /// use rendering::ray::Ray;
-    /// let mat = Dielectric{
-    ///     colour: Spectrum::gray(0.23), //irrelevant for this test
-    ///     refraction_index: 1.52
-    /// };
-    /// let normal = Vector3D::new(0., 0., 1.);
-    /// let ray = Ray{
-    ///     geometry: Ray3D{
-    ///         origin: Point3D::new(0., 0., 1.),
-    ///         direction: Vector3D::new(0., 1., -2.).get_normalized()
-    ///     },
-    ///     refraction_index : 1.
-    /// };
-    /// let (n1, cos1, n2, cos2) = mat.cos_and_n(&ray, normal);
-    /// ```
-    pub fn cos_and_n(&self, ray: &Ray, normal: Vector3D) -> (Float, Float, Float, Option<Float>) {
-        let vin = ray.geometry.direction;
-
-        let cos1 = (vin * normal).abs();
-        let n1 = ray.refraction_index;
-        let mut n2 = self.refraction_index;
-        // If the ray already has this refraction index, assume
-        // we are leaving a volume, entering air.
-        if (n1 - n2).abs() < 1e-7 {
-            n2 = 1.0;
-            // std::mem::swap(&mut n1, &mut n2);
-        }
-        // Calculate cos2
-        let sin1_sq = (1. - cos1 * cos1).clamp(0., Float::MAX);
-        let sin2_sq = n1 * n1 * sin1_sq / (n2 * n2); // Snell's law squared
-        #[cfg(debug_assertions)]
-        {
-            let lhs = n1 * sin1_sq.sqrt();
-            let rhs = n2 * sin2_sq.sqrt();
-            debug_assert!((lhs - rhs).abs() < 1e-5, "rhs = {}, lhs = {}", lhs, rhs);
-        }
-        debug_assert!(sin2_sq >= 0.0);
-        if sin2_sq >= 1. {
-            // Pure reflection...
-            return (n1, cos1, n2, None);
-        }
-
-        let cos2 = (1. - sin2_sq).sqrt();
-
-        (n1, cos1, n2, Some(cos2))
-    }
-
+    
     /// Gets the Reflected and Transmitted BSDF values
     pub fn refl_trans(
         &self,
@@ -151,7 +94,7 @@ impl Material for Dielectric {
         let normal = *normal;        
         let intersection_pt = *intersection_pt;
 
-        let (n1, cos1, n2, cos2) = self.cos_and_n(ray, normal);
+        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
         let ray_dir = ray.geometry.direction;
         let mirror_dir = mirror_direction(ray_dir, normal);
@@ -201,7 +144,7 @@ impl Material for Dielectric {
         debug_assert!((e1 * normal).abs() < 1e-8);
         debug_assert!((e2 * normal).abs() < 1e-8);
 
-        let (n1, cos1, n2, cos2) = self.cos_and_n(&ray, normal);
+        let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
         let ray_dir = ray.geometry.direction;
         let mirror_dir = mirror_direction(ray_dir, normal);
@@ -240,7 +183,7 @@ impl Material for Dielectric {
         ray: &Ray,
         vout: Vector3D,
     ) -> Float{
-        let (n1, cos1, n2, cos2) = self.cos_and_n(ray, normal);
+        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
         let vin = ray.geometry.direction;
         let mirror_dir = mirror_direction(vin, normal);
@@ -305,7 +248,7 @@ mod tests {
             },
         };
 
-        let (np1, cos1, np2, cos2) = mat.cos_and_n(&ray, normal);
+        let (np1, cos1, np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
         assert!((n1 - np1).abs() < 1e-8, "np1 = {}, n1 = {}", np1, n1);
         assert!((n2 - np2).abs() < 1e-8, "np2 = {}, n2 = {}", np2, n2);
         assert!((1. - cos1).abs() < 1e-8, "cos1 = {}", cos1);
@@ -353,7 +296,7 @@ mod tests {
                 },
             };
 
-            let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(&ray, normal);
+            let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
             assert!(cos2.is_some());
             angle += angle_d;
         }
@@ -368,7 +311,7 @@ mod tests {
             },
         };
 
-        let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(&ray, normal);
+        let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
         assert!(cos2.is_some());
         angle += angle_d;
 
@@ -382,7 +325,7 @@ mod tests {
                 },
             };
 
-            let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(&ray, normal);
+            let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
             assert!(cos2.is_some());
             angle += angle_d;
         }
@@ -408,7 +351,7 @@ mod tests {
             refraction_index: 2.9,
         };
 
-        let (n1, cos1, n2, cos2) = mat.cos_and_n(&ray, normal);
+        let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
         let theta1 = cos1.acos();
         let theta2 = cos2.unwrap().acos();
         let fresnel_1 = n1 * theta1.sin();
@@ -498,73 +441,4 @@ mod tests {
         }
     }
 
-    // use crate::scene::Scene;
-    // use crate::primitive::Primitive;
-    // use crate::material::Material;
-    // use crate::interaction::Interaction;
-    // use geometry3d::{Sphere3D};
-    // use geometry3d::intersection::{SurfaceSide};
-
-    // #[test]
-    // fn debug_dielectric(){
-    //     let mut scene = Scene::default();
-
-    //     let n = 1.52;
-    //     let radius = 1.;
-    //     let glass = scene.push_material(Material::Dielectric(Dielectric{
-    //         color: Spectrum::gray(0.23), //irrelevant for this test
-    //         refraction_index: n
-    //     }));
-
-    //     scene.push_object(
-    //         glass,
-    //         glass,
-    //         Primitive::Sphere(Sphere3D::new(radius, Point3D::new(0.,0.,0.)))
-    //     );
-
-    //     scene.build_accelerator();
-    //     let mut rng = crate::rand::get_rng();
-
-    //     let ray = Ray{
-    //         geometry: Ray3D{
-    //             origin: Point3D::new(0., -10., 0.15),
-    //             direction: Vector3D::new(0., 1., 0.)
-    //         },
-    //         refraction_index: 1.
-    //     };
-
-    //     if let Some((distance, Interaction::Surface(data)))= scene.cast_ray(&ray){
-    //         let object = &scene.objects[data.prim_index];
-    //         let normal = data.geometry_shading.normal;
-    //         let e1 = data.geometry_shading.dpdu.get_normalized();
-    //         let e2 = normal.cross(e1);//.get_normalized();
-    //         let material = match data.geometry_shading.side {
-    //             SurfaceSide::Front => {
-    //                 &scene.materials[object.front_material_index]
-    //             },
-    //             SurfaceSide::Back =>{
-    //                 &scene.materials[object.back_material_index]
-    //             },
-    //             SurfaceSide::NonApplicable => {
-    //                 // Hit parallel to the surface
-    //                 panic!("Wrong intersection")
-    //             }
-    //         };
-    //         let intersection_pt = ray.geometry.project(distance);
-
-    //         loop {
-    //             let (mut new_ray, _material_pdf,  _is_specular) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
-    //             if new_ray.geometry.direction.y > 0. {
-    //                 // if refracted.
-    //                 new_ray.geometry.origin = intersection_pt + normal*0.00001;
-    //                 assert!( (new_ray.refraction_index - n).abs() < 1e-5, "new n = {}, n = {}",new_ray.refraction_index, n );
-
-    //             }
-
-    //         }
-
-    //     }else{
-    //         panic!("Did not intersect sphere")
-    //     }
-    // }
 }

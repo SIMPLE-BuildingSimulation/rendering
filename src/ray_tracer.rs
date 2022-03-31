@@ -156,12 +156,12 @@ impl RayTracer {
                     wt = d;
                 }
                 let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
-                const EXTRA: usize = 1;
+                
                 const MIN_AMBS: usize = 1;
-                if n < MIN_AMBS * EXTRA {
-                    MIN_AMBS * EXTRA
+                if n < MIN_AMBS  {
+                    MIN_AMBS 
                 } else {
-                    n * EXTRA
+                    n 
                 }
             };
 
