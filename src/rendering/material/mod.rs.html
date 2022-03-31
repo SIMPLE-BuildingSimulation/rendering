@@ -251,94 +251,6 @@
 <span id="215">215</span>
 <span id="216">216</span>
 <span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
-<span id="223">223</span>
-<span id="224">224</span>
-<span id="225">225</span>
-<span id="226">226</span>
-<span id="227">227</span>
-<span id="228">228</span>
-<span id="229">229</span>
-<span id="230">230</span>
-<span id="231">231</span>
-<span id="232">232</span>
-<span id="233">233</span>
-<span id="234">234</span>
-<span id="235">235</span>
-<span id="236">236</span>
-<span id="237">237</span>
-<span id="238">238</span>
-<span id="239">239</span>
-<span id="240">240</span>
-<span id="241">241</span>
-<span id="242">242</span>
-<span id="243">243</span>
-<span id="244">244</span>
-<span id="245">245</span>
-<span id="246">246</span>
-<span id="247">247</span>
-<span id="248">248</span>
-<span id="249">249</span>
-<span id="250">250</span>
-<span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
-<span id="255">255</span>
-<span id="256">256</span>
-<span id="257">257</span>
-<span id="258">258</span>
-<span id="259">259</span>
-<span id="260">260</span>
-<span id="261">261</span>
-<span id="262">262</span>
-<span id="263">263</span>
-<span id="264">264</span>
-<span id="265">265</span>
-<span id="266">266</span>
-<span id="267">267</span>
-<span id="268">268</span>
-<span id="269">269</span>
-<span id="270">270</span>
-<span id="271">271</span>
-<span id="272">272</span>
-<span id="273">273</span>
-<span id="274">274</span>
-<span id="275">275</span>
-<span id="276">276</span>
-<span id="277">277</span>
-<span id="278">278</span>
-<span id="279">279</span>
-<span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -364,136 +276,80 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 
-<span class="kw">mod</span> <span class="ident">plastic_metal</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">plastic_metal::PlasticMetal</span>;
+
+<span class="kw">mod</span> <span class="ident">light</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">light::Light</span>;
+
+<span class="kw">mod</span> <span class="ident">plastic</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">plastic::Plastic</span>;
+
+<span class="kw">mod</span> <span class="ident">metal</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">metal::Metal</span>;
 
 <span class="kw">mod</span> <span class="ident">dielectric</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">dielectric::Dielectric</span>;
 
 <span class="kw">mod</span> <span class="ident">mirror</span>;
-<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mirror</span>::<span class="kw-2">*</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">mirror::Mirror</span>;
+
+<span class="kw">mod</span> <span class="ident">glass</span>;
+<span class="kw">pub</span> <span class="kw">use</span> <span class="ident">glass::Glass</span>;
 
 <span class="kw">mod</span> <span class="ident">specular</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">specular</span>::<span class="kw-2">*</span>;
 
-<span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Material</span> {
-    <span class="ident">Plastic</span>(<span class="ident">PlasticMetal</span>),
-    <span class="ident">Metal</span>(<span class="ident">PlasticMetal</span>),
-    <span class="ident">Light</span>(<span class="ident">Spectrum</span>),
-    <span class="ident">Mirror</span>(<span class="ident">Spectrum</span>),
-    <span class="ident">Dielectric</span>(<span class="ident">Dielectric</span>),
-}
+<span class="comment">// pub enum Material {</span>
+<span class="comment">//     Plastic(PlasticMetal),</span>
+<span class="comment">//     Metal(PlasticMetal),</span>
+<span class="comment">//     Light(Spectrum),</span>
+<span class="comment">//     Mirror(Spectrum),</span>
+<span class="comment">//     Dielectric(Dielectric),</span>
+<span class="comment">// }</span>
 
-<span class="kw">impl</span> <span class="ident">Material</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Material</span> {
+
+    <span class="doccomment">/// Returns an id, for debugging and error reporting purposes</span>
+    <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
+
+
     <span class="doccomment">/// Retrieves the Colour of the material. This will usually</span>
     <span class="doccomment">/// represent the values that will multiply the different</span>
     <span class="doccomment">/// elements of the [`Spectrum`]. E.g., the reflectance values.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">color</span>,
-            <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">color</span>,
-            <span class="ident"><span class="self">Self</span>::Light</span>(<span class="ident">s</span>) =&gt; <span class="kw-2">*</span><span class="ident">s</span>,
-            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="ident">s</span>) =&gt; <span class="kw-2">*</span><span class="ident">s</span>,
-            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">color</span>,
-        }
-    }
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span>;
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;plastic&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;metal&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;light&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;mirror&quot;</span>,
-            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="kw">_</span>) =&gt; <span class="string">&quot;dielectric&quot;</span>,
-        }
-    }
 
     <span class="doccomment">/// Should this material be tested for direct illumination?    </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>))
-        <span class="comment">// match self{</span>
-        <span class="comment">//     Self::Light(_)=&gt;true,</span>
-        <span class="comment">//     _ =&gt; false</span>
-        <span class="comment">// }</span>
+    <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>{
+        <span class="bool-val">false</span>
     }
+    
 
     <span class="doccomment">/// Should this material emits light    </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>))
-        <span class="comment">// match self{</span>
-        <span class="comment">//     Self::Light(_)=&gt;true,</span>
-        <span class="comment">//     _ =&gt; false</span>
-        <span class="comment">// }</span>
+    <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>{
+        <span class="bool-val">false</span>
     }
-
+    
     <span class="doccomment">/// Does this material scatter (e.g., like [`Plastic`]) or does it</span>
     <span class="doccomment">/// only transmit/reflects specularly (e.g., like [`Mirror`])?</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Defaults to `false`</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
-        <span class="comment">// match self{</span>
-        <span class="comment">//     Self::Mirror(_)=&gt;true,</span>
-        <span class="comment">//     Self::Dielectric(_)=&gt;true,</span>
-        <span class="comment">//     _ =&gt; false</span>
-        <span class="comment">// }</span>
-        <span class="macro">matches!</span>(<span class="self">self</span>, <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) <span class="op">|</span> <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="kw">_</span>))
+    <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>{
+        <span class="bool-val">false</span>
     }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_possible_paths</span>(
+    
+    <span class="kw">fn</span> <span class="ident">get_possible_paths</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
-        <span class="ident">intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
-        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
-    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>] {
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) =&gt; {
-                <span class="comment">// Calculate the ray direction and BSDF</span>
-                <span class="kw">let</span> (<span class="ident">ray</span>, <span class="ident">v</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">mirror_bsdf</span>(<span class="kw-2">*</span><span class="ident">intersection_pt</span>, <span class="kw-2">*</span><span class="ident">ray</span>, <span class="kw-2">*</span><span class="ident">normal</span>);
-                [<span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">v</span>, <span class="number">1.</span>)), <span class="prelude-val">None</span>]
-            }
-            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">mat</span>) =&gt; {
-                <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">normal</span>;
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
-                <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">intersection_pt</span>;
-
-                <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
-                <span class="kw">let</span> (<span class="ident">refl</span>, <span class="ident">trans</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">refl_trans</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
-                <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
-                <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>);
-                <span class="macro">debug_assert!</span>(
-                    (<span class="number">1.</span> <span class="op">-</span> <span class="ident">mirror_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-                    <span class="string">&quot;length is {}&quot;</span>,
-                    <span class="ident">mirror_dir</span>.<span class="ident">length</span>()
-                );
-
-                <span class="comment">// Process reflection...</span>
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray1</span> <span class="op">=</span> <span class="ident">ray</span>;
-                <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
-                <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
-                <span class="kw">let</span> <span class="ident">pair1</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ray1</span>, <span class="ident">refl</span>, <span class="ident">cos1</span> <span class="op">*</span> <span class="ident">refl</span> <span class="comment">/*refl / (refl + trans)*/</span>));
-
-                <span class="comment">// process transmission</span>
-                <span class="kw">let</span> <span class="ident">pair2</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">trans</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
-                    <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
-                    <span class="ident">ray</span>.<span class="ident">refraction_index</span> <span class="op">=</span> <span class="ident">n2</span>;
-                    <span class="kw">let</span> <span class="ident">trans_dir</span> <span class="op">=</span>
-                        <span class="ident">fresnel_transmission_dir</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>, <span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>.<span class="ident">unwrap</span>());
-                    <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>;
-                    <span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">trans</span>, <span class="comment">/*trans / (refl + trans)*/</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">cos1</span> <span class="op">*</span> <span class="ident">refl</span>))
-                } <span class="kw">else</span> {
-                    <span class="prelude-val">None</span>
-                };
-
-                [<span class="ident">pair1</span>, <span class="ident">pair2</span>]
-            }
-            <span class="kw">_</span> =&gt; <span class="macro">panic!</span>(<span class="string">&quot;We should never get here&quot;</span>),
-        }
+        <span class="ident">_normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
+        <span class="ident">_intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
+        <span class="ident">_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
+    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>]{
+        <span class="macro">panic!</span>(<span class="string">&quot;Calling unimplemented method get_possible_paths() for material &#39;{}&#39;&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>())
     }
+    
 
     <span class="doccomment">/// Samples the bsdf, returns a new direction, the value of the BSDF, and a boolean</span>
-    <span class="doccomment">/// indicating whether this is a specular or a diffuse interaction</span>
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
+    <span class="doccomment">/// indicating whether this is a specular or a diffuse interaction    </span>
+    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
         <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
@@ -501,51 +357,19 @@ SOFTWARE.
         <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) {
-        <span class="macro">debug_assert!</span>(
-            (<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-            <span class="string">&quot;Length was {}&quot;</span>,
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>()
-        );
-        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
-        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
-        <span class="macro">debug_assert!</span>((<span class="ident">e2</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
+    ) -&gt; (<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) ;
+    
 
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
-            <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
-            <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Trying to build a BSDF for a Light material&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) =&gt; <span class="ident">mirror_bsdf</span>(<span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">normal</span>),
-            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>),
-            <span class="comment">// _ =&gt; unreachable!()</span>
-        }
-    }
-
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(
+    <span class="doccomment">/// Evaluates a BSDF based on an input and outpt directions</span>
+    <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
         <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
         <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">ray</span>: <span class="ident">Ray</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
         <span class="ident">vout</span>: <span class="ident">Vector3D</span>,
-    ) -&gt; <span class="ident">Float</span> {
-        <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
-        <span class="macro">debug_assert!</span>(
-            (<span class="ident">vin</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-            <span class="string">&quot;Length was {}&quot;</span>,
-            <span class="ident">vin</span>.<span class="ident">length</span>()
-        );
-        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>);
-        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>);
-        <span class="macro">debug_assert!</span>((<span class="ident">e2</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>);
-        <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident"><span class="self">Self</span>::Plastic</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">vin</span>, <span class="ident">vout</span>),
-            <span class="ident"><span class="self">Self</span>::Metal</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">vin</span>, <span class="ident">vout</span>),
-            <span class="ident"><span class="self">Self</span>::Light</span>(<span class="kw">_</span>) =&gt; <span class="macro">panic!</span>(<span class="string">&quot;Trying to evaluate a BSDF for a Light material&quot;</span>),
-            <span class="ident"><span class="self">Self</span>::Mirror</span>(<span class="kw">_</span>) =&gt; <span class="ident">eval_mirror_bsdf</span>(<span class="ident">normal</span>, <span class="ident">vin</span>, <span class="ident">vout</span>),
-            <span class="ident"><span class="self">Self</span>::Dielectric</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">ray</span>, <span class="ident">vout</span>),
-        }
-    }
+    ) -&gt; <span class="ident">Float</span>; 
+    
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -575,7 +399,7 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">fn</span> <span class="ident">test_material</span>(<span class="ident">material</span>: <span class="ident">Material</span>) {
+    <span class="kw">fn</span> <span class="ident">test_material</span>(<span class="ident">material</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::rand::get_rng</span>();
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">99999</span> {
             <span class="kw">let</span> (<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>) <span class="op">=</span> <span class="ident">get_vectors</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
@@ -584,15 +408,15 @@ SOFTWARE.
             <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
             <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
             <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>.<span class="ident">as_vector3d</span>().<span class="ident">length</span>().<span class="ident">is_finite</span>());
-            <span class="kw">let</span> <span class="ident">pdf</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);
+            <span class="kw">let</span> <span class="ident">pdf</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">vout</span>);
             <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
         }
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_sample_plastic</span>() {
-        <span class="kw">let</span> <span class="ident">plastic</span> <span class="op">=</span> <span class="ident">Material::Plastic</span>(<span class="ident">PlasticMetal</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">plastic</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Plastic</span> {
+            <span class="ident">colour</span>: <span class="ident">Spectrum</span> {
                 <span class="ident">red</span>: <span class="number">0.5</span>,
                 <span class="ident">green</span>: <span class="number">0.2</span>,
                 <span class="ident">blue</span>: <span class="number">0.9</span>,
@@ -608,8 +432,8 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_sample_metal</span>() {
-        <span class="kw">let</span> <span class="ident">metal</span> <span class="op">=</span> <span class="ident">Material::Metal</span>(<span class="ident">PlasticMetal</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">metal</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Metal</span> {
+            <span class="ident">colour</span>: <span class="ident">Spectrum</span> {
                 <span class="ident">red</span>: <span class="number">0.5</span>,
                 <span class="ident">green</span>: <span class="number">0.2</span>,
                 <span class="ident">blue</span>: <span class="number">0.9</span>,
@@ -623,18 +447,18 @@ SOFTWARE.
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_sample_mirror</span>() {
-        <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">Material::Mirror</span>(<span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Mirror</span>(<span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="number">0.5</span>,
             <span class="ident">green</span>: <span class="number">0.2</span>,
             <span class="ident">blue</span>: <span class="number">0.9</span>,
-        });
+        }));
         <span class="ident">test_material</span>(<span class="ident">mirror</span>)
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_sample_dielectric</span>() {
-        <span class="kw">let</span> <span class="ident">dielectric</span> <span class="op">=</span> <span class="ident">Material::Dielectric</span>(<span class="ident">Dielectric</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">dielectric</span> <span class="op">=</span> <span class="ident">Box::new</span>(<span class="ident">Dielectric</span> {
+            <span class="ident">colour</span>: <span class="ident">Spectrum</span> {
                 <span class="ident">red</span>: <span class="number">0.5</span>,
                 <span class="ident">green</span>: <span class="number">0.2</span>,
                 <span class="ident">blue</span>: <span class="number">0.9</span>,

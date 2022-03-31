@@ -175,7 +175,7 @@ SOFTWARE.
                 .<span class="ident">help</span>(<span class="string">&quot;This is the SIMPLE Model or a Radiance file&quot;</span>)
                 .<span class="ident">takes_value</span>(<span class="bool-val">true</span>)
                 .<span class="ident">required</span>(<span class="bool-val">true</span>)
-                .<span class="ident">index</span>(<span class="number">1</span>),
+                <span class="comment">// .index(1),</span>
         )
         .<span class="ident">arg</span>(
             <span class="ident">Arg::new</span>(<span class="string">&quot;output&quot;</span>)
@@ -185,7 +185,7 @@ SOFTWARE.
                 .<span class="ident">help</span>(<span class="string">&quot;The file where to write the image&quot;</span>)
                 .<span class="ident">takes_value</span>(<span class="bool-val">true</span>)
                 .<span class="ident">required</span>(<span class="bool-val">true</span>)
-                .<span class="ident">index</span>(<span class="number">2</span>),
+                <span class="comment">// .index(2),</span>
         )
         .<span class="ident">get_matches</span>();
 
@@ -197,8 +197,8 @@ SOFTWARE.
 
     <span class="comment">// Create camera</span>
     <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
-        <span class="comment">// resolution: (512, 367),</span>
-        <span class="ident">resolution</span>: (<span class="number">1024</span>, <span class="number">768</span>),
+        <span class="ident">resolution</span>: (<span class="number">512</span>, <span class="number">367</span>),
+        <span class="comment">// resolution: (1024, 768),</span>
         <span class="comment">// resolution: (512, 512),</span>
     };
 
@@ -215,10 +215,10 @@ SOFTWARE.
     <span class="kw">let</span> <span class="ident">camera</span> <span class="op">=</span> <span class="ident">Pinhole::new</span>(<span class="ident">view</span>, <span class="ident">film</span>);
 
     <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer</span> {
-        <span class="ident">n_shadow_samples</span>: <span class="number">10</span>,
+        <span class="ident">n_shadow_samples</span>: <span class="number">1</span>,
         <span class="ident">max_depth</span>: <span class="number">3</span>,
         <span class="ident">limit_weight</span>: <span class="number">0.001</span>,
-        <span class="ident">n_ambient_samples</span>: <span class="number">190</span>,
+        <span class="ident">n_ambient_samples</span>: <span class="number">200</span>,
         ..<span class="ident">RayTracer::default</span>()
     };
 

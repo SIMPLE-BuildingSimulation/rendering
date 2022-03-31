@@ -478,51 +478,6 @@
 <span id="442">442</span>
 <span id="443">443</span>
 <span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -549,71 +504,15 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Dielectric</span> {
-    <span class="kw">pub</span> <span class="ident">color</span>: <span class="ident">Spectrum</span>,
+    <span class="kw">pub</span> <span class="ident">colour</span>: <span class="ident">Spectrum</span>,
     <span class="kw">pub</span> <span class="ident">refraction_index</span>: <span class="ident">Float</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">Dielectric</span> {
-    <span class="doccomment">/// Calculates the parameters necessary for calculating the</span>
-    <span class="doccomment">/// Fresnel&#39;s equations. `cos2`—i.e., the cosine of the</span>
-    <span class="doccomment">/// angle between the normal and the transmitted ray—is wrapped in</span>
-    <span class="doccomment">/// an `Option` because it does not exist if the angle of incidence</span>
-    <span class="doccomment">/// is larger than the critical angle.</span>
-    <span class="doccomment">///</span>
-    <span class="doccomment">/// # Example</span>
-    <span class="doccomment">/// ```</span>
-    <span class="doccomment">/// use geometry3d::{Point3D,Vector3D, Ray3D};</span>
-    <span class="doccomment">/// use rendering::colour::Spectrum;</span>
-    <span class="doccomment">/// use rendering::material::Dielectric;</span>
-    <span class="doccomment">/// use rendering::ray::Ray;</span>
-    <span class="doccomment">/// let mat = Dielectric{</span>
-    <span class="doccomment">///     color: Spectrum::gray(0.23), //irrelevant for this test</span>
-    <span class="doccomment">///     refraction_index: 1.52</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// let normal = Vector3D::new(0., 0., 1.);</span>
-    <span class="doccomment">/// let ray = Ray{</span>
-    <span class="doccomment">///     geometry: Ray3D{</span>
-    <span class="doccomment">///         origin: Point3D::new(0., 0., 1.),</span>
-    <span class="doccomment">///         direction: Vector3D::new(0., 1., -2.).get_normalized()</span>
-    <span class="doccomment">///     },</span>
-    <span class="doccomment">///     refraction_index : 1.</span>
-    <span class="doccomment">/// };</span>
-    <span class="doccomment">/// let (n1, cos1, n2, cos2) = mat.cos_and_n(ray, normal);</span>
-    <span class="doccomment">/// ```</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>) {
-        <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
-
-        <span class="kw">let</span> <span class="ident">cos1</span> <span class="op">=</span> (<span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>();
-        <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">refraction_index</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">refraction_index</span>;
-        <span class="comment">// If the ray already has this refraction index, assume</span>
-        <span class="comment">// we are leaving a volume, entering air.</span>
-        <span class="kw">if</span> (<span class="ident">n1</span> <span class="op">-</span> <span class="ident">n2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-7</span> {
-            <span class="ident">n2</span> <span class="op">=</span> <span class="number">1.0</span>;
-            <span class="comment">// std::mem::swap(&amp;mut n1, &amp;mut n2);</span>
-        }
-        <span class="comment">// Calculate cos2</span>
-        <span class="kw">let</span> <span class="ident">sin1_sq</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">cos1</span> <span class="op">*</span> <span class="ident">cos1</span>).<span class="ident">clamp</span>(<span class="number">0.</span>, <span class="ident">Float::MAX</span>);
-        <span class="kw">let</span> <span class="ident">sin2_sq</span> <span class="op">=</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">sin1_sq</span> <span class="op">/</span> (<span class="ident">n2</span> <span class="op">*</span> <span class="ident">n2</span>); <span class="comment">// Snell&#39;s law squared</span>
-        <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">debug_assertions</span>)]</span>
-        {
-            <span class="kw">let</span> <span class="ident">lhs</span> <span class="op">=</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">sin1_sq</span>.<span class="ident">sqrt</span>();
-            <span class="kw">let</span> <span class="ident">rhs</span> <span class="op">=</span> <span class="ident">n2</span> <span class="op">*</span> <span class="ident">sin2_sq</span>.<span class="ident">sqrt</span>();
-            <span class="macro">debug_assert!</span>((<span class="ident">lhs</span> <span class="op">-</span> <span class="ident">rhs</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;rhs = {}, lhs = {}&quot;</span>, <span class="ident">lhs</span>, <span class="ident">rhs</span>);
-        }
-        <span class="macro">debug_assert!</span>(<span class="ident">sin2_sq</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.0</span>);
-        <span class="kw">if</span> <span class="ident">sin2_sq</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">1.</span> {
-            <span class="comment">// Pure reflection...</span>
-            <span class="kw">return</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="prelude-val">None</span>);
-        }
-
-        <span class="kw">let</span> <span class="ident">cos2</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">sin2_sq</span>).<span class="ident">sqrt</span>();
-
-        (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="prelude-val">Some</span>(<span class="ident">cos2</span>))
-    }
-
+    
     <span class="doccomment">/// Gets the Reflected and Transmitted BSDF values</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">refl_trans</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -645,19 +544,37 @@ SOFTWARE.
         }
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">bsdf</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
-        <span class="kw-2">mut</span> <span class="ident">ray</span>: <span class="ident">Ray</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) {
-        <span class="comment">// let mut ray = *ray;</span>
-        <span class="comment">// let normal = *normal;</span>
-        <span class="comment">// let intersection_pt = *intersection_pt;</span>
+    
+    
 
-        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+    
+}
+
+<span class="kw">impl</span> <span class="ident">Material</span> <span class="kw">for</span> <span class="ident">Dielectric</span> {
+
+    <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="kw-2">&amp;</span><span class="ident">str</span>{
+        <span class="string">&quot;Dielectric&quot;</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="ident">Spectrum</span>{
+        <span class="self">self</span>.<span class="ident">colour</span>
+    }
+     
+
+    <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>{
+        <span class="bool-val">true</span>
+    }
+
+    <span class="kw">fn</span> <span class="ident">get_possible_paths</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
+        <span class="ident">intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
+    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>]{
+        <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">normal</span>;        
+        <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">intersection_pt</span>;
+
+        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>, <span class="self">self</span>.<span class="ident">refraction_index</span>);
         <span class="kw">let</span> (<span class="ident">refl</span>, <span class="ident">trans</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">refl_trans</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
         <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
         <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>);
@@ -667,6 +584,57 @@ SOFTWARE.
             <span class="ident">mirror_dir</span>.<span class="ident">length</span>()
         );
 
+        <span class="comment">// Process reflection...</span>
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
+        <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
+        <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
+        <span class="kw">let</span> <span class="ident">pair1</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ray1</span>, <span class="ident">refl</span>, <span class="ident">cos1</span> <span class="op">*</span> <span class="ident">refl</span> <span class="comment">/*refl / (refl + trans)*/</span>));
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
+        <span class="comment">// process transmission</span>
+        <span class="kw">let</span> <span class="ident">pair2</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">trans</span> <span class="op">&gt;</span> <span class="number">0.0</span> {
+            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
+            <span class="ident">ray</span>.<span class="ident">refraction_index</span> <span class="op">=</span> <span class="ident">n2</span>;
+            <span class="kw">let</span> <span class="ident">trans_dir</span> <span class="op">=</span>
+                <span class="ident">fresnel_transmission_dir</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>, <span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>.<span class="ident">unwrap</span>());
+            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>;
+            <span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">trans</span>, <span class="comment">/*trans / (refl + trans)*/</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">cos1</span> <span class="op">*</span> <span class="ident">refl</span>))
+        } <span class="kw">else</span> {
+            <span class="prelude-val">None</span>
+        };
+
+        [<span class="ident">pair1</span>, <span class="ident">pair2</span>]
+    }
+
+    <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
+        <span class="kw-2">mut</span> <span class="ident">ray</span>: <span class="ident">Ray</span>,
+        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
+    ) -&gt; (<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) {
+        <span class="macro">debug_assert!</span>(
+            (<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+            <span class="string">&quot;Length was {}&quot;</span>,
+            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>()
+        );
+        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
+        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
+        <span class="macro">debug_assert!</span>((<span class="ident">e2</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>);
+
+        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">normal</span>, <span class="self">self</span>.<span class="ident">refraction_index</span>);
+        <span class="kw">let</span> (<span class="ident">refl</span>, <span class="ident">trans</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">refl_trans</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
+        <span class="kw">let</span> <span class="ident">ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
+        <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>);
+        <span class="macro">debug_assert!</span>(
+            (<span class="number">1.</span> <span class="op">-</span> <span class="ident">mirror_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
+            <span class="string">&quot;length is {}&quot;</span>,
+            <span class="ident">mirror_dir</span>.<span class="ident">length</span>()
+        );
+
+        
         <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
         <span class="kw">if</span> <span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">refl</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>) {
             <span class="comment">// Reflection</span>
@@ -687,8 +655,15 @@ SOFTWARE.
         }
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">ray</span>: <span class="ident">Ray</span>, <span class="ident">vout</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Float</span> {
-        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+    <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">_e1</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">_e2</span>: <span class="ident">Vector3D</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
+        <span class="ident">vout</span>: <span class="ident">Vector3D</span>,
+    ) -&gt; <span class="ident">Float</span>{
+        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>, <span class="self">self</span>.<span class="ident">refraction_index</span>);
         <span class="kw">let</span> (<span class="ident">refl</span>, <span class="ident">trans</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">refl_trans</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
         <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
         <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>, <span class="ident">normal</span>);
@@ -721,7 +696,9 @@ SOFTWARE.
         <span class="comment">// Neither...</span>
         <span class="number">0.0</span>
     }
+
 }
+
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
@@ -738,7 +715,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
 
         <span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="ident">Dielectric</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.1</span>), <span class="comment">//irrelevant for this test</span>
+            <span class="ident">colour</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.1</span>), <span class="comment">//irrelevant for this test</span>
             <span class="ident">refraction_index</span>: <span class="ident">n2</span>,
         };
 
@@ -751,7 +728,7 @@ SOFTWARE.
             },
         };
 
-        <span class="kw">let</span> (<span class="ident">np1</span>, <span class="ident">cos1</span>, <span class="ident">np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+        <span class="kw">let</span> (<span class="ident">np1</span>, <span class="ident">cos1</span>, <span class="ident">np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">normal</span>, <span class="ident">mat</span>.<span class="ident">refraction_index</span>);
         <span class="macro">assert!</span>((<span class="ident">n1</span> <span class="op">-</span> <span class="ident">np1</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>, <span class="string">&quot;np1 = {}, n1 = {}&quot;</span>, <span class="ident">np1</span>, <span class="ident">n1</span>);
         <span class="macro">assert!</span>((<span class="ident">n2</span> <span class="op">-</span> <span class="ident">np2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>, <span class="string">&quot;np2 = {}, n2 = {}&quot;</span>, <span class="ident">np2</span>, <span class="ident">n2</span>);
         <span class="macro">assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">cos1</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-8</span>, <span class="string">&quot;cos1 = {}&quot;</span>, <span class="ident">cos1</span>);
@@ -769,7 +746,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
 
         <span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="ident">Dielectric</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.1</span>), <span class="comment">//irrelevant for this test</span>
+            <span class="ident">colour</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.1</span>), <span class="comment">//irrelevant for this test</span>
             <span class="ident">refraction_index</span>: <span class="ident">n2</span>,
         };
 
@@ -799,7 +776,7 @@ SOFTWARE.
                 },
             };
 
-            <span class="kw">let</span> (<span class="ident">_np1</span>, <span class="ident">_cos1</span>, <span class="ident">_np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+            <span class="kw">let</span> (<span class="ident">_np1</span>, <span class="ident">_cos1</span>, <span class="ident">_np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">normal</span>, <span class="ident">mat</span>.<span class="ident">refraction_index</span>);
             <span class="macro">assert!</span>(<span class="ident">cos2</span>.<span class="ident">is_some</span>());
             <span class="ident">angle</span> <span class="op">+</span><span class="op">=</span> <span class="ident">angle_d</span>;
         }
@@ -814,7 +791,7 @@ SOFTWARE.
             },
         };
 
-        <span class="kw">let</span> (<span class="ident">_np1</span>, <span class="ident">_cos1</span>, <span class="ident">_np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+        <span class="kw">let</span> (<span class="ident">_np1</span>, <span class="ident">_cos1</span>, <span class="ident">_np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">normal</span>, <span class="ident">mat</span>.<span class="ident">refraction_index</span>);
         <span class="macro">assert!</span>(<span class="ident">cos2</span>.<span class="ident">is_some</span>());
         <span class="ident">angle</span> <span class="op">+</span><span class="op">=</span> <span class="ident">angle_d</span>;
 
@@ -828,7 +805,7 @@ SOFTWARE.
                 },
             };
 
-            <span class="kw">let</span> (<span class="ident">_np1</span>, <span class="ident">_cos1</span>, <span class="ident">_np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+            <span class="kw">let</span> (<span class="ident">_np1</span>, <span class="ident">_cos1</span>, <span class="ident">_np2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">normal</span>, <span class="ident">mat</span>.<span class="ident">refraction_index</span>);
             <span class="macro">assert!</span>(<span class="ident">cos2</span>.<span class="ident">is_some</span>());
             <span class="ident">angle</span> <span class="op">+</span><span class="op">=</span> <span class="ident">angle_d</span>;
         }
@@ -838,7 +815,7 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">test_sin_cos_n</span>() {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">1.52</span>;
         <span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="ident">Dielectric</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.23</span>), <span class="comment">//irrelevant for this test</span>
+            <span class="ident">colour</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.23</span>), <span class="comment">//irrelevant for this test</span>
             <span class="ident">refraction_index</span>: <span class="ident">n</span>,
         };
 
@@ -854,7 +831,7 @@ SOFTWARE.
             <span class="ident">refraction_index</span>: <span class="number">2.9</span>,
         };
 
-        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>);
+        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">normal</span>, <span class="ident">mat</span>.<span class="ident">refraction_index</span>);
         <span class="kw">let</span> <span class="ident">theta1</span> <span class="op">=</span> <span class="ident">cos1</span>.<span class="ident">acos</span>();
         <span class="kw">let</span> <span class="ident">theta2</span> <span class="op">=</span> <span class="ident">cos2</span>.<span class="ident">unwrap</span>().<span class="ident">acos</span>();
         <span class="kw">let</span> <span class="ident">fresnel_1</span> <span class="op">=</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">theta1</span>.<span class="ident">sin</span>();
@@ -872,12 +849,14 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">test_bsdf</span>() {
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">1.52</span>;
         <span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="ident">Dielectric</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.23</span>), <span class="comment">//irrelevant for this test</span>
+            <span class="ident">colour</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.23</span>), <span class="comment">//irrelevant for this test</span>
             <span class="ident">refraction_index</span>: <span class="ident">n</span>,
         };
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
+        <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
+        <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>);
 
         <span class="kw">let</span> <span class="ident">dir_zero</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="op">-</span><span class="number">2.</span>).<span class="ident">get_normalized</span>(); <span class="comment">// going down</span>
 
@@ -894,7 +873,7 @@ SOFTWARE.
         <span class="comment">// Get INTO the material</span>
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">30</span> {
             <span class="kw">let</span> (<span class="ident">new_ray</span>, <span class="ident">_pdf</span>, <span class="ident">_is_specular</span>) <span class="op">=</span>
-                <span class="ident">mat</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+                <span class="ident">mat</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="macro">println!</span>(<span class="string">&quot;A -- PDF = {}&quot;</span>, <span class="ident">_pdf</span>);
             <span class="kw">let</span> <span class="ident">new_dir</span> <span class="op">=</span> <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
             <span class="kw">if</span> <span class="ident">new_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span> {
@@ -919,7 +898,7 @@ SOFTWARE.
         <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>.<span class="ident">unwrap</span>();
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">30</span> {
             <span class="kw">let</span> (<span class="ident">new_ray</span>, <span class="ident">_pdf</span>, <span class="ident">_is_specular</span>) <span class="op">=</span>
-                <span class="ident">mat</span>.<span class="ident">bsdf</span>(<span class="ident">normal</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+                <span class="ident">mat</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="macro">println!</span>(<span class="string">&quot;B -- PDF = {}&quot;</span>, <span class="ident">_pdf</span>);
             <span class="kw">let</span> <span class="ident">new_dir</span> <span class="op">=</span> <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
             <span class="kw">if</span> <span class="ident">new_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span> {
@@ -942,75 +921,6 @@ SOFTWARE.
         }
     }
 
-    <span class="comment">// use crate::scene::Scene;</span>
-    <span class="comment">// use crate::primitive::Primitive;</span>
-    <span class="comment">// use crate::material::Material;</span>
-    <span class="comment">// use crate::interaction::Interaction;</span>
-    <span class="comment">// use geometry3d::{Sphere3D};</span>
-    <span class="comment">// use geometry3d::intersection::{SurfaceSide};</span>
-
-    <span class="comment">// #[test]</span>
-    <span class="comment">// fn debug_dielectric(){</span>
-    <span class="comment">//     let mut scene = Scene::default();</span>
-
-    <span class="comment">//     let n = 1.52;</span>
-    <span class="comment">//     let radius = 1.;</span>
-    <span class="comment">//     let glass = scene.push_material(Material::Dielectric(Dielectric{</span>
-    <span class="comment">//         color: Spectrum::gray(0.23), //irrelevant for this test</span>
-    <span class="comment">//         refraction_index: n</span>
-    <span class="comment">//     }));</span>
-
-    <span class="comment">//     scene.push_object(</span>
-    <span class="comment">//         glass,</span>
-    <span class="comment">//         glass,</span>
-    <span class="comment">//         Primitive::Sphere(Sphere3D::new(radius, Point3D::new(0.,0.,0.)))</span>
-    <span class="comment">//     );</span>
-
-    <span class="comment">//     scene.build_accelerator();</span>
-    <span class="comment">//     let mut rng = crate::rand::get_rng();</span>
-
-    <span class="comment">//     let ray = Ray{</span>
-    <span class="comment">//         geometry: Ray3D{</span>
-    <span class="comment">//             origin: Point3D::new(0., -10., 0.15),</span>
-    <span class="comment">//             direction: Vector3D::new(0., 1., 0.)</span>
-    <span class="comment">//         },</span>
-    <span class="comment">//         refraction_index: 1.</span>
-    <span class="comment">//     };</span>
-
-    <span class="comment">//     if let Some((distance, Interaction::Surface(data)))= scene.cast_ray(&amp;ray){</span>
-    <span class="comment">//         let object = &amp;scene.objects[data.prim_index];</span>
-    <span class="comment">//         let normal = data.geometry_shading.normal;</span>
-    <span class="comment">//         let e1 = data.geometry_shading.dpdu.get_normalized();</span>
-    <span class="comment">//         let e2 = normal.cross(e1);//.get_normalized();</span>
-    <span class="comment">//         let material = match data.geometry_shading.side {</span>
-    <span class="comment">//             SurfaceSide::Front =&gt; {</span>
-    <span class="comment">//                 &amp;scene.materials[object.front_material_index]</span>
-    <span class="comment">//             },</span>
-    <span class="comment">//             SurfaceSide::Back =&gt;{</span>
-    <span class="comment">//                 &amp;scene.materials[object.back_material_index]</span>
-    <span class="comment">//             },</span>
-    <span class="comment">//             SurfaceSide::NonApplicable =&gt; {</span>
-    <span class="comment">//                 // Hit parallel to the surface</span>
-    <span class="comment">//                 panic!(&quot;Wrong intersection&quot;)</span>
-    <span class="comment">//             }</span>
-    <span class="comment">//         };</span>
-    <span class="comment">//         let intersection_pt = ray.geometry.project(distance);</span>
-
-    <span class="comment">//         loop {</span>
-    <span class="comment">//             let (mut new_ray, _material_pdf,  _is_specular) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &amp;mut rng);</span>
-    <span class="comment">//             if new_ray.geometry.direction.y &gt; 0. {</span>
-    <span class="comment">//                 // if refracted.</span>
-    <span class="comment">//                 new_ray.geometry.origin = intersection_pt + normal*0.00001;</span>
-    <span class="comment">//                 assert!( (new_ray.refraction_index - n).abs() &lt; 1e-5, &quot;new n = {}, n = {}&quot;,new_ray.refraction_index, n );</span>
-
-    <span class="comment">//             }</span>
-
-    <span class="comment">//         }</span>
-
-    <span class="comment">//     }else{</span>
-    <span class="comment">//         panic!(&quot;Did not intersect sphere&quot;)</span>
-    <span class="comment">//     }</span>
-    <span class="comment">// }</span>
 }
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>

@@ -832,6 +832,9 @@
 <span id="796">796</span>
 <span id="797">797</span>
 <span id="798">798</span>
+<span id="799">799</span>
+<span id="800">800</span>
+<span id="801">801</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -851,6 +854,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
+
+<span class="kw">use</span> <span class="ident">std::borrow::Borrow</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::camera</span>::{<span class="ident">Camera</span>, <span class="ident">CameraSample</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
@@ -988,12 +993,12 @@ SOFTWARE.
                     <span class="ident">wt</span> <span class="op">=</span> <span class="ident">d</span>;
                 }
                 <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> ((<span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">wt</span>).<span class="ident">sqrt</span>() <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>;
-                <span class="kw">const</span> <span class="ident">EXTRA</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
+                
                 <span class="kw">const</span> <span class="ident">MIN_AMBS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
-                <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="ident">MIN_AMBS</span> <span class="op">*</span> <span class="ident">EXTRA</span> {
-                    <span class="ident">MIN_AMBS</span> <span class="op">*</span> <span class="ident">EXTRA</span>
+                <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="ident">MIN_AMBS</span>  {
+                    <span class="ident">MIN_AMBS</span> 
                 } <span class="kw">else</span> {
-                    <span class="ident">n</span> <span class="op">*</span> <span class="ident">EXTRA</span>
+                    <span class="ident">n</span> 
                 }
             };
 
@@ -1008,7 +1013,7 @@ SOFTWARE.
             <span class="comment">/* DIRECT LIGHT */</span>
             <span class="kw">let</span> <span class="ident">local</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_local_illumination</span>(
                 <span class="ident">scene</span>,
-                <span class="ident">material</span>,
+                <span class="ident">material</span>.<span class="ident">borrow</span>(),
                 <span class="ident">ray</span>,
                 <span class="ident">intersection_pt</span>,
                 <span class="ident">normal</span>,
@@ -1024,6 +1029,7 @@ SOFTWARE.
                 <span class="kw">return</span> (<span class="ident">local</span>, <span class="number">0.0</span>);
             }
 
+            
             <span class="comment">/* INDIRECT */</span>
             <span class="kw">let</span> <span class="ident">global</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">get_global_illumination</span>(
                 <span class="ident">scene</span>,
@@ -1054,7 +1060,7 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">sample_light_array</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
-        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">Material</span>,
+        <span class="ident">material</span>:  <span class="kw-2">&amp;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>,<span class="comment">// &amp;impl Material + Sync,</span>
         <span class="ident">ray</span>: <span class="ident">Ray</span>,
         <span class="ident">point</span>: <span class="ident">Point3D</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
@@ -1092,7 +1098,7 @@ SOFTWARE.
                     <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">direction</span>).<span class="ident">abs</span>();
                     <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">shadow_ray</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>;
 
-                    <span class="kw">let</span> <span class="ident">mat_bsdf_value</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);
+                    <span class="kw">let</span> <span class="ident">mat_bsdf_value</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">vout</span>);
                     <span class="comment">// let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//</span>
                     <span class="kw">let</span> <span class="ident">denominator</span> <span class="op">=</span> <span class="ident">light_pdf</span> <span class="op">*</span> <span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span>
                         <span class="op">+</span> <span class="ident">mat_bsdf_value</span> <span class="op">*</span> <span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span>; <span class="comment">//light_pdf;//</span>
@@ -1113,10 +1119,10 @@ SOFTWARE.
 
     <span class="doccomment">/// Calculates the luminance produced by the direct sources in the</span>
     <span class="doccomment">/// scene</span>
-    <span class="kw">fn</span> <span class="ident">get_local_illumination</span>(
+    <span class="kw">fn</span> <span class="ident">get_local_illumination</span> (
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
-        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">Material</span>,
+        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>,<span class="comment">//&amp;impl Material,</span>
         <span class="ident">ray</span>: <span class="ident">Ray</span>,
         <span class="kw-2">mut</span> <span class="ident">point</span>: <span class="ident">Point3D</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
@@ -1165,7 +1171,7 @@ SOFTWARE.
         <span class="ident">n_ambient_samples</span>: <span class="ident">usize</span>,
         <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>,
         <span class="ident">current_depth</span>: <span class="ident">usize</span>,
-        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">Material</span>,
+        <span class="ident">material</span>: <span class="kw-2">&amp;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
         <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
         <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
@@ -1441,7 +1447,7 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_render_room</span>() {
-        <span class="comment">// 73 seconds</span>
+        <span class="comment">// 74 seconds</span>
         <span class="comment">// time cargo test --features parallel --release  -- --ignored --nocapture test_render_room</span>
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="string">&quot;./test_data/room.rad&quot;</span>.<span class="ident">to_string</span>());
@@ -1476,7 +1482,7 @@ SOFTWARE.
         <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">std::path::Path::new</span>(<span class="string">&quot;./test_data/images/room.hdr&quot;</span>));
     }
 
-    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Material</span>, <span class="ident">PlasticMetal</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{ <span class="ident">Plastic</span>, <span class="ident">Mirror</span>, <span class="ident">Light</span>};
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
     <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">DistantSource3D</span>, <span class="ident">Sphere3D</span>, <span class="ident">Triangle3D</span>};
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
@@ -1488,8 +1494,8 @@ SOFTWARE.
         <span class="comment">// Build scene</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::default</span>();
 
-        <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Plastic</span>(<span class="ident">PlasticMetal</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident">Plastic</span> {
+            <span class="ident">colour</span>: <span class="ident">Spectrum</span> {
                 <span class="ident">red</span>: <span class="number">0.55</span>,
                 <span class="ident">green</span>: <span class="number">0.15</span>,
                 <span class="ident">blue</span>: <span class="number">0.15</span>,
@@ -1498,8 +1504,8 @@ SOFTWARE.
             <span class="ident">roughness</span>: <span class="number">0.</span>,
         }));
 
-        <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Plastic</span>(<span class="ident">PlasticMetal</span> {
-            <span class="ident">color</span>: <span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident">Plastic</span> {
+            <span class="ident">colour</span>: <span class="ident">Spectrum</span> {
                 <span class="ident">red</span>: <span class="number">0.15</span>,
                 <span class="ident">green</span>: <span class="number">0.15</span>,
                 <span class="ident">blue</span>: <span class="number">0.15</span>,
@@ -1508,11 +1514,11 @@ SOFTWARE.
             <span class="ident">roughness</span>: <span class="number">0.</span>,
         }));
 
-        <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Mirror</span>(<span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">mirror</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident">Mirror</span>(<span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="number">0.8</span>,
             <span class="ident">green</span>: <span class="number">0.99</span>,
             <span class="ident">blue</span>: <span class="number">0.8</span>,
-        }));
+        })));
 
         <span class="ident">scene</span>.<span class="ident">push_object</span>(
             <span class="ident">mirror</span>,
@@ -1564,11 +1570,11 @@ SOFTWARE.
             ),
         );
 
-        <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Light</span>(<span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident">Light</span>(<span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="number">10000.</span>,
             <span class="ident">green</span>: <span class="number">10000.</span>,
             <span class="ident">blue</span>: <span class="number">10000.</span>,
-        }));
+        })));
 
         <span class="ident">scene</span>.<span class="ident">push_object</span>(
             <span class="ident">up</span>,
@@ -1588,11 +1594,11 @@ SOFTWARE.
             )),
         );
 
-        <span class="kw">let</span> <span class="ident">lightbulb</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Light</span>(<span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">lightbulb</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident">Light</span>(<span class="ident">Spectrum</span> {
             <span class="ident">red</span>: <span class="number">100.</span>,
             <span class="ident">green</span>: <span class="number">100.</span>,
             <span class="ident">blue</span>: <span class="number">100.</span>,
-        }));
+        })));
 
         <span class="ident">scene</span>.<span class="ident">push_object</span>(
             <span class="ident">lightbulb</span>,

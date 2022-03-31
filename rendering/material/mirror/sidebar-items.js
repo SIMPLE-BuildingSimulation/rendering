@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["eval_mirror_bsdf",""],["mirror_bsdf",""]]});
+initSidebarItems({"fn":[["eval_mirror_bsdf",""],["mirror_bsdf",""]],"struct":[["Mirror","A mirror material"]]});

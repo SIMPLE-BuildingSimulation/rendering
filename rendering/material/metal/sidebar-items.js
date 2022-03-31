@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["Metal","Information required for modelling Radiance’s Metal and Metal"]]});

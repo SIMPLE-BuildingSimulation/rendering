@@ -284,7 +284,7 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">objects</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The materials in the scene</span>
-    <span class="kw">pub</span> <span class="ident">materials</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Material</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">materials</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// A vector of [`Light`] objects that</span>
     <span class="doccomment">/// are considered sources of direct light.</span>
@@ -367,7 +367,7 @@ SOFTWARE.
 
     <span class="doccomment">/// Pushes a [`Material`] to the [`Scene`] and return its</span>
     <span class="doccomment">/// position in the `materials` Vector.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_material</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">material</span>: <span class="ident">Material</span>) -&gt; <span class="ident">usize</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">push_material</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">material</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
         <span class="self">self</span>.<span class="ident">materials</span>.<span class="ident">push</span>(<span class="ident">material</span>);
         <span class="comment">// return</span>
         <span class="self">self</span>.<span class="ident">materials</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>
