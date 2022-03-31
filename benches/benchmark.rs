@@ -5,8 +5,8 @@ use rendering::colour::Spectrum;
 use rendering::material::*;
 use rendering::ray::Ray;
 
-use rendering::rand::*;
-use rendering::samplers::*;
+// use rendering::rand::*;
+// use rendering::samplers::*;
 
 type Float = f64;
 
@@ -86,18 +86,23 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
     let vout = black_box(Vector3D::new(1., 4., 12.).get_normalized());
 
-    let p = PlasticMetal {
-        color: Spectrum {
+
+
+
+    let p = black_box(Plastic {
+        colour: Spectrum {
             red: 0.5,
             green: 0.2,
             blue: 0.9,
         },
         specularity: 0.0,
         roughness: 0.0,
-    };
+    });
+
+
     c.bench_function("direct_sample_plastic", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) = p.bsdf(
+            let (_new_ray, _pdf, _is_specular) = p.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
@@ -107,19 +112,67 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             );
         })
     });
-
-    let p = PlasticMetal {
-        color: Spectrum {
+    let m = black_box(Metal {
+        colour: Spectrum {
             red: 0.5,
             green: 0.2,
             blue: 0.9,
         },
         specularity: 0.0,
         roughness: 0.0,
-    };
+    });
 
-    let plastic = black_box(Material::Plastic(p));
+
+    c.bench_function("direct_sample_metal", |b| {
+        b.iter(|| {
+            let (_new_ray, _pdf, _is_specular) = m.sample_bsdf(
+                black_box(normal),
+                black_box(e1),
+                black_box(e2),
+                black_box(Point3D::new(0., 0., 0.)),
+                black_box(ray),
+                black_box(&mut rng),
+            );
+        })
+    });
+    
+
+
+
+    let p = black_box(Plastic {
+        colour: Spectrum {
+            red: 0.5,
+            green: 0.2,
+            blue: 0.9,
+        },
+        specularity: 0.0,
+        roughness: 0.0,
+    });
+    let m = black_box(Metal {
+        colour: Spectrum {
+            red: 0.5,
+            green: 0.2,
+            blue: 0.9,
+        },
+        specularity: 0.0,
+        roughness: 0.0,
+    });
+    let metal = black_box(Box::new(m));
+    let plastic = black_box(Box::new(p));
     c.bench_function("sample_plastic", |b| {
+        b.iter(|| {
+            let (_new_ray, _pdf, _is_specular) = metal.sample_bsdf(
+                black_box(normal),
+                black_box(e1),
+                black_box(e2),
+                black_box(Point3D::new(0., 0., 0.)),
+                black_box(ray),
+                black_box(&mut rng),
+            );
+        })
+    });
+    
+    c.bench_function("sample_metal", |b| {
         b.iter(|| {
             let (_new_ray, _pdf, _is_specular) = plastic.sample_bsdf(
                 black_box(normal),
@@ -132,94 +185,74 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         })
     });
 
+
     c.bench_function("eval_plastic", |b| {
         b.iter(|| {
-            let _val = plastic.eval_bsdf(normal, e1, e2, ray, vout);
+            let _val = plastic.eval_bsdf(normal, e1, e2, &ray, vout);
         })
     });
 
-    let metal = black_box(Material::Metal(PlasticMetal {
-        color: Spectrum {
-            red: 0.5,
-            green: 0.2,
-            blue: 0.9,
-        },
-        specularity: 0.0,
-        roughness: 0.0,
-    }));
-    c.bench_function("sample_metal", |b| {
-        b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) = metal.sample_bsdf(
-                black_box(normal),
-                black_box(e1),
-                black_box(e2),
-                black_box(Point3D::new(0., 0., 0.)),
-                black_box(ray),
-                black_box(&mut rng),
-            );
-        })
-    });
-
+    
     c.bench_function("eval_metal", |b| {
         b.iter(|| {
-            let _val = metal.eval_bsdf(normal, e1, e2, ray, vout);
+            let _val = metal.eval_bsdf(normal, e1, e2, &ray, vout);
         })
     });
 
-    let mirror = black_box(Material::Mirror(Spectrum {
-        red: 0.5,
-        green: 0.2,
-        blue: 0.9,
-    }));
-    c.bench_function("sample_mirror", |b| {
-        b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) =
-                mirror.sample_bsdf(black_box(normal), black_box(e1), black_box(e2), black_box(Point3D::new(0., 0., 0.)), black_box(ray), black_box(&mut rng));
-        })
-    });
-    c.bench_function("get_possible_paths_mirror", |b| {
-        b.iter(|| {
-            let _a = mirror.get_possible_paths(
-                black_box(&normal),
-                black_box(&Point3D::new(0., 0., 0.)),
-                black_box(&ray),
-            );
-        })
-    });
-    c.bench_function("eval_mirror", |b| {
-        b.iter(|| {
-            let _val = mirror.eval_bsdf(normal, e1, e2, ray, vout);
-        })
-    });
+    // let mirror = black_box(Box::new(Mirror(Spectrum {
+    //     red: 0.5,
+    //     green: 0.2,
+    //     blue: 0.9,
+    // })));
+    // c.bench_function("sample_mirror", |b| {
+    //     b.iter(|| {
+    //         let (_new_ray, _pdf, _is_specular) =
+    //             mirror.sample_bsdf(black_box(normal), black_box(e1), black_box(e2), black_box(Point3D::new(0., 0., 0.)), black_box(ray), black_box(&mut rng));
+    //     })
+    // });
+    // c.bench_function("get_possible_paths_mirror", |b| {
+    //     b.iter(|| {
+    //         let _a = mirror.get_possible_paths(
+    //             black_box(&normal),
+    //             black_box(&Point3D::new(0., 0., 0.)),
+    //             black_box(&ray),
+    //         );
+    //     })
+    // });
+    // c.bench_function("eval_mirror", |b| {
+    //     b.iter(|| {
+    //         let _val = mirror.eval_bsdf(normal, e1, e2, &ray, vout);
+    //     })
+    // });
 
-    let dielectric = black_box(Material::Dielectric(Dielectric {
-        color: Spectrum {
-            red: 0.5,
-            green: 0.2,
-            blue: 0.9,
-        },
-        refraction_index: 1.5,
-    }));
-    c.bench_function("get_possible_paths_dielectric", |b| {
-        b.iter(|| {
-            let _a = dielectric.get_possible_paths(
-                black_box(&normal),
-                black_box(&Point3D::new(0., 0., 0.)),
-                black_box(&ray),
-            );
-        })
-    });
+    // let dielectric = black_box(Box::new(Dielectric {
+    //     colour: Spectrum {
+    //         red: 0.5,
+    //         green: 0.2,
+    //         blue: 0.9,
+    //     },
+    //     refraction_index: 1.5,
+    // }));
+    // c.bench_function("get_possible_paths_dielectric", |b| {
+    //     b.iter(|| {
+    //         let _a = dielectric.get_possible_paths(
+    //             black_box(&normal),
+    //             black_box(&Point3D::new(0., 0., 0.)),
+    //             black_box(&ray),
+    //         );
+    //     })
+    // });
     // c.bench_function("sample_dielectric", |b| {
     //     b.iter(|| {
     //         let (_new_ray, _pdf, _is_specular) =
     //             dielectric.sample_bsdf(black_box(normal), black_box(e1), black_box(e2), black_box(Point3D::new(0., 0., 0.)), black_box(ray), black_box(&mut rng));
     //     })
     // });
-    c.bench_function("eval_dielectric", |b| {
-        b.iter(|| {
-            let _val = dielectric.eval_bsdf(normal, e1, e2, ray, vout);
-        })
-    });
+    // c.bench_function("eval_dielectric", |b| {
+    //     b.iter(|| {
+    //         let _val = dielectric.eval_bsdf(normal, e1, e2, &ray, vout);
+    //     })
+    // });
 }
 
 criterion_group!(benches, criterion_benchmark);

@@ -169,7 +169,7 @@ impl<'a> Path<'a> {
 
             let bsdf = node
                 .material
-                .eval_bsdf(node.normal, node.e1, node.e2, ray, vout);
+                .eval_bsdf(node.normal, node.e1, node.e2, &ray, vout);
             let cos_theta = (node.normal * vout).abs();
 
             // return this + the next node.

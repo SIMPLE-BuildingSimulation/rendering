@@ -57,8 +57,9 @@ pub mod scene;
 mod from_simple_model;
 
 // Ray-tracer
-mod backward_metropolis;
 pub mod ray_tracer;
-pub use crate::backward_metropolis::{
-    mutation::RestartRay, BackwardMetropolis, Mutation, MutationSet,
-};
+
+// mod backward_metropolis;
+// pub use crate::backward_metropolis::{
+//     mutation::RestartRay, BackwardMetropolis, Mutation, MutationSet,
+// };

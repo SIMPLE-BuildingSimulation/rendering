@@ -23,19 +23,27 @@ use crate::rand::*;
 use crate::ray::Ray;
 use crate::{Float, PI};
 use geometry3d::{Point3D, Vector3D};
-
+use crate::material::Material;
 use crate::samplers::{local_to_world, sample_cosine_weighted_horizontal_hemisphere};
 
-/// Information required for modelling Radiance's Plastic and Metal
-pub struct PlasticMetal {
-    pub color: Spectrum,
+/// Information required for modelling Radiance's Metal and Metal
+pub struct Metal {
+    pub colour: Spectrum,
     pub specularity: Float,
     pub roughness: Float,
 }
 
-impl PlasticMetal {
-    #[inline(always)]
-    pub fn bsdf(
+impl Material for Metal {
+    
+    fn id(&self)->&str{
+        "Metal"
+    }
+
+    fn colour(&self) -> Spectrum{
+        self.colour
+    }
+
+    fn sample_bsdf(
         &self,
         normal: Vector3D,
         e1: Vector3D,
@@ -78,15 +86,15 @@ impl PlasticMetal {
         }
     }
 
-    #[inline]
-    pub fn eval_bsdf(
+    
+    fn eval_bsdf(
         &self,
-        _normal: Vector3D,
-        _e1: Vector3D,
-        _e2: Vector3D,
-        _vin: Vector3D,
-        _vout: Vector3D,
-    ) -> Float {
+        normal: Vector3D,
+        e1: Vector3D,
+        e2: Vector3D,
+        ray: &Ray,
+        vout: Vector3D,
+    ) -> Float{
         if self.specularity > 0. {
             unimplemented!()
         } else {

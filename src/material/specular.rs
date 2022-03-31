@@ -99,12 +99,12 @@ pub fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
     ret
 }
 
+
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_transmitted_direction() {}
 
     #[test]
     fn test_mirror_direction() {

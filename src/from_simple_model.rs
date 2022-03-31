@@ -22,7 +22,7 @@ use geometry3d::Triangulation3D;
 use simple_model::{SimpleModel, Substance};
 
 use crate::colour::Spectrum;
-use crate::material::{Material, PlasticMetal};
+use crate::material::{Material, Plastic, Metal, Light};
 use crate::primitive::Primitive;
 use crate::scene::{Scene, Wavelengths};
 
@@ -118,7 +118,7 @@ impl SimpleModelReader {
     }
 
     /// Transformsa a SimpleModel Substance into a Material
-    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Material {
+    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Box<dyn Material + Sync> {
         if matches!(wavelength, Wavelengths::Visible) {
             unimplemented!();
         }
@@ -139,8 +139,8 @@ impl SimpleModelReader {
         };
 
         // return
-        Material::Plastic(PlasticMetal {
-            color: Spectrum::gray(color),
+        Box::new(Plastic {
+            colour: Spectrum::gray(color),
             specularity: 0.0,
             roughness: 0.0,
         })
@@ -166,7 +166,7 @@ mod tests {
         let mut reader = SimpleModelReader::default();
         let mut scene = reader.build_scene(&model, &Wavelengths::Solar);
 
-        let light_index = scene.push_material(Material::Light(Spectrum::gray(10000.)));
+        let light_index = scene.push_material(Box::new(Light(Spectrum::gray(10000.))));
         scene.push_object(
             light_index,
             light_index,

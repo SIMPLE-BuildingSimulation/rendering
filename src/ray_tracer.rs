@@ -18,6 +18,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+use std::borrow::Borrow;
+
 use crate::camera::{Camera, CameraSample};
 use crate::colour::Spectrum;
 use crate::image::ImageBuffer;
@@ -174,7 +176,7 @@ impl RayTracer {
             /* DIRECT LIGHT */
             let local = self.get_local_illumination(
                 scene,
-                material,
+                material.borrow(),
                 ray,
                 intersection_pt,
                 normal,
@@ -190,6 +192,7 @@ impl RayTracer {
                 return (local, 0.0);
             }
 
+            
             /* INDIRECT */
             let global = self.get_global_illumination(
                 scene,
@@ -220,7 +223,7 @@ impl RayTracer {
     fn sample_light_array(
         &self,
         scene: &Scene,
-        material: &Material,
+        material:  &Box<dyn Material + Sync>,// &impl Material + Sync,
         ray: Ray,
         point: Point3D,
         normal: Vector3D,
@@ -258,7 +261,7 @@ impl RayTracer {
                     let cos_theta = (normal * direction).abs();
                     let vout = shadow_ray.direction * -1.;
 
-                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);
+                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, &ray, vout);
                     // let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//
                     let denominator = light_pdf * n_shadow_samples as Float
                         + mat_bsdf_value * n_ambient_samples as Float; //light_pdf;//
@@ -279,10 +282,10 @@ impl RayTracer {
 
     /// Calculates the luminance produced by the direct sources in the
     /// scene
-    fn get_local_illumination(
+    fn get_local_illumination (
         &self,
         scene: &Scene,
-        material: &Material,
+        material: &Box<dyn Material + Sync>,//&impl Material,
         ray: Ray,
         mut point: Point3D,
         normal: Vector3D,
@@ -331,7 +334,7 @@ impl RayTracer {
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         current_depth: usize,
-        material: &Material,
+        material: &Box<dyn Material + Sync>,
         normal: Vector3D,
         e1: Vector3D,
         e2: Vector3D,
@@ -607,7 +610,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_render_room() {
-        // 78 seconds
+        // 74 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture test_render_room
 
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
@@ -642,7 +645,7 @@ mod tests {
         buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
     }
 
-    use crate::material::{Material, PlasticMetal};
+    use crate::material::{ Plastic, Mirror, Light};
     use crate::primitive::Primitive;
     use geometry3d::{DistantSource3D, Sphere3D, Triangle3D};
     #[ignore]
@@ -654,8 +657,8 @@ mod tests {
         // Build scene
         let mut scene = Scene::default();
 
-        let red = scene.push_material(Material::Plastic(PlasticMetal {
-            color: Spectrum {
+        let red = scene.push_material(Box::new(Plastic {
+            colour: Spectrum {
                 red: 0.55,
                 green: 0.15,
                 blue: 0.15,
@@ -664,8 +667,8 @@ mod tests {
             roughness: 0.,
         }));
 
-        let green = scene.push_material(Material::Plastic(PlasticMetal {
-            color: Spectrum {
+        let green = scene.push_material(Box::new(Plastic {
+            colour: Spectrum {
                 red: 0.15,
                 green: 0.15,
                 blue: 0.15,
@@ -674,11 +677,11 @@ mod tests {
             roughness: 0.,
         }));
 
-        let mirror = scene.push_material(Material::Mirror(Spectrum {
+        let mirror = scene.push_material(Box::new(Mirror(Spectrum {
             red: 0.8,
             green: 0.99,
             blue: 0.8,
-        }));
+        })));
 
         scene.push_object(
             mirror,
@@ -730,11 +733,11 @@ mod tests {
             ),
         );
 
-        let up = scene.push_material(Material::Light(Spectrum {
+        let up = scene.push_material(Box::new(Light(Spectrum {
             red: 10000.,
             green: 10000.,
             blue: 10000.,
-        }));
+        })));
 
         scene.push_object(
             up,
@@ -754,11 +757,11 @@ mod tests {
             )),
         );
 
-        let lightbulb = scene.push_material(Material::Light(Spectrum {
+        let lightbulb = scene.push_material(Box::new(Light(Spectrum {
             red: 100.,
             green: 100.,
             blue: 100.,
-        }));
+        })));
 
         scene.push_object(
             lightbulb,

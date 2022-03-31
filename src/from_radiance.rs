@@ -21,7 +21,7 @@ SOFTWARE.
 use crate::colour::Spectrum;
 use crate::Float;
 
-use crate::material::{Dielectric, Material, PlasticMetal};
+use crate::material::{ Dielectric, Metal, Plastic, Mirror, Light};
 use crate::primitive::Primitive;
 
 use crate::scene::Scene;
@@ -183,12 +183,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let metal = PlasticMetal {
-            color: Spectrum { red, green, blue },
+        let metal = Metal {
+            colour: Spectrum { red, green, blue },
             specularity,
             roughness,
         };
-        scene.push_material(Material::Metal(metal));
+        scene.push_material(Box::new(metal));
     }
 
     /// Consumes a Plastic material
@@ -207,12 +207,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let plastic = PlasticMetal {
-            color: Spectrum { red, green, blue },
+        let plastic = Plastic {
+            colour: Spectrum { red, green, blue },
             specularity,
             roughness,
         };
-        scene.push_material(Material::Plastic(plastic));
+        scene.push_material(Box::new(plastic));
     }
 
     /// Consumes a Light material
@@ -229,8 +229,8 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let light = Spectrum { red, green, blue };
-        scene.push_material(Material::Light(light));
+        let light = Light(Spectrum { red, green, blue });
+        scene.push_material(Box::new(light));
     }
 
     /// Consumes a Light material
@@ -247,8 +247,8 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let mirror = Spectrum { red, green, blue };
-        scene.push_material(Material::Mirror(mirror));
+        let mirror = Mirror(Spectrum { red, green, blue });
+        scene.push_material(Box::new(mirror));
     }
 
     /// Consumes a Light material
@@ -273,9 +273,9 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let color = Spectrum { red, green, blue };
-        scene.push_material(Material::Dielectric(Dielectric {
-            color,
+        let colour = Spectrum { red, green, blue };
+        scene.push_material(Box::new(Dielectric {
+            colour: colour,
             refraction_index,
         }));
     }

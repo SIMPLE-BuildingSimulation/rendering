@@ -24,9 +24,10 @@ use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
+use crate::material::Material;
 
 pub struct Dielectric {
-    pub color: Spectrum,
+    pub colour: Spectrum,
     pub refraction_index: Float,
 }
 
@@ -44,7 +45,7 @@ impl Dielectric {
     /// use rendering::material::Dielectric;
     /// use rendering::ray::Ray;
     /// let mat = Dielectric{
-    ///     color: Spectrum::gray(0.23), //irrelevant for this test
+    ///     colour: Spectrum::gray(0.23), //irrelevant for this test
     ///     refraction_index: 1.52
     /// };
     /// let normal = Vector3D::new(0., 0., 1.);
@@ -55,9 +56,9 @@ impl Dielectric {
     ///     },
     ///     refraction_index : 1.
     /// };
-    /// let (n1, cos1, n2, cos2) = mat.cos_and_n(ray, normal);
+    /// let (n1, cos1, n2, cos2) = mat.cos_and_n(&ray, normal);
     /// ```
-    pub fn cos_and_n(&self, ray: Ray, normal: Vector3D) -> (Float, Float, Float, Option<Float>) {
+    pub fn cos_and_n(&self, ray: &Ray, normal: Vector3D) -> (Float, Float, Float, Option<Float>) {
         let vin = ray.geometry.direction;
 
         let cos1 = (vin * normal).abs();
@@ -120,17 +121,35 @@ impl Dielectric {
         }
     }
 
-    #[inline]
-    pub fn bsdf(
+    
+    
+
+    
+}
+
+impl Material for Dielectric {
+
+    fn id(&self)->&str{
+        "Dielectric"
+    }
+
+    fn colour(&self)->Spectrum{
+        self.colour
+    }
+     
+
+    fn specular_only(&self) -> bool{
+        true
+    }
+
+    fn get_possible_paths(
         &self,
-        normal: Vector3D,
-        intersection_pt: Point3D,
-        mut ray: Ray,
-        rng: &mut RandGen,
-    ) -> (Ray, Float, bool) {
-        // let mut ray = *ray;
-        // let normal = *normal;
-        // let intersection_pt = *intersection_pt;
+        normal: &Vector3D,
+        intersection_pt: &Point3D,
+        ray: &Ray,
+    ) -> [Option<(Ray, Float, Float)>; 2]{
+        let normal = *normal;        
+        let intersection_pt = *intersection_pt;
 
         let (n1, cos1, n2, cos2) = self.cos_and_n(ray, normal);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
@@ -142,6 +161,57 @@ impl Dielectric {
             mirror_dir.length()
         );
 
+        // Process reflection...
+        let mut ray1 = *ray;
+        ray1.geometry.direction = mirror_dir;
+        ray1.geometry.origin = intersection_pt + normal * 0.00001;
+        let pair1 = Some((ray1, refl, cos1 * refl /*refl / (refl + trans)*/));
+
+        let mut ray = *ray;
+        // process transmission
+        let pair2 = if trans > 0.0 {
+            ray.geometry.origin = intersection_pt - normal * 0.00001;
+            ray.refraction_index = n2;
+            let trans_dir =
+                fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
+            ray.geometry.direction = trans_dir;
+            Some((ray, trans, /*trans / (refl + trans)*/ 1. - cos1 * refl))
+        } else {
+            None
+        };
+
+        [pair1, pair2]
+    }
+
+    fn sample_bsdf(
+        &self,
+        normal: Vector3D,
+        e1: Vector3D,
+        e2: Vector3D,
+        intersection_pt: Point3D,
+        mut ray: Ray,
+        rng: &mut RandGen,
+    ) -> (Ray, Float, bool) {
+        debug_assert!(
+            (ray.geometry.direction.length() - 1.).abs() < 1e-5,
+            "Length was {}",
+            ray.geometry.direction.length()
+        );
+        debug_assert!((e1 * e2).abs() < 1e-8);
+        debug_assert!((e1 * normal).abs() < 1e-8);
+        debug_assert!((e2 * normal).abs() < 1e-8);
+
+        let (n1, cos1, n2, cos2) = self.cos_and_n(&ray, normal);
+        let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
+        let ray_dir = ray.geometry.direction;
+        let mirror_dir = mirror_direction(ray_dir, normal);
+        debug_assert!(
+            (1. - mirror_dir.length()).abs() < 1e-5,
+            "length is {}",
+            mirror_dir.length()
+        );
+
+        
         let r: Float = rng.gen();
         if r <= refl / (refl + trans) {
             // Reflection
@@ -162,7 +232,14 @@ impl Dielectric {
         }
     }
 
-    pub fn eval_bsdf(&self, normal: Vector3D, ray: Ray, vout: Vector3D) -> Float {
+    fn eval_bsdf(
+        &self,
+        normal: Vector3D,
+        e1: Vector3D,
+        e2: Vector3D,
+        ray: &Ray,
+        vout: Vector3D,
+    ) -> Float{
         let (n1, cos1, n2, cos2) = self.cos_and_n(ray, normal);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
         let vin = ray.geometry.direction;
@@ -196,7 +273,9 @@ impl Dielectric {
         // Neither...
         0.0
     }
+
 }
+
 
 #[cfg(test)]
 mod tests {
@@ -213,7 +292,7 @@ mod tests {
         let normal = Vector3D::new(0., 0., 1.);
 
         let mat = Dielectric {
-            color: Spectrum::gray(0.1), //irrelevant for this test
+            colour: Spectrum::gray(0.1), //irrelevant for this test
             refraction_index: n2,
         };
 
@@ -226,7 +305,7 @@ mod tests {
             },
         };
 
-        let (np1, cos1, np2, cos2) = mat.cos_and_n(ray, normal);
+        let (np1, cos1, np2, cos2) = mat.cos_and_n(&ray, normal);
         assert!((n1 - np1).abs() < 1e-8, "np1 = {}, n1 = {}", np1, n1);
         assert!((n2 - np2).abs() < 1e-8, "np2 = {}, n2 = {}", np2, n2);
         assert!((1. - cos1).abs() < 1e-8, "cos1 = {}", cos1);
@@ -244,7 +323,7 @@ mod tests {
         let normal = Vector3D::new(0., 0., 1.);
 
         let mat = Dielectric {
-            color: Spectrum::gray(0.1), //irrelevant for this test
+            colour: Spectrum::gray(0.1), //irrelevant for this test
             refraction_index: n2,
         };
 
@@ -274,7 +353,7 @@ mod tests {
                 },
             };
 
-            let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(ray, normal);
+            let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(&ray, normal);
             assert!(cos2.is_some());
             angle += angle_d;
         }
@@ -289,7 +368,7 @@ mod tests {
             },
         };
 
-        let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(ray, normal);
+        let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(&ray, normal);
         assert!(cos2.is_some());
         angle += angle_d;
 
@@ -303,7 +382,7 @@ mod tests {
                 },
             };
 
-            let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(ray, normal);
+            let (_np1, _cos1, _np2, cos2) = mat.cos_and_n(&ray, normal);
             assert!(cos2.is_some());
             angle += angle_d;
         }
@@ -313,7 +392,7 @@ mod tests {
     fn test_sin_cos_n() {
         let n = 1.52;
         let mat = Dielectric {
-            color: Spectrum::gray(0.23), //irrelevant for this test
+            colour: Spectrum::gray(0.23), //irrelevant for this test
             refraction_index: n,
         };
 
@@ -329,7 +408,7 @@ mod tests {
             refraction_index: 2.9,
         };
 
-        let (n1, cos1, n2, cos2) = mat.cos_and_n(ray, normal);
+        let (n1, cos1, n2, cos2) = mat.cos_and_n(&ray, normal);
         let theta1 = cos1.acos();
         let theta2 = cos2.unwrap().acos();
         let fresnel_1 = n1 * theta1.sin();
@@ -347,12 +426,14 @@ mod tests {
     fn test_bsdf() {
         let n = 1.52;
         let mat = Dielectric {
-            color: Spectrum::gray(0.23), //irrelevant for this test
+            colour: Spectrum::gray(0.23), //irrelevant for this test
             refraction_index: n,
         };
 
         let mut rng = get_rng();
         let normal = Vector3D::new(0., 0., 1.);
+        let e1 = Vector3D::new(1., 0., 0.);
+        let e2 = Vector3D::new(0., 1., 0.);
 
         let dir_zero = Vector3D::new(0., 1., -2.).get_normalized(); // going down
 
@@ -369,7 +450,7 @@ mod tests {
         // Get INTO the material
         for _ in 0..30 {
             let (new_ray, _pdf, _is_specular) =
-                mat.bsdf(normal, Point3D::new(0., 0., 0.), ray, &mut rng);
+                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
             println!("A -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {
@@ -394,7 +475,7 @@ mod tests {
         ray.geometry.direction = trans_dir.unwrap();
         for _ in 0..30 {
             let (new_ray, _pdf, _is_specular) =
-                mat.bsdf(normal, Point3D::new(0., 0., 0.), ray, &mut rng);
+                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
             println!("B -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {

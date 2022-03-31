@@ -18,7 +18,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::material::specular::mirror_direction;
 use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
@@ -27,31 +26,24 @@ use crate::colour::Spectrum;
 use crate::rand::*;
 
 /// A mirror material
-pub struct Mirror(pub Spectrum);
+pub struct Light(pub Spectrum);
 
-impl Material for Mirror {
-    
-    fn id(&self)->&str{
-        "Mirror"
+impl Material for Light {
+    fn id(&self) -> &str{
+        "Light"
     }
 
-    fn colour(&self)->Spectrum{
+    fn colour(&self) -> Spectrum{
         self.0
     }
 
-    fn specular_only(&self)->bool{
+    fn emits_direct_light(&self) -> bool{
         true
     }
-
-    fn get_possible_paths(
-        &self,
-        normal: &Vector3D,
-        intersection_pt: &Point3D,
-        ray: &Ray,
-    ) -> [Option<(Ray, Float, Float)>; 2]{
-            // Calculate the ray direction and BSDF
-            let (ray, v, _) = mirror_bsdf(*intersection_pt, *ray, *normal);
-            [Some((ray, v, 1.)), None]
+    
+    /// Should this material emits light    
+    fn emits_light(&self) -> bool{
+        true
     }
 
     fn sample_bsdf(
@@ -62,10 +54,10 @@ impl Material for Mirror {
         intersection_pt: Point3D,
         ray: Ray,
         rng: &mut RandGen,
-    ) -> (Ray, Float, bool) {
-        mirror_bsdf(intersection_pt, ray, normal)
+    ) -> (Ray, Float, bool){
+        panic!("{} material does not have a BSDF to sample", self.id())
     }
-    
+
     fn eval_bsdf(
         &self,
         normal: Vector3D,
@@ -74,37 +66,6 @@ impl Material for Mirror {
         ray: &Ray,
         vout: Vector3D,
     ) -> Float{
-        let vin = ray.geometry.direction;
-        eval_mirror_bsdf(normal, vin, vout)
-    }
-
-}
-
-
-
-pub fn mirror_bsdf(intersection_pt: Point3D, mut ray: Ray, normal: Vector3D) -> (Ray, Float, bool) {
-    // avoid self shading
-    // let mut ray = *ray;
-    // let normal = *normal;
-
-    ray.geometry.origin = intersection_pt + normal * 0.00001;
-    let ray_dir = ray.geometry.direction;
-    let cos = (ray_dir * normal).abs();
-    ray.geometry.direction = mirror_direction(ray_dir, normal);
-    debug_assert!((ray.geometry.direction.length() - 1.).abs() < 1e-8);
-    (ray, 1. / cos, true)
-    // (ray, 1., true)
-}
-
-
-
-
-pub fn eval_mirror_bsdf(normal: Vector3D, vin: Vector3D, vout: Vector3D) -> Float {
-    let mirror = mirror_direction(vin, normal);
-    if vout.is_parallel(mirror) {
-        let cos = (vin * normal).abs();
-        1. / cos
-    } else {
-        0.
+        panic!("{} material does not have a BSDF to evaluate", self.id())
     }
 }

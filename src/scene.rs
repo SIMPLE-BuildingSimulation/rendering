@@ -46,7 +46,7 @@ pub struct Scene {
     pub objects: Vec<Object>,
 
     /// The materials in the scene
-    pub materials: Vec<Material>,
+    pub materials: Vec<Box<dyn Material + Sync>>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light.
@@ -129,7 +129,7 @@ impl Scene {
 
     /// Pushes a [`Material`] to the [`Scene`] and return its
     /// position in the `materials` Vector.
-    pub fn push_material(&mut self, material: Material) -> usize {
+    pub fn push_material(&mut self, material: Box<dyn Material + Sync>) -> usize {
         self.materials.push(material);
         // return
         self.materials.len() - 1
