@@ -86,9 +86,9 @@ pub trait Material {
     
     fn get_possible_paths(
         &self,
-        normal: &Vector3D,
-        intersection_pt: &Point3D,
-        ray: &Ray,
+        _normal: &Vector3D,
+        _intersection_pt: &Point3D,
+        _ray: &Ray,
     ) -> [Option<(Ray, Float, Float)>; 2]{
         panic!("Calling unimplemented method get_possible_paths() for material '{}'", self.id())
     }

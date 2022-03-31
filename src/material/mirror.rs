@@ -57,11 +57,11 @@ impl Material for Mirror {
     fn sample_bsdf(
         &self,
         normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
         intersection_pt: Point3D,
         ray: Ray,
-        rng: &mut RandGen,
+        _rng: &mut RandGen,
     ) -> (Ray, Float, bool) {
         mirror_bsdf(intersection_pt, ray, normal)
     }
@@ -69,8 +69,8 @@ impl Material for Mirror {
     fn eval_bsdf(
         &self,
         normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
     ) -> Float{

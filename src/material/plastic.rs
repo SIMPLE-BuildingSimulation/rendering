@@ -89,11 +89,11 @@ impl Material for Plastic {
     
     fn eval_bsdf(
         &self,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
-        ray: &Ray,
-        vout: Vector3D,
+        _normal: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
+        _ray: &Ray,
+        _vout: Vector3D,
     ) -> Float{
         if self.specularity > 0. {
             unimplemented!()

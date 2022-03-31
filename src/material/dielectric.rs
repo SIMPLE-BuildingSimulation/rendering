@@ -178,8 +178,8 @@ impl Material for Dielectric {
     fn eval_bsdf(
         &self,
         normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
     ) -> Float{

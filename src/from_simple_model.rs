@@ -22,7 +22,7 @@ use geometry3d::Triangulation3D;
 use simple_model::{SimpleModel, Substance};
 
 use crate::colour::Spectrum;
-use crate::material::{Material, Plastic, Metal, Light};
+use crate::material::{Material, Plastic};
 use crate::primitive::Primitive;
 use crate::scene::{Scene, Wavelengths};
 
@@ -150,6 +150,7 @@ impl SimpleModelReader {
 #[cfg(test)]
 mod tests {
 
+    use crate::material::{ Light};
     use super::*;
     use crate::camera::{Film, Pinhole, View};
     use crate::ray_tracer::RayTracer;

@@ -18,7 +18,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use std::any;
 
 use crate::colour::Spectrum;
 use crate::material::specular::*;
@@ -220,8 +219,8 @@ impl Material for Glass {
     fn eval_bsdf(
         &self,
         normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
     ) -> Float{

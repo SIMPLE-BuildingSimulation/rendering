@@ -48,23 +48,23 @@ impl Material for Light {
 
     fn sample_bsdf(
         &self,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
-        intersection_pt: Point3D,
-        ray: Ray,
-        rng: &mut RandGen,
+        _normal: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
+        _intersection_pt: Point3D,
+        _ray: Ray,
+        _rng: &mut RandGen,
     ) -> (Ray, Float, bool){
         panic!("{} material does not have a BSDF to sample", self.id())
     }
 
     fn eval_bsdf(
         &self,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
-        ray: &Ray,
-        vout: Vector3D,
+        _normal: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
+        _ray: &Ray,
+        _vout: Vector3D,
     ) -> Float{
         panic!("{} material does not have a BSDF to evaluate", self.id())
     }
