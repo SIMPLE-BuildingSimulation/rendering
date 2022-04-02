@@ -49,12 +49,10 @@ impl Material for Plastic {
         e1: Vector3D,
         e2: Vector3D,
         intersection_pt: Point3D,
-        mut ray: Ray,
+        ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Ray, Float, bool) {
-        // avoid self shading
-        // let normal = *normal;
-        // let mut ray = *ray;
+    ) -> ( Float, bool) {
+        
         ray.geometry.origin = intersection_pt + normal * 0.00001;
 
         if self.specularity > 0. {
@@ -82,7 +80,7 @@ impl Material for Plastic {
             let dir = Vector3D::new(x, y, z);
             ray.geometry.direction = dir;
             debug_assert!((dir.length() - 1.).abs() < 1e-4);
-            (ray, prob, false)
+            ( prob, false)
         }
     }
 

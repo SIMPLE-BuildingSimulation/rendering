@@ -58,7 +58,7 @@ fn main() {
     let output_file = matches.value_of("output").unwrap();
     let mut scene = Scene::from_radiance(input_file.to_string());
 
-    scene.build_accelerator();
+    let accelerator = scene.build_accelerator();
 
     // Create camera
     let film = Film {
@@ -80,16 +80,16 @@ fn main() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_shadow_samples: 1,
+        n_shadow_samples: 15,
         max_depth: 3,
         limit_weight: 0.001,
-        n_ambient_samples: 200,
+        n_ambient_samples: 100,
         ..RayTracer::default()
     };
 
     let now = Instant::now();
 
-    let buffer = integrator.render(&scene, &camera);
+    let buffer = integrator.render(&scene, &camera, &accelerator);
     println!(
         "Image described in '{}' took {} seconds to render",
         input_file,

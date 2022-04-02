@@ -178,7 +178,7 @@ mod tests {
         );
 
         // RENDER
-        scene.build_accelerator();
+        let accelerator = scene.build_accelerator();
 
         // Create film
         let film = Film {
@@ -203,7 +203,7 @@ mod tests {
 
         let now = Instant::now();
 
-        let buffer = integrator.render(&scene, &camera);
+        let buffer = integrator.render(&scene, &camera, &accelerator);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre(std::path::Path::new("./test_data/images/simple_room.hdr"));
     }

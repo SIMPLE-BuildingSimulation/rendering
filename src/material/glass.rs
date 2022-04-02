@@ -153,17 +153,17 @@ impl Material for Glass {
 
 
         // Process reflection...
-        let mut ray1 = *ray;
+        let mut ray1 = ray.clone();
         ray1.geometry.direction = mirror_dir;
         ray1.geometry.origin = intersection_pt + normal * 0.00001;
-        let pair1 = Some((ray1, refl, cos1 * refl ));
+        let pair1 = Some((ray1, refl, refl / (refl + trans) ));
 
         // process transmission
-        let mut ray = *ray;        
+        let mut ray = ray.clone();        
         let pair2 = if trans > 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;                       
             ray.geometry.direction = trans_dir;
-            Some((ray, trans, /*trans / (refl + trans)*/ 1. - cos1 * refl))
+            Some((ray, trans, trans / (refl + trans)))
         } else {
             None
         };
@@ -177,9 +177,9 @@ impl Material for Glass {
         e1: Vector3D,
         e2: Vector3D,
         intersection_pt: Point3D,
-        mut ray: Ray,
+        ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Ray, Float, bool) {
+    ) -> (Float, bool) {
         debug_assert!(
             (ray.geometry.direction.length() - 1.).abs() < 1e-5,
             "Length was {}",
@@ -188,6 +188,8 @@ impl Material for Glass {
         debug_assert!((e1 * e2).abs() < 1e-8);
         debug_assert!((e1 * normal).abs() < 1e-8);
         debug_assert!((e2 * normal).abs() < 1e-8);
+
+        
 
         let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
@@ -207,12 +209,12 @@ impl Material for Glass {
             ray.geometry.origin = intersection_pt + normal * 0.00001;
 
             ray.geometry.direction = mirror_dir;
-            (ray, refl, true)
+            (refl, true)
         } else {
             // Transmission... keep same direction, dont change refraction
             // avoid self shading
             ray.geometry.origin = intersection_pt - normal * 0.00001;                        
-            (ray, trans, true)
+            (trans, true)
         }
     }
 

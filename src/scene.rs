@@ -21,7 +21,6 @@ SOFTWARE.
 // use std::rc::RefCount;
 use crate::bvh::BoundingVolumeTree;
 use crate::from_simple_model::SimpleModelReader;
-use crate::interaction::Interaction;
 use crate::material::Material;
 use crate::primitive::Primitive;
 use crate::ray::Ray;
@@ -57,10 +56,7 @@ pub struct Scene {
     /// are considered sources of direct light
     pub distant_lights: Vec<Object>,
 
-    // pub transforms: Vec<RefCount<Transform>>,
-
-    // pub textures: Vec<RefCount<Texture>>,
-    pub accelerator: Option<BoundingVolumeTree>,
+    
 }
 
 pub enum Wavelengths {
@@ -83,9 +79,8 @@ impl Scene {
     }
 
     /// Builds the accelerator
-    pub fn build_accelerator(&mut self) {
-        let accelerator = BoundingVolumeTree::new(self);
-        self.accelerator = Some(accelerator);
+    pub fn build_accelerator(&mut self) -> BoundingVolumeTree {
+        BoundingVolumeTree::new(self)
     }
 
     /// Returns the number of total lights; that is,
@@ -97,32 +92,14 @@ impl Scene {
 
     /// Casts a [`Ray3D`] and returns an `Option<Interaction>` describing the
     /// interaction with the first primitive hit by the ray, if any.    
-    pub fn cast_ray(&self, ray: &Ray) -> Option<Interaction> {
-        let accelerator = match &self.accelerator {
-            Some(s) => s,
-            None => {
-                panic!("Trying to cast ray in a Scene without an accelerator");
-            }
-        };
-
-        // Check if we intersect something... otherwise, check distant sources
-        let res = accelerator.intersect(&self.objects, &ray.geometry);
-        if res.is_some() {
-            res
-        } else {
-            None
-        }
+    pub fn cast_ray(&self, ray: &mut Ray, accelerator: &mut BoundingVolumeTree) -> bool {        
+        accelerator.intersect(&self.objects, ray)
+        
     }
 
     /// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface
-    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float) -> bool {
-        let accelerator = match &self.accelerator {
-            Some(s) => s,
-            None => {
-                panic!("Trying to cast ray in a Scene without an accelerator");
-            }
-        };
-
+    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float, accelerator: &mut BoundingVolumeTree) -> bool {
+        
         // Check if we intersect something... otherwise, check distant sources
         accelerator.unobstructed_distance(&self.objects, ray, distance_squared)
     }

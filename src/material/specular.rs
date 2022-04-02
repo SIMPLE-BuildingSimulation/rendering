@@ -32,7 +32,7 @@ use crate::ray::Ray;
 /// ```
 /// use geometry3d::{Point3D,Vector3D, Ray3D};
 /// use rendering::colour::Spectrum;
-/// use rendering::material::Dielectric;
+/// use rendering::specular::cos_and_n;
 /// use rendering::ray::Ray;
 /// 
 /// let mat_refraction_index = 1.52;

@@ -20,27 +20,28 @@ SOFTWARE.
 
 use crate::Float;
 use geometry3d::{Point3D, Ray3D, Transform, Vector3D};
-
+use crate::interaction::Interaction;
 /// Represents a ray (of light?) beyond pure geometry. It
 /// includes also the current index of refraction and, potentially,
 /// time (for blurry images)
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct Ray {
+    
     /// Direction and position
     pub geometry: Ray3D,
-    // pub time: Float,
+        
     /// index of refraction of the current medium
     pub refraction_index: Float,
+
+    /// Contains the information about the last hit.
+    pub interaction: Interaction,
 }
 
 impl Ray {
-    pub fn apply_transformation(&self, t: &Transform) -> Self {
-        let (geometry, _o_error, _d_error) = t.transform_ray(&self.geometry);
-        Self {
-            geometry,
-            // time: self.time,
-            refraction_index: self.refraction_index,
-        }
+    pub fn transform(&mut self, t: &Transform) {
+        let (geometry, _o_error, _d_error) = t.transform_ray(&self.geometry);        
+        self.geometry = geometry;
+            
     }
 
     #[inline(always)]

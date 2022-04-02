@@ -52,9 +52,9 @@ impl Material for Light {
         _e1: Vector3D,
         _e2: Vector3D,
         _intersection_pt: Point3D,
-        _ray: Ray,
+        _ray: &mut Ray,
         _rng: &mut RandGen,
-    ) -> (Ray, Float, bool){
+    ) -> (Float, bool){
         panic!("{} material does not have a BSDF to sample", self.id())
     }
 

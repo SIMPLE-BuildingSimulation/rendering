@@ -50,7 +50,8 @@ impl Material for Mirror {
         ray: &Ray,
     ) -> [Option<(Ray, Float, Float)>; 2]{
             // Calculate the ray direction and BSDF
-            let (ray, v, _) = mirror_bsdf(*intersection_pt, *ray, *normal);
+            let mut ray = ray.clone();
+            let (v, _) = mirror_bsdf(*intersection_pt, &mut ray, *normal);
             [Some((ray, v, 1.)), None]
     }
 
@@ -60,9 +61,9 @@ impl Material for Mirror {
         _e1: Vector3D,
         _e2: Vector3D,
         intersection_pt: Point3D,
-        ray: Ray,
+        ray: &mut Ray,
         _rng: &mut RandGen,
-    ) -> (Ray, Float, bool) {
+    ) -> (Float, bool) {
         mirror_bsdf(intersection_pt, ray, normal)
     }
     
@@ -82,7 +83,7 @@ impl Material for Mirror {
 
 
 
-pub fn mirror_bsdf(intersection_pt: Point3D, mut ray: Ray, normal: Vector3D) -> (Ray, Float, bool) {
+pub fn mirror_bsdf(intersection_pt: Point3D, ray: &mut Ray, normal: Vector3D) -> (Float, bool) {
     // avoid self shading
     // let mut ray = *ray;
     // let normal = *normal;
@@ -92,7 +93,7 @@ pub fn mirror_bsdf(intersection_pt: Point3D, mut ray: Ray, normal: Vector3D) -> 
     let cos = (ray_dir * normal).abs();
     ray.geometry.direction = mirror_direction(ray_dir, normal);
     debug_assert!((ray.geometry.direction.length() - 1.).abs() < 1e-8);
-    (ray, 1. / cos, true)
+    ( 1. / cos, true)
     // (ray, 1., true)
 }
 

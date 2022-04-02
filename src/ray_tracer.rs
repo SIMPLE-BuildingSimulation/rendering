@@ -20,10 +20,10 @@ SOFTWARE.
 
 use std::borrow::Borrow;
 
+use crate::bvh::BoundingVolumeTree;
 use crate::camera::{Camera, CameraSample};
 use crate::colour::Spectrum;
 use crate::image::ImageBuffer;
-use crate::interaction::Interaction;
 use crate::material::Material;
 use crate::rand::*;
 use crate::ray::Ray;
@@ -63,16 +63,21 @@ impl RayTracer {
         &self,
         rng: &mut RandGen,
         scene: &Scene,
-        ray: Ray,
+        ray: &mut Ray,
         current_depth: usize,
-        current_value: Float,
+        current_value: Float,   
+        accelerator: &mut BoundingVolumeTree     
     ) -> (Spectrum, Float) {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
         // If hits an object
-        if let Some(Interaction::Surface(data)) = scene.cast_ray(&ray) {
-            let object = &scene.objects[data.prim_index];
-            let material = match data.geometry_shading.side {
+        // Store refraction index???
+
+        if scene.cast_ray(ray, accelerator) {
+            // THIS HAS MODIFIED THE INTERACTION.
+
+            let object = &scene.objects[ray.interaction.prim_index];
+            let material = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => &scene.materials[object.front_material_index],
                 SurfaceSide::Back => &scene.materials[object.back_material_index],
                 SurfaceSide::NonApplicable => {
@@ -82,7 +87,7 @@ impl RayTracer {
             };
 
             // let intersection_pt = ray.geometry.project(t);
-            let intersection_pt = data.point;
+            let intersection_pt = ray.interaction.point;
 
             // for now, emmiting materials don't reflect... but they
             // are visible when viewed directly from the camera
@@ -99,8 +104,8 @@ impl RayTracer {
 
             // Get basic information on the intersection
 
-            let normal = data.geometry_shading.normal;
-            let e1 = data.geometry_shading.dpdu.get_normalized();
+            let normal = ray.interaction.geometry_shading.normal;
+            let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
             let e2 = normal.cross(e1); //.get_normalized();
 
             // Check
@@ -116,8 +121,9 @@ impl RayTracer {
                 let mut specular_li = Spectrum::black();
                 let paths = material.get_possible_paths(&normal, &intersection_pt, &ray);
                 // let mut n = 0;
-                for (new_ray, bsdf_value, ray_weight) in paths.iter().flatten() {
+                for (new_ray, bsdf_value, _ray_weight) in paths.iter().flatten() {
                     // n += 1;
+                    let mut new_ray = new_ray.clone();
 
                     let new_ray_dir = new_ray.geometry.direction;
                     let cos_theta = (normal * new_ray_dir).abs();
@@ -131,12 +137,12 @@ impl RayTracer {
                     }
 
                     let (li, _light_pdf) =
-                        self.trace_ray(rng, scene, *new_ray, current_depth, new_value);
+                        self.trace_ray(rng, scene, &mut new_ray, current_depth, new_value, accelerator);
 
                     let color = material.colour();
                     // let total_samples = n + n_lights * self.n_shadow_samples;
                     // let bsdf_c = 1.;//n as Float / total_samples as Float;
-                    specular_li += (li * cos_theta * *bsdf_value) * (color) * *ray_weight;
+                    specular_li += (li * cos_theta * *bsdf_value) * (color);// * *ray_weight;
                     // / ( bsdf_c * bsdf_value );
                 }
                 // return Some(specular_li + local)
@@ -185,6 +191,7 @@ impl RayTracer {
                 rng,
                 n,
                 direct_n,
+                accelerator
             );
 
             // Limit bounces
@@ -207,6 +214,7 @@ impl RayTracer {
                 intersection_pt,
                 wt,
                 rng,
+                accelerator
             );
 
             // global /= n as Float;
@@ -224,7 +232,7 @@ impl RayTracer {
         &self,
         scene: &Scene,
         material:  &Box<dyn Material + Sync>,// &impl Material + Sync,
-        ray: Ray,
+        ray: &Ray,
         point: Point3D,
         normal: Vector3D,
         e1: Vector3D,
@@ -233,6 +241,7 @@ impl RayTracer {
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         lights: &[Object],
+        accelerator: &mut BoundingVolumeTree
     ) -> Spectrum {
         let mat_colour = material.colour();
 
@@ -248,7 +257,7 @@ impl RayTracer {
                     direction,
                 };
 
-                if let Some((light_colour, light_pdf)) = sample_light(scene, light, &shadow_ray) {
+                if let Some((light_colour, light_pdf)) = sample_light(scene, light, &shadow_ray, accelerator) {
                     i += 1;
                     if light_pdf < 1e-18 {
                         // The light is obstructed... don't add light, but count it.
@@ -286,7 +295,7 @@ impl RayTracer {
         &self,
         scene: &Scene,
         material: &Box<dyn Material + Sync>,//&impl Material,
-        ray: Ray,
+        ray: &Ray,
         mut point: Point3D,
         normal: Vector3D,
         e1: Vector3D,
@@ -294,6 +303,7 @@ impl RayTracer {
         rng: &mut RandGen,
         n_ambient_samples: usize,
         n_shadow_samples: usize,
+        accelerator: &mut BoundingVolumeTree
     ) -> Spectrum {
         // prevent self-shading
         point += normal * 0.001;
@@ -309,6 +319,7 @@ impl RayTracer {
             n_ambient_samples,
             n_shadow_samples,
             &scene.lights,
+            accelerator,
         );
         let distant = self.sample_light_array(
             scene,
@@ -322,6 +333,7 @@ impl RayTracer {
             n_ambient_samples,
             n_shadow_samples,
             &scene.distant_lights,
+            accelerator,
         );
 
         // return
@@ -338,18 +350,19 @@ impl RayTracer {
         normal: Vector3D,
         e1: Vector3D,
         e2: Vector3D,
-        ray: Ray,
+        ray: &mut Ray,
         intersection_pt: Point3D,
         wt: Float,
         rng: &mut RandGen,
+        accelerator: &mut BoundingVolumeTree
     ) -> Spectrum {
         let mut global = Spectrum::black();
 
         for _ in 0..n_ambient_samples {
             // Choose a direction.
-            let (new_ray, bsdf_value, _is_specular) =
+            let (bsdf_value, _is_specular) =
                 material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
-            let new_ray_dir = new_ray.geometry.direction;
+            let new_ray_dir = ray.geometry.direction;
             debug_assert!(
                 (1. - new_ray_dir.length()).abs() < 1e-5,
                 "Length is {}",
@@ -357,10 +370,7 @@ impl RayTracer {
             );
 
             // increase depth
-            let mut new_depth = current_depth; // + 1;
-                                               // if !is_specular {
-            new_depth += 1;
-            // }
+            let new_depth = current_depth+ 1;                                               
             let cos_theta = (normal * new_ray_dir).abs();
             let new_value = wt * bsdf_value * cos_theta;
 
@@ -374,7 +384,7 @@ impl RayTracer {
 
             let color = material.colour();
 
-            let (li, light_pdf) = self.trace_ray(rng, scene, new_ray, new_depth, new_value);
+            let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, accelerator);
 
             let fx = (li * cos_theta) * (color * bsdf_value); // * n as Float;
                                                               // let denominator = bsdf_value;// * bsdf_c;
@@ -388,7 +398,7 @@ impl RayTracer {
         global
     }
 
-    pub fn render(self, scene: &Scene, camera: &dyn Camera) -> ImageBuffer {
+    pub fn render(self, scene: &Scene, camera: &dyn Camera, accelerator: &BoundingVolumeTree) -> ImageBuffer {
         let (width, height) = camera.film_resolution();
 
         let total_pixels = width * height;
@@ -400,18 +410,18 @@ impl RayTracer {
         let aux_iter = 0..total_pixels; //.into_iter();
         #[cfg(feature = "parallel")]
         let aux_iter = (0..total_pixels).into_par_iter();
-
+        
         let pixels: Vec<Spectrum> = aux_iter
             .map(|pixel| {
+                let mut accelerator = accelerator.clone(); // we do it once per pixel...?
                 let y = (pixel as Float / width as Float).floor() as usize;
                 let x = pixel - y * width;
-                let (ray, weight) = camera.gen_ray(&CameraSample {
-                    p_film: (x, y),
-                    // p_lens: (0., 0.), // we will not use this
+                let (mut ray, weight) = camera.gen_ray(&CameraSample {
+                    p_film: (x, y),                    
                 });
 
                 let mut rng = get_rng();
-                let (v, _) = self.trace_ray(&mut rng, scene, ray, 0, weight);
+                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &mut accelerator);
                 // report
                 let mut c = counter.lock().unwrap();
                 *c += 1;
@@ -440,6 +450,7 @@ pub fn sample_light(
     scene: &Scene,
     light: &Object,
     shadow_ray: &Ray3D,
+    accelerator: &mut BoundingVolumeTree
 ) -> Option<(Spectrum, Float)> {
     let light_direction = shadow_ray.direction;
     let origin = shadow_ray.origin;
@@ -460,7 +471,7 @@ pub fn sample_light(
 
     // If the light is not visible (this does not consider
     // transparent surfaces, yet.)
-    if !scene.unobstructed_distance(shadow_ray, light_distance_squared) {
+    if !scene.unobstructed_distance(shadow_ray, light_distance_squared, accelerator) {
         return Some((Spectrum::black(), 0.0));
     }
 
@@ -499,7 +510,7 @@ mod tests {
 
     fn compare_with_radiance(filename: String) {
         let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
-        scene.build_accelerator();
+        let accelerator = scene.build_accelerator();
 
         // Create film
         let film = Film {
@@ -524,7 +535,7 @@ mod tests {
             ..RayTracer::default()
         };
         let now = Instant::now();
-        let buffer = integrator.render(&scene, &camera);
+        let buffer = integrator.render(&scene, &camera, &accelerator);
 
         println!(
             "Scene '{}' took {} seconds to render",
@@ -555,7 +566,7 @@ mod tests {
 
         let filename = "exterior_0_dielectric.rad".to_string();
         let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
-        scene.build_accelerator();
+        let mut accelerator = scene.build_accelerator();
 
         // Create film
         let film = Film {
@@ -590,12 +601,12 @@ mod tests {
         let y = (pixel as f32 / width as f32).floor() as usize;
         let x = pixel - y * width;
 
-        let (ray, weight) = camera.gen_ray(&CameraSample {
+        let (mut ray, weight) = camera.gen_ray(&CameraSample {
             p_film: (x, y),
             // p_lens: (0., 0.),
         });
 
-        let (i, _) = integrator.trace_ray(&mut rng, &scene, ray, 0, weight);
+        let (i, _) = integrator.trace_ray(&mut rng, &scene, &mut ray, 0, weight, &mut accelerator);
         println!("{}", i);
 
         println!(
@@ -610,12 +621,13 @@ mod tests {
     #[test]
     #[ignore]
     fn test_render_room() {
-        // 74 seconds
+        // 60 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture test_render_room
+        // oconv ../room.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
 
-        scene.build_accelerator();
+        let accelerator = scene.build_accelerator();
 
         // Create film
         let film = Film {
@@ -640,7 +652,7 @@ mod tests {
 
         let now = Instant::now();
 
-        let buffer = integrator.render(&scene, &camera);
+        let buffer = integrator.render(&scene, &camera, &accelerator);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
     }
@@ -769,7 +781,7 @@ mod tests {
             Primitive::Sphere(Sphere3D::new(1.5, Point3D::new(1., -1., 15.))),
         );
 
-        scene.build_accelerator();
+        let accelerator = scene.build_accelerator();
 
         // Create camera
         // Create film
@@ -794,7 +806,7 @@ mod tests {
             ..RayTracer::default()
         };
         let now = Instant::now();
-        let buffer = integrator.render(&scene, &camera);
+        let buffer = integrator.render(&scene, &camera, &accelerator);
         println!("Scene took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre(std::path::Path::new("./test_data/images/ray_tracer.hdr"));
     }

@@ -18,23 +18,18 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::Float;
-use crate::RefCount;
+
+
 use geometry3d::intersection::IntersectionInfo;
 use geometry3d::{Point3D, Transform, Vector3D};
 
-use crate::scene::Object;
 
-/// The data for a SurfaceInteraction
-pub struct SurfaceInteractionData {
+/// The data for a SurfaceInteraction]
+#[derive(Default, Clone)]
+pub struct Interaction {
     /* GENERAL INTERACTION DATA */
     /// The [`Point3D`] of the interaction
     pub point: Point3D,
-
-    // The floating point error at the intersection
-    // pub perror: Point3D,
-    /// The time of the intersection
-    pub time: Float,
 
     /// The outgoing direction at the interaction.
     /// This is the negative ray direction
@@ -59,14 +54,14 @@ pub struct SurfaceInteractionData {
     pub prim_index: usize,
 }
 
-impl SurfaceInteractionData {
+
+
+impl Interaction {
     pub fn transform(&self, t: &Transform) -> Self {
         // let (point, perror) = t.transform_pt_propagate_error(self.point, self.perror);
         let point = t.transform_pt(self.point);
         let wo = t.transform_vec(self.wo);
-        let time = self.time;
-        // let object = self.object;
-
+                
         // shading
         let geometry_shading = self.geometry_shading.transform(t);
 
@@ -75,9 +70,7 @@ impl SurfaceInteractionData {
 
         Self {
             point,
-            // perror,
             wo,
-            time,
             geometry_shading,
             prim_index: self.prim_index,
 
@@ -100,53 +93,5 @@ impl SurfaceInteractionData {
     }
 }
 
-pub enum Interaction {
-    Surface(SurfaceInteractionData),
-    Endpoint(Option<RefCount<Object>>),
-}
 
-impl std::fmt::Debug for Interaction {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Surface(_) => f.debug_struct("SurfaceInteraction(..)").finish(),
-            Self::Endpoint(light) => {
-                let kind = if light.is_some() { "Light" } else { "Camera" };
-                f.debug_struct(&format!("EndpointInteraction({})", kind))
-                    .finish()
-            }
-        }
-    }
-}
 
-impl Interaction {
-    pub fn new_surface(data: SurfaceInteractionData, flip_normal: bool) -> Self {
-        let mut data = data;
-        if flip_normal {
-            data.geometry_shading.normal *= -1.
-        }
-        Self::Surface(data)
-    }
-
-    /// Checks whether an [`Interaction`] is Surface
-    pub fn is_surface_interaction(&self) -> bool {
-        // match self{
-        //     Self::Surface(_) => true,
-        //     _ => false
-        // }
-        matches!(self, Self::Surface(_))
-    }
-
-    pub fn normal(&self) -> Vector3D {
-        match self {
-            Self::Surface(d) => d.normal(),
-            _ => panic!("{:?} has no normals", self),
-        }
-    }
-
-    // pub fn object(&self)->&RefCount<Object>{
-    //     match self{
-    //         Self::Surface(d)=>&d.object,
-    //         _ => panic!("{:?} has no normals", self)
-    //     }
-    // }
-}

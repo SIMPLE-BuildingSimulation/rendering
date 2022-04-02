@@ -94,7 +94,8 @@ pub trait Material {
     }
     
 
-    /// Samples the bsdf, returns a new direction, the value of the BSDF, and a boolean
+    /// Samples the bsdf (returned by modifying the given `Ray`).
+    /// Returns the value of the BSDF in that direction, and a boolean
     /// indicating whether this is a specular or a diffuse interaction    
     fn sample_bsdf(
         &self,
@@ -102,9 +103,9 @@ pub trait Material {
         e1: Vector3D,
         e2: Vector3D,
         intersection_pt: Point3D,
-        ray: Ray,
+        ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Ray, Float, bool) ;
+    ) -> (Float, bool) ;
     
 
     /// Evaluates a BSDF based on an input and outpt directions
@@ -121,6 +122,8 @@ pub trait Material {
 
 #[cfg(test)]
 mod tests {
+    use crate::interaction::Interaction;
+
     use super::*;
 
     fn get_vectors(rng: &mut RandGen) -> (Vector3D, Vector3D, Vector3D, Ray, Vector3D) {
@@ -137,6 +140,7 @@ mod tests {
                     origin: geometry3d::Point3D::new(rng.gen(), rng.gen(), rng.gen()),
                 },
                 refraction_index: rng.gen(),
+                interaction: Interaction::default()
             };
             let vout = Vector3D::new(1., 4., 12.).get_normalized();
 
@@ -149,13 +153,13 @@ mod tests {
     fn test_material(material: Box<dyn Material>) {
         let mut rng = crate::rand::get_rng();
         for _ in 0..99999 {
-            let (normal, e1, e2, ray, vout) = get_vectors(&mut rng);
-            let (new_ray, pdf, _is_specular) =
-                material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+            let (normal, e1, e2, mut ray, vout) = get_vectors(&mut rng);
+            let old_ray = ray.clone();
+            let (pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
             assert!(pdf.is_finite());
-            assert!(new_ray.geometry.direction.length().is_finite());
-            assert!(new_ray.geometry.origin.as_vector3d().length().is_finite());
-            let pdf = material.eval_bsdf(normal, e1, e2, &ray, vout);
+            assert!(ray.geometry.direction.length().is_finite());
+            assert!(ray.geometry.origin.as_vector3d().length().is_finite());
+            let pdf = material.eval_bsdf(normal, e1, e2, &old_ray, vout);
             assert!(pdf.is_finite());
         }
     }

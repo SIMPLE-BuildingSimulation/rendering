@@ -49,9 +49,9 @@ impl Material for Metal {
         e1: Vector3D,
         e2: Vector3D,
         intersection_pt: Point3D,
-        mut ray: Ray,
+        ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Ray, Float, bool) {
+    ) -> (Float, bool) {
         // avoid self shading
         // let normal = *normal;
         // let mut ray = *ray;
@@ -82,7 +82,7 @@ impl Material for Metal {
             let dir = Vector3D::new(x, y, z);
             ray.geometry.direction = dir;
             debug_assert!((dir.length() - 1.).abs() < 1e-4);
-            (ray, prob, false)
+            (prob, false)
         }
     }
 

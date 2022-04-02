@@ -24,10 +24,9 @@ Physically Based Rendering: From Theory To Implementation, © 2004-2021 Matt Pha
 https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies
  */
 
-use crate::interaction::{Interaction, SurfaceInteractionData};
+use crate::ray::Ray;
 use crate::scene::{Object, Scene};
 use crate::Float;
-use geometry3d::intersection::IntersectionInfo;
 use geometry3d::{BBox3D, BBoxAxis, Point3D, Ray3D, Vector3D};
 use std::cmp::Ordering;
 
@@ -79,6 +78,7 @@ impl ObjectInfo {
     }
 }
 
+#[derive(Clone)]
 struct Leaf {
     bounds: BBox3D,
     n_prims: usize,
@@ -339,11 +339,13 @@ impl Node {
 }
 
 type FlatLeaf = Leaf;
+#[derive(Clone)]
 struct FlatInterior {
     second_child_offset: usize,
     bounds: BBox3D,
     axis: BBoxAxis,
 }
+#[derive(Clone)]
 enum FlatNode {
     Interior(FlatInterior),
     Leaf(FlatLeaf),
@@ -358,8 +360,12 @@ impl FlatNode {
     }
 }
 
-#[derive(Default)]
-pub struct BoundingVolumeTree(Vec<FlatNode>);
+#[derive(Default, Clone)]
+pub struct BoundingVolumeTree{
+
+    nodes: Vec<FlatNode>,
+    nodes_to_visit: Vec<usize>,
+}
 
 impl BoundingVolumeTree {
     pub fn new(scene: &mut Scene) -> Self {
@@ -404,7 +410,10 @@ impl BoundingVolumeTree {
         Self::flatten_node(&root, &mut nodes);
 
         // return
-        Self(nodes)
+        Self{
+            nodes,
+            nodes_to_visit: Vec::with_capacity(64),
+        }
     }
 
     fn flatten_node(node: &Node, nodes: &mut Vec<FlatNode>) -> usize {
@@ -440,47 +449,50 @@ impl BoundingVolumeTree {
 
     /// Returns an `Option<Interaction>`, containing the first primitive
     /// to be hit by the ray, if any
-    pub fn intersect(&self, primitives: &[Object], ray: &Ray3D) -> Option<Interaction> {
+    pub fn intersect(&mut self, primitives: &[Object], ray: &mut Ray) -> bool {
         const MIN_T: Float = 0.000001;
 
-        if self.0.is_empty() {
-            return None;
+        if self.nodes.is_empty() {
+            return false;
         }
-        let mut info: Option<IntersectionInfo> = None;
+        // reset
+        self.nodes_to_visit.truncate(0);
+        
         let mut prim_index: Option<usize> = None;
         let mut t_squared = Float::MAX;
 
         let inv_dir = Vector3D::new(
-            1. / ray.direction.x,
-            1. / ray.direction.y,
-            1. / ray.direction.z,
+            1. / ray.geometry.direction.x,
+            1. / ray.geometry.direction.y,
+            1. / ray.geometry.direction.z,
         );
         let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
         let mut current_node = 0;
-        let mut nodes_to_visit: Vec<usize> = Vec::with_capacity(64);
+        
         loop {
-            let node = &self.0[current_node];
-            if node.bounds().intersect(ray, inv_dir) {
+            let node = &self.nodes[current_node];
+            if node.bounds().intersect(&ray.geometry, inv_dir) {
                 match node {
                     FlatNode::Leaf(data) => {
                         let offset = data.first_prim_offset;
                         // Check all the objects in this Node
                         for i in 0..data.n_prims {
                             if let Some(intersect_info) =
-                                primitives[offset + i].primitive.intersect(ray)
+                                primitives[offset + i].primitive.intersect(&ray.geometry)
                             {
                                 // If hit, check the distance.
                                 let this_t_squared =
-                                    (intersect_info.p - ray.origin).length_squared();
+                                    (intersect_info.p - ray.geometry.origin).length_squared();
+                                // if the distance is less than the prevous one, update the info
                                 if this_t_squared > MIN_T && this_t_squared < t_squared {
                                     // If the distance is less than what we had, update return data
                                     t_squared = this_t_squared;
                                     prim_index = Some(offset + i);
-                                    info = Some(intersect_info);
+                                    ray.interaction.geometry_shading = intersect_info;
                                 }
                             }
                         }
-                        if let Some(i) = nodes_to_visit.pop() {
+                        if let Some(i) = self.nodes_to_visit.pop() {
                             current_node = i;
                         } else {
                             break;
@@ -493,15 +505,15 @@ impl BoundingVolumeTree {
                             BBoxAxis::Z => dir_is_neg.2,
                         };
                         if is_neg {
-                            nodes_to_visit.push(current_node + 1);
+                            self.nodes_to_visit.push(current_node + 1);
                             current_node = data.second_child_offset;
                         } else {
-                            nodes_to_visit.push(data.second_child_offset);
+                            self.nodes_to_visit.push(data.second_child_offset);
                             current_node += 1;
                         }
                     }
                 }
-            } else if let Some(i) = nodes_to_visit.pop() {
+            } else if let Some(i) = self.nodes_to_visit.pop() {
                 current_node = i;
             } else {
                 break;
@@ -509,41 +521,32 @@ impl BoundingVolumeTree {
         } // End loop
 
         // return
-        if let Some(info) = info {
-            // let info = info.unwrap();
-            // let object = object.unwrap();
-            let prim_index = prim_index.unwrap();
+        if let Some(index) = prim_index {
+            
             let t = t_squared.sqrt();
-            let point = ray.project(t);
+            
+            ray.interaction.point = ray.geometry.project(t);
+            ray.interaction.wo = ray.geometry.direction * -1.;
+            ray.interaction.prim_index = index;
 
-            let data = SurfaceInteractionData {
-                point,
-                // perror: info.perror,
-                time: 0., // We are not using this value
-                wo: ray.direction * -1.,
-                geometry_shading: info,
-                prim_index,
-
-                #[cfg(feature = "textures")]
-                texture_shading: None,
-            };
-
-            Some(Interaction::Surface(data))
+            true
         } else {
-            None
+            false
         }
     }
 
     /// Checks if a ray can travel a certain distance without hitting anything
     pub fn unobstructed_distance(
-        &self,
+        &mut self,
         primitives: &[Object],
         ray: &Ray3D,
         distance_squared: Float,
     ) -> bool {
-        if self.0.is_empty() {
+        if self.nodes.is_empty() {
             return true;
         }
+        // reset
+        self.nodes_to_visit.truncate(0);
         // let d_squared = distance * distance;
         const MIN_T: Float = 0.000001;
 
@@ -554,9 +557,9 @@ impl BoundingVolumeTree {
         );
         let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
         let mut current_node = 0;
-        let mut nodes_to_visit: Vec<usize> = Vec::with_capacity(64);
+        
         loop {
-            let node = &self.0[current_node];
+            let node = &self.nodes[current_node];
             if node.bounds().intersect(ray, inv_dir) {
                 match node {
                     FlatNode::Leaf(data) => {
@@ -576,7 +579,7 @@ impl BoundingVolumeTree {
                                 }
                             }
                         }
-                        if let Some(i) = nodes_to_visit.pop() {
+                        if let Some(i) = self.nodes_to_visit.pop() {
                             current_node = i;
                         } else {
                             break;
@@ -589,15 +592,15 @@ impl BoundingVolumeTree {
                             BBoxAxis::Z => dir_is_neg.2,
                         };
                         if is_neg {
-                            nodes_to_visit.push(current_node + 1);
+                            self.nodes_to_visit.push(current_node + 1);
                             current_node = data.second_child_offset;
                         } else {
-                            nodes_to_visit.push(data.second_child_offset);
+                            self.nodes_to_visit.push(data.second_child_offset);
                             current_node += 1;
                         }
                     }
                 }
-            } else if let Some(i) = nodes_to_visit.pop() {
+            } else if let Some(i) = self.nodes_to_visit.pop() {
                 current_node = i;
             } else {
                 break;

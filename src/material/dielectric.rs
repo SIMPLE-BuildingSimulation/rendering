@@ -105,12 +105,12 @@ impl Material for Dielectric {
         );
 
         // Process reflection...
-        let mut ray1 = *ray;
+        let mut ray1 = ray.clone();
         ray1.geometry.direction = mirror_dir;
         ray1.geometry.origin = intersection_pt + normal * 0.00001;
         let pair1 = Some((ray1, refl, cos1 * refl /*refl / (refl + trans)*/));
 
-        let mut ray = *ray;
+        let mut ray = ray.clone();
         // process transmission
         let pair2 = if trans > 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;
@@ -132,9 +132,9 @@ impl Material for Dielectric {
         e1: Vector3D,
         e2: Vector3D,
         intersection_pt: Point3D,
-        mut ray: Ray,
+        ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Ray, Float, bool) {
+    ) -> (Float, bool) {
         debug_assert!(
             (ray.geometry.direction.length() - 1.).abs() < 1e-5,
             "Length was {}",
@@ -145,9 +145,8 @@ impl Material for Dielectric {
         debug_assert!((e2 * normal).abs() < 1e-8);
 
         let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, self.refraction_index);
-        let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
-        let ray_dir = ray.geometry.direction;
-        let mirror_dir = mirror_direction(ray_dir, normal);
+        let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);        
+        let mirror_dir = mirror_direction(ray.geometry.direction, normal);
         debug_assert!(
             (1. - mirror_dir.length()).abs() < 1e-5,
             "length is {}",
@@ -162,16 +161,16 @@ impl Material for Dielectric {
             ray.geometry.origin = intersection_pt + normal * 0.00001;
 
             ray.geometry.direction = mirror_dir;
-            (ray, refl, true)
+            (refl, true)
         } else {
             // Transmission
             // avoid self shading
             ray.geometry.origin = intersection_pt - normal * 0.00001;
 
             ray.refraction_index = n2;
-            let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
+            let trans_dir = fresnel_transmission_dir(ray.geometry.direction, normal, n1, cos1, n2, cos2.unwrap());
             ray.geometry.direction = trans_dir;
-            (ray, trans, true)
+            (trans, true)
         }
     }
 
@@ -224,7 +223,7 @@ impl Material for Dielectric {
 mod tests {
     use super::*;
 
-    use crate::ray::Ray;
+    use crate::{ray::Ray, interaction::Interaction};
     use geometry3d::{Point3D, Ray3D};
     #[test]
     fn test_normal_incidence() {
@@ -246,6 +245,7 @@ mod tests {
                 origin: Point3D::new(0., 0., 10.),
                 direction: Vector3D::new(0., 0., -1.),
             },
+            interaction: Interaction::default()
         };
 
         let (np1, cos1, np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -292,8 +292,9 @@ mod tests {
                 refraction_index: n1,
                 geometry: Ray3D {
                     origin: Point3D::new(0., 0., 10.),
-                    direction: direction(angle.to_radians()),
+                    direction: direction(angle.to_radians()),                    
                 },
+                interaction: Interaction::default()
             };
 
             let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -309,6 +310,7 @@ mod tests {
                 origin: Point3D::new(0., 0., 10.),
                 direction: direction(angle.to_radians()),
             },
+            interaction: Interaction::default()
         };
 
         let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -323,6 +325,7 @@ mod tests {
                     origin: Point3D::new(0., 0., 10.),
                     direction: direction(angle.to_radians()),
                 },
+                interaction: Interaction::default()
             };
 
             let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -348,6 +351,7 @@ mod tests {
                 origin: Point3D::new(0., 0., 0.),
                 direction: dir_zero,
             },
+            interaction: Interaction::default(),
             refraction_index: 2.9,
         };
 
@@ -386,23 +390,25 @@ mod tests {
                 direction: dir_zero,
             },
             refraction_index: 1.,
+            interaction: Interaction::default()
         };
         println!("Before entering: {}", dir_zero);
         let mirror_dir = mirror_direction(ray.geometry.direction, normal);
         let mut trans_dir: Option<Vector3D> = None;
         // Get INTO the material
         for _ in 0..30 {
-            let (new_ray, _pdf, _is_specular) =
-                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+            let ( _pdf, _is_specular) =
+                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
             println!("A -- PDF = {}", _pdf);
-            let new_dir = new_ray.geometry.direction;
+
+            let new_dir = ray.geometry.direction;
             if new_dir.z < 0. {
                 // We are still moving down... thus, refraction
                 assert!(
-                    new_ray.refraction_index == n,
+                    ray.refraction_index == n,
                     "Expeting n={}, found n={}",
                     n,
-                    new_ray.refraction_index
+                    ray.refraction_index
                 );
                 trans_dir = Some(new_dir);
             } else {
@@ -417,17 +423,17 @@ mod tests {
         ray.refraction_index = n;
         ray.geometry.direction = trans_dir.unwrap();
         for _ in 0..30 {
-            let (new_ray, _pdf, _is_specular) =
-                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), ray, &mut rng);
+            let (_pdf, _is_specular) =
+                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
             println!("B -- PDF = {}", _pdf);
-            let new_dir = new_ray.geometry.direction;
+            let new_dir = ray.geometry.direction;
             if new_dir.z < 0. {
                 // We are still moving down... thus, refraction
                 assert!(
-                    new_ray.refraction_index == 1.,
+                    ray.refraction_index == 1.,
                     "Expeting n={}, found n={}",
                     1,
-                    new_ray.refraction_index
+                    ray.refraction_index
                 );
                 assert!(
                     new_dir.is_same_direction(dir_zero),
