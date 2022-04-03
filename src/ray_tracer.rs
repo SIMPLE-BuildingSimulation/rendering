@@ -66,14 +66,15 @@ impl RayTracer {
         ray: &mut Ray,
         current_depth: usize,
         current_value: Float,   
-        accelerator: &mut BoundingVolumeTree     
+        accelerator: &BoundingVolumeTree,
+        node_aux: &mut Vec<usize>     
     ) -> (Spectrum, Float) {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
         // If hits an object
         // Store refraction index???
 
-        if scene.cast_ray(ray, accelerator) {
+        if scene.cast_ray(ray, accelerator, node_aux) {
             // THIS HAS MODIFIED THE INTERACTION.
 
             let object = &scene.objects[ray.interaction.prim_index];
@@ -119,7 +120,7 @@ impl RayTracer {
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
                 let mut specular_li = Spectrum::black();
-                let paths = material.get_possible_paths(&normal, &intersection_pt, &ray);
+                let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
                 // let mut n = 0;
                 for (new_ray, bsdf_value, _ray_weight) in paths.iter().flatten() {
                     // n += 1;
@@ -137,7 +138,7 @@ impl RayTracer {
                     }
 
                     let (li, _light_pdf) =
-                        self.trace_ray(rng, scene, &mut new_ray, current_depth, new_value, accelerator);
+                        self.trace_ray(rng, scene, &mut new_ray, current_depth, new_value, accelerator, node_aux);
 
                     let color = material.colour();
                     // let total_samples = n + n_lights * self.n_shadow_samples;
@@ -191,7 +192,8 @@ impl RayTracer {
                 rng,
                 n,
                 direct_n,
-                accelerator
+                accelerator,
+                node_aux,
             );
 
             // Limit bounces
@@ -214,7 +216,8 @@ impl RayTracer {
                 intersection_pt,
                 wt,
                 rng,
-                accelerator
+                accelerator,
+                node_aux
             );
 
             // global /= n as Float;
@@ -241,7 +244,8 @@ impl RayTracer {
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         lights: &[Object],
-        accelerator: &mut BoundingVolumeTree
+        accelerator: &BoundingVolumeTree,
+        node_aux: &mut Vec<usize>
     ) -> Spectrum {
         let mat_colour = material.colour();
 
@@ -257,7 +261,7 @@ impl RayTracer {
                     direction,
                 };
 
-                if let Some((light_colour, light_pdf)) = sample_light(scene, light, &shadow_ray, accelerator) {
+                if let Some((light_colour, light_pdf)) = sample_light(scene, light, &shadow_ray, accelerator, node_aux) {
                     i += 1;
                     if light_pdf < 1e-18 {
                         // The light is obstructed... don't add light, but count it.
@@ -303,7 +307,8 @@ impl RayTracer {
         rng: &mut RandGen,
         n_ambient_samples: usize,
         n_shadow_samples: usize,
-        accelerator: &mut BoundingVolumeTree
+        accelerator: &BoundingVolumeTree,
+        node_aux: &mut Vec<usize>
     ) -> Spectrum {
         // prevent self-shading
         point += normal * 0.001;
@@ -320,6 +325,7 @@ impl RayTracer {
             n_shadow_samples,
             &scene.lights,
             accelerator,
+            node_aux,
         );
         let distant = self.sample_light_array(
             scene,
@@ -334,6 +340,7 @@ impl RayTracer {
             n_shadow_samples,
             &scene.distant_lights,
             accelerator,
+            node_aux,
         );
 
         // return
@@ -354,7 +361,8 @@ impl RayTracer {
         intersection_pt: Point3D,
         wt: Float,
         rng: &mut RandGen,
-        accelerator: &mut BoundingVolumeTree
+        accelerator: &BoundingVolumeTree,
+        node_aux: &mut Vec<usize>
     ) -> Spectrum {
         let mut global = Spectrum::black();
 
@@ -384,7 +392,7 @@ impl RayTracer {
 
             let color = material.colour();
 
-            let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, accelerator);
+            let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, accelerator, node_aux);
 
             let fx = (li * cos_theta) * (color * bsdf_value); // * n as Float;
                                                               // let denominator = bsdf_value;// * bsdf_c;
@@ -402,26 +410,41 @@ impl RayTracer {
         let (width, height) = camera.film_resolution();
 
         let total_pixels = width * height;
+        let mut pixels = vec![Spectrum{red:0., green:0., blue:0.}; total_pixels];
+        
+        let n_threads = 8;
+        let chunk_len = total_pixels/n_threads;        
+        let i : Vec<&mut[Spectrum]>= pixels.chunks_mut(chunk_len).collect();
 
+        #[cfg(not(feature = "parallel"))]        
+        let i = i.into_iter();
+                
+        #[cfg(feature = "parallel")]
+        let i = i.into_par_iter();
+        
+
+        // progress indicators
         let last_progress = std::sync::Arc::new(std::sync::Mutex::new(0.0));
         let counter = std::sync::Arc::new(std::sync::Mutex::new(0));
-
-        #[cfg(not(feature = "parallel"))]
-        let aux_iter = 0..total_pixels; //.into_iter();
-        #[cfg(feature = "parallel")]
-        let aux_iter = (0..total_pixels).into_par_iter();
         
-        let pixels: Vec<Spectrum> = aux_iter
-            .map(|pixel| {
-                let mut accelerator = accelerator.clone(); // we do it once per pixel...?
-                let y = (pixel as Float / width as Float).floor() as usize;
-                let x = pixel - y * width;
+        let _ = &i.enumerate().for_each(|(first_p,chunk)|{
+            
+            let mut pindex = first_p*chunk_len;
+            let mut node_aux : Vec<usize> = Vec::with_capacity(64);
+            let mut rng = get_rng();
+
+            for pixel in chunk{
+                let y = (pindex as Float / width as Float).floor() as usize;
+                let x = pindex - y * width;
                 let (mut ray, weight) = camera.gen_ray(&CameraSample {
                     p_film: (x, y),                    
                 });
 
-                let mut rng = get_rng();
-                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &mut accelerator);
+                
+                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &accelerator, &mut node_aux);
+                *pixel = v;
+                
+                
                 // report
                 let mut c = counter.lock().unwrap();
                 *c += 1;
@@ -433,13 +456,66 @@ impl RayTracer {
                     println!("... Done {:.0}%", progress);
                 }
 
-                // return... should always contain value because these are primary rays
-                v
-            })
-            .collect();
+                pindex +=1;
+            }
+        });
+
+        
+        // // Create pixel chunks
+        // let ranges : Vec<(usize,usize)> = (0..n_threads).map(|thread_i| {
+        //     let start = thread_i * chunk_len;
+        //     let end = if thread_i == n_threads - 1 {
+        //         total_pixels  
+        //     }else{
+        //         start + chunk_len
+        //     };
+        //     (start, end )
+        // }).collect();
+        
+        // #[cfg(not(feature = "parallel"))]
+        // let aux_iter = ranges.iter();
+        
+        
+        // #[cfg(feature = "parallel")]
+        // let aux_iter = ranges.par_iter();
+        
+        
+        
+        
+        // let _pixels: Vec<Vec<Spectrum>> = aux_iter
+        //     .map(|range| {
+        //         let mut node_aux : Vec<usize> = Vec::with_capacity(64);
+        //         let mut rng = get_rng();
+        //         (range.0 .. range.1).map(|pixel|{
+        //             let y = (pixel as Float / width as Float).floor() as usize;
+        //             let x = pixel - y * width;
+        //             let (mut ray, weight) = camera.gen_ray(&CameraSample {
+        //                 p_film: (x, y),                    
+        //             });
+    
+                    
+        //             let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &accelerator, &mut node_aux);
+        //             // report
+        //             let mut c = counter.lock().unwrap();
+        //             *c += 1;
+    
+        //             let mut lp = last_progress.lock().unwrap();
+        //             let progress = (100. * *c as Float / total_pixels as Float).round() as Float;
+        //             if (*lp - progress.floor()) < 0.1 && (progress - *lp).abs() > 1. {
+        //                 *lp = progress;
+        //                 println!("... Done {:.0}%", progress);
+        //             }
+    
+        //             // return... should always contain value because these are primary rays
+        //             v
+        //         }).collect()
+                
+        //     })
+        //     .collect();
 
         // return
         ImageBuffer::from_pixels(width, height, pixels)
+        // ImageBuffer::new(10,10)
     }
 }
 
@@ -450,7 +526,8 @@ pub fn sample_light(
     scene: &Scene,
     light: &Object,
     shadow_ray: &Ray3D,
-    accelerator: &mut BoundingVolumeTree
+    accelerator: &BoundingVolumeTree,
+    node_aux: &mut Vec<usize>
 ) -> Option<(Spectrum, Float)> {
     let light_direction = shadow_ray.direction;
     let origin = shadow_ray.origin;
@@ -471,7 +548,7 @@ pub fn sample_light(
 
     // If the light is not visible (this does not consider
     // transparent surfaces, yet.)
-    if !scene.unobstructed_distance(shadow_ray, light_distance_squared, accelerator) {
+    if !scene.unobstructed_distance(shadow_ray, light_distance_squared, accelerator, node_aux) {
         return Some((Spectrum::black(), 0.0));
     }
 
@@ -566,7 +643,8 @@ mod tests {
 
         let filename = "exterior_0_dielectric.rad".to_string();
         let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
-        let mut accelerator = scene.build_accelerator();
+        let accelerator = scene.build_accelerator();
+        let mut node_aux : Vec<usize> = Vec::with_capacity(64);
 
         // Create film
         let film = Film {
@@ -606,7 +684,7 @@ mod tests {
             // p_lens: (0., 0.),
         });
 
-        let (i, _) = integrator.trace_ray(&mut rng, &scene, &mut ray, 0, weight, &mut accelerator);
+        let (i, _) = integrator.trace_ray(&mut rng, &scene, &mut ray, 0, weight, &accelerator, &mut node_aux);
         println!("{}", i);
 
         println!(
@@ -656,6 +734,51 @@ mod tests {
         println!("Room took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
     }
+
+    #[test]
+    #[ignore]
+    fn test_render_cornell() {
+        // 60 seconds
+        // time cargo test --features parallel --release  -- --ignored --nocapture test_render_cornell
+        // oconv ../room.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
+
+        let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
+
+        let accelerator = scene.build_accelerator();
+
+        // Create camera
+        let film = Film {
+            resolution: (512, 367),
+            // resolution: (1024, 768),
+            // resolution: (512, 512),
+        };
+
+        // Create view
+        let view = View {
+            view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
+            // view_point: Point3D::new(2., 1., 1.),
+            view_point: Point3D::new(3., -5., 2.25),
+            field_of_view: 50.,
+            ..View::default()
+        };
+        
+        // Create camera
+        let camera = Pinhole::new(view, film);
+
+        let integrator = RayTracer {
+            n_ambient_samples: 90,
+            n_shadow_samples: 1,
+            max_depth: 3,
+            ..RayTracer::default()
+        };
+
+        let now = Instant::now();
+
+        let buffer = integrator.render(&scene, &camera, &accelerator);
+        println!("Room took {} seconds to render", now.elapsed().as_secs());
+        buffer.save_hdre(std::path::Path::new("./test_data/images/cornell.hdr"));
+    }
+
 
     use crate::material::{ Plastic, Mirror, Light};
     use crate::primitive::Primitive;

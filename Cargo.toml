@@ -10,7 +10,6 @@ license = "MIT"
 simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
 matrix = {git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git"}
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git"}
-# geometry3d = {path = "../geometry3d"}
 rand = { version = "0.8.5", features=["small_rng"]}
 rayon = {version = "1.5", optional = true}
 clap = "3.0.14"
@@ -39,4 +38,5 @@ unsafe_speed = ["geometry3d/quick_inv_sqrt"]
 debug=true
 lto = true
 codegen-units = 1
+opt-level=3
 

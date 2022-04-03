@@ -362,9 +362,7 @@ impl FlatNode {
 
 #[derive(Default, Clone)]
 pub struct BoundingVolumeTree{
-
     nodes: Vec<FlatNode>,
-    nodes_to_visit: Vec<usize>,
 }
 
 impl BoundingVolumeTree {
@@ -411,8 +409,7 @@ impl BoundingVolumeTree {
 
         // return
         Self{
-            nodes,
-            nodes_to_visit: Vec::with_capacity(64),
+            nodes            
         }
     }
 
@@ -449,14 +446,14 @@ impl BoundingVolumeTree {
 
     /// Returns an `Option<Interaction>`, containing the first primitive
     /// to be hit by the ray, if any
-    pub fn intersect(&mut self, primitives: &[Object], ray: &mut Ray) -> bool {
+    pub fn intersect(&self, primitives: &[Object], ray: &mut Ray, nodes_to_visit: &mut Vec<usize>) -> bool {
         const MIN_T: Float = 0.000001;
 
         if self.nodes.is_empty() {
             return false;
         }
         // reset
-        self.nodes_to_visit.truncate(0);
+        nodes_to_visit.truncate(0);
         
         let mut prim_index: Option<usize> = None;
         let mut t_squared = Float::MAX;
@@ -492,7 +489,7 @@ impl BoundingVolumeTree {
                                 }
                             }
                         }
-                        if let Some(i) = self.nodes_to_visit.pop() {
+                        if let Some(i) = nodes_to_visit.pop() {
                             current_node = i;
                         } else {
                             break;
@@ -505,15 +502,15 @@ impl BoundingVolumeTree {
                             BBoxAxis::Z => dir_is_neg.2,
                         };
                         if is_neg {
-                            self.nodes_to_visit.push(current_node + 1);
+                            nodes_to_visit.push(current_node + 1);
                             current_node = data.second_child_offset;
                         } else {
-                            self.nodes_to_visit.push(data.second_child_offset);
+                            nodes_to_visit.push(data.second_child_offset);
                             current_node += 1;
                         }
                     }
                 }
-            } else if let Some(i) = self.nodes_to_visit.pop() {
+            } else if let Some(i) = nodes_to_visit.pop() {
                 current_node = i;
             } else {
                 break;
@@ -537,16 +534,17 @@ impl BoundingVolumeTree {
 
     /// Checks if a ray can travel a certain distance without hitting anything
     pub fn unobstructed_distance(
-        &mut self,
+        &self,
         primitives: &[Object],
         ray: &Ray3D,
         distance_squared: Float,
+        nodes_to_visit: &mut Vec<usize>,
     ) -> bool {
         if self.nodes.is_empty() {
             return true;
         }
         // reset
-        self.nodes_to_visit.truncate(0);
+        nodes_to_visit.truncate(0);
         // let d_squared = distance * distance;
         const MIN_T: Float = 0.000001;
 
@@ -579,7 +577,7 @@ impl BoundingVolumeTree {
                                 }
                             }
                         }
-                        if let Some(i) = self.nodes_to_visit.pop() {
+                        if let Some(i) = nodes_to_visit.pop() {
                             current_node = i;
                         } else {
                             break;
@@ -592,15 +590,15 @@ impl BoundingVolumeTree {
                             BBoxAxis::Z => dir_is_neg.2,
                         };
                         if is_neg {
-                            self.nodes_to_visit.push(current_node + 1);
+                            nodes_to_visit.push(current_node + 1);
                             current_node = data.second_child_offset;
                         } else {
-                            self.nodes_to_visit.push(data.second_child_offset);
+                            nodes_to_visit.push(data.second_child_offset);
                             current_node += 1;
                         }
                     }
                 }
-            } else if let Some(i) = self.nodes_to_visit.pop() {
+            } else if let Some(i) = nodes_to_visit.pop() {
                 current_node = i;
             } else {
                 break;

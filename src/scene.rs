@@ -92,16 +92,15 @@ impl Scene {
 
     /// Casts a [`Ray3D`] and returns an `Option<Interaction>` describing the
     /// interaction with the first primitive hit by the ray, if any.    
-    pub fn cast_ray(&self, ray: &mut Ray, accelerator: &mut BoundingVolumeTree) -> bool {        
-        accelerator.intersect(&self.objects, ray)
+    pub fn cast_ray(&self, ray: &mut Ray, accelerator: &BoundingVolumeTree, node_aux: &mut Vec<usize>) -> bool {        
+        accelerator.intersect(&self.objects, ray, node_aux)
         
     }
 
     /// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface
-    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float, accelerator: &mut BoundingVolumeTree) -> bool {
-        
+    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float, accelerator: &BoundingVolumeTree, node_aux: &mut Vec<usize>) -> bool {
         // Check if we intersect something... otherwise, check distant sources
-        accelerator.unobstructed_distance(&self.objects, ray, distance_squared)
+        accelerator.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)
     }
 
     /// Pushes a [`Material`] to the [`Scene`] and return its

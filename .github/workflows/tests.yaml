@@ -13,7 +13,8 @@ jobs:
   test:
     runs-on: ubuntu-latest     
     steps:
-    - uses: actions/checkout@v1   
+    # - uses: actions/checkout@v1  
+    - uses: taiki-e/install-action@cargo-hack 
     - name: Run tests
-      run: cargo test --verbose     
+      run: cargo hack test --feature-powerset --verbose     
   
