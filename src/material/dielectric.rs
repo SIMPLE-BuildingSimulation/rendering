@@ -277,7 +277,7 @@ mod tests {
             let direction = Vector3D::new(0., angle.sin(), -angle.cos());
             let found_angle = (direction * normal).abs().acos();
             assert!(
-                (found_angle - angle).abs() < 1e-7,
+                (found_angle - angle).abs() < 1e-4,
                 "angle = {} | found_angle = {}",
                 angle,
                 found_angle
