@@ -157,8 +157,8 @@ mod tests {
             let old_ray = ray.clone();
             let (pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
             assert!(pdf.is_finite());
-            assert!(ray.geometry.direction.length().is_finite());
-            assert!(ray.geometry.origin.as_vector3d().length().is_finite());
+            assert!(old_ray.geometry.direction.length().is_finite());
+            assert!(old_ray.geometry.origin.as_vector3d().length().is_finite());
             let pdf = material.eval_bsdf(normal, e1, e2, &old_ray, vout);
             assert!(pdf.is_finite());
         }

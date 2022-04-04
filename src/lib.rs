@@ -1,3 +1,4 @@
+
 /*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -18,8 +19,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-// Define whether we are working with
-// doubles (i.e., f64) or floats (i.e., f32)
+
+
+
 
 /// The kind of Floating point number used in the
 /// library... the `"float"` feature means it becomes `f32`
@@ -38,6 +40,8 @@ const PI: Float = std::f64::consts::PI;
 // type RefCount<T> = std::sync::Arc<T>;
 // #[cfg(not(feature = "parallel"))]
 // type RefCount<T> = std::rc::Rc<T>;
+
+// #[warn(missing_docs)]
 
 // Core
 pub mod bvh;

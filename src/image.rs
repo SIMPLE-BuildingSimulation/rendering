@@ -51,9 +51,8 @@ fn rusty_ldexp(x: Float, n: i32) -> Float {
 }
 
 fn colour_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
-    let mut v: Float;
-
-    v = red;
+    
+    let mut v = red;
     if green > v {
         v = green;
     }
@@ -183,7 +182,8 @@ impl ImageBuffer {
         let mut width: Option<usize> = None;
         let mut lines = content.split(|c| (*c as char) == '\n');
         // READ HEADER
-        while let Some(line) = lines.next() {
+        // while let Some(line) = lines.next() {
+        for line in lines.by_ref(){
             if line.starts_with(b"-Y") {
                 let errmsg = {
                     let l = std::str::from_utf8(line).unwrap();
@@ -218,7 +218,7 @@ impl ImageBuffer {
 
             if line.starts_with(b"FORMAT") {
                 // Format
-                let tuple: Vec<&[u8]> = line.split(|c| *c == '=' as u8).into_iter().collect();
+                let tuple: Vec<&[u8]> = line.split(|c| *c == b'=').into_iter().collect();
                 if tuple.len() != 2 {
                     let l = std::str::from_utf8(line).unwrap();
                     return Err(format!(
@@ -248,7 +248,7 @@ impl ImageBuffer {
         let mut g: u8 = 0;
         let mut b: u8 = 0;
         let mut counter: u8 = 0; // Keep note on whether we are in r, g, b, or e
-        while let Some(line) = lines.next() {
+        for line in lines{
             // if !line.is_empty(){
             //     println!("Line length = {}", line.len());
             //     print!("Line --> ");
@@ -260,20 +260,21 @@ impl ImageBuffer {
             // break;
             // for each line and
             // for each Byte in line
-            for i in 0..line.len() {
+            // for i in 0..line.len() {
+            for x in line {
                 match counter {
-                    0 => r = line[i],
-                    1 => g = line[i],
-                    2 => b = line[i],
+                    0 => r = *x,//line[i],
+                    1 => g = *x,//line[i],
+                    2 => b = *x,//line[i],
                     3 => {
                         // When we register an e, we push value
-                        let e = line[i];
+                        let e = *x;//line[i];
                         pixels.push(rgbe_to_colour(r, g, b, e));
                     }
                     _ => unreachable!(),
                 }
                 counter += 1;
-                counter = counter % 4;
+                counter %= 4;
             }
         } // Finished iterating lines
 
@@ -305,7 +306,7 @@ mod tests {
     #[cfg(feature = "float")]
     extern "C" {
         fn frexp(x: c_float, exp: *mut c_int) -> c_float;
-        fn ldexp(x: c_float, ex: c_int) -> c_double;
+        fn ldexp(x: c_float, ex: c_int) -> c_float;
     }
 
     fn c_frexp(x: Float) -> (Float, i32) {

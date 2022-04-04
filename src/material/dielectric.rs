@@ -140,11 +140,12 @@ impl Material for Dielectric {
             "Length was {}",
             ray.geometry.direction.length()
         );
-        debug_assert!((e1 * e2).abs() < 1e-8);
-        debug_assert!((e1 * normal).abs() < 1e-8);
-        debug_assert!((e2 * normal).abs() < 1e-8);
+        debug_assert!((e1 * e2).abs() < 1e-5, "e1*e2= {} ", (e1 * e2).abs());
+        debug_assert!((e1 * normal).abs() < 1e-5, "e1*normal = {}", e1*normal.abs());
+        
+        debug_assert!((e2 * normal).abs() < 1e-5, "e2*normal = {}",(e2 * normal).abs());
 
-        let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, self.refraction_index);
+        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);        
         let mirror_dir = mirror_direction(ray.geometry.direction, normal);
         debug_assert!(
@@ -397,23 +398,31 @@ mod tests {
         let mut trans_dir: Option<Vector3D> = None;
         // Get INTO the material
         for _ in 0..30 {
+            let mut new_ray = ray.clone();
             let ( _pdf, _is_specular) =
-                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
+                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut new_ray, &mut rng);
             println!("A -- PDF = {}", _pdf);
 
-            let new_dir = ray.geometry.direction;
+            let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {
                 // We are still moving down... thus, refraction
                 assert!(
-                    ray.refraction_index == n,
+                    new_ray.refraction_index == n,
                     "Expeting n={}, found n={}",
                     n,
-                    ray.refraction_index
+                    new_ray.refraction_index
                 );
                 trans_dir = Some(new_dir);
+
             } else {
                 // reflection
                 assert!(new_dir.is_same_direction(mirror_dir));
+                assert!(
+                    new_ray.refraction_index == 1.0,
+                    "Expeting n={}, found n={}",
+                    1.,
+                    new_ray.refraction_index
+                );
             }
         }
 
@@ -423,22 +432,23 @@ mod tests {
         ray.refraction_index = n;
         ray.geometry.direction = trans_dir.unwrap();
         for _ in 0..30 {
+            let mut new_ray = ray.clone();
             let (_pdf, _is_specular) =
-                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
+                mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut new_ray, &mut rng);
             println!("B -- PDF = {}", _pdf);
-            let new_dir = ray.geometry.direction;
+            let new_dir = new_ray.geometry.direction;
             if new_dir.z < 0. {
                 // We are still moving down... thus, refraction
                 assert!(
-                    ray.refraction_index == 1.,
+                    new_ray.refraction_index == 1.,
                     "Expeting n={}, found n={}",
                     1,
-                    ray.refraction_index
+                    new_ray.refraction_index
                 );
                 assert!(
                     new_dir.is_same_direction(dir_zero),
                     "ray_dir = {} | new_dir = {} | dir_zero = {}",
-                    ray.geometry.direction,
+                    new_ray.geometry.direction,
                     new_dir,
                     dir_zero
                 );

@@ -18,6 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
 use std::borrow::Borrow;
 
 use crate::bvh::BoundingVolumeTree;
@@ -234,7 +235,7 @@ impl RayTracer {
     fn sample_light_array(
         &self,
         scene: &Scene,
-        material:  &Box<dyn Material + Sync>,// &impl Material + Sync,
+        material:  &Box<dyn Material + Sync>,
         ray: &Ray,
         point: Point3D,
         normal: Vector3D,
@@ -274,7 +275,7 @@ impl RayTracer {
                     let cos_theta = (normal * direction).abs();
                     let vout = shadow_ray.direction * -1.;
 
-                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, &ray, vout);
+                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);
                     // let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//
                     let denominator = light_pdf * n_shadow_samples as Float
                         + mat_bsdf_value * n_ambient_samples as Float; //light_pdf;//
@@ -441,7 +442,7 @@ impl RayTracer {
                 });
 
                 
-                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &accelerator, &mut node_aux);
+                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, accelerator, &mut node_aux);
                 *pixel = v;
                 
                 

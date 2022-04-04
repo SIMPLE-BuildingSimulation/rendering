@@ -92,7 +92,7 @@ pub fn mirror_bsdf(intersection_pt: Point3D, ray: &mut Ray, normal: Vector3D) ->
     let ray_dir = ray.geometry.direction;
     let cos = (ray_dir * normal).abs();
     ray.geometry.direction = mirror_direction(ray_dir, normal);
-    debug_assert!((ray.geometry.direction.length() - 1.).abs() < 1e-8);
+    debug_assert!((ray.geometry.direction.length() - 1.).abs() < 1e-5, "dir len is {}", ray.geometry.direction.length());
     ( 1. / cos, true)
     // (ray, 1., true)
 }

@@ -54,7 +54,7 @@ impl SimpleModelReader {
             let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength);
 
             // Add all the triangles necessary
-            let triangles = Triangulation3D::from_polygon(&polygon)
+            let triangles = Triangulation3D::from_polygon(polygon)
                 .unwrap()
                 .get_trilist();
             for tri in triangles {
@@ -75,7 +75,7 @@ impl SimpleModelReader {
             let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength);
 
             // Add all the triangles necessary
-            let triangles = Triangulation3D::from_polygon(&polygon)
+            let triangles = Triangulation3D::from_polygon(polygon)
                 .unwrap()
                 .get_trilist();
             for tri in triangles {
@@ -108,7 +108,7 @@ impl SimpleModelReader {
         }
     }
 
-    fn get_modifier_index(&self, item: &String) -> Option<usize> {
+    fn get_modifier_index(&self, item: &str) -> Option<usize> {
         for (i, v) in self.modifiers.iter().enumerate() {
             if v == item {
                 return Some(i);

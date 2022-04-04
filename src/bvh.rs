@@ -136,7 +136,6 @@ impl Node {
         // the value this 'mid' variable should have... we are creating
         // a binary tree, you know, so we split things in halves
         let mut mid: Option<usize> = None;
-        let split_axis: BBoxAxis;
 
         // Get a BBOX containing EVERYTHING within scope
         let mut bounds = primitives_info[start].bounds;
@@ -163,7 +162,7 @@ impl Node {
             centroids_bbox = BBox3D::from_union_point(&centroids_bbox, prim_info.centroid);
         }
 
-        split_axis = centroids_bbox.max_extent();
+        let split_axis = centroids_bbox.max_extent();
         // the extent of the centroids in the largest dimension
         let len_axis = match split_axis {
             BBoxAxis::X => centroids_bbox.max.x - centroids_bbox.min.x,

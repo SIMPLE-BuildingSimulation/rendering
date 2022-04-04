@@ -276,7 +276,7 @@ impl Scanner {
 
         let colour = Spectrum { red, green, blue };
         scene.push_material(Box::new(Dielectric {
-            colour: colour,
+            colour,
             refraction_index,
         }));
     }

@@ -30,5 +30,5 @@ pub use film::Film;
 mod sample;
 pub use sample::CameraSample;
 
-mod camera;
-pub use camera::Camera;
+mod camera_trait;
+pub use camera_trait::Camera;

@@ -191,7 +191,7 @@ impl Material for Glass {
 
         
 
-        let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, self.refraction_index);
+        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
         let ray_dir = ray.geometry.direction;
         let mirror_dir = mirror_direction(ray_dir, normal);
