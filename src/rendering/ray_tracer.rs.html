@@ -937,7 +937,6 @@
 <span id="901">901</span>
 <span id="902">902</span>
 <span id="903">903</span>
-<span id="904">904</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -1353,16 +1352,15 @@ SOFTWARE.
 
             <span class="kw">let</span> (<span class="ident">li</span>, <span class="ident">light_pdf</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">trace_ray</span>(<span class="ident">rng</span>, <span class="ident">scene</span>, <span class="ident">ray</span>, <span class="ident">new_depth</span>, <span class="ident">new_value</span>, <span class="ident">aux</span>);
 
-            <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> (<span class="ident">li</span> <span class="op">*</span> <span class="ident">cos_theta</span>) <span class="op">*</span> (<span class="ident">color</span> <span class="op">*</span> <span class="ident">bsdf_value</span>); <span class="comment">// * n as Float;</span>
-                                                              <span class="comment">// let denominator = bsdf_value;// * bsdf_c;</span>
+            <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> (<span class="ident">li</span> <span class="op">*</span> <span class="ident">cos_theta</span>) <span class="op">*</span> (<span class="ident">color</span> <span class="op">*</span> <span class="ident">bsdf_value</span>);                                                               
             <span class="kw">let</span> <span class="ident">denominator</span> <span class="op">=</span>
                 <span class="ident">bsdf_value</span> <span class="op">*</span> <span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">+</span> <span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">light_pdf</span>;
 
-            <span class="comment">// add contribution</span>
+            
             <span class="ident">global</span> <span class="op">+</span><span class="op">=</span> <span class="ident">fx</span> <span class="op">/</span> <span class="ident">denominator</span>;
 
-            <span class="comment">// restore</span>
-            <span class="comment">// *ray = aux.rays[depth];</span>
+            <span class="comment">// restore ray, because it was modified by trace_ray executions</span>
+            <span class="kw-2">*</span><span class="ident">ray</span> <span class="op">=</span> <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>];
         }
         <span class="comment">// return</span>
         <span class="ident">global</span>
