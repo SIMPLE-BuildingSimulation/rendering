@@ -413,16 +413,15 @@ impl RayTracer {
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, aux);
 
-            let fx = (li * cos_theta) * (color * bsdf_value); // * n as Float;
-                                                              // let denominator = bsdf_value;// * bsdf_c;
+            let fx = (li * cos_theta) * (color * bsdf_value);                                                               
             let denominator =
                 bsdf_value * n_ambient_samples as Float + n_shadow_samples as Float * light_pdf;
 
-            // add contribution
+            
             global += fx / denominator;
 
-            // restore
-            // *ray = aux.rays[depth];
+            // restore ray, because it was modified by trace_ray executions
+            *ray = aux.rays[depth];
         }
         // return
         global
