@@ -251,6 +251,9 @@
 <span id="215">215</span>
 <span id="216">216</span>
 <span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -347,7 +350,8 @@ SOFTWARE.
     }
     
 
-    <span class="doccomment">/// Samples the bsdf, returns a new direction, the value of the BSDF, and a boolean</span>
+    <span class="doccomment">/// Samples the bsdf (returned by modifying the given `Ray`).</span>
+    <span class="doccomment">/// Returns the value of the BSDF in that direction, and a boolean</span>
     <span class="doccomment">/// indicating whether this is a specular or a diffuse interaction    </span>
     <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -355,9 +359,9 @@ SOFTWARE.
         <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
         <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
         <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
-        <span class="ident">ray</span>: <span class="ident">Ray</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) ;
+    ) -&gt; (<span class="ident">Float</span>, <span class="ident">bool</span>) ;
     
 
     <span class="doccomment">/// Evaluates a BSDF based on an input and outpt directions</span>
@@ -374,6 +378,7 @@ SOFTWARE.
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
+
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
 
     <span class="kw">fn</span> <span class="ident">get_vectors</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>) -&gt; (<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Ray</span>, <span class="ident">Vector3D</span>) {
@@ -390,6 +395,7 @@ SOFTWARE.
                     <span class="ident">origin</span>: <span class="ident">geometry3d::Point3D::new</span>(<span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>()),
                 },
                 <span class="ident">refraction_index</span>: <span class="ident">rng</span>.<span class="ident">gen</span>(),
+                .. <span class="ident">Ray::default</span>()
             };
             <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">4.</span>, <span class="number">12.</span>).<span class="ident">get_normalized</span>();
 
@@ -402,13 +408,13 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">test_material</span>(<span class="ident">material</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Material</span><span class="op">&gt;</span>) {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::rand::get_rng</span>();
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">99999</span> {
-            <span class="kw">let</span> (<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>) <span class="op">=</span> <span class="ident">get_vectors</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
-            <span class="kw">let</span> (<span class="ident">new_ray</span>, <span class="ident">pdf</span>, <span class="ident">_is_specular</span>) <span class="op">=</span>
-                <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+            <span class="kw">let</span> (<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="kw-2">mut</span> <span class="ident">ray</span>, <span class="ident">vout</span>) <span class="op">=</span> <span class="ident">get_vectors</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+            <span class="kw">let</span> <span class="ident">old_ray</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">clone</span>();
+            <span class="kw">let</span> (<span class="ident">pdf</span>, <span class="ident">_is_specular</span>) <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="kw-2">&amp;mut</span> <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
-            <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
-            <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>.<span class="ident">as_vector3d</span>().<span class="ident">length</span>().<span class="ident">is_finite</span>());
-            <span class="kw">let</span> <span class="ident">pdf</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>, <span class="ident">vout</span>);
+            <span class="macro">assert!</span>(<span class="ident">old_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
+            <span class="macro">assert!</span>(<span class="ident">old_ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>.<span class="ident">as_vector3d</span>().<span class="ident">length</span>().<span class="ident">is_finite</span>());
+            <span class="kw">let</span> <span class="ident">pdf</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="kw-2">&amp;</span><span class="ident">old_ray</span>, <span class="ident">vout</span>);
             <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
         }
     }

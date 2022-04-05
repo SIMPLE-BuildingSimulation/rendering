@@ -215,10 +215,10 @@ SOFTWARE.
     <span class="kw">let</span> <span class="ident">camera</span> <span class="op">=</span> <span class="ident">Pinhole::new</span>(<span class="ident">view</span>, <span class="ident">film</span>);
 
     <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer</span> {
-        <span class="ident">n_shadow_samples</span>: <span class="number">1</span>,
+        <span class="ident">n_shadow_samples</span>: <span class="number">15</span>,
         <span class="ident">max_depth</span>: <span class="number">3</span>,
         <span class="ident">limit_weight</span>: <span class="number">0.001</span>,
-        <span class="ident">n_ambient_samples</span>: <span class="number">200</span>,
+        <span class="ident">n_ambient_samples</span>: <span class="number">100</span>,
         ..<span class="ident">RayTracer::default</span>()
     };
 

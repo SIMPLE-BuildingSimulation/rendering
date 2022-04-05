@@ -232,10 +232,6 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
-<span id="199">199</span>
-<span id="200">200</span>
-<span id="201">201</span>
-<span id="202">202</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -259,7 +255,6 @@ SOFTWARE.
 <span class="comment">// use std::rc::RefCount;</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bvh::BoundingVolumeTree</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::from_simple_model::SimpleModelReader</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction::Interaction</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
@@ -295,10 +290,12 @@ SOFTWARE.
     <span class="doccomment">/// are considered sources of direct light</span>
     <span class="kw">pub</span> <span class="ident">distant_lights</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>,
 
-    <span class="comment">// pub transforms: Vec&lt;RefCount&lt;Transform&gt;&gt;,</span>
+    <span class="doccomment">/// The acceleration structure that helps trace rays.</span>
+    <span class="doccomment">/// </span>
+    <span class="doccomment">/// This needs to be build through the `build_accelerator` function.</span>
+    <span class="kw">pub</span> <span class="ident">accelerator</span> : <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoundingVolumeTree</span><span class="op">&gt;</span>,
 
-    <span class="comment">// pub textures: Vec&lt;RefCount&lt;Texture&gt;&gt;,</span>
-    <span class="kw">pub</span> <span class="ident">accelerator</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoundingVolumeTree</span><span class="op">&gt;</span>,
+    
 }
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Wavelengths</span> {
@@ -320,10 +317,16 @@ SOFTWARE.
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
 
-    <span class="doccomment">/// Builds the accelerator</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_accelerator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">let</span> <span class="ident">accelerator</span> <span class="op">=</span> <span class="ident">BoundingVolumeTree::new</span>(<span class="self">self</span>);
-        <span class="self">self</span>.<span class="ident">accelerator</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">accelerator</span>);
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accelerator</span>.<span class="ident">is_some</span>(){
+            <span class="macro">panic!</span>(<span class="string">&quot;Trying to re-build accelerator structure. If you really want this, use rebuild_accelerator&quot;</span>)
+        }
+        <span class="self">self</span>.<span class="ident">accelerator</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BoundingVolumeTree::new</span>(<span class="self">self</span>));
+    }
+
+    <span class="doccomment">/// Builds the accelerator</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rebuild_accelerator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {        
+        <span class="self">self</span>.<span class="ident">accelerator</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BoundingVolumeTree::new</span>(<span class="self">self</span>));
     }
 
     <span class="doccomment">/// Returns the number of total lights; that is,</span>
@@ -335,34 +338,23 @@ SOFTWARE.
 
     <span class="doccomment">/// Casts a [`Ray3D`] and returns an `Option&lt;Interaction&gt;` describing the</span>
     <span class="doccomment">/// interaction with the first primitive hit by the ray, if any.    </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Interaction</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">accelerator</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>,
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;Trying to cast ray in a Scene without an accelerator&quot;</span>);
-            }
-        };
-
-        <span class="comment">// Check if we intersect something... otherwise, check distant sources</span>
-        <span class="kw">let</span> <span class="ident">res</span> <span class="op">=</span> <span class="ident">accelerator</span>.<span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>.<span class="ident">geometry</span>);
-        <span class="kw">if</span> <span class="ident">res</span>.<span class="ident">is_some</span>() {
-            <span class="ident">res</span>
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>, <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {        
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">accelerator</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span>{
+            <span class="ident">accelerator</span>.<span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">node_aux</span>)
+        }<span class="kw">else</span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;&quot;</span>)
         }
+        
     }
 
     <span class="doccomment">/// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>, <span class="ident">distance_squared</span>: <span class="ident">Float</span>) -&gt; <span class="ident">bool</span> {
-        <span class="kw">let</span> <span class="ident">accelerator</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span> {
-            <span class="prelude-val">Some</span>(<span class="ident">s</span>) =&gt; <span class="ident">s</span>,
-            <span class="prelude-val">None</span> =&gt; {
-                <span class="macro">panic!</span>(<span class="string">&quot;Trying to cast ray in a Scene without an accelerator&quot;</span>);
-            }
-        };
-
-        <span class="comment">// Check if we intersect something... otherwise, check distant sources</span>
-        <span class="ident">accelerator</span>.<span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">distance_squared</span>)
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>, <span class="ident">distance_squared</span>: <span class="ident">Float</span>,  <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+        
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>)<span class="op">=</span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span>{
+            <span class="ident">a</span>.<span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">distance_squared</span>, <span class="ident">node_aux</span>)            
+        }<span class="kw">else</span>{
+            <span class="macro">panic!</span>(<span class="string">&quot;Trying to cast a check if unobstructed_distance() in a scene without an acceleration structure&quot;</span>)
+        }
     }
 
     <span class="doccomment">/// Pushes a [`Material`] to the [`Scene`] and return its</span>

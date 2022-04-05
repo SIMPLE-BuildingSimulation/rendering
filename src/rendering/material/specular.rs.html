@@ -257,6 +257,7 @@
 <span id="221">221</span>
 <span id="222">222</span>
 <span id="223">223</span>
+<span id="224">224</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -291,8 +292,9 @@ SOFTWARE.
 <span class="doccomment">/// ```</span>
 <span class="doccomment">/// use geometry3d::{Point3D,Vector3D, Ray3D};</span>
 <span class="doccomment">/// use rendering::colour::Spectrum;</span>
-<span class="doccomment">/// use rendering::material::Dielectric;</span>
+<span class="doccomment">/// use rendering::material::cos_and_n;</span>
 <span class="doccomment">/// use rendering::ray::Ray;</span>
+<span class="doccomment">/// use rendering::interaction::Interaction;</span>
 <span class="doccomment">/// </span>
 <span class="doccomment">/// let mat_refraction_index = 1.52;</span>
 <span class="doccomment">/// let normal = Vector3D::new(0., 0., 1.);</span>
@@ -301,7 +303,7 @@ SOFTWARE.
 <span class="doccomment">///         origin: Point3D::new(0., 0., 1.),</span>
 <span class="doccomment">///         direction: Vector3D::new(0., 1., -2.).get_normalized()</span>
 <span class="doccomment">///     },</span>
-<span class="doccomment">///     refraction_index : 1.</span>
+<span class="doccomment">///     .. Ray::default()</span>
 <span class="doccomment">/// };</span>
 <span class="doccomment">/// let (n1, cos1, n2, cos2) = cos_and_n(&amp;ray, normal, mat_refraction_index);</span>
 <span class="doccomment">/// ```</span>

@@ -212,6 +212,7 @@
 <span id="176">176</span>
 <span id="177">177</span>
 <span id="178">178</span>
+<span id="179">179</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -237,6 +238,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
+
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Pinhole</span> {
     <span class="ident">view</span>: <span class="ident">View</span>,
@@ -346,7 +348,7 @@ SOFTWARE.
                 <span class="ident">direction</span>: <span class="ident">direction</span>.<span class="ident">get_normalized</span>(),
                 <span class="ident">origin</span>: <span class="self">self</span>.<span class="ident">view</span>.<span class="ident">view_point</span>,
             },
-            <span class="ident">refraction_index</span>: <span class="number">1.</span>, <span class="comment">// time: sample.time,</span>
+            .. <span class="ident">Ray::default</span>()
         };
 
         <span class="comment">// return</span>
