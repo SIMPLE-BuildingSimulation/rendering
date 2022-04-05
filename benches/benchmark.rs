@@ -77,12 +77,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let e1 = black_box(Vector3D::new(1., 0., 0.));
     let e2 = black_box(Vector3D::new(0., 1., 0.));
     let normal = black_box(Vector3D::new(0., 0., 1.));
-    let ray = black_box(Ray {
+    let mut ray = black_box(Ray {
         geometry: Ray3D {
             direction: Vector3D::new(1., 2., 3.).get_normalized(),
             origin: Point3D::new(1., 2., 3.),
         },
         refraction_index: 1.,
+        interaction: rendering::interaction::Interaction::default(),
     });
     let vout = black_box(Vector3D::new(1., 4., 12.).get_normalized());
 
@@ -102,12 +103,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("direct_sample_plastic", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) = p.sample_bsdf(
+            let (_new_ray,  _is_specular) = p.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
                 black_box(Point3D::new(0., 0., 0.)),
-                black_box(ray),
+                black_box(&mut ray),
                 black_box(&mut rng),
             );
         })
@@ -125,12 +126,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("direct_sample_metal", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) = m.sample_bsdf(
+            let (_new_ray,  _is_specular) = m.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
                 black_box(Point3D::new(0., 0., 0.)),
-                black_box(ray),
+                black_box(&mut ray),
                 black_box(&mut rng),
             );
         })
@@ -161,12 +162,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plastic = black_box(Box::new(p));
     c.bench_function("sample_plastic", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) = metal.sample_bsdf(
+            let (_new_ray,  _is_specular) = metal.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
                 black_box(Point3D::new(0., 0., 0.)),
-                black_box(ray),
+                black_box(&mut ray),
                 black_box(&mut rng),
             );
         })
@@ -174,12 +175,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     
     c.bench_function("sample_metal", |b| {
         b.iter(|| {
-            let (_new_ray, _pdf, _is_specular) = plastic.sample_bsdf(
+            let (_new_ray,  _is_specular) = plastic.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
                 black_box(Point3D::new(0., 0., 0.)),
-                black_box(ray),
+                black_box(&mut ray),
                 black_box(&mut rng),
             );
         })

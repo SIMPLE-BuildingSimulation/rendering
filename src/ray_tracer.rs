@@ -21,7 +21,6 @@ SOFTWARE.
 
 use std::borrow::Borrow;
 
-use crate::bvh::BoundingVolumeTree;
 use crate::camera::{Camera, CameraSample};
 use crate::colour::Spectrum;
 use crate::image::ImageBuffer;
@@ -36,13 +35,30 @@ use geometry3d::{Point3D, Ray3D, Vector3D};
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
 
+
+
+pub struct RayTracerHelper {
+    rays: Vec<Ray>,
+    nodes: Vec<usize>
+}
+
+impl std::default::Default for RayTracerHelper {
+    fn default()->Self{
+        Self{
+            // rays: Vec::with_capacity(10),
+            rays: vec![Ray::default(); 10],//Vec::with_capacity(10),
+            nodes: Vec::with_capacity(64)
+        }
+    }
+}
+
 pub struct RayTracer {
     pub max_depth: usize,
     pub n_shadow_samples: usize,
     pub n_ambient_samples: usize,
 
     pub limit_weight: Float,
-    pub limit_reflections: usize,
+    pub count_specular_bounce: Float,
 }
 
 impl Default for RayTracer {
@@ -53,7 +69,7 @@ impl Default for RayTracer {
             n_ambient_samples: 10,
 
             limit_weight: 1e-3,
-            limit_reflections: 0,
+            count_specular_bounce: 0.3,
         }
     }
 }
@@ -67,14 +83,14 @@ impl RayTracer {
         ray: &mut Ray,
         current_depth: usize,
         current_value: Float,   
-        node_aux: &mut Vec<usize>     
+        aux: &mut RayTracerHelper,     
     ) -> (Spectrum, Float) {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
         // If hits an object
         // Store refraction index???
 
-        if scene.cast_ray(ray, node_aux) {
+        if scene.cast_ray(ray, &mut aux.nodes) {
             // THIS HAS MODIFIED THE INTERACTION.
 
             let object = &scene.objects[ray.interaction.prim_index];
@@ -101,6 +117,11 @@ impl RayTracer {
                 //     return None;
                 // return Some(Spectrum::black());
                 // }
+            }
+
+            // Limit bounces
+            if current_depth > self.max_depth {
+                return (Spectrum::black(), 0.0);
             }
 
             // Get basic information on the intersection
@@ -130,15 +151,21 @@ impl RayTracer {
                     let cos_theta = (normal * new_ray_dir).abs();
                     let new_value = wt * bsdf_value * cos_theta;
                     // russian roulette
-                    if self.limit_weight > 0. && new_value < self.limit_weight {
+                    // if self.limit_weight > 0. && new_value < self.limit_weight {
+                        // }
+                        // avoid infinite interior bouncing
+                    let new_depth = {
                         let q: Float = rng.gen();
-                        if q > new_value / self.limit_weight {
-                            return (Spectrum::black(), 0.0);
+                        if q < self.count_specular_bounce {
+                            current_depth + 1
+                        }else{
+                            current_depth
                         }
-                    }
+                    };
 
+                    
                     let (li, _light_pdf) =
-                        self.trace_ray(rng, scene, &mut new_ray, current_depth, new_value,  node_aux);
+                        self.trace_ray(rng, scene, &mut new_ray, new_depth, new_value,  aux);
 
                     let color = material.colour();
                     // let total_samples = n + n_lights * self.n_shadow_samples;
@@ -192,13 +219,10 @@ impl RayTracer {
                 rng,
                 n,
                 direct_n,                
-                node_aux,
+                &mut aux.nodes,
             );
 
-            // Limit bounces
-            if current_depth > self.max_depth {
-                return (local, 0.0);
-            }
+            
 
             
             /* INDIRECT */
@@ -215,7 +239,7 @@ impl RayTracer {
                 intersection_pt,
                 wt,
                 rng,
-                node_aux
+                aux
             );
 
             // global /= n as Float;
@@ -355,9 +379,11 @@ impl RayTracer {
         intersection_pt: Point3D,
         wt: Float,
         rng: &mut RandGen,
-        node_aux: &mut Vec<usize>
+        aux: &mut RayTracerHelper
     ) -> Spectrum {
         let mut global = Spectrum::black();
+        let depth = current_depth;//ray.depth;
+        aux.rays[depth] = *ray;
 
         for _ in 0..n_ambient_samples {
             // Choose a direction.
@@ -385,7 +411,7 @@ impl RayTracer {
 
             let color = material.colour();
 
-            let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, node_aux);
+            let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, aux);
 
             let fx = (li * cos_theta) * (color * bsdf_value); // * n as Float;
                                                               // let denominator = bsdf_value;// * bsdf_c;
@@ -394,6 +420,9 @@ impl RayTracer {
 
             // add contribution
             global += fx / denominator;
+
+            // restore
+            // *ray = aux.rays[depth];
         }
         // return
         global
@@ -423,7 +452,7 @@ impl RayTracer {
         let _ = &i.enumerate().for_each(|(first_p,chunk)|{
             
             let mut pindex = first_p*chunk_len;
-            let mut node_aux : Vec<usize> = Vec::with_capacity(64);
+            let mut aux = RayTracerHelper::default();
             let mut rng = get_rng();
 
             for pixel in chunk{
@@ -434,7 +463,7 @@ impl RayTracer {
                 });
 
                 
-                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight,  &mut node_aux);
+                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight,  &mut aux);
                 *pixel = v;
                 
                 
@@ -583,7 +612,7 @@ mod tests {
         let filename = "exterior_0_dielectric.rad".to_string();
         let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
         scene.build_accelerator();
-        let mut node_aux : Vec<usize> = Vec::with_capacity(64);
+        let mut aux = RayTracerHelper::default();
 
         // Create film
         let film = Film {
@@ -623,7 +652,7 @@ mod tests {
             // p_lens: (0., 0.),
         });
 
-        let (i, _) = integrator.trace_ray(&mut rng, &scene, &mut ray, 0, weight,  &mut node_aux);
+        let (i, _) = integrator.trace_ray(&mut rng, &scene, &mut ray, 0, weight,  &mut aux);
         println!("{}", i);
 
         println!(
@@ -705,7 +734,7 @@ mod tests {
         let camera = Pinhole::new(view, film);
 
         let integrator = RayTracer {
-            n_ambient_samples: 90,
+            n_ambient_samples: 190,
             n_shadow_samples: 1,
             max_depth: 3,
             ..RayTracer::default()

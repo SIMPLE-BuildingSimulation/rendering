@@ -43,8 +43,7 @@ use crate::ray::Ray;
 ///         origin: Point3D::new(0., 0., 1.),
 ///         direction: Vector3D::new(0., 1., -2.).get_normalized()
 ///     },
-///     interaction: Interaction::default(),
-///     refraction_index : 1.
+///     .. Ray::default()
 /// };
 /// let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, mat_refraction_index);
 /// ```

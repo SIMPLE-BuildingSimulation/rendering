@@ -25,7 +25,7 @@ use geometry3d::{Point3D, Transform, Vector3D};
 
 
 /// The data for a SurfaceInteraction]
-#[derive(Default, Clone)]
+#[derive(Default, Clone, Copy)]
 pub struct Interaction {
     /* GENERAL INTERACTION DATA */
     /// The [`Point3D`] of the interaction

@@ -23,7 +23,7 @@ use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Ray3D, Vector3D};
-use crate::interaction::Interaction;
+
 
 pub struct Pinhole {
     view: View,
@@ -133,8 +133,7 @@ impl Camera for Pinhole {
                 direction: direction.get_normalized(),
                 origin: self.view.view_point,
             },
-            interaction: Interaction::default(),
-            refraction_index: 1., // time: sample.time,
+            .. Ray::default()
         };
 
         // return

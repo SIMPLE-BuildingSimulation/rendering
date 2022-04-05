@@ -122,7 +122,6 @@ pub trait Material {
 
 #[cfg(test)]
 mod tests {
-    use crate::interaction::Interaction;
 
     use super::*;
 
@@ -140,7 +139,7 @@ mod tests {
                     origin: geometry3d::Point3D::new(rng.gen(), rng.gen(), rng.gen()),
                 },
                 refraction_index: rng.gen(),
-                interaction: Interaction::default()
+                .. Ray::default()
             };
             let vout = Vector3D::new(1., 4., 12.).get_normalized();
 

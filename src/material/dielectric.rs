@@ -224,7 +224,7 @@ impl Material for Dielectric {
 mod tests {
     use super::*;
 
-    use crate::{ray::Ray, interaction::Interaction};
+    use crate::{ray::Ray};
     use geometry3d::{Point3D, Ray3D};
     #[test]
     fn test_normal_incidence() {
@@ -246,7 +246,7 @@ mod tests {
                 origin: Point3D::new(0., 0., 10.),
                 direction: Vector3D::new(0., 0., -1.),
             },
-            interaction: Interaction::default()
+            .. Ray::default()
         };
 
         let (np1, cos1, np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -295,7 +295,7 @@ mod tests {
                     origin: Point3D::new(0., 0., 10.),
                     direction: direction(angle.to_radians()),                    
                 },
-                interaction: Interaction::default()
+                .. Ray::default()
             };
 
             let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -311,7 +311,7 @@ mod tests {
                 origin: Point3D::new(0., 0., 10.),
                 direction: direction(angle.to_radians()),
             },
-            interaction: Interaction::default()
+            .. Ray::default()
         };
 
         let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -326,7 +326,7 @@ mod tests {
                     origin: Point3D::new(0., 0., 10.),
                     direction: direction(angle.to_radians()),
                 },
-                interaction: Interaction::default()
+                .. Ray::default()
             };
 
             let (_np1, _cos1, _np2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -352,8 +352,8 @@ mod tests {
                 origin: Point3D::new(0., 0., 0.),
                 direction: dir_zero,
             },
-            interaction: Interaction::default(),
             refraction_index: 2.9,
+            .. Ray::default()
         };
 
         let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, mat.refraction_index);
@@ -391,7 +391,7 @@ mod tests {
                 direction: dir_zero,
             },
             refraction_index: 1.,
-            interaction: Interaction::default()
+            .. Ray::default()
         };
         println!("Before entering: {}", dir_zero);
         let mirror_dir = mirror_direction(ray.geometry.direction, normal);

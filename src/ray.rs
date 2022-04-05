@@ -24,7 +24,7 @@ use crate::interaction::Interaction;
 /// Represents a ray (of light?) beyond pure geometry. It
 /// includes also the current index of refraction and, potentially,
 /// time (for blurry images)
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub struct Ray {
     
     /// Direction and position
@@ -35,6 +35,29 @@ pub struct Ray {
 
     /// Contains the information about the last hit.
     pub interaction: Interaction,
+
+    pub depth: usize,
+
+    pub specular_depth: usize,
+
+    pub value: Float,
+}
+
+
+impl std::default::Default for Ray {
+    fn default()->Self{
+        Self{
+            geometry: Ray3D{
+                origin: Point3D::new(0., 0., 0.),
+                direction: Vector3D::new(0., 0., 0.),
+            },
+            refraction_index: 1.,
+            interaction: Interaction::default(),
+            depth: 0,
+            specular_depth: 0,
+            value: 1.,
+        }
+    }
 }
 
 impl Ray {
