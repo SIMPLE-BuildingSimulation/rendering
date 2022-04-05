@@ -56,6 +56,11 @@ pub struct Scene {
     /// are considered sources of direct light
     pub distant_lights: Vec<Object>,
 
+    /// The acceleration structure that helps trace rays.
+    /// 
+    /// This needs to be build through the `build_accelerator` function.
+    pub accelerator : Option<BoundingVolumeTree>,
+
     
 }
 
@@ -78,9 +83,16 @@ impl Scene {
         Self::default()
     }
 
+    pub fn build_accelerator(&mut self) {
+        if self.accelerator.is_some(){
+            panic!("Trying to re-build accelerator structure. If you really want this, use rebuild_accelerator")
+        }
+        self.accelerator = Some(BoundingVolumeTree::new(self));
+    }
+
     /// Builds the accelerator
-    pub fn build_accelerator(&mut self) -> BoundingVolumeTree {
-        BoundingVolumeTree::new(self)
+    pub fn rebuild_accelerator(&mut self) {        
+        self.accelerator = Some(BoundingVolumeTree::new(self));
     }
 
     /// Returns the number of total lights; that is,
@@ -92,15 +104,23 @@ impl Scene {
 
     /// Casts a [`Ray3D`] and returns an `Option<Interaction>` describing the
     /// interaction with the first primitive hit by the ray, if any.    
-    pub fn cast_ray(&self, ray: &mut Ray, accelerator: &BoundingVolumeTree, node_aux: &mut Vec<usize>) -> bool {        
-        accelerator.intersect(&self.objects, ray, node_aux)
+    pub fn cast_ray(&self, ray: &mut Ray, node_aux: &mut Vec<usize>) -> bool {        
+        if let Some(accelerator) = &self.accelerator{
+            accelerator.intersect(&self.objects, ray, node_aux)
+        }else{
+            panic!("")
+        }
         
     }
 
     /// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface
-    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float, accelerator: &BoundingVolumeTree, node_aux: &mut Vec<usize>) -> bool {
-        // Check if we intersect something... otherwise, check distant sources
-        accelerator.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)
+    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float,  node_aux: &mut Vec<usize>) -> bool {
+        
+        if let Some(a)=&self.accelerator{
+            a.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)            
+        }else{
+            panic!("Trying to cast a check if unobstructed_distance() in a scene without an acceleration structure")
+        }
     }
 
     /// Pushes a [`Material`] to the [`Scene`] and return its

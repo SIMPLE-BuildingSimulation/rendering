@@ -58,7 +58,7 @@ fn main() {
     let output_file = matches.value_of("output").unwrap();
     let mut scene = Scene::from_radiance(input_file.to_string());
 
-    let accelerator = scene.build_accelerator();
+    scene.build_accelerator();
 
     // Create camera
     let film = Film {
@@ -89,7 +89,7 @@ fn main() {
 
     let now = Instant::now();
 
-    let buffer = integrator.render(&scene, &camera, &accelerator);
+    let buffer = integrator.render(&scene, &camera);
     println!(
         "Image described in '{}' took {} seconds to render",
         input_file,
