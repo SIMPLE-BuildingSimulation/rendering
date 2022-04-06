@@ -29,6 +29,12 @@ pub struct RGBSpectrum {
     pub blue: Float,
 }
 
+impl std::default::Default for RGBSpectrum {
+    fn default()->Self{
+        Self::black()
+    }
+}
+
 impl matrix::OneZero for RGBSpectrum {
     fn one() -> Self {
         Self::gray(1.)

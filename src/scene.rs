@@ -20,14 +20,15 @@ SOFTWARE.
 
 // use std::rc::RefCount;
 use crate::bvh::BoundingVolumeTree;
+use crate::colour::Spectrum;
 use crate::from_simple_model::SimpleModelReader;
 use crate::material::Material;
 use crate::primitive::Primitive;
 use crate::ray::Ray;
 use crate::Float;
-use geometry3d::Ray3D;
-// type Texture = fn(Float,Float)->Float;
+use geometry3d::{Vector3D,Ray3D};
 use simple_model::SimpleModel;
+use calendar::Date;
 
 #[derive(Clone)]
 pub struct Object {
@@ -61,6 +62,8 @@ pub struct Scene {
     /// This needs to be build through the `build_accelerator` function.
     pub accelerator : Option<BoundingVolumeTree>,
 
+    /// The colour of the sky, normalized
+    pub sky_colour: Spectrum
     
 }
 
@@ -81,6 +84,84 @@ impl Scene {
     /// Creates an empty scene
     pub fn new() -> Self {
         Self::default()
+    }
+
+
+    /// Adds the elements describing a Perez sky to the scene.
+    /// The angles of Latitude, Longitude and Standard meridian should come
+    /// in Degrees
+    pub fn add_perez_sky(&mut self, 
+        date: Date, 
+        latitude: Float, 
+        longitude: Float, 
+        standard_meridian: Float, 
+        diffuse_horizontal_irrad: Float,
+        direct_normal_irrad: Float
+    )-> Box<dyn Fn(Vector3D) -> f64>{
+        let dew_point = 11.;
+        // Add sky
+        let solar = solar::Solar::new(latitude.to_radians(), longitude.to_radians(), standard_meridian.to_radians());
+        let sky = solar::PerezSky::get_sky_func_standard_time(
+            solar::SkyUnits::Visible, 
+            &solar, 
+            date, 
+            dew_point,
+            diffuse_horizontal_irrad, 
+            direct_normal_irrad);
+        
+        self.sky_colour = Spectrum::gray(1.0);
+
+        
+        // Add sun if there is any (it might be nighttime)
+        let n = solar::Time::Standard(date.day_of_year());
+        if let Some(sun_position) = solar.sun_position(n){
+            let angle = (0.533 as Float).to_radians(); // 0.009302605
+            let tan_half_alpha = (angle / 2.0).tan(); // 0.004651336043
+            let omega = tan_half_alpha * tan_half_alpha * crate::PI; // 0.00006796811354
+
+
+            let cos_zenit = sun_position.z;
+            let zenith = if cos_zenit <= 0. {
+                // Limit zenith to 90 degrees
+                crate::PI / 2.
+            } else if cos_zenit >= 0.9986295347545738 {
+                // Limit Zenith to 3 degrees minimum
+                /*
+                    The threshold above is equal to (3.*PI/180.).cos()
+                    would that have been optimized by the compiler?? I guess, but
+                    it did not allow me to create a constant of that value... so I
+                    did this just in case
+                */
+                (3. * crate::PI / 180.).acos()
+            } else {
+                cos_zenit.acos()
+            };
+            let apwc = solar::PerezSky::precipitable_water_content(dew_point);
+            let air_mass = solar::air_mass(zenith);
+            let day = solar.unwrap_solar_time(n);
+            let extraterrestrial_irradiance = solar.normal_extraterrestrial_radiation(day);
+            let sky_brightness = solar::PerezSky::sky_brightness(
+                diffuse_horizontal_irrad,
+                air_mass,
+                extraterrestrial_irradiance,
+            )
+            .clamp(0.01, 9e9);
+            let sky_clearness = solar::PerezSky::sky_clearness(diffuse_horizontal_irrad, direct_normal_irrad, zenith).clamp(-9e9, 11.9);
+            let index = solar::PerezSky::clearness_category(sky_clearness);
+            let dir_illum = direct_normal_irrad * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
+            
+            let sun_brightness = dir_illum / omega / Spectrum::WHITE_EFFICACY; // 
+            let sun_mat = self.push_material(Box::new(crate::material::Light(Spectrum::gray(sun_brightness))));
+            
+
+
+            self.push_object(
+                sun_mat,
+                sun_mat,
+                Primitive::Source(geometry3d::DistantSource3D::new(sun_position,angle)),
+            );
+        }// end of "if there is a sun"
+        sky
     }
 
     pub fn build_accelerator(&mut self) {

@@ -10,6 +10,8 @@ license = "MIT"
 simple_model = {git = "https://github.com/SIMPLE-BuildingSimulation/simple_model.git"}
 matrix = {git = "https://github.com/SIMPLE-BuildingSimulation/matrix.git"}
 geometry3d = {git = "https://github.com/SIMPLE-BuildingSimulation/geometry3d.git"}
+solar = {git = "https://github.com/SIMPLE-BuildingSimulation/solar.git"}
+calendar = { git = "https://github.com/SIMPLE-BuildingSimulation/calendar.git" }
 rand = { version = "0.8.5", features=["small_rng"]}
 rayon = {version = "1.5", optional = true}
 clap = "3.0.14"

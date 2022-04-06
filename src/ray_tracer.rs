@@ -59,6 +59,11 @@ pub struct RayTracer {
 
     pub limit_weight: Float,
     pub count_specular_bounce: Float,
+
+    /// A function returning the diffuse Sky brightness (i.e., without the sun)
+    /// The sun should be added separately. 
+    /// Alternatively, you can use the `add_perez_sky` function
+    pub sky: Option<Box<dyn Fn(Vector3D) -> f64>>,
 }
 
 impl Default for RayTracer {
@@ -70,6 +75,7 @@ impl Default for RayTracer {
 
             limit_weight: 1e-3,
             count_specular_bounce: 0.3,
+            sky: None
         }
     }
 }
@@ -249,7 +255,12 @@ impl RayTracer {
             ((local + global), 0.0) // /total_samples as Float , 0.0)
         } else {
             // Did not hit... how about distant lights?
-            (Spectrum::black(), 0.0)
+            if let Some(sky) = &self.sky {
+                let sky_brightness = sky(ray.geometry.direction);
+                (scene.sky_colour * sky_brightness, 1./2./crate::PI)
+            }else{                
+                (Spectrum::black(), 0.0)
+            }
         }
     }
 
@@ -668,9 +679,10 @@ mod tests {
     fn test_render_room() {
         // 60 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture test_render_room
-        // oconv ../room.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
+        // oconv ../room.rad ../white_sky.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
+        let sky = scene.add_perez_sky(calendar::Date{month: 6, day: 1, hour: 12.}, -33., 70., 65., 200., 500.);
 
         scene.build_accelerator();
 
@@ -692,6 +704,7 @@ mod tests {
             n_ambient_samples: 220,
             n_shadow_samples: 1,
             max_depth: 3,
+            sky: Some(sky),
             ..RayTracer::default()
         };
 
