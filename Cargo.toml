@@ -31,8 +31,8 @@ path = "./benches/benchmark.rs"
 harness = false
 
 [features]
-default = []
-float = ["geometry3d/float", "matrix/float", "simple_model/float"]
+default = ["float"]
+float = ["geometry3d/float", "matrix/float", "simple_model/float", "solar/float"]
 parallel = ["geometry3d/parallel", "rayon"]
 textures = ["geometry3d/textures"]
 

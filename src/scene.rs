@@ -68,7 +68,7 @@ pub struct Scene {
     /// A function returning the diffuse Sky brightness (i.e., without the sun)
     /// The sun should be added separately. 
     /// Alternatively, you can use the `add_perez_sky` function
-    pub sky: Option<Box<dyn Fn(Vector3D) -> f64 + Sync>>,
+    pub sky: Option<Box<dyn Fn(Vector3D) -> Float + Sync>>,
 }
 
 pub enum Wavelengths {

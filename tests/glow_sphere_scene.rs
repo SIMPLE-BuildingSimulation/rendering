@@ -9,7 +9,7 @@ use geometry3d::{
 };
 use rendering::Float;
 
-pub fn get_scene(scene_height: Float, ground_size: f64)->Scene{
+pub fn get_scene(scene_height: Float, ground_size: Float)->Scene{
     let mut scene = Scene::new();
     
 
