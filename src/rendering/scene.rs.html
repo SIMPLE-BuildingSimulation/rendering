@@ -387,7 +387,7 @@ SOFTWARE.
     <span class="doccomment">/// A function returning the diffuse Sky brightness (i.e., without the sun)</span>
     <span class="doccomment">/// The sun should be added separately. </span>
     <span class="doccomment">/// Alternatively, you can use the `add_perez_sky` function</span>
-    <span class="kw">pub</span> <span class="ident">sky</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>) -&gt; <span class="ident">f64</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">sky</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>) -&gt; <span class="ident">Float</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Wavelengths</span> {
