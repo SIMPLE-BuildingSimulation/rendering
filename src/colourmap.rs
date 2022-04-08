@@ -1,4 +1,3 @@
-
 /*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -19,52 +18,24 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+use crate::Float;
+use crate::colour::Spectrum;
 
-
-
-
-/// The kind of Floating point number used in the
-/// library... the `"float"` feature means it becomes `f32`
-/// and `f64` is used otherwise.
-#[cfg(feature = "float")]
-pub type Float = f32;
-#[cfg(feature = "float")]
-pub const PI: Float = std::f32::consts::PI;
-
-#[cfg(not(feature = "float"))]
-pub type Float = f64;
-#[cfg(not(feature = "float"))]
-pub const PI: Float = std::f64::consts::PI;
-
-// #[cfg(feature = "parallel")]
-// type RefCount<T> = std::sync::Arc<T>;
-// #[cfg(not(feature = "parallel"))]
-// type RefCount<T> = std::rc::Rc<T>;
-
-// #[warn(missing_docs)]
-
-// Core
-pub mod bvh;
-pub mod camera;
-pub mod colour;
-pub mod from_radiance;
-pub mod image;
-pub mod interaction;
-pub mod material;
-pub mod primitive;
-pub mod primitive_samplers;
-pub mod rand;
-pub mod ray;
-pub mod samplers;
-pub mod scene;
-pub mod colourmap;
-
-mod from_simple_model;
-
-// Ray-tracer
-pub mod ray_tracer;
-
-// mod backward_metropolis;
-// pub use crate::backward_metropolis::{
-//     mutation::RestartRay, BackwardMetropolis, Mutation, MutationSet,
-// };
+pub fn map_linear_colour(x: Float, min: Float, max: Float, map: &[Spectrum])->Spectrum{        
+    if x <= min {
+        return map[0]
+    }else if x >= max {
+        return *map.last().expect("Given an empty colour map")
+    }
+    
+    let delta = (max - min)/(map.len() - 1) as Float ;
+    for i in 1..map.len() {
+        let bin_start = i as Float * delta;        
+        let bin_end = bin_start + delta;
+        if x <= bin_end {
+            let lam = (x - bin_start)/delta;
+            return map[i-1] + ( map[i] - map[i-1] )*lam ;
+        }
+    }
+    unreachable!()
+}

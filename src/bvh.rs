@@ -446,7 +446,7 @@ impl BoundingVolumeTree {
     /// Returns an `Option<Interaction>`, containing the first primitive
     /// to be hit by the ray, if any
     pub fn intersect(&self, primitives: &[Object], ray: &mut Ray, nodes_to_visit: &mut Vec<usize>) -> bool {
-        const MIN_T: Float = 0.000001;
+        const MIN_T: Float = 0.0000001;
 
         if self.nodes.is_empty() {
             return false;

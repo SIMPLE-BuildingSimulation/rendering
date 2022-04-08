@@ -179,7 +179,7 @@ impl Material for Glass {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Float, bool) {
+    ) -> (Float, Float, bool) {
         debug_assert!(
             (ray.geometry.direction.length() - 1.).abs() < 1e-5,
             "Length was {}",
@@ -209,12 +209,12 @@ impl Material for Glass {
             ray.geometry.origin = intersection_pt + normal * 0.00001;
 
             ray.geometry.direction = mirror_dir;
-            (refl, true)
+            (refl,refl / (refl + trans), true)
         } else {
             // Transmission... keep same direction, dont change refraction
             // avoid self shading
             ray.geometry.origin = intersection_pt - normal * 0.00001;                        
-            (trans, true)
+            (trans,trans / (refl + trans), true)
         }
     }
 

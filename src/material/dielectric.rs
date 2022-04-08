@@ -134,7 +134,7 @@ impl Material for Dielectric {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Float, bool) {
+    ) -> (Float, Float, bool) {
         debug_assert!(
             (ray.geometry.direction.length() - 1.).abs() < 1e-5,
             "Length was {}",
@@ -162,7 +162,7 @@ impl Material for Dielectric {
             ray.geometry.origin = intersection_pt + normal * 0.00001;
 
             ray.geometry.direction = mirror_dir;
-            (refl, true)
+            (refl, refl / (refl + trans), true)
         } else {
             // Transmission
             // avoid self shading
@@ -171,7 +171,7 @@ impl Material for Dielectric {
             ray.refraction_index = n2;
             let trans_dir = fresnel_transmission_dir(ray.geometry.direction, normal, n1, cos1, n2, cos2.unwrap());
             ray.geometry.direction = trans_dir;
-            (trans, true)
+            (trans, trans / (refl + trans), true)
         }
     }
 
@@ -399,7 +399,7 @@ mod tests {
         // Get INTO the material
         for _ in 0..30 {
             let mut new_ray = ray.clone();
-            let ( _pdf, _is_specular) =
+            let ( _bsdf, _pdf, _is_specular) =
                 mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut new_ray, &mut rng);
             println!("A -- PDF = {}", _pdf);
 
@@ -433,7 +433,7 @@ mod tests {
         ray.geometry.direction = trans_dir.unwrap();
         for _ in 0..30 {
             let mut new_ray = ray.clone();
-            let (_pdf, _is_specular) =
+            let (_bsdf, _pdf, _is_specular) =
                 mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut new_ray, &mut rng);
             println!("B -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;

@@ -51,7 +51,7 @@ impl Material for Metal {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Float, bool) {
+    ) -> (Float, Float,bool) {
         // avoid self shading
         // let normal = *normal;
         // let mut ray = *ray;
@@ -62,7 +62,7 @@ impl Material for Metal {
         } else {
             // Probability
             const ONE_OVER_PI: Float = 1. / PI;
-            let prob = ONE_OVER_PI;
+            
 
             let local_dir = sample_cosine_weighted_horizontal_hemisphere(rng);
             debug_assert!(
@@ -82,7 +82,7 @@ impl Material for Metal {
             let dir = Vector3D::new(x, y, z);
             ray.geometry.direction = dir;
             debug_assert!((dir.length() - 1.).abs() < 1e-4);
-            (prob, false)
+            ((1. - self.specularity)*ONE_OVER_PI, ONE_OVER_PI, false)
         }
     }
 

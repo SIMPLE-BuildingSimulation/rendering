@@ -59,11 +59,7 @@ pub struct RayTracer {
 
     pub limit_weight: Float,
     pub count_specular_bounce: Float,
-
-    /// A function returning the diffuse Sky brightness (i.e., without the sun)
-    /// The sun should be added separately. 
-    /// Alternatively, you can use the `add_perez_sky` function
-    pub sky: Option<Box<dyn Fn(Vector3D) -> f64>>,
+    
 }
 
 impl Default for RayTracer {
@@ -74,8 +70,7 @@ impl Default for RayTracer {
             n_ambient_samples: 10,
 
             limit_weight: 1e-3,
-            count_specular_bounce: 0.3,
-            sky: None
+            count_specular_bounce: 0.3,            
         }
     }
 }
@@ -116,7 +111,8 @@ impl RayTracer {
             // are visible when viewed directly from the camera
             if material.emits_light() {
                 // if current_depth == 0 {
-                let light_pdf = 1. / object.primitive.omega(intersection_pt);
+                // let light_pdf = 1. / object.primitive.omega(intersection_pt);
+                let light_pdf = object.primitive.solid_angle_pdf(&ray.interaction.geometry_shading, &ray.geometry);
                 return (material.colour(), light_pdf);
                 // return Some(Spectrum::gray(1.))
                 // }else{
@@ -254,11 +250,26 @@ impl RayTracer {
             // return
             ((local + global), 0.0) // /total_samples as Float , 0.0)
         } else {
-            // Did not hit... how about distant lights?
-            if let Some(sky) = &self.sky {
+            // Did not hit... so, let's check the sky
+            if let Some(sky) = &scene.sky {
                 let sky_brightness = sky(ray.geometry.direction);
-                (scene.sky_colour * sky_brightness, 1./2./crate::PI)
-            }else{                
+                if let Some(colour) = scene.sky_colour {
+                    (colour * sky_brightness, 1./2./crate::PI)
+                }else{
+                    const SKY_MAP : [Spectrum; 4] = [
+                        Spectrum{red: 0.994845709, green: 1.003848837, blue: 0.981341016},//0.994845709	1.003848837	0.981341016
+                        Spectrum{red: 0.808577058, green: 1.049103145, blue: 1.274276503},//0.808577058	1.049103145	1.274276503
+                        Spectrum{red: 0.732375468, green: 1.067814614, blue: 1.392072455},//0.732375468	1.067814614	1.392072455
+                        Spectrum{red: 0.637909144, green: 1.090019509, blue: 1.548323166},//0.637909144	1.090019509	1.548323166
+                    ];
+                    if ray.geometry.direction.z > 0.001 {
+                        let sky_colour = crate::colourmap::map_linear_colour(ray.geometry.direction.z, 0., 1., &SKY_MAP);
+                        (sky_colour * sky_brightness, 1./2./crate::PI)
+                    }else {
+                        (Spectrum::black(), 0.0)
+                    }
+                }
+            }else{                                
                 (Spectrum::black(), 0.0)
             }
         }
@@ -398,7 +409,7 @@ impl RayTracer {
 
         for _ in 0..n_ambient_samples {
             // Choose a direction.
-            let (bsdf_value, _is_specular) =
+            let (bsdf_value, pdf, _is_specular) =
                 material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
             let new_ray_dir = ray.geometry.direction;
             debug_assert!(
@@ -410,7 +421,7 @@ impl RayTracer {
             // increase depth
             let new_depth = current_depth+ 1;                                               
             let cos_theta = (normal * new_ray_dir).abs();
-            let new_value = wt * bsdf_value * cos_theta;
+            let new_value = wt * bsdf_value * cos_theta / pdf;
 
             // russian roulette
             if self.limit_weight > 0. && new_value < self.limit_weight {
@@ -510,19 +521,14 @@ pub fn sample_light(
     let light_direction = shadow_ray.direction;
     let origin = shadow_ray.origin;
 
-    debug_assert!(scene.materials[light.front_material_index].emits_direct_light());
+    
 
     // Expect direction to be normalized
     debug_assert!((1. - light_direction.length()).abs() < 0.0001);
 
-    let p = match light.primitive.simple_intersect(shadow_ray) {
-        Some(p) => p,
-        None => {
-            return None; //(Spectrum::black(),0.0)
-        }
-    };
+    let info = light.primitive.intersect(shadow_ray)?;
 
-    let light_distance_squared = (origin - p).length_squared();
+    let light_distance_squared = (origin - info.p).length_squared();
 
     // If the light is not visible (this does not consider
     // transparent surfaces, yet.)
@@ -530,23 +536,25 @@ pub fn sample_light(
         return Some((Spectrum::black(), 0.0));
     }
 
-    // let light_material = match intersection_info.side {
-    //     SurfaceSide::Front => {
-    //         &scene.materials[light.front_material_index]
-    //     }
-    //     SurfaceSide::Back => {
-    //         &scene.materials[light.back_material_index]
-    //     },
-    //     SurfaceSide::NonApplicable => {
-    //         // Hit parallel to the surface
-    //         return Some((Spectrum::black(), 0.0)) ;
-    //     }
-    // };
-    let light_material = &scene.materials[light.front_material_index];
+    let light_material = match info.side {
+        SurfaceSide::Front => {
+            &scene.materials[light.front_material_index]
+        }
+        SurfaceSide::Back => {
+            &scene.materials[light.back_material_index]
+        },
+        SurfaceSide::NonApplicable => {
+            // Hit parallel to the surface
+            return Some((Spectrum::black(), 0.0)) ;
+        }
+    };
+    // let light_material = &scene.materials[light.front_material_index];
 
     let light_colour = light_material.colour();
+    let light_pdf = light.primitive.solid_angle_pdf(&info, &shadow_ray);
 
-    let light_pdf = 1. / light.primitive.omega(origin);
+    // let light_pdf = 1. / light.primitive.omega(origin);
+
 
     // return
     Some((light_colour, light_pdf))
@@ -682,7 +690,7 @@ mod tests {
         // oconv ../room.rad ../white_sky.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
         let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
-        let sky = scene.add_perez_sky(calendar::Date{month: 6, day: 1, hour: 12.}, -33., 70., 65., 200., 500.);
+        scene.add_perez_sky(calendar::Date{month: 6, day: 1, hour: 12.}, -33., 70., 65., 200., 500.);
 
         scene.build_accelerator();
 
@@ -703,8 +711,7 @@ mod tests {
         let integrator = RayTracer {
             n_ambient_samples: 220,
             n_shadow_samples: 1,
-            max_depth: 3,
-            sky: Some(sky),
+            max_depth: 3,            
             ..RayTracer::default()
         };
 
@@ -721,6 +728,7 @@ mod tests {
         // 60 seconds
         // time cargo test --features parallel --release  -- --ignored --nocapture test_render_cornell
         // oconv ../room.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
+
 
         let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
 
@@ -746,7 +754,7 @@ mod tests {
         let camera = Pinhole::new(view, film);
 
         let integrator = RayTracer {
-            n_ambient_samples: 190,
+            n_ambient_samples: 90,
             n_shadow_samples: 1,
             max_depth: 3,
             ..RayTracer::default()
@@ -886,7 +894,7 @@ mod tests {
 
         scene.build_accelerator();
 
-        // Create camera
+        
         // Create film
         let film = Film {
             resolution: (512, 512),

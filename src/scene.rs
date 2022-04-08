@@ -63,8 +63,12 @@ pub struct Scene {
     pub accelerator : Option<BoundingVolumeTree>,
 
     /// The colour of the sky, normalized
-    pub sky_colour: Spectrum
+    pub sky_colour: Option<Spectrum>,
     
+    /// A function returning the diffuse Sky brightness (i.e., without the sun)
+    /// The sun should be added separately. 
+    /// Alternatively, you can use the `add_perez_sky` function
+    pub sky: Option<Box<dyn Fn(Vector3D) -> f64 + Sync>>,
 }
 
 pub enum Wavelengths {
@@ -97,20 +101,20 @@ impl Scene {
         standard_meridian: Float, 
         diffuse_horizontal_irrad: Float,
         direct_normal_irrad: Float
-    )-> Box<dyn Fn(Vector3D) -> f64>{
+    ){
         let dew_point = 11.;
         // Add sky
         let solar = solar::Solar::new(latitude.to_radians(), longitude.to_radians(), standard_meridian.to_radians());
-        let sky = solar::PerezSky::get_sky_func_standard_time(
+        let s = solar::PerezSky::get_sky_func_standard_time(
             solar::SkyUnits::Visible, 
             &solar, 
             date, 
             dew_point,
             diffuse_horizontal_irrad, 
             direct_normal_irrad);
-        
-        self.sky_colour = Spectrum::gray(1.0);
 
+        self.sky = Some(s);
+        
         
         // Add sun if there is any (it might be nighttime)
         let n = solar::Time::Standard(date.day_of_year());
@@ -161,7 +165,7 @@ impl Scene {
                 Primitive::Source(geometry3d::DistantSource3D::new(sun_position,angle)),
             );
         }// end of "if there is a sun"
-        sky
+        
     }
 
     pub fn build_accelerator(&mut self) {

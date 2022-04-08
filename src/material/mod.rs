@@ -95,7 +95,7 @@ pub trait Material {
     
 
     /// Samples the bsdf (returned by modifying the given `Ray`).
-    /// Returns the value of the BSDF in that direction, and a boolean
+    /// Returns the value of the BSDF in that direction, the probability, and a boolean
     /// indicating whether this is a specular or a diffuse interaction    
     fn sample_bsdf(
         &self,
@@ -105,7 +105,7 @@ pub trait Material {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Float, bool) ;
+    ) -> (Float, Float, bool) ;
     
 
     /// Evaluates a BSDF based on an input and outpt directions
@@ -154,8 +154,9 @@ mod tests {
         for _ in 0..99999 {
             let (normal, e1, e2, mut ray, vout) = get_vectors(&mut rng);
             let old_ray = ray.clone();
-            let (pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
+            let (bsdf, pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
             assert!(pdf.is_finite());
+            assert!(bsdf.is_finite());
             assert!(old_ray.geometry.direction.length().is_finite());
             assert!(old_ray.geometry.origin.as_vector3d().length().is_finite());
             let pdf = material.eval_bsdf(normal, e1, e2, &old_ray, vout);

@@ -63,13 +63,13 @@ pub fn triangle_solid_angle_pdf(
 ) -> Float {
     let d2 = (info.p - ray.origin).length_squared();
     let cos_theta = ray.origin * info.normal;
-    debug_assert!(cos_theta > 0.);
+    // debug_assert!(cos_theta > 0.);
     if cos_theta < 1e-7 {
         return 0.0;
     }
     let area = triangle.area();
     // return
-    d2 / cos_theta / area
+    d2 / cos_theta.abs() / area
 }
 
 /* END OF TRIANGLE */
