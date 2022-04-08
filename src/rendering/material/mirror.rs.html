@@ -198,7 +198,7 @@ SOFTWARE.
     ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>]{
             <span class="comment">// Calculate the ray direction and BSDF</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">clone</span>();
-            <span class="kw">let</span> (<span class="ident">v</span>, <span class="kw">_</span>) <span class="op">=</span> <span class="ident">mirror_bsdf</span>(<span class="kw-2">*</span><span class="ident">intersection_pt</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ray</span>, <span class="kw-2">*</span><span class="ident">normal</span>);
+            <span class="kw">let</span> (<span class="ident">v</span>, <span class="kw">_</span>,<span class="kw">_</span>) <span class="op">=</span> <span class="ident">mirror_bsdf</span>(<span class="kw-2">*</span><span class="ident">intersection_pt</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ray</span>, <span class="kw-2">*</span><span class="ident">normal</span>);
             [<span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">v</span>, <span class="number">1.</span>)), <span class="prelude-val">None</span>]
     }
 
@@ -210,7 +210,7 @@ SOFTWARE.
         <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">_rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Float</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">Float</span>,<span class="ident">Float</span>, <span class="ident">bool</span>) {
         <span class="ident">mirror_bsdf</span>(<span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">normal</span>)
     }
     
@@ -230,7 +230,7 @@ SOFTWARE.
 
 
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mirror_bsdf</span>(<span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">bool</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mirror_bsdf</span>(<span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) {
     <span class="comment">// avoid self shading</span>
     <span class="comment">// let mut ray = *ray;</span>
     <span class="comment">// let normal = *normal;</span>
@@ -240,7 +240,7 @@ SOFTWARE.
     <span class="kw">let</span> <span class="ident">cos</span> <span class="op">=</span> (<span class="ident">ray_dir</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>();
     <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;dir len is {}&quot;</span>, <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>());
-    ( <span class="number">1.</span> <span class="op">/</span> <span class="ident">cos</span>, <span class="bool-val">true</span>)
+    ( <span class="number">1.</span> <span class="op">/</span> <span class="ident">cos</span>, <span class="number">1.</span>, <span class="bool-val">true</span>)
     <span class="comment">// (ray, 1., true)</span>
 }
 

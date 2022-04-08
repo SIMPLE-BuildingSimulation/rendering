@@ -161,7 +161,7 @@ SOFTWARE.
         <span class="ident">_intersection_pt</span>: <span class="ident">Point3D</span>,
         <span class="ident">_ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">_rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Float</span>, <span class="ident">bool</span>){
+    ) -&gt; (<span class="ident">Float</span>,<span class="ident">Float</span>, <span class="ident">bool</span>){
         <span class="macro">panic!</span>(<span class="string">&quot;{} material does not have a BSDF to sample&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>())
     }
 

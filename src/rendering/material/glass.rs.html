@@ -474,7 +474,7 @@ SOFTWARE.
         <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Float</span>, <span class="ident">bool</span>) {
+    ) -&gt; (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">bool</span>) {
         <span class="macro">debug_assert!</span>(
             (<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
             <span class="string">&quot;Length was {}&quot;</span>,
@@ -504,12 +504,12 @@ SOFTWARE.
             <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
 
             <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
-            (<span class="ident">refl</span>, <span class="bool-val">true</span>)
+            (<span class="ident">refl</span>,<span class="ident">refl</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>), <span class="bool-val">true</span>)
         } <span class="kw">else</span> {
             <span class="comment">// Transmission... keep same direction, dont change refraction</span>
             <span class="comment">// avoid self shading</span>
             <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;                        
-            (<span class="ident">trans</span>, <span class="bool-val">true</span>)
+            (<span class="ident">trans</span>,<span class="ident">trans</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>), <span class="bool-val">true</span>)
         }
     }
 

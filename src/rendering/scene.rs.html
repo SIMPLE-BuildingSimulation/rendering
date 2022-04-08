@@ -232,6 +232,91 @@
 <span id="196">196</span>
 <span id="197">197</span>
 <span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -254,14 +339,15 @@ SOFTWARE.
 
 <span class="comment">// use std::rc::RefCount;</span>
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::bvh::BoundingVolumeTree</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::from_simple_model::SimpleModelReader</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident">geometry3d::Ray3D</span>;
-<span class="comment">// type Texture = fn(Float,Float)-&gt;Float;</span>
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Vector3D</span>,<span class="ident">Ray3D</span>};
 <span class="kw">use</span> <span class="ident">simple_model::SimpleModel</span>;
+<span class="kw">use</span> <span class="ident">calendar::Date</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Object</span> {
@@ -295,7 +381,13 @@ SOFTWARE.
     <span class="doccomment">/// This needs to be build through the `build_accelerator` function.</span>
     <span class="kw">pub</span> <span class="ident">accelerator</span> : <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoundingVolumeTree</span><span class="op">&gt;</span>,
 
+    <span class="doccomment">/// The colour of the sky, normalized</span>
+    <span class="kw">pub</span> <span class="ident">sky_colour</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span>,
     
+    <span class="doccomment">/// A function returning the diffuse Sky brightness (i.e., without the sun)</span>
+    <span class="doccomment">/// The sun should be added separately. </span>
+    <span class="doccomment">/// Alternatively, you can use the `add_perez_sky` function</span>
+    <span class="kw">pub</span> <span class="ident">sky</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>) -&gt; <span class="ident">f64</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Wavelengths</span> {
@@ -315,6 +407,84 @@ SOFTWARE.
     <span class="doccomment">/// Creates an empty scene</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>() -&gt; <span class="self">Self</span> {
         <span class="ident"><span class="self">Self</span>::default</span>()
+    }
+
+
+    <span class="doccomment">/// Adds the elements describing a Perez sky to the scene.</span>
+    <span class="doccomment">/// The angles of Latitude, Longitude and Standard meridian should come</span>
+    <span class="doccomment">/// in Degrees</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_perez_sky</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, 
+        <span class="ident">date</span>: <span class="ident">Date</span>, 
+        <span class="ident">latitude</span>: <span class="ident">Float</span>, 
+        <span class="ident">longitude</span>: <span class="ident">Float</span>, 
+        <span class="ident">standard_meridian</span>: <span class="ident">Float</span>, 
+        <span class="ident">diffuse_horizontal_irrad</span>: <span class="ident">Float</span>,
+        <span class="ident">direct_normal_irrad</span>: <span class="ident">Float</span>
+    ){
+        <span class="kw">let</span> <span class="ident">dew_point</span> <span class="op">=</span> <span class="number">11.</span>;
+        <span class="comment">// Add sky</span>
+        <span class="kw">let</span> <span class="ident">solar</span> <span class="op">=</span> <span class="ident">solar::Solar::new</span>(<span class="ident">latitude</span>.<span class="ident">to_radians</span>(), <span class="ident">longitude</span>.<span class="ident">to_radians</span>(), <span class="ident">standard_meridian</span>.<span class="ident">to_radians</span>());
+        <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">solar::PerezSky::get_sky_func_standard_time</span>(
+            <span class="ident">solar::SkyUnits::Visible</span>, 
+            <span class="kw-2">&amp;</span><span class="ident">solar</span>, 
+            <span class="ident">date</span>, 
+            <span class="ident">dew_point</span>,
+            <span class="ident">diffuse_horizontal_irrad</span>, 
+            <span class="ident">direct_normal_irrad</span>);
+
+        <span class="self">self</span>.<span class="ident">sky</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>);
+        
+        
+        <span class="comment">// Add sun if there is any (it might be nighttime)</span>
+        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">solar::Time::Standard</span>(<span class="ident">date</span>.<span class="ident">day_of_year</span>());
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sun_position</span>) <span class="op">=</span> <span class="ident">solar</span>.<span class="ident">sun_position</span>(<span class="ident">n</span>){
+            <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> (<span class="number">0.533</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>(); <span class="comment">// 0.009302605</span>
+            <span class="kw">let</span> <span class="ident">tan_half_alpha</span> <span class="op">=</span> (<span class="ident">angle</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">tan</span>(); <span class="comment">// 0.004651336043</span>
+            <span class="kw">let</span> <span class="ident">omega</span> <span class="op">=</span> <span class="ident">tan_half_alpha</span> <span class="op">*</span> <span class="ident">tan_half_alpha</span> <span class="op">*</span> <span class="ident"><span class="kw">crate</span>::PI</span>; <span class="comment">// 0.00006796811354</span>
+
+
+            <span class="kw">let</span> <span class="ident">cos_zenit</span> <span class="op">=</span> <span class="ident">sun_position</span>.<span class="ident">z</span>;
+            <span class="kw">let</span> <span class="ident">zenith</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">cos_zenit</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.</span> {
+                <span class="comment">// Limit zenith to 90 degrees</span>
+                <span class="ident"><span class="kw">crate</span>::PI</span> <span class="op">/</span> <span class="number">2.</span>
+            } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">cos_zenit</span> <span class="op">&gt;</span><span class="op">=</span> <span class="number">0.9986295347545738</span> {
+                <span class="comment">// Limit Zenith to 3 degrees minimum</span>
+                <span class="comment">/*
+                    The threshold above is equal to (3.*PI/180.).cos()
+                    would that have been optimized by the compiler?? I guess, but
+                    it did not allow me to create a constant of that value... so I
+                    did this just in case
+                */</span>
+                (<span class="number">3.</span> <span class="op">*</span> <span class="ident"><span class="kw">crate</span>::PI</span> <span class="op">/</span> <span class="number">180.</span>).<span class="ident">acos</span>()
+            } <span class="kw">else</span> {
+                <span class="ident">cos_zenit</span>.<span class="ident">acos</span>()
+            };
+            <span class="kw">let</span> <span class="ident">apwc</span> <span class="op">=</span> <span class="ident">solar::PerezSky::precipitable_water_content</span>(<span class="ident">dew_point</span>);
+            <span class="kw">let</span> <span class="ident">air_mass</span> <span class="op">=</span> <span class="ident">solar::air_mass</span>(<span class="ident">zenith</span>);
+            <span class="kw">let</span> <span class="ident">day</span> <span class="op">=</span> <span class="ident">solar</span>.<span class="ident">unwrap_solar_time</span>(<span class="ident">n</span>);
+            <span class="kw">let</span> <span class="ident">extraterrestrial_irradiance</span> <span class="op">=</span> <span class="ident">solar</span>.<span class="ident">normal_extraterrestrial_radiation</span>(<span class="ident">day</span>);
+            <span class="kw">let</span> <span class="ident">sky_brightness</span> <span class="op">=</span> <span class="ident">solar::PerezSky::sky_brightness</span>(
+                <span class="ident">diffuse_horizontal_irrad</span>,
+                <span class="ident">air_mass</span>,
+                <span class="ident">extraterrestrial_irradiance</span>,
+            )
+            .<span class="ident">clamp</span>(<span class="number">0.01</span>, <span class="number">9e9</span>);
+            <span class="kw">let</span> <span class="ident">sky_clearness</span> <span class="op">=</span> <span class="ident">solar::PerezSky::sky_clearness</span>(<span class="ident">diffuse_horizontal_irrad</span>, <span class="ident">direct_normal_irrad</span>, <span class="ident">zenith</span>).<span class="ident">clamp</span>(<span class="op">-</span><span class="number">9e9</span>, <span class="number">11.9</span>);
+            <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">solar::PerezSky::clearness_category</span>(<span class="ident">sky_clearness</span>);
+            <span class="kw">let</span> <span class="ident">dir_illum</span> <span class="op">=</span> <span class="ident">direct_normal_irrad</span> <span class="op">*</span> <span class="ident">solar::PerezSky::direct_illuminance_ratio</span>(<span class="ident">apwc</span>, <span class="ident">zenith</span>, <span class="ident">sky_brightness</span>, <span class="ident">index</span>);
+            
+            <span class="kw">let</span> <span class="ident">sun_brightness</span> <span class="op">=</span> <span class="ident">dir_illum</span> <span class="op">/</span> <span class="ident">omega</span> <span class="op">/</span> <span class="ident">Spectrum::WHITE_EFFICACY</span>; <span class="comment">// </span>
+            <span class="kw">let</span> <span class="ident">sun_mat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident"><span class="kw">crate</span>::material::Light</span>(<span class="ident">Spectrum::gray</span>(<span class="ident">sun_brightness</span>))));
+            
+
+
+            <span class="self">self</span>.<span class="ident">push_object</span>(
+                <span class="ident">sun_mat</span>,
+                <span class="ident">sun_mat</span>,
+                <span class="ident">Primitive::Source</span>(<span class="ident">geometry3d::DistantSource3D::new</span>(<span class="ident">sun_position</span>,<span class="ident">angle</span>)),
+            );
+        }<span class="comment">// end of &quot;if there is a sun&quot;</span>
+        
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_accelerator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {

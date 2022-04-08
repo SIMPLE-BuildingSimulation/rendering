@@ -937,6 +937,27 @@
 <span id="901">901</span>
 <span id="902">902</span>
 <span id="903">903</span>
+<span id="904">904</span>
+<span id="905">905</span>
+<span id="906">906</span>
+<span id="907">907</span>
+<span id="908">908</span>
+<span id="909">909</span>
+<span id="910">910</span>
+<span id="911">911</span>
+<span id="912">912</span>
+<span id="913">913</span>
+<span id="914">914</span>
+<span id="915">915</span>
+<span id="916">916</span>
+<span id="917">917</span>
+<span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -998,6 +1019,7 @@ SOFTWARE.
 
     <span class="kw">pub</span> <span class="ident">limit_weight</span>: <span class="ident">Float</span>,
     <span class="kw">pub</span> <span class="ident">count_specular_bounce</span>: <span class="ident">Float</span>,
+    
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">RayTracer</span> {
@@ -1008,7 +1030,7 @@ SOFTWARE.
             <span class="ident">n_ambient_samples</span>: <span class="number">10</span>,
 
             <span class="ident">limit_weight</span>: <span class="number">1e-3</span>,
-            <span class="ident">count_specular_bounce</span>: <span class="number">0.3</span>,
+            <span class="ident">count_specular_bounce</span>: <span class="number">0.3</span>,            
         }
     }
 }
@@ -1049,7 +1071,8 @@ SOFTWARE.
             <span class="comment">// are visible when viewed directly from the camera</span>
             <span class="kw">if</span> <span class="ident">material</span>.<span class="ident">emits_light</span>() {
                 <span class="comment">// if current_depth == 0 {</span>
-                <span class="kw">let</span> <span class="ident">light_pdf</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">/</span> <span class="ident">object</span>.<span class="ident">primitive</span>.<span class="ident">omega</span>(<span class="ident">intersection_pt</span>);
+                <span class="comment">// let light_pdf = 1. / object.primitive.omega(intersection_pt);</span>
+                <span class="kw">let</span> <span class="ident">light_pdf</span> <span class="op">=</span> <span class="ident">object</span>.<span class="ident">primitive</span>.<span class="ident">solid_angle_pdf</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>.<span class="ident">geometry</span>);
                 <span class="kw">return</span> (<span class="ident">material</span>.<span class="ident">colour</span>(), <span class="ident">light_pdf</span>);
                 <span class="comment">// return Some(Spectrum::gray(1.))</span>
                 <span class="comment">// }else{</span>
@@ -1187,8 +1210,28 @@ SOFTWARE.
             <span class="comment">// return</span>
             ((<span class="ident">local</span> <span class="op">+</span> <span class="ident">global</span>), <span class="number">0.0</span>) <span class="comment">// /total_samples as Float , 0.0)</span>
         } <span class="kw">else</span> {
-            <span class="comment">// Did not hit... how about distant lights?</span>
-            (<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>)
+            <span class="comment">// Did not hit... so, let&#39;s check the sky</span>
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sky</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">sky</span> {
+                <span class="kw">let</span> <span class="ident">sky_brightness</span> <span class="op">=</span> <span class="ident">sky</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>);
+                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">colour</span>) <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">sky_colour</span> {
+                    (<span class="ident">colour</span> <span class="op">*</span> <span class="ident">sky_brightness</span>, <span class="number">1.</span><span class="op">/</span><span class="number">2.</span><span class="op">/</span><span class="ident"><span class="kw">crate</span>::PI</span>)
+                }<span class="kw">else</span>{
+                    <span class="kw">const</span> <span class="ident">SKY_MAP</span> : [<span class="ident">Spectrum</span>; <span class="number">4</span>] <span class="op">=</span> [
+                        <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.994845709</span>, <span class="ident">green</span>: <span class="number">1.003848837</span>, <span class="ident">blue</span>: <span class="number">0.981341016</span>},<span class="comment">//0.994845709	1.003848837	0.981341016</span>
+                        <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.808577058</span>, <span class="ident">green</span>: <span class="number">1.049103145</span>, <span class="ident">blue</span>: <span class="number">1.274276503</span>},<span class="comment">//0.808577058	1.049103145	1.274276503</span>
+                        <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.732375468</span>, <span class="ident">green</span>: <span class="number">1.067814614</span>, <span class="ident">blue</span>: <span class="number">1.392072455</span>},<span class="comment">//0.732375468	1.067814614	1.392072455</span>
+                        <span class="ident">Spectrum</span>{<span class="ident">red</span>: <span class="number">0.637909144</span>, <span class="ident">green</span>: <span class="number">1.090019509</span>, <span class="ident">blue</span>: <span class="number">1.548323166</span>},<span class="comment">//0.637909144	1.090019509	1.548323166</span>
+                    ];
+                    <span class="kw">if</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">z</span> <span class="op">&gt;</span> <span class="number">0.001</span> {
+                        <span class="kw">let</span> <span class="ident">sky_colour</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::colourmap::map_linear_colour</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">z</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="kw-2">&amp;</span><span class="ident">SKY_MAP</span>);
+                        (<span class="ident">sky_colour</span> <span class="op">*</span> <span class="ident">sky_brightness</span>, <span class="number">1.</span><span class="op">/</span><span class="number">2.</span><span class="op">/</span><span class="ident"><span class="kw">crate</span>::PI</span>)
+                    }<span class="kw">else</span> {
+                        (<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>)
+                    }
+                }
+            }<span class="kw">else</span>{                                
+                (<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>)
+            }
         }
     }
 
@@ -1326,7 +1369,7 @@ SOFTWARE.
 
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n_ambient_samples</span> {
             <span class="comment">// Choose a direction.</span>
-            <span class="kw">let</span> (<span class="ident">bsdf_value</span>, <span class="ident">_is_specular</span>) <span class="op">=</span>
+            <span class="kw">let</span> (<span class="ident">bsdf_value</span>, <span class="ident">pdf</span>, <span class="ident">_is_specular</span>) <span class="op">=</span>
                 <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>);
             <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
             <span class="macro">debug_assert!</span>(
@@ -1338,7 +1381,7 @@ SOFTWARE.
             <span class="comment">// increase depth</span>
             <span class="kw">let</span> <span class="ident">new_depth</span> <span class="op">=</span> <span class="ident">current_depth</span><span class="op">+</span> <span class="number">1</span>;                                               
             <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">new_ray_dir</span>).<span class="ident">abs</span>();
-            <span class="kw">let</span> <span class="ident">new_value</span> <span class="op">=</span> <span class="ident">wt</span> <span class="op">*</span> <span class="ident">bsdf_value</span> <span class="op">*</span> <span class="ident">cos_theta</span>;
+            <span class="kw">let</span> <span class="ident">new_value</span> <span class="op">=</span> <span class="ident">wt</span> <span class="op">*</span> <span class="ident">bsdf_value</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">/</span> <span class="ident">pdf</span>;
 
             <span class="comment">// russian roulette</span>
             <span class="kw">if</span> <span class="self">self</span>.<span class="ident">limit_weight</span> <span class="op">&gt;</span> <span class="number">0.</span> <span class="op">&amp;&amp;</span> <span class="ident">new_value</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">limit_weight</span> {
@@ -1438,19 +1481,14 @@ SOFTWARE.
     <span class="kw">let</span> <span class="ident">light_direction</span> <span class="op">=</span> <span class="ident">shadow_ray</span>.<span class="ident">direction</span>;
     <span class="kw">let</span> <span class="ident">origin</span> <span class="op">=</span> <span class="ident">shadow_ray</span>.<span class="ident">origin</span>;
 
-    <span class="macro">debug_assert!</span>(<span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">front_material_index</span>].<span class="ident">emits_direct_light</span>());
+    
 
     <span class="comment">// Expect direction to be normalized</span>
     <span class="macro">debug_assert!</span>((<span class="number">1.</span> <span class="op">-</span> <span class="ident">light_direction</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0001</span>);
 
-    <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">light</span>.<span class="ident">primitive</span>.<span class="ident">simple_intersect</span>(<span class="ident">shadow_ray</span>) {
-        <span class="prelude-val">Some</span>(<span class="ident">p</span>) =&gt; <span class="ident">p</span>,
-        <span class="prelude-val">None</span> =&gt; {
-            <span class="kw">return</span> <span class="prelude-val">None</span>; <span class="comment">//(Spectrum::black(),0.0)</span>
-        }
-    };
+    <span class="kw">let</span> <span class="ident">info</span> <span class="op">=</span> <span class="ident">light</span>.<span class="ident">primitive</span>.<span class="ident">intersect</span>(<span class="ident">shadow_ray</span>)<span class="question-mark">?</span>;
 
-    <span class="kw">let</span> <span class="ident">light_distance_squared</span> <span class="op">=</span> (<span class="ident">origin</span> <span class="op">-</span> <span class="ident">p</span>).<span class="ident">length_squared</span>();
+    <span class="kw">let</span> <span class="ident">light_distance_squared</span> <span class="op">=</span> (<span class="ident">origin</span> <span class="op">-</span> <span class="ident">info</span>.<span class="ident">p</span>).<span class="ident">length_squared</span>();
 
     <span class="comment">// If the light is not visible (this does not consider</span>
     <span class="comment">// transparent surfaces, yet.)</span>
@@ -1458,23 +1496,25 @@ SOFTWARE.
         <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>));
     }
 
-    <span class="comment">// let light_material = match intersection_info.side {</span>
-    <span class="comment">//     SurfaceSide::Front =&gt; {</span>
-    <span class="comment">//         &amp;scene.materials[light.front_material_index]</span>
-    <span class="comment">//     }</span>
-    <span class="comment">//     SurfaceSide::Back =&gt; {</span>
-    <span class="comment">//         &amp;scene.materials[light.back_material_index]</span>
-    <span class="comment">//     },</span>
-    <span class="comment">//     SurfaceSide::NonApplicable =&gt; {</span>
-    <span class="comment">//         // Hit parallel to the surface</span>
-    <span class="comment">//         return Some((Spectrum::black(), 0.0)) ;</span>
-    <span class="comment">//     }</span>
-    <span class="comment">// };</span>
-    <span class="kw">let</span> <span class="ident">light_material</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">front_material_index</span>];
+    <span class="kw">let</span> <span class="ident">light_material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">info</span>.<span class="ident">side</span> {
+        <span class="ident">SurfaceSide::Front</span> =&gt; {
+            <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">front_material_index</span>]
+        }
+        <span class="ident">SurfaceSide::Back</span> =&gt; {
+            <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">back_material_index</span>]
+        },
+        <span class="ident">SurfaceSide::NonApplicable</span> =&gt; {
+            <span class="comment">// Hit parallel to the surface</span>
+            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>)) ;
+        }
+    };
+    <span class="comment">// let light_material = &amp;scene.materials[light.front_material_index];</span>
 
     <span class="kw">let</span> <span class="ident">light_colour</span> <span class="op">=</span> <span class="ident">light_material</span>.<span class="ident">colour</span>();
+    <span class="kw">let</span> <span class="ident">light_pdf</span> <span class="op">=</span> <span class="ident">light</span>.<span class="ident">primitive</span>.<span class="ident">solid_angle_pdf</span>(<span class="kw-2">&amp;</span><span class="ident">info</span>, <span class="kw-2">&amp;</span><span class="ident">shadow_ray</span>);
 
-    <span class="kw">let</span> <span class="ident">light_pdf</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">/</span> <span class="ident">light</span>.<span class="ident">primitive</span>.<span class="ident">omega</span>(<span class="ident">origin</span>);
+    <span class="comment">// let light_pdf = 1. / light.primitive.omega(origin);</span>
+
 
     <span class="comment">// return</span>
     <span class="prelude-val">Some</span>((<span class="ident">light_colour</span>, <span class="ident">light_pdf</span>))
@@ -1607,9 +1647,10 @@ SOFTWARE.
     <span class="kw">fn</span> <span class="ident">test_render_room</span>() {
         <span class="comment">// 60 seconds</span>
         <span class="comment">// time cargo test --features parallel --release  -- --ignored --nocapture test_render_room</span>
-        <span class="comment">// oconv ../room.rad &gt; room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct &gt; rad_room.hdr</span>
+        <span class="comment">// oconv ../room.rad ../white_sky.rad &gt; room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct &gt; rad_room.hdr</span>
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="string">&quot;./test_data/room.rad&quot;</span>.<span class="ident">to_string</span>());
+        <span class="ident">scene</span>.<span class="ident">add_perez_sky</span>(<span class="ident">calendar::Date</span>{<span class="ident">month</span>: <span class="number">6</span>, <span class="ident">day</span>: <span class="number">1</span>, <span class="ident">hour</span>: <span class="number">12.</span>}, <span class="op">-</span><span class="number">33.</span>, <span class="number">70.</span>, <span class="number">65.</span>, <span class="number">200.</span>, <span class="number">500.</span>);
 
         <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
@@ -1630,7 +1671,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer</span> {
             <span class="ident">n_ambient_samples</span>: <span class="number">220</span>,
             <span class="ident">n_shadow_samples</span>: <span class="number">1</span>,
-            <span class="ident">max_depth</span>: <span class="number">3</span>,
+            <span class="ident">max_depth</span>: <span class="number">3</span>,            
             ..<span class="ident">RayTracer::default</span>()
         };
 
@@ -1647,6 +1688,7 @@ SOFTWARE.
         <span class="comment">// 60 seconds</span>
         <span class="comment">// time cargo test --features parallel --release  -- --ignored --nocapture test_render_cornell</span>
         <span class="comment">// oconv ../room.rad &gt; room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct &gt; rad_room.hdr</span>
+
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="string">&quot;./test_data/cornell.rad&quot;</span>.<span class="ident">to_string</span>());
 
@@ -1672,7 +1714,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">camera</span> <span class="op">=</span> <span class="ident">Pinhole::new</span>(<span class="ident">view</span>, <span class="ident">film</span>);
 
         <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer</span> {
-            <span class="ident">n_ambient_samples</span>: <span class="number">190</span>,
+            <span class="ident">n_ambient_samples</span>: <span class="number">90</span>,
             <span class="ident">n_shadow_samples</span>: <span class="number">1</span>,
             <span class="ident">max_depth</span>: <span class="number">3</span>,
             ..<span class="ident">RayTracer::default</span>()
@@ -1812,7 +1854,7 @@ SOFTWARE.
 
         <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
-        <span class="comment">// Create camera</span>
+        
         <span class="comment">// Create film</span>
         <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
             <span class="ident">resolution</span>: (<span class="number">512</span>, <span class="number">512</span>),

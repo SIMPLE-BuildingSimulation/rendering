@@ -253,13 +253,13 @@ SOFTWARE.
 ) -&gt; <span class="ident">Float</span> {
     <span class="kw">let</span> <span class="ident">d2</span> <span class="op">=</span> (<span class="ident">info</span>.<span class="ident">p</span> <span class="op">-</span> <span class="ident">ray</span>.<span class="ident">origin</span>).<span class="ident">length_squared</span>();
     <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">origin</span> <span class="op">*</span> <span class="ident">info</span>.<span class="ident">normal</span>;
-    <span class="macro">debug_assert!</span>(<span class="ident">cos_theta</span> <span class="op">&gt;</span> <span class="number">0.</span>);
+    <span class="comment">// debug_assert!(cos_theta &gt; 0.);</span>
     <span class="kw">if</span> <span class="ident">cos_theta</span> <span class="op">&lt;</span> <span class="number">1e-7</span> {
         <span class="kw">return</span> <span class="number">0.0</span>;
     }
     <span class="kw">let</span> <span class="ident">area</span> <span class="op">=</span> <span class="ident">triangle</span>.<span class="ident">area</span>();
     <span class="comment">// return</span>
-    <span class="ident">d2</span> <span class="op">/</span> <span class="ident">cos_theta</span> <span class="op">/</span> <span class="ident">area</span>
+    <span class="ident">d2</span> <span class="op">/</span> <span class="ident">cos_theta</span>.<span class="ident">abs</span>() <span class="op">/</span> <span class="ident">area</span>
 }
 
 <span class="comment">/* END OF TRIANGLE */</span>
