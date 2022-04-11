@@ -518,8 +518,6 @@
 <span id="482">482</span>
 <span id="483">483</span>
 <span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -543,7 +541,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{ <span class="ident">Dielectric</span>, <span class="ident">Metal</span>, <span class="ident">Plastic</span>, <span class="ident">Mirror</span>, <span class="ident">Light</span>, <span class="ident">Glass</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material</span>::{<span class="ident">Dielectric</span>, <span class="ident">Glass</span>, <span class="ident">Light</span>, <span class="ident">Metal</span>, <span class="ident">Mirror</span>, <span class="ident">Plastic</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::scene::Scene</span>;
@@ -804,20 +802,14 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Consumes a Light material</span>
-    <span class="kw">fn</span> <span class="ident">consume_glass</span>(
-        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
-        <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>],
-        <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>,
-        <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-        <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>,
-    ) {
+    <span class="kw">fn</span> <span class="ident">consume_glass</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">source</span>: <span class="kw-2">&amp;</span>[<span class="ident">u8</span>], <span class="ident">scene</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Scene</span>, <span class="ident">_modifier</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>, <span class="ident">name</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) {
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">t</span>, <span class="string">&quot;0&quot;</span>.<span class="ident">to_string</span>());
         <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>);
-        <span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">t</span>.<span class="ident">as_bytes</span>(){
-            <span class="string">b&quot;4&quot;</span>=&gt;{
+        <span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">t</span>.<span class="ident">as_bytes</span>() {
+            <span class="string">b&quot;4&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">blue</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
@@ -827,8 +819,8 @@ SOFTWARE.
                     <span class="ident">colour</span>,
                     <span class="ident">refraction_index</span>,
                 }
-            },
-            <span class="string">b&quot;3&quot;</span>=&gt;{
+            }
+            <span class="string">b&quot;3&quot;</span> =&gt; {
                 <span class="kw">let</span> <span class="ident">red</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">green</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
                 <span class="kw">let</span> <span class="ident">blue</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">consume_token</span>(<span class="ident">source</span>).<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>().<span class="ident">unwrap</span>();
@@ -838,12 +830,16 @@ SOFTWARE.
                     <span class="ident">colour</span>,
                     <span class="ident">refraction_index</span>,
                 }
-            },
-            <span class="kw">_</span> =&gt; {<span class="macro">panic!</span>(<span class="string">&quot;Incorrect Glass definition... expected 3 or 4 arguments; found &#39;{}&#39;&quot;</span>, <span class="ident">t</span>)}
+            }
+            <span class="kw">_</span> =&gt; {
+                <span class="macro">panic!</span>(
+                    <span class="string">&quot;Incorrect Glass definition... expected 3 or 4 arguments; found &#39;{}&#39;&quot;</span>,
+                    <span class="ident">t</span>
+                )
+            }
         };
-        
-                
-        <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">to_string</span>());        
+
+        <span class="self">self</span>.<span class="ident">modifiers</span>.<span class="ident">push</span>(<span class="ident">name</span>.<span class="ident">to_string</span>());
         <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident">mat</span>));
     }
 

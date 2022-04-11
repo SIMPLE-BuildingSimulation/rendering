@@ -251,11 +251,6 @@
 <span id="215">215</span>
 <span id="216">216</span>
 <span id="217">217</span>
-<span id="218">218</span>
-<span id="219">219</span>
-<span id="220">220</span>
-<span id="221">221</span>
-<span id="222">222</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -280,7 +275,6 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
-
 
 <span class="kw">mod</span> <span class="ident">light</span>;
 <span class="kw">pub</span> <span class="kw">use</span> <span class="ident">light::Light</span>;
@@ -314,45 +308,43 @@ SOFTWARE.
 <span class="comment">// }</span>
 
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Material</span> {
-
     <span class="doccomment">/// Returns an id, for debugging and error reporting purposes</span>
     <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span>;
-
 
     <span class="doccomment">/// Retrieves the Colour of the material. This will usually</span>
     <span class="doccomment">/// represent the values that will multiply the different</span>
     <span class="doccomment">/// elements of the [`Spectrum`]. E.g., the reflectance values.</span>
     <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span>;
 
-
     <span class="doccomment">/// Should this material be tested for direct illumination?    </span>
-    <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>{
+    <span class="kw">fn</span> <span class="ident">emits_direct_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
-    
 
     <span class="doccomment">/// Should this material emits light    </span>
-    <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>{
+    <span class="kw">fn</span> <span class="ident">emits_light</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
-    
+
     <span class="doccomment">/// Does this material scatter (e.g., like [`Plastic`]) or does it</span>
     <span class="doccomment">/// only transmit/reflects specularly (e.g., like [`Mirror`])?</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// Defaults to `false`</span>
-    <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span>{
+    <span class="kw">fn</span> <span class="ident">specular_only</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
-    
+
     <span class="kw">fn</span> <span class="ident">get_possible_paths</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">_normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
         <span class="ident">_intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
         <span class="ident">_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
-    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>]{
-        <span class="macro">panic!</span>(<span class="string">&quot;Calling unimplemented method get_possible_paths() for material &#39;{}&#39;&quot;</span>, <span class="self">self</span>.<span class="ident">id</span>())
+    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>] {
+        <span class="macro">panic!</span>(
+            <span class="string">&quot;Calling unimplemented method get_possible_paths() for material &#39;{}&#39;&quot;</span>,
+            <span class="self">self</span>.<span class="ident">id</span>()
+        )
     }
-    
 
     <span class="doccomment">/// Samples the bsdf (returned by modifying the given `Ray`).</span>
     <span class="doccomment">/// Returns the value of the BSDF in that direction (as a Spectrum) and the probability</span>
@@ -364,8 +356,7 @@ SOFTWARE.
         <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Spectrum</span>, <span class="ident">Float</span>) ;
-    
+    ) -&gt; (<span class="ident">Spectrum</span>, <span class="ident">Float</span>);
 
     <span class="doccomment">/// Evaluates a BSDF based on an input and outpt directions</span>
     <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(
@@ -375,8 +366,7 @@ SOFTWARE.
         <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
         <span class="ident">vout</span>: <span class="ident">Vector3D</span>,
-    ) -&gt; <span class="ident">Spectrum</span>; 
-    
+    ) -&gt; <span class="ident">Spectrum</span>;
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -398,7 +388,7 @@ SOFTWARE.
                     <span class="ident">origin</span>: <span class="ident">geometry3d::Point3D::new</span>(<span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>(), <span class="ident">rng</span>.<span class="ident">gen</span>()),
                 },
                 <span class="ident">refraction_index</span>: <span class="ident">rng</span>.<span class="ident">gen</span>(),
-                .. <span class="ident">Ray::default</span>()
+                ..<span class="ident">Ray::default</span>()
             };
             <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">4.</span>, <span class="number">12.</span>).<span class="ident">get_normalized</span>();
 
@@ -413,7 +403,8 @@ SOFTWARE.
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">99999</span> {
             <span class="kw">let</span> (<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="kw-2">mut</span> <span class="ident">ray</span>, <span class="ident">vout</span>) <span class="op">=</span> <span class="ident">get_vectors</span>(<span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="kw">let</span> <span class="ident">old_ray</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">clone</span>();
-            <span class="kw">let</span> (<span class="ident">bsdf</span>, <span class="ident">pdf</span>) <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="kw-2">&amp;mut</span> <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
+            <span class="kw">let</span> (<span class="ident">bsdf</span>, <span class="ident">pdf</span>) <span class="op">=</span>
+                <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>), <span class="kw-2">&amp;mut</span> <span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>);
             <span class="macro">assert!</span>(<span class="ident">pdf</span>.<span class="ident">is_finite</span>());
             <span class="macro">assert!</span>(<span class="ident">bsdf</span>.<span class="ident">radiance</span>().<span class="ident">is_finite</span>());
             <span class="macro">assert!</span>(<span class="ident">old_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>().<span class="ident">is_finite</span>());
@@ -435,7 +426,6 @@ SOFTWARE.
             <span class="ident">roughness</span>: <span class="number">0.0</span>,
         });
 
-        
         <span class="macro">println!</span>(<span class="string">&quot;{}&quot;</span>, <span class="ident">std::mem::size_of_val</span>(<span class="kw-2">&amp;</span><span class="ident">plastic</span>));
         <span class="ident">test_material</span>(<span class="ident">plastic</span>)
     }

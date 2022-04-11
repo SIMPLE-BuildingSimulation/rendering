@@ -257,7 +257,6 @@
 <span id="221">221</span>
 <span id="222">222</span>
 <span id="223">223</span>
-<span id="224">224</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -278,9 +277,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d::Vector3D</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 
 <span class="doccomment">/// Calculates the parameters necessary for calculating the</span>
 <span class="doccomment">/// Fresnel&#39;s equations. `cos2`—i.e., the cosine of the</span>
@@ -295,7 +294,7 @@ SOFTWARE.
 <span class="doccomment">/// use rendering::material::cos_and_n;</span>
 <span class="doccomment">/// use rendering::ray::Ray;</span>
 <span class="doccomment">/// use rendering::interaction::Interaction;</span>
-<span class="doccomment">/// </span>
+<span class="doccomment">///</span>
 <span class="doccomment">/// let mat_refraction_index = 1.52;</span>
 <span class="doccomment">/// let normal = Vector3D::new(0., 0., 1.);</span>
 <span class="doccomment">/// let ray = Ray{</span>
@@ -307,7 +306,11 @@ SOFTWARE.
 <span class="doccomment">/// };</span>
 <span class="doccomment">/// let (n1, cos1, n2, cos2) = cos_and_n(&amp;ray, normal, mat_refraction_index);</span>
 <span class="doccomment">/// ```</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cos_and_n</span>(<span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>, <span class="ident">refraction_index</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>) {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cos_and_n</span>(
+    <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
+    <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
+    <span class="ident">refraction_index</span>: <span class="ident">Float</span>,
+) -&gt; (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>, <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>) {
     <span class="kw">let</span> <span class="ident">vin</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
 
     <span class="kw">let</span> <span class="ident">cos1</span> <span class="op">=</span> (<span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>();
@@ -338,8 +341,6 @@ SOFTWARE.
 
     (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="prelude-val">Some</span>(<span class="ident">cos2</span>))
 }
-
-
 
 <span class="doccomment">/// Fresnel Coefficient for TE-Polarized Light (i.e., perpendicular), according to PBR-book</span>
 <span class="doccomment">///</span>
@@ -419,12 +420,9 @@ SOFTWARE.
     <span class="ident">ret</span>
 }
 
-
-
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_mirror_direction</span>() {

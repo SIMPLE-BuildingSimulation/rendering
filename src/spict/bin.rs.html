@@ -126,13 +126,6 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
-<span id="93">93</span>
-<span id="94">94</span>
-<span id="95">95</span>
-<span id="96">96</span>
-<span id="97">97</span>
-<span id="98">98</span>
-<span id="99">99</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -154,13 +147,12 @@ SOFTWARE.
 */</span>
 
 <span class="kw">use</span> <span class="ident">rendering::scene::Scene</span>;
-<span class="comment">// use rendering::from_radiance::from</span>
 <span class="kw">use</span> <span class="ident">clap</span>::{<span class="ident">Arg</span>, <span class="ident">Command</span>};
 
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 <span class="kw">use</span> <span class="ident">rendering::camera</span>::{<span class="ident">Film</span>, <span class="ident">Pinhole</span>, <span class="ident">View</span>};
 <span class="kw">use</span> <span class="ident">rendering::ray_tracer::RayTracer</span>;
-<span class="kw">use</span> <span class="ident">std::time::Instant</span>;
+
 
 <span class="kw">fn</span> <span class="ident">main</span>() {
     <span class="kw">let</span> <span class="ident">matches</span> <span class="op">=</span> <span class="ident">Command::new</span>(<span class="string">&quot;SIMPLE ray tracer&quot;</span>)
@@ -174,8 +166,7 @@ SOFTWARE.
                 .<span class="ident">value_name</span>(<span class="string">&quot;Radiance file&quot;</span>)
                 .<span class="ident">help</span>(<span class="string">&quot;This is the SIMPLE Model or a Radiance file&quot;</span>)
                 .<span class="ident">takes_value</span>(<span class="bool-val">true</span>)
-                .<span class="ident">required</span>(<span class="bool-val">true</span>)
-                <span class="comment">// .index(1),</span>
+                .<span class="ident">required</span>(<span class="bool-val">true</span>), <span class="comment">// .index(1),</span>
         )
         .<span class="ident">arg</span>(
             <span class="ident">Arg::new</span>(<span class="string">&quot;output&quot;</span>)
@@ -184,8 +175,7 @@ SOFTWARE.
                 .<span class="ident">value_name</span>(<span class="string">&quot;The file where to write the image&quot;</span>)
                 .<span class="ident">help</span>(<span class="string">&quot;The file where to write the image&quot;</span>)
                 .<span class="ident">takes_value</span>(<span class="bool-val">true</span>)
-                .<span class="ident">required</span>(<span class="bool-val">true</span>)
-                <span class="comment">// .index(2),</span>
+                .<span class="ident">required</span>(<span class="bool-val">true</span>), <span class="comment">// .index(2),</span>
         )
         .<span class="ident">get_matches</span>();
 
@@ -197,17 +187,17 @@ SOFTWARE.
 
     <span class="comment">// Create camera</span>
     <span class="kw">let</span> <span class="ident">film</span> <span class="op">=</span> <span class="ident">Film</span> {
-        <span class="ident">resolution</span>: (<span class="number">512</span>, <span class="number">367</span>),
+        <span class="comment">// resolution: (512, 367),</span>
         <span class="comment">// resolution: (1024, 768),</span>
-        <span class="comment">// resolution: (512, 512),</span>
+        <span class="ident">resolution</span>: (<span class="number">512</span>, <span class="number">512</span>),
     };
 
     <span class="comment">// Create view</span>
     <span class="kw">let</span> <span class="ident">view</span> <span class="op">=</span> <span class="ident">View</span> {
         <span class="ident">view_direction</span>: <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>).<span class="ident">get_normalized</span>(),
-        <span class="comment">// view_point: Point3D::new(2., 1., 1.),</span>
-        <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="number">3.</span>, <span class="op">-</span><span class="number">5.</span>, <span class="number">2.25</span>),
-        <span class="ident">field_of_view</span>: <span class="number">50.</span>,
+        <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">1.</span>, <span class="number">1.</span>),
+        <span class="comment">// view_point: Point3D::new(3., -5., 2.25),</span>
+        <span class="comment">// field_of_view: 50.,</span>
         ..<span class="ident">View::default</span>()
     };
 
@@ -215,21 +205,17 @@ SOFTWARE.
     <span class="kw">let</span> <span class="ident">camera</span> <span class="op">=</span> <span class="ident">Pinhole::new</span>(<span class="ident">view</span>, <span class="ident">film</span>);
 
     <span class="kw">let</span> <span class="ident">integrator</span> <span class="op">=</span> <span class="ident">RayTracer</span> {
-        <span class="ident">n_shadow_samples</span>: <span class="number">15</span>,
-        <span class="ident">max_depth</span>: <span class="number">3</span>,
-        <span class="ident">limit_weight</span>: <span class="number">0.001</span>,
-        <span class="ident">n_ambient_samples</span>: <span class="number">100</span>,
+        <span class="ident">n_shadow_samples</span>: <span class="number">1</span>,
+        <span class="ident">max_depth</span>: <span class="number">1</span>,
+        <span class="comment">// limit_weight: 0.001,</span>
+        <span class="ident">n_ambient_samples</span>: <span class="number">50</span>,
         ..<span class="ident">RayTracer::default</span>()
     };
 
-    <span class="kw">let</span> <span class="ident">now</span> <span class="op">=</span> <span class="ident">Instant::now</span>();
+    
 
     <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
-    <span class="macro">println!</span>(
-        <span class="string">&quot;Image described in &#39;{}&#39; took {} seconds to render&quot;</span>,
-        <span class="ident">input_file</span>,
-        <span class="ident">now</span>.<span class="ident">elapsed</span>().<span class="ident">as_secs</span>()
-    );
+    
     <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">std::path::Path::new</span>(<span class="ident">output_file</span>));
 }
 </code></pre></div>

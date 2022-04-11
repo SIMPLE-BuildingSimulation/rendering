@@ -112,6 +112,21 @@
 <span id="76">76</span>
 <span id="77">77</span>
 <span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -133,11 +148,11 @@ SOFTWARE.
 */</span>
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
-<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">Float</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::Material</span>;
 
 <span class="doccomment">/// Information required for modelling Radiance&#39;s Metal and Metal</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Metal</span> {
@@ -147,16 +162,14 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">Material</span> <span class="kw">for</span> <span class="ident">Metal</span> {
-    
-    <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;<span class="kw-2">&amp;</span><span class="ident">str</span>{
+    <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="string">&quot;Metal&quot;</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span>{
+    <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span> {
         <span class="self">self</span>.<span class="ident">colour</span>
     }
 
-    
     <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
@@ -165,16 +178,24 @@ SOFTWARE.
         <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; ( <span class="ident">Spectrum</span>, <span class="ident">Float</span>) {
-        
-        <span class="kw">let</span> (<span class="ident">direct</span>, <span class="ident">diffuse</span>, <span class="ident">weight</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::material::ward::sample_ward_anisotropic</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="self">self</span>.<span class="ident">specularity</span>, <span class="self">self</span>.<span class="ident">roughness</span>, <span class="self">self</span>.<span class="ident">roughness</span>, <span class="ident">ray</span>, <span class="ident">rng</span>);
+    ) -&gt; (<span class="ident">Spectrum</span>, <span class="ident">Float</span>) {
+        <span class="kw">let</span> (<span class="ident">direct</span>, <span class="ident">diffuse</span>, <span class="ident">weight</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::material::ward::sample_ward_anisotropic</span>(
+            <span class="ident">normal</span>,
+            <span class="ident">e1</span>,
+            <span class="ident">e2</span>,
+            <span class="ident">intersection_pt</span>,
+            <span class="self">self</span>.<span class="ident">specularity</span>,
+            <span class="self">self</span>.<span class="ident">roughness</span>,
+            <span class="self">self</span>.<span class="ident">roughness</span>,
+            <span class="ident">ray</span>,
+            <span class="ident">rng</span>,
+        );
 
         <span class="comment">// Plastic differs from Metal in that the direct component is coloured</span>
         <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">direct</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>;
 
-        (<span class="ident">bsdf</span>, <span class="number">1.</span><span class="op">/</span><span class="ident">weight</span>)
+        (<span class="ident">bsdf</span>, <span class="number">1.</span> <span class="op">/</span> <span class="ident">weight</span>)
     }
-
 
     <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -183,11 +204,20 @@ SOFTWARE.
         <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
         <span class="ident">vout</span>: <span class="ident">Vector3D</span>,
-    ) -&gt; <span class="ident">Spectrum</span>{
-        <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">vout</span><span class="kw-2">*</span><span class="op">-</span><span class="number">1.</span>;
-        <span class="kw">let</span> (<span class="ident">direct</span>, <span class="ident">diffuse</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::material::ward::evaluate_ward_anisotropic</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="self">self</span>.<span class="ident">specularity</span>, <span class="self">self</span>.<span class="ident">roughness</span>, <span class="self">self</span>.<span class="ident">roughness</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);
+    ) -&gt; <span class="ident">Spectrum</span> {
+        <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">vout</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>;
+        <span class="kw">let</span> (<span class="ident">direct</span>, <span class="ident">diffuse</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::material::ward::evaluate_ward_anisotropic</span>(
+            <span class="ident">normal</span>,
+            <span class="ident">e1</span>,
+            <span class="ident">e2</span>,
+            <span class="self">self</span>.<span class="ident">specularity</span>,
+            <span class="self">self</span>.<span class="ident">roughness</span>,
+            <span class="self">self</span>.<span class="ident">roughness</span>,
+            <span class="ident">ray</span>,
+            <span class="ident">vout</span>,
+        );
 
-        <span class="self">self</span>.<span class="ident">colour</span><span class="kw-2">*</span><span class="ident">direct</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>
+        <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">direct</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>
     }
 }
 </code></pre></div>

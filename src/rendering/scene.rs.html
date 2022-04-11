@@ -317,6 +317,17 @@
 <span id="281">281</span>
 <span id="282">282</span>
 <span id="283">283</span>
+<span id="284">284</span>
+<span id="285">285</span>
+<span id="286">286</span>
+<span id="287">287</span>
+<span id="288">288</span>
+<span id="289">289</span>
+<span id="290">290</span>
+<span id="291">291</span>
+<span id="292">292</span>
+<span id="293">293</span>
+<span id="294">294</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -345,9 +356,9 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::primitive::Primitive</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Vector3D</span>,<span class="ident">Ray3D</span>};
-<span class="kw">use</span> <span class="ident">simple_model::SimpleModel</span>;
 <span class="kw">use</span> <span class="ident">calendar::Date</span>;
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
+<span class="kw">use</span> <span class="ident">simple_model::SimpleModel</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Object</span> {
@@ -377,15 +388,15 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">distant_lights</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Object</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The acceleration structure that helps trace rays.</span>
-    <span class="doccomment">/// </span>
+    <span class="doccomment">///</span>
     <span class="doccomment">/// This needs to be build through the `build_accelerator` function.</span>
-    <span class="kw">pub</span> <span class="ident">accelerator</span> : <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoundingVolumeTree</span><span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">accelerator</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">BoundingVolumeTree</span><span class="op">&gt;</span>,
 
     <span class="doccomment">/// The colour of the sky, normalized</span>
     <span class="kw">pub</span> <span class="ident">sky_colour</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span>,
-    
+
     <span class="doccomment">/// A function returning the diffuse Sky brightness (i.e., without the sun)</span>
-    <span class="doccomment">/// The sun should be added separately. </span>
+    <span class="doccomment">/// The sun should be added separately.</span>
     <span class="doccomment">/// Alternatively, you can use the `add_perez_sky` function</span>
     <span class="kw">pub</span> <span class="ident">sky</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Fn</span>(<span class="ident">Vector3D</span>) -&gt; <span class="ident">Float</span> <span class="op">+</span> <span class="ident">Sync</span><span class="op">&gt;</span><span class="op">&gt;</span>,
 }
@@ -409,39 +420,42 @@ SOFTWARE.
         <span class="ident"><span class="self">Self</span>::default</span>()
     }
 
-
     <span class="doccomment">/// Adds the elements describing a Perez sky to the scene.</span>
     <span class="doccomment">/// The angles of Latitude, Longitude and Standard meridian should come</span>
     <span class="doccomment">/// in Degrees</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_perez_sky</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, 
-        <span class="ident">date</span>: <span class="ident">Date</span>, 
-        <span class="ident">latitude</span>: <span class="ident">Float</span>, 
-        <span class="ident">longitude</span>: <span class="ident">Float</span>, 
-        <span class="ident">standard_meridian</span>: <span class="ident">Float</span>, 
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">add_perez_sky</span>(
+        <span class="kw-2">&amp;mut</span> <span class="self">self</span>,
+        <span class="ident">date</span>: <span class="ident">Date</span>,
+        <span class="ident">latitude</span>: <span class="ident">Float</span>,
+        <span class="ident">longitude</span>: <span class="ident">Float</span>,
+        <span class="ident">standard_meridian</span>: <span class="ident">Float</span>,
         <span class="ident">diffuse_horizontal_irrad</span>: <span class="ident">Float</span>,
-        <span class="ident">direct_normal_irrad</span>: <span class="ident">Float</span>
-    ){
+        <span class="ident">direct_normal_irrad</span>: <span class="ident">Float</span>,
+    ) {
         <span class="kw">let</span> <span class="ident">dew_point</span> <span class="op">=</span> <span class="number">11.</span>;
         <span class="comment">// Add sky</span>
-        <span class="kw">let</span> <span class="ident">solar</span> <span class="op">=</span> <span class="ident">solar::Solar::new</span>(<span class="ident">latitude</span>.<span class="ident">to_radians</span>(), <span class="ident">longitude</span>.<span class="ident">to_radians</span>(), <span class="ident">standard_meridian</span>.<span class="ident">to_radians</span>());
+        <span class="kw">let</span> <span class="ident">solar</span> <span class="op">=</span> <span class="ident">solar::Solar::new</span>(
+            <span class="ident">latitude</span>.<span class="ident">to_radians</span>(),
+            <span class="ident">longitude</span>.<span class="ident">to_radians</span>(),
+            <span class="ident">standard_meridian</span>.<span class="ident">to_radians</span>(),
+        );
         <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident">solar::PerezSky::get_sky_func_standard_time</span>(
-            <span class="ident">solar::SkyUnits::Visible</span>, 
-            <span class="kw-2">&amp;</span><span class="ident">solar</span>, 
-            <span class="ident">date</span>, 
+            <span class="ident">solar::SkyUnits::Visible</span>,
+            <span class="kw-2">&amp;</span><span class="ident">solar</span>,
+            <span class="ident">date</span>,
             <span class="ident">dew_point</span>,
-            <span class="ident">diffuse_horizontal_irrad</span>, 
-            <span class="ident">direct_normal_irrad</span>);
+            <span class="ident">diffuse_horizontal_irrad</span>,
+            <span class="ident">direct_normal_irrad</span>,
+        );
 
         <span class="self">self</span>.<span class="ident">sky</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">s</span>);
-        
-        
+
         <span class="comment">// Add sun if there is any (it might be nighttime)</span>
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">solar::Time::Standard</span>(<span class="ident">date</span>.<span class="ident">day_of_year</span>());
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sun_position</span>) <span class="op">=</span> <span class="ident">solar</span>.<span class="ident">sun_position</span>(<span class="ident">n</span>){
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sun_position</span>) <span class="op">=</span> <span class="ident">solar</span>.<span class="ident">sun_position</span>(<span class="ident">n</span>) {
             <span class="kw">let</span> <span class="ident">angle</span> <span class="op">=</span> (<span class="number">0.533</span> <span class="kw">as</span> <span class="ident">Float</span>).<span class="ident">to_radians</span>(); <span class="comment">// 0.009302605</span>
             <span class="kw">let</span> <span class="ident">tan_half_alpha</span> <span class="op">=</span> (<span class="ident">angle</span> <span class="op">/</span> <span class="number">2.0</span>).<span class="ident">tan</span>(); <span class="comment">// 0.004651336043</span>
             <span class="kw">let</span> <span class="ident">omega</span> <span class="op">=</span> <span class="ident">tan_half_alpha</span> <span class="op">*</span> <span class="ident">tan_half_alpha</span> <span class="op">*</span> <span class="ident"><span class="kw">crate</span>::PI</span>; <span class="comment">// 0.00006796811354</span>
-
 
             <span class="kw">let</span> <span class="ident">cos_zenit</span> <span class="op">=</span> <span class="ident">sun_position</span>.<span class="ident">z</span>;
             <span class="kw">let</span> <span class="ident">zenith</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">cos_zenit</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.</span> {
@@ -469,33 +483,38 @@ SOFTWARE.
                 <span class="ident">extraterrestrial_irradiance</span>,
             )
             .<span class="ident">clamp</span>(<span class="number">0.01</span>, <span class="number">9e9</span>);
-            <span class="kw">let</span> <span class="ident">sky_clearness</span> <span class="op">=</span> <span class="ident">solar::PerezSky::sky_clearness</span>(<span class="ident">diffuse_horizontal_irrad</span>, <span class="ident">direct_normal_irrad</span>, <span class="ident">zenith</span>).<span class="ident">clamp</span>(<span class="op">-</span><span class="number">9e9</span>, <span class="number">11.9</span>);
+            <span class="kw">let</span> <span class="ident">sky_clearness</span> <span class="op">=</span> <span class="ident">solar::PerezSky::sky_clearness</span>(
+                <span class="ident">diffuse_horizontal_irrad</span>,
+                <span class="ident">direct_normal_irrad</span>,
+                <span class="ident">zenith</span>,
+            )
+            .<span class="ident">clamp</span>(<span class="op">-</span><span class="number">9e9</span>, <span class="number">11.9</span>);
             <span class="kw">let</span> <span class="ident">index</span> <span class="op">=</span> <span class="ident">solar::PerezSky::clearness_category</span>(<span class="ident">sky_clearness</span>);
-            <span class="kw">let</span> <span class="ident">dir_illum</span> <span class="op">=</span> <span class="ident">direct_normal_irrad</span> <span class="op">*</span> <span class="ident">solar::PerezSky::direct_illuminance_ratio</span>(<span class="ident">apwc</span>, <span class="ident">zenith</span>, <span class="ident">sky_brightness</span>, <span class="ident">index</span>);
-            
-            <span class="kw">let</span> <span class="ident">sun_brightness</span> <span class="op">=</span> <span class="ident">dir_illum</span> <span class="op">/</span> <span class="ident">omega</span> <span class="op">/</span> <span class="ident">Spectrum::WHITE_EFFICACY</span>; <span class="comment">// </span>
-            <span class="kw">let</span> <span class="ident">sun_mat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident"><span class="kw">crate</span>::material::Light</span>(<span class="ident">Spectrum::gray</span>(<span class="ident">sun_brightness</span>))));
-            
+            <span class="kw">let</span> <span class="ident">dir_illum</span> <span class="op">=</span> <span class="ident">direct_normal_irrad</span>
+                <span class="op">*</span> <span class="ident">solar::PerezSky::direct_illuminance_ratio</span>(<span class="ident">apwc</span>, <span class="ident">zenith</span>, <span class="ident">sky_brightness</span>, <span class="ident">index</span>);
 
+            <span class="kw">let</span> <span class="ident">sun_brightness</span> <span class="op">=</span> <span class="ident">dir_illum</span> <span class="op">/</span> <span class="ident">omega</span> <span class="op">/</span> <span class="ident">Spectrum::WHITE_EFFICACY</span>; <span class="comment">//</span>
+            <span class="kw">let</span> <span class="ident">sun_mat</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">push_material</span>(<span class="ident">Box::new</span>(<span class="ident"><span class="kw">crate</span>::material::Light</span>(<span class="ident">Spectrum::gray</span>(
+                <span class="ident">sun_brightness</span>,
+            ))));
 
             <span class="self">self</span>.<span class="ident">push_object</span>(
                 <span class="ident">sun_mat</span>,
                 <span class="ident">sun_mat</span>,
-                <span class="ident">Primitive::Source</span>(<span class="ident">geometry3d::DistantSource3D::new</span>(<span class="ident">sun_position</span>,<span class="ident">angle</span>)),
+                <span class="ident">Primitive::Source</span>(<span class="ident">geometry3d::DistantSource3D::new</span>(<span class="ident">sun_position</span>, <span class="ident">angle</span>)),
             );
-        }<span class="comment">// end of &quot;if there is a sun&quot;</span>
-        
+        } <span class="comment">// end of &quot;if there is a sun&quot;</span>
     }
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">build_accelerator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
-        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accelerator</span>.<span class="ident">is_some</span>(){
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">accelerator</span>.<span class="ident">is_some</span>() {
             <span class="macro">panic!</span>(<span class="string">&quot;Trying to re-build accelerator structure. If you really want this, use rebuild_accelerator&quot;</span>)
         }
         <span class="self">self</span>.<span class="ident">accelerator</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BoundingVolumeTree::new</span>(<span class="self">self</span>));
     }
 
     <span class="doccomment">/// Builds the accelerator</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rebuild_accelerator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {        
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">rebuild_accelerator</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="self">self</span>.<span class="ident">accelerator</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">BoundingVolumeTree::new</span>(<span class="self">self</span>));
     }
 
@@ -508,21 +527,24 @@ SOFTWARE.
 
     <span class="doccomment">/// Casts a [`Ray3D`] and returns an `Option&lt;Interaction&gt;` describing the</span>
     <span class="doccomment">/// interaction with the first primitive hit by the ray, if any.    </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>, <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {        
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">accelerator</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">cast_ray</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>, <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">accelerator</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span> {
             <span class="ident">accelerator</span>.<span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">node_aux</span>)
-        }<span class="kw">else</span>{
+        } <span class="kw">else</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;&quot;</span>)
         }
-        
     }
 
     <span class="doccomment">/// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>, <span class="ident">distance_squared</span>: <span class="ident">Float</span>,  <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
-        
-        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>)<span class="op">=</span><span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span>{
-            <span class="ident">a</span>.<span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">distance_squared</span>, <span class="ident">node_aux</span>)            
-        }<span class="kw">else</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">unobstructed_distance</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>,
+        <span class="ident">distance_squared</span>: <span class="ident">Float</span>,
+        <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">bool</span> {
+        <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">a</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">accelerator</span> {
+            <span class="ident">a</span>.<span class="ident">unobstructed_distance</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">objects</span>, <span class="ident">ray</span>, <span class="ident">distance_squared</span>, <span class="ident">node_aux</span>)
+        } <span class="kw">else</span> {
             <span class="macro">panic!</span>(<span class="string">&quot;Trying to cast a check if unobstructed_distance() in a scene without an acceleration structure&quot;</span>)
         }
     }

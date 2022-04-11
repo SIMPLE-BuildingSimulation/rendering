@@ -644,6 +644,8 @@
 <span id="608">608</span>
 <span id="609">609</span>
 <span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -1006,7 +1008,7 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
 }
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>)]</span>
-<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoundingVolumeTree</span>{
+<span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">BoundingVolumeTree</span> {
     <span class="ident">nodes</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span>,
 }
 
@@ -1053,9 +1055,7 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
         <span class="ident"><span class="self">Self</span>::flatten_node</span>(<span class="kw-2">&amp;</span><span class="ident">root</span>, <span class="kw-2">&amp;mut</span> <span class="ident">nodes</span>);
 
         <span class="comment">// return</span>
-        <span class="self">Self</span>{
-            <span class="ident">nodes</span>            
-        }
+        <span class="self">Self</span> { <span class="ident">nodes</span> }
     }
 
     <span class="kw">fn</span> <span class="ident">flatten_node</span>(<span class="ident">node</span>: <span class="kw-2">&amp;</span><span class="ident">Node</span>, <span class="ident">nodes</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">FlatNode</span><span class="op">&gt;</span>) -&gt; <span class="ident">usize</span> {
@@ -1091,7 +1091,12 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
 
     <span class="doccomment">/// Returns an `Option&lt;Interaction&gt;`, containing the first primitive</span>
     <span class="doccomment">/// to be hit by the ray, if any</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>], <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>, <span class="ident">nodes_to_visit</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>) -&gt; <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">intersect</span>(
+        <span class="kw-2">&amp;</span><span class="self">self</span>,
+        <span class="ident">primitives</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>],
+        <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
+        <span class="ident">nodes_to_visit</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
+    ) -&gt; <span class="ident">bool</span> {
         <span class="kw">const</span> <span class="ident">MIN_T</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.0000001</span>;
 
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">nodes</span>.<span class="ident">is_empty</span>() {
@@ -1099,7 +1104,7 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
         }
         <span class="comment">// reset</span>
         <span class="ident">nodes_to_visit</span>.<span class="ident">truncate</span>(<span class="number">0</span>);
-        
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">prim_index</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t_squared</span> <span class="op">=</span> <span class="ident">Float::MAX</span>;
 
@@ -1110,7 +1115,7 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
         );
         <span class="kw">let</span> <span class="ident">dir_is_neg</span> <span class="op">=</span> (<span class="ident">inv_dir</span>.<span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_node</span> <span class="op">=</span> <span class="number">0</span>;
-        
+
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">current_node</span>];
             <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">bounds</span>().<span class="ident">intersect</span>(<span class="kw-2">&amp;</span><span class="ident">ray</span>.<span class="ident">geometry</span>, <span class="ident">inv_dir</span>) {
@@ -1164,9 +1169,8 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
 
         <span class="comment">// return</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">index</span>) <span class="op">=</span> <span class="ident">prim_index</span> {
-            
             <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">t_squared</span>.<span class="ident">sqrt</span>();
-            
+
             <span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">point</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">project</span>(<span class="ident">t</span>);
             <span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">wo</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>;
             <span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">prim_index</span> <span class="op">=</span> <span class="ident">index</span>;
@@ -1200,7 +1204,7 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
         );
         <span class="kw">let</span> <span class="ident">dir_is_neg</span> <span class="op">=</span> (<span class="ident">inv_dir</span>.<span class="ident">x</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">y</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="ident">inv_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span>);
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">current_node</span> <span class="op">=</span> <span class="number">0</span>;
-        
+
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">node</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">nodes</span>[<span class="ident">current_node</span>];
             <span class="kw">if</span> <span class="ident">node</span>.<span class="ident">bounds</span>().<span class="ident">intersect</span>(<span class="ident">ray</span>, <span class="ident">inv_dir</span>) {
