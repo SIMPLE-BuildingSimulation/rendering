@@ -351,10 +351,10 @@ enum FlatNode {
 }
 
 impl FlatNode {
-    fn bounds(&self) -> BBox3D {
+    fn bounds(&self) -> &BBox3D {
         match self {
-            Self::Interior(i) => i.bounds,
-            Self::Leaf(i) => i.bounds,
+            Self::Interior(i) => &i.bounds,
+            Self::Leaf(i) => &i.bounds,
         }
     }
 }
@@ -460,17 +460,18 @@ impl BoundingVolumeTree {
         let mut prim_index: Option<usize> = None;
         let mut t_squared = Float::MAX;
 
-        let inv_dir = Vector3D::new(
-            1. / ray.geometry.direction.x,
-            1. / ray.geometry.direction.y,
-            1. / ray.geometry.direction.z,
-        );
+        let inv_x = 1./ray.geometry.direction.x;
+        let inv_y = 1./ray.geometry.direction.y;        
+        let inv_z = 1./ray.geometry.direction.z;
+
+        let inv_dir = Vector3D::new(inv_x, inv_y, inv_z);
         let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
+        
         let mut current_node = 0;
 
         loop {
             let node = &self.nodes[current_node];
-            if node.bounds().intersect(&ray.geometry, inv_dir) {
+            if node.bounds().intersect(&ray.geometry, &inv_dir) {
                 match node {
                     FlatNode::Leaf(data) => {
                         let offset = data.first_prim_offset;
@@ -559,7 +560,7 @@ impl BoundingVolumeTree {
 
         loop {
             let node = &self.nodes[current_node];
-            if node.bounds().intersect(ray, inv_dir) {
+            if node.bounds().intersect(ray, &inv_dir) {
                 match node {
                     FlatNode::Leaf(data) => {
                         let offset = data.first_prim_offset;
