@@ -31,7 +31,7 @@ path = "./benches/benchmark.rs"
 harness = false
 
 [features]
-default = ["float"]
+default = []
 float = ["geometry3d/float", "matrix/float", "simple_model/float", "solar/float"]
 parallel = ["geometry3d/parallel", "rayon"]
 textures = ["geometry3d/textures"]
@@ -55,3 +55,11 @@ path = "tests/render_materials.rs"
 [[test]]
 name = "test_render_laptop"
 path = "tests/laptop.rs"
+
+[[test]]
+name = "test_render_room"
+path = "tests/render_room.rs"
+
+[[test]]
+name = "test_render_cornell"
+path = "tests/render_cornell.rs"

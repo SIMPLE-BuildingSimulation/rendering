@@ -45,6 +45,8 @@ pub use glass::Glass;
 mod specular;
 pub use specular::*;
 
+mod ward;
+
 // pub enum Material {
 //     Plastic(PlasticMetal),
 //     Metal(PlasticMetal),
@@ -95,8 +97,7 @@ pub trait Material {
     
 
     /// Samples the bsdf (returned by modifying the given `Ray`).
-    /// Returns the value of the BSDF in that direction, the probability, and a boolean
-    /// indicating whether this is a specular or a diffuse interaction    
+    /// Returns the value of the BSDF in that direction (as a Spectrum) and the probability
     fn sample_bsdf(
         &self,
         normal: Vector3D,
@@ -105,7 +106,7 @@ pub trait Material {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Float, Float, bool) ;
+    ) -> (Spectrum, Float) ;
     
 
     /// Evaluates a BSDF based on an input and outpt directions
@@ -116,7 +117,7 @@ pub trait Material {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Float; 
+    ) -> Spectrum; 
     
 }
 
@@ -154,13 +155,13 @@ mod tests {
         for _ in 0..99999 {
             let (normal, e1, e2, mut ray, vout) = get_vectors(&mut rng);
             let old_ray = ray.clone();
-            let (bsdf, pdf, _is_specular) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
+            let (bsdf, pdf) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
             assert!(pdf.is_finite());
-            assert!(bsdf.is_finite());
+            assert!(bsdf.radiance().is_finite());
             assert!(old_ray.geometry.direction.length().is_finite());
             assert!(old_ray.geometry.origin.as_vector3d().length().is_finite());
             let pdf = material.eval_bsdf(normal, e1, e2, &old_ray, vout);
-            assert!(pdf.is_finite());
+            assert!(pdf.radiance().is_finite());
         }
     }
 

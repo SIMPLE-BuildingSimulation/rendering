@@ -17,8 +17,8 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-
+use std::time::Instant;
+        
 use std::borrow::Borrow;
 
 use crate::camera::{Camera, CameraSample};
@@ -253,22 +253,8 @@ impl RayTracer {
             // Did not hit... so, let's check the sky
             if let Some(sky) = &scene.sky {
                 let sky_brightness = sky(ray.geometry.direction);
-                if let Some(colour) = scene.sky_colour {
-                    (colour * sky_brightness, 1./2./crate::PI)
-                }else{
-                    const SKY_MAP : [Spectrum; 4] = [
-                        Spectrum{red: 0.994845709, green: 1.003848837, blue: 0.981341016},//0.994845709	1.003848837	0.981341016
-                        Spectrum{red: 0.808577058, green: 1.049103145, blue: 1.274276503},//0.808577058	1.049103145	1.274276503
-                        Spectrum{red: 0.732375468, green: 1.067814614, blue: 1.392072455},//0.732375468	1.067814614	1.392072455
-                        Spectrum{red: 0.637909144, green: 1.090019509, blue: 1.548323166},//0.637909144	1.090019509	1.548323166
-                    ];
-                    if ray.geometry.direction.z > 0.001 {
-                        let sky_colour = crate::colourmap::map_linear_colour(ray.geometry.direction.z, 0., 1., &SKY_MAP);
-                        (sky_colour * sky_brightness, 1./2./crate::PI)
-                    }else {
-                        (Spectrum::black(), 0.0)
-                    }
-                }
+                let colour = scene.sky_colour.unwrap_or(Spectrum::gray(1.0));
+                (colour * sky_brightness, 1./2./crate::PI)                
             }else{                                
                 (Spectrum::black(), 0.0)
             }
@@ -290,8 +276,7 @@ impl RayTracer {
         lights: &[Object],
         node_aux: &mut Vec<usize>
     ) -> Spectrum {
-        let mat_colour = material.colour();
-
+        
         let mut local_illum = Spectrum::black();
         for light in lights.iter() {
             // let this_origin = this_origin + normal * 0.001;
@@ -320,8 +305,8 @@ impl RayTracer {
                     let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);
                     // let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//
                     let denominator = light_pdf * n_shadow_samples as Float
-                        + mat_bsdf_value * n_ambient_samples as Float; //light_pdf;//
-                    let fx = (light_colour * cos_theta) * (mat_colour * mat_bsdf_value);
+                        + mat_bsdf_value.radiance() * n_ambient_samples as Float; //light_pdf;//
+                    let fx = (light_colour * cos_theta) * ( mat_bsdf_value);
 
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
                     local_illum += fx / denominator;
@@ -409,7 +394,7 @@ impl RayTracer {
 
         for _ in 0..n_ambient_samples {
             // Choose a direction.
-            let (bsdf_value, pdf, _is_specular) =
+            let (bsdf_value, pdf) =
                 material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
             let new_ray_dir = ray.geometry.direction;
             debug_assert!(
@@ -421,7 +406,7 @@ impl RayTracer {
             // increase depth
             let new_depth = current_depth+ 1;                                               
             let cos_theta = (normal * new_ray_dir).abs();
-            let new_value = wt * bsdf_value * cos_theta / pdf;
+            let new_value = bsdf_value.radiance() * wt *  cos_theta / pdf;
 
             // russian roulette
             if self.limit_weight > 0. && new_value < self.limit_weight {
@@ -431,13 +416,12 @@ impl RayTracer {
                 }
             }
 
-            let color = material.colour();
-
+            
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, aux);
 
-            let fx = (li * cos_theta) * (color * bsdf_value);                                                               
+            let fx = (li * cos_theta) * bsdf_value;                                                               
             let denominator =
-                bsdf_value * n_ambient_samples as Float + n_shadow_samples as Float * light_pdf;
+                bsdf_value.radiance() * n_ambient_samples as Float + n_shadow_samples as Float * light_pdf;
 
             
             global += fx / denominator;
@@ -465,7 +449,7 @@ impl RayTracer {
         #[cfg(feature = "parallel")]
         let i = i.into_par_iter();
         
-
+        let now = Instant::now();
         // progress indicators
         let last_progress = std::sync::Arc::new(std::sync::Mutex::new(0.0));
         let counter = std::sync::Arc::new(std::sync::Mutex::new(0));
@@ -503,6 +487,11 @@ impl RayTracer {
             }
         });
 
+
+        println!(
+            "Scene took {} seconds to render",            
+            now.elapsed().as_secs()
+        );
 
         // return
         ImageBuffer::from_pixels(width, height, pixels)
@@ -569,7 +558,7 @@ mod tests {
     use geometry3d::{Point3D, Vector3D};
 
     use crate::camera::{Camera, Film, View};
-    use std::time::Instant;
+    
 
     fn compare_with_radiance(filename: String) {
         let mut scene = Scene::from_radiance(format!("./test_data/{}", filename));
@@ -597,14 +586,9 @@ mod tests {
             n_ambient_samples: 129,
             ..RayTracer::default()
         };
-        let now = Instant::now();
+        
         let buffer = integrator.render(&scene, &camera);
-
-        println!(
-            "Scene '{}' took {} seconds to render",
-            filename,
-            now.elapsed().as_secs()
-        );
+        
 
         let filename = format!("./test_data/images/self_{}.hdr", filename);
         buffer.save_hdre(std::path::Path::new(&filename));
@@ -655,7 +639,7 @@ mod tests {
             ..RayTracer::default()
         };
 
-        let now = Instant::now();
+        
         // let buffer = integrator.render(&scene, &camera);
 
         let mut rng = get_rng();
@@ -673,252 +657,10 @@ mod tests {
         let (i, _) = integrator.trace_ray(&mut rng, &scene, &mut ray, 0, weight,  &mut aux);
         println!("{}", i);
 
-        println!(
-            "Scene '{}' took {} seconds to render",
-            filename,
-            now.elapsed().as_secs()
-        );
+        
 
         // buffer.save_hdre(format!("./test_data/images/self_{}.hdr", filename));
     }
-
-    #[test]
-    #[ignore]
-    fn test_render_room() {
-        // 60 seconds
-        // time cargo test --features parallel --release  -- --ignored --nocapture test_render_room
-        // oconv ../room.rad ../white_sky.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
-
-        let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
-        scene.add_perez_sky(calendar::Date{month: 6, day: 1, hour: 12.}, -33., 70., 65., 200., 500.);
-
-        scene.build_accelerator();
-
-        // Create film
-        let film = Film {
-            resolution: (512, 512),
-        };
-
-        // Create view
-        let view = View {
-            view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
-            view_point: Point3D::new(2., 1., 1.),
-            ..View::default()
-        };
-        // Create camera
-        let camera = Pinhole::new(view, film);
-
-        let integrator = RayTracer {
-            n_ambient_samples: 220,
-            n_shadow_samples: 1,
-            max_depth: 3,            
-            ..RayTracer::default()
-        };
-
-        let now = Instant::now();
-
-        let buffer = integrator.render(&scene, &camera);
-        println!("Room took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
-    }
-
-    #[test]
-    #[ignore]
-    fn test_render_cornell() {
-        // 60 seconds
-        // time cargo test --features parallel --release  -- --ignored --nocapture test_render_cornell
-        // oconv ../room.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
-
-
-        let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
-
-        scene.build_accelerator();
-
-        // Create camera
-        let film = Film {
-            resolution: (512, 367),
-            // resolution: (1024, 768),
-            // resolution: (512, 512),
-        };
-
-        // Create view
-        let view = View {
-            view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
-            // view_point: Point3D::new(2., 1., 1.),
-            view_point: Point3D::new(3., -5., 2.25),
-            field_of_view: 50.,
-            ..View::default()
-        };
-        
-        // Create camera
-        let camera = Pinhole::new(view, film);
-
-        let integrator = RayTracer {
-            n_ambient_samples: 90,
-            n_shadow_samples: 1,
-            max_depth: 3,
-            ..RayTracer::default()
-        };
-
-        let now = Instant::now();
-
-        let buffer = integrator.render(&scene, &camera);
-        println!("Room took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre(std::path::Path::new("./test_data/images/cornell.hdr"));
-    }
-
-
-    use crate::material::{ Plastic, Mirror, Light};
-    use crate::primitive::Primitive;
-    use geometry3d::{DistantSource3D, Sphere3D, Triangle3D};
-    #[ignore]
-    #[test]
-    fn test_2() {
-        // 2 seconds
-        // time cargo test --features parallel --release  -- --ignored --nocapture test_2
-
-        // Build scene
-        let mut scene = Scene::default();
-
-        let red = scene.push_material(Box::new(Plastic {
-            colour: Spectrum {
-                red: 0.55,
-                green: 0.15,
-                blue: 0.15,
-            },
-            specularity: 0.,
-            roughness: 0.,
-        }));
-
-        let green = scene.push_material(Box::new(Plastic {
-            colour: Spectrum {
-                red: 0.15,
-                green: 0.15,
-                blue: 0.15,
-            },
-            specularity: 0.,
-            roughness: 0.,
-        }));
-
-        let mirror = scene.push_material(Box::new(Mirror(Spectrum {
-            red: 0.8,
-            green: 0.99,
-            blue: 0.8,
-        })));
-
-        scene.push_object(
-            mirror,
-            mirror,
-            Primitive::Sphere(Sphere3D::new(1.5, Point3D::new(0., 0., 0.5))),
-        );
-
-        scene.push_object(
-            mirror,
-            red,
-            Primitive::Sphere(Sphere3D::new_partial(
-                1.5,
-                Point3D::new(1., -1., -1.5),
-                -2.,
-                0.2,
-                360.,
-            )),
-        );
-
-        scene.push_object(
-            red,
-            red,
-            Primitive::Sphere(Sphere3D::new(12.5, Point3D::new(0., 25., 12.5 - 3.))),
-        );
-
-        scene.push_object(
-            green,
-            green,
-            Primitive::Triangle(
-                Triangle3D::new(
-                    Point3D::new(-1000., -1000., -3.),
-                    Point3D::new(1000., -1000., -3.),
-                    Point3D::new(1000., 1000., -3.),
-                )
-                .unwrap(),
-            ),
-        );
-
-        scene.push_object(
-            green,
-            green,
-            Primitive::Triangle(
-                Triangle3D::new(
-                    Point3D::new(1000., 1000., -3.),
-                    Point3D::new(-1000., 1000., -3.),
-                    Point3D::new(-1000., -1000., -3.),
-                )
-                .unwrap(),
-            ),
-        );
-
-        let up = scene.push_material(Box::new(Light(Spectrum {
-            red: 10000.,
-            green: 10000.,
-            blue: 10000.,
-        })));
-
-        scene.push_object(
-            up,
-            up,
-            Primitive::Source(DistantSource3D::new(
-                Vector3D::new(0., 0., 1.),   // direction
-                (0.5 as Float).to_radians(), // angle
-            )),
-        );
-
-        scene.push_object(
-            up,
-            up,
-            Primitive::Source(DistantSource3D::new(
-                Vector3D::new(0., -1., 1.),  // direction
-                (0.5 as Float).to_radians(), // angle
-            )),
-        );
-
-        let lightbulb = scene.push_material(Box::new(Light(Spectrum {
-            red: 100.,
-            green: 100.,
-            blue: 100.,
-        })));
-
-        scene.push_object(
-            lightbulb,
-            lightbulb,
-            Primitive::Sphere(Sphere3D::new(1.5, Point3D::new(1., -1., 15.))),
-        );
-
-        scene.build_accelerator();
-
-        
-        // Create film
-        let film = Film {
-            resolution: (512, 512),
-        };
-
-        // Create view
-        let view = View {
-            view_direction: Vector3D::new(0., 1., 0.),
-            view_point: Point3D::new(0., -13., 0.),
-            ..View::default()
-        };
-
-        // Create camera
-        let camera = Pinhole::new(view, film);
-
-        let integrator = RayTracer {
-            n_ambient_samples: 18,
-            n_shadow_samples: 15,
-            max_depth: 3,
-            ..RayTracer::default()
-        };
-        let now = Instant::now();
-        let buffer = integrator.render(&scene, &camera);
-        println!("Scene took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre(std::path::Path::new("./test_data/images/ray_tracer.hdr"));
-    }
 }
+
+    

@@ -134,7 +134,7 @@ impl Material for Dielectric {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Float, Float, bool) {
+    ) -> (Spectrum, Float) {
         debug_assert!(
             (ray.geometry.direction.length() - 1.).abs() < 1e-5,
             "Length was {}",
@@ -162,7 +162,7 @@ impl Material for Dielectric {
             ray.geometry.origin = intersection_pt + normal * 0.00001;
 
             ray.geometry.direction = mirror_dir;
-            (refl, refl / (refl + trans), true)
+            (self.colour * refl, refl / (refl + trans))
         } else {
             // Transmission
             // avoid self shading
@@ -171,7 +171,7 @@ impl Material for Dielectric {
             ray.refraction_index = n2;
             let trans_dir = fresnel_transmission_dir(ray.geometry.direction, normal, n1, cos1, n2, cos2.unwrap());
             ray.geometry.direction = trans_dir;
-            (trans, trans / (refl + trans), true)
+            (self.colour * trans, trans / (refl + trans))
         }
     }
 
@@ -182,7 +182,7 @@ impl Material for Dielectric {
         _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Float{
+    ) -> Spectrum {
         let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
         let vin = ray.geometry.direction;
@@ -195,7 +195,7 @@ impl Material for Dielectric {
 
         // If reflection
         if vout.is_same_direction(mirror_dir) {
-            return refl;
+            return self.colour * refl;
         }
 
         // Check transmission
@@ -209,12 +209,12 @@ impl Material for Dielectric {
             );
             if vout.is_same_direction(trans_dir) {
                 // transmission
-                return trans;
+                return self.colour*trans;
             }
         }
 
         // Neither...
-        0.0
+        Spectrum::black()
     }
 
 }
@@ -399,7 +399,7 @@ mod tests {
         // Get INTO the material
         for _ in 0..30 {
             let mut new_ray = ray.clone();
-            let ( _bsdf, _pdf, _is_specular) =
+            let ( _bsdf, _pdf) =
                 mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut new_ray, &mut rng);
             println!("A -- PDF = {}", _pdf);
 
@@ -433,7 +433,7 @@ mod tests {
         ray.geometry.direction = trans_dir.unwrap();
         for _ in 0..30 {
             let mut new_ray = ray.clone();
-            let (_bsdf, _pdf, _is_specular) =
+            let (_bsdf, _pdf) =
                 mat.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut new_ray, &mut rng);
             println!("B -- PDF = {}", _pdf);
             let new_dir = new_ray.geometry.direction;

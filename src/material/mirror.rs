@@ -51,7 +51,7 @@ impl Material for Mirror {
     ) -> [Option<(Ray, Float, Float)>; 2]{
             // Calculate the ray direction and BSDF
             let mut ray = ray.clone();
-            let (v, _,_) = mirror_bsdf(*intersection_pt, &mut ray, *normal);
+            let v = mirror_bsdf(*intersection_pt, &mut ray, *normal);
             [Some((ray, v, 1.)), None]
     }
 
@@ -63,8 +63,9 @@ impl Material for Mirror {
         intersection_pt: Point3D,
         ray: &mut Ray,
         _rng: &mut RandGen,
-    ) -> (Float,Float, bool) {
-        mirror_bsdf(intersection_pt, ray, normal)
+    ) -> (Spectrum,Float) {
+        let  bsdf= mirror_bsdf(intersection_pt, ray, normal);
+        return (self.0 * bsdf, 1.)
     }
     
     fn eval_bsdf(
@@ -74,32 +75,29 @@ impl Material for Mirror {
         _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Float{
+    ) -> Spectrum {
         let vin = ray.geometry.direction;
-        eval_mirror_bsdf(normal, vin, vout)
+        self.0 * eval_mirror_bsdf(normal, vin, vout)
     }
 
 }
 
 
-
-pub fn mirror_bsdf(intersection_pt: Point3D, ray: &mut Ray, normal: Vector3D) -> (Float, Float, bool) {
-    // avoid self shading
-    // let mut ray = *ray;
-    // let normal = *normal;
-
+/// Calculates the Mirror BSDF and modifies the given ray so that it now points in that direction
+pub fn mirror_bsdf(intersection_pt: Point3D, ray: &mut Ray, normal: Vector3D) -> Float {
+    // avoid self shading    
     ray.geometry.origin = intersection_pt + normal * 0.00001;
     let ray_dir = ray.geometry.direction;
     let cos = (ray_dir * normal).abs();
     ray.geometry.direction = mirror_direction(ray_dir, normal);
     debug_assert!((ray.geometry.direction.length() - 1.).abs() < 1e-5, "dir len is {}", ray.geometry.direction.length());
-    ( 1. / cos, 1., true)
-    // (ray, 1., true)
+    1. / cos
+    
 }
 
 
 
-
+/// Evaluates the mirror BSDf
 pub fn eval_mirror_bsdf(normal: Vector3D, vin: Vector3D, vout: Vector3D) -> Float {
     let mirror = mirror_direction(vin, normal);
     if vout.is_parallel(mirror) {
