@@ -118,7 +118,10 @@ impl SimpleModelReader {
     }
 
     /// Transformsa a SimpleModel Substance into a Material
-    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Box<dyn Material + Sync> {
+    fn substance_to_material(
+        substance: &Substance,
+        wavelength: &Wavelengths,
+    ) -> Box<dyn Material + Sync> {
         if matches!(wavelength, Wavelengths::Visible) {
             unimplemented!();
         }
@@ -150,9 +153,9 @@ impl SimpleModelReader {
 #[cfg(test)]
 mod tests {
 
-    use crate::material::{ Light};
     use super::*;
     use crate::camera::{Film, Pinhole, View};
+    use crate::material::Light;
     use crate::ray_tracer::RayTracer;
     use crate::Float;
     use geometry3d::{DistantSource3D, Point3D, Vector3D};

@@ -82,13 +82,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             direction: Vector3D::new(1., 2., 3.).get_normalized(),
             origin: Point3D::new(1., 2., 3.),
         },
-        refraction_index: 1.,
-        interaction: rendering::interaction::Interaction::default(),
+        .. Ray::default()
     });
     let vout = black_box(Vector3D::new(1., 4., 12.).get_normalized());
-
-
-
 
     let p = black_box(Plastic {
         colour: Spectrum {
@@ -100,10 +96,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         roughness: 0.0,
     });
 
-
     c.bench_function("direct_sample_plastic", |b| {
         b.iter(|| {
-            let (_new_ray,  _is_specular) = p.sample_bsdf(
+            let (_new_ray, _is_specular) = p.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
@@ -123,10 +118,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         roughness: 0.0,
     });
 
-
     c.bench_function("direct_sample_metal", |b| {
         b.iter(|| {
-            let (_new_ray,  _is_specular) = m.sample_bsdf(
+            let (_new_ray, _is_specular) = m.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
@@ -136,9 +130,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             );
         })
     });
-    
-
-
 
     let p = black_box(Plastic {
         colour: Spectrum {
@@ -162,20 +153,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plastic = black_box(Box::new(p));
     c.bench_function("sample_plastic", |b| {
         b.iter(|| {
-            let (_new_ray,  _is_specular) = metal.sample_bsdf(
-                black_box(normal),
-                black_box(e1),
-                black_box(e2),
-                black_box(Point3D::new(0., 0., 0.)),
-                black_box(&mut ray),
-                black_box(&mut rng),
-            );
-        })
-    });
-    
-    c.bench_function("sample_metal", |b| {
-        b.iter(|| {
-            let (_new_ray,  _is_specular) = plastic.sample_bsdf(
+            let (_new_ray, _is_specular) = metal.sample_bsdf(
                 black_box(normal),
                 black_box(e1),
                 black_box(e2),
@@ -186,6 +164,18 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         })
     });
 
+    c.bench_function("sample_metal", |b| {
+        b.iter(|| {
+            let (_new_ray, _is_specular) = plastic.sample_bsdf(
+                black_box(normal),
+                black_box(e1),
+                black_box(e2),
+                black_box(Point3D::new(0., 0., 0.)),
+                black_box(&mut ray),
+                black_box(&mut rng),
+            );
+        })
+    });
 
     c.bench_function("eval_plastic", |b| {
         b.iter(|| {
@@ -193,7 +183,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         })
     });
 
-    
     c.bench_function("eval_metal", |b| {
         b.iter(|| {
             let _val = metal.eval_bsdf(normal, e1, e2, &ray, vout);

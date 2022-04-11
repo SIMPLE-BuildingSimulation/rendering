@@ -18,23 +18,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use crate::Float;
 use crate::colour::Spectrum;
+use crate::Float;
 
-pub fn map_linear_colour(x: Float, min: Float, max: Float, map: &[Spectrum])->Spectrum{        
+pub fn map_linear_colour(x: Float, min: Float, max: Float, map: &[Spectrum]) -> Spectrum {
     if x <= min {
-        return map[0]
-    }else if x >= max {
-        return *map.last().expect("Given an empty colour map")
+        return map[0];
+    } else if x >= max {
+        return *map.last().expect("Given an empty colour map");
     }
-    
-    let delta = (max - min)/(map.len() - 1) as Float ;
+
+    let delta = (max - min) / (map.len() - 1) as Float;
     for i in 1..map.len() {
-        let bin_start = i as Float * delta;        
+        let bin_start = i as Float * delta;
         let bin_end = bin_start + delta;
         if x <= bin_end {
-            let lam = (x - bin_start)/delta;
-            return map[i-1] + ( map[i] - map[i-1] )*lam ;
+            let lam = (x - bin_start) / delta;
+            return map[i - 1] + (map[i] - map[i - 1]) * lam;
         }
     }
     unreachable!()

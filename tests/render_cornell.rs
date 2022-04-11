@@ -41,7 +41,6 @@ fn test_render_cornell() {
         ..RayTracer::default()
     };
 
-
     let buffer = integrator.render(&scene, &camera);
     buffer.save_hdre(std::path::Path::new("./test_data/images/cornell.hdr"));
 }

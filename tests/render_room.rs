@@ -47,7 +47,7 @@ fn test_render_room() {
         max_depth: 3,
         ..RayTracer::default()
     };
-    
+
     let buffer = integrator.render(&scene, &camera);
     buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
 }

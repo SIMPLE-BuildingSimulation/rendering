@@ -18,11 +18,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
-
 use geometry3d::intersection::IntersectionInfo;
 use geometry3d::{Point3D, Transform, Vector3D};
-
 
 /// The data for a SurfaceInteraction]
 #[derive(Default, Clone, Copy)]
@@ -54,14 +51,12 @@ pub struct Interaction {
     pub prim_index: usize,
 }
 
-
-
 impl Interaction {
     pub fn transform(&self, t: &Transform) -> Self {
         // let (point, perror) = t.transform_pt_propagate_error(self.point, self.perror);
         let point = t.transform_pt(self.point);
         let wo = t.transform_vec(self.wo);
-                
+
         // shading
         let geometry_shading = self.geometry_shading.transform(t);
 
@@ -92,6 +87,3 @@ impl Interaction {
         self.geometry_shading.normal
     }
 }
-
-
-

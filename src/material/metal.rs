@@ -19,11 +19,11 @@ SOFTWARE.
 */
 
 use crate::colour::Spectrum;
+use crate::material::Material;
 use crate::rand::*;
 use crate::ray::Ray;
-use crate::{Float};
+use crate::Float;
 use geometry3d::{Point3D, Vector3D};
-use crate::material::Material;
 
 /// Information required for modelling Radiance's Metal and Metal
 pub struct Metal {
@@ -33,16 +33,14 @@ pub struct Metal {
 }
 
 impl Material for Metal {
-    
-    fn id(&self)->&str{
+    fn id(&self) -> &str {
         "Metal"
     }
 
-    fn colour(&self) -> Spectrum{
+    fn colour(&self) -> Spectrum {
         self.colour
     }
 
-    
     fn sample_bsdf(
         &self,
         normal: Vector3D,
@@ -51,16 +49,24 @@ impl Material for Metal {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> ( Spectrum, Float) {
-        
-        let (direct, diffuse, weight) = crate::material::ward::sample_ward_anisotropic(normal, e1, e2, intersection_pt, self.specularity, self.roughness, self.roughness, ray, rng);
+    ) -> (Spectrum, Float) {
+        let (direct, diffuse, weight) = crate::material::ward::sample_ward_anisotropic(
+            normal,
+            e1,
+            e2,
+            intersection_pt,
+            self.specularity,
+            self.roughness,
+            self.roughness,
+            ray,
+            rng,
+        );
 
         // Plastic differs from Metal in that the direct component is coloured
         let bsdf = self.colour * direct + self.colour * diffuse;
 
-        (bsdf, 1./weight)
+        (bsdf, 1. / weight)
     }
-
 
     fn eval_bsdf(
         &self,
@@ -69,10 +75,19 @@ impl Material for Metal {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum{
-        let vout = vout*-1.;
-        let (direct, diffuse) = crate::material::ward::evaluate_ward_anisotropic(normal, e1, e2, self.specularity, self.roughness, self.roughness, ray, vout);
+    ) -> Spectrum {
+        let vout = vout * -1.;
+        let (direct, diffuse) = crate::material::ward::evaluate_ward_anisotropic(
+            normal,
+            e1,
+            e2,
+            self.specularity,
+            self.roughness,
+            self.roughness,
+            ray,
+            vout,
+        );
 
-        self.colour*direct + self.colour * diffuse
+        self.colour * direct + self.colour * diffuse
     }
 }

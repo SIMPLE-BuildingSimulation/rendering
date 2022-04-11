@@ -360,7 +360,7 @@ impl FlatNode {
 }
 
 #[derive(Default, Clone)]
-pub struct BoundingVolumeTree{
+pub struct BoundingVolumeTree {
     nodes: Vec<FlatNode>,
 }
 
@@ -407,9 +407,7 @@ impl BoundingVolumeTree {
         Self::flatten_node(&root, &mut nodes);
 
         // return
-        Self{
-            nodes            
-        }
+        Self { nodes }
     }
 
     fn flatten_node(node: &Node, nodes: &mut Vec<FlatNode>) -> usize {
@@ -445,7 +443,12 @@ impl BoundingVolumeTree {
 
     /// Returns an `Option<Interaction>`, containing the first primitive
     /// to be hit by the ray, if any
-    pub fn intersect(&self, primitives: &[Object], ray: &mut Ray, nodes_to_visit: &mut Vec<usize>) -> bool {
+    pub fn intersect(
+        &self,
+        primitives: &[Object],
+        ray: &mut Ray,
+        nodes_to_visit: &mut Vec<usize>,
+    ) -> bool {
         const MIN_T: Float = 0.0000001;
 
         if self.nodes.is_empty() {
@@ -453,7 +456,7 @@ impl BoundingVolumeTree {
         }
         // reset
         nodes_to_visit.truncate(0);
-        
+
         let mut prim_index: Option<usize> = None;
         let mut t_squared = Float::MAX;
 
@@ -464,7 +467,7 @@ impl BoundingVolumeTree {
         );
         let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
         let mut current_node = 0;
-        
+
         loop {
             let node = &self.nodes[current_node];
             if node.bounds().intersect(&ray.geometry, inv_dir) {
@@ -518,9 +521,8 @@ impl BoundingVolumeTree {
 
         // return
         if let Some(index) = prim_index {
-            
             let t = t_squared.sqrt();
-            
+
             ray.interaction.point = ray.geometry.project(t);
             ray.interaction.wo = ray.geometry.direction * -1.;
             ray.interaction.prim_index = index;
@@ -554,7 +556,7 @@ impl BoundingVolumeTree {
         );
         let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
         let mut current_node = 0;
-        
+
         loop {
             let node = &self.nodes[current_node];
             if node.bounds().intersect(ray, inv_dir) {

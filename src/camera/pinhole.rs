@@ -24,7 +24,6 @@ use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Ray3D, Vector3D};
 
-
 pub struct Pinhole {
     view: View,
     film: Film,
@@ -133,7 +132,7 @@ impl Camera for Pinhole {
                 direction: direction.get_normalized(),
                 origin: self.view.view_point,
             },
-            .. Ray::default()
+            ..Ray::default()
         };
 
         // return

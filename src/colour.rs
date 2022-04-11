@@ -30,7 +30,7 @@ pub struct RGBSpectrum {
 }
 
 impl std::default::Default for RGBSpectrum {
-    fn default()->Self{
+    fn default() -> Self {
         Self::black()
     }
 }

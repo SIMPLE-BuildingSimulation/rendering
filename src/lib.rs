@@ -1,4 +1,3 @@
-
 /*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -18,10 +17,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-
-
-
-
 
 /// The kind of Floating point number used in the
 /// library... the `"float"` feature means it becomes `f32`
@@ -47,6 +42,7 @@ pub const PI: Float = std::f64::consts::PI;
 pub mod bvh;
 pub mod camera;
 pub mod colour;
+pub mod colourmap;
 pub mod from_radiance;
 pub mod image;
 pub mod interaction;
@@ -57,7 +53,6 @@ pub mod rand;
 pub mod ray;
 pub mod samplers;
 pub mod scene;
-pub mod colourmap;
 
 mod from_simple_model;
 

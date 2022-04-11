@@ -26,9 +26,9 @@ use crate::material::Material;
 use crate::primitive::Primitive;
 use crate::ray::Ray;
 use crate::Float;
-use geometry3d::{Vector3D,Ray3D};
-use simple_model::SimpleModel;
 use calendar::Date;
+use geometry3d::{Ray3D, Vector3D};
+use simple_model::SimpleModel;
 
 #[derive(Clone)]
 pub struct Object {
@@ -58,15 +58,15 @@ pub struct Scene {
     pub distant_lights: Vec<Object>,
 
     /// The acceleration structure that helps trace rays.
-    /// 
+    ///
     /// This needs to be build through the `build_accelerator` function.
-    pub accelerator : Option<BoundingVolumeTree>,
+    pub accelerator: Option<BoundingVolumeTree>,
 
     /// The colour of the sky, normalized
     pub sky_colour: Option<Spectrum>,
-    
+
     /// A function returning the diffuse Sky brightness (i.e., without the sun)
-    /// The sun should be added separately. 
+    /// The sun should be added separately.
     /// Alternatively, you can use the `add_perez_sky` function
     pub sky: Option<Box<dyn Fn(Vector3D) -> Float + Sync>>,
 }
@@ -90,39 +90,42 @@ impl Scene {
         Self::default()
     }
 
-
     /// Adds the elements describing a Perez sky to the scene.
     /// The angles of Latitude, Longitude and Standard meridian should come
     /// in Degrees
-    pub fn add_perez_sky(&mut self, 
-        date: Date, 
-        latitude: Float, 
-        longitude: Float, 
-        standard_meridian: Float, 
+    pub fn add_perez_sky(
+        &mut self,
+        date: Date,
+        latitude: Float,
+        longitude: Float,
+        standard_meridian: Float,
         diffuse_horizontal_irrad: Float,
-        direct_normal_irrad: Float
-    ){
+        direct_normal_irrad: Float,
+    ) {
         let dew_point = 11.;
         // Add sky
-        let solar = solar::Solar::new(latitude.to_radians(), longitude.to_radians(), standard_meridian.to_radians());
+        let solar = solar::Solar::new(
+            latitude.to_radians(),
+            longitude.to_radians(),
+            standard_meridian.to_radians(),
+        );
         let s = solar::PerezSky::get_sky_func_standard_time(
-            solar::SkyUnits::Visible, 
-            &solar, 
-            date, 
+            solar::SkyUnits::Visible,
+            &solar,
+            date,
             dew_point,
-            diffuse_horizontal_irrad, 
-            direct_normal_irrad);
+            diffuse_horizontal_irrad,
+            direct_normal_irrad,
+        );
 
         self.sky = Some(s);
-        
-        
+
         // Add sun if there is any (it might be nighttime)
         let n = solar::Time::Standard(date.day_of_year());
-        if let Some(sun_position) = solar.sun_position(n){
+        if let Some(sun_position) = solar.sun_position(n) {
             let angle = (0.533 as Float).to_radians(); // 0.009302605
             let tan_half_alpha = (angle / 2.0).tan(); // 0.004651336043
             let omega = tan_half_alpha * tan_half_alpha * crate::PI; // 0.00006796811354
-
 
             let cos_zenit = sun_position.z;
             let zenith = if cos_zenit <= 0. {
@@ -150,33 +153,38 @@ impl Scene {
                 extraterrestrial_irradiance,
             )
             .clamp(0.01, 9e9);
-            let sky_clearness = solar::PerezSky::sky_clearness(diffuse_horizontal_irrad, direct_normal_irrad, zenith).clamp(-9e9, 11.9);
+            let sky_clearness = solar::PerezSky::sky_clearness(
+                diffuse_horizontal_irrad,
+                direct_normal_irrad,
+                zenith,
+            )
+            .clamp(-9e9, 11.9);
             let index = solar::PerezSky::clearness_category(sky_clearness);
-            let dir_illum = direct_normal_irrad * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
-            
-            let sun_brightness = dir_illum / omega / Spectrum::WHITE_EFFICACY; // 
-            let sun_mat = self.push_material(Box::new(crate::material::Light(Spectrum::gray(sun_brightness))));
-            
+            let dir_illum = direct_normal_irrad
+                * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
 
+            let sun_brightness = dir_illum / omega / Spectrum::WHITE_EFFICACY; //
+            let sun_mat = self.push_material(Box::new(crate::material::Light(Spectrum::gray(
+                sun_brightness,
+            ))));
 
             self.push_object(
                 sun_mat,
                 sun_mat,
-                Primitive::Source(geometry3d::DistantSource3D::new(sun_position,angle)),
+                Primitive::Source(geometry3d::DistantSource3D::new(sun_position, angle)),
             );
-        }// end of "if there is a sun"
-        
+        } // end of "if there is a sun"
     }
 
     pub fn build_accelerator(&mut self) {
-        if self.accelerator.is_some(){
+        if self.accelerator.is_some() {
             panic!("Trying to re-build accelerator structure. If you really want this, use rebuild_accelerator")
         }
         self.accelerator = Some(BoundingVolumeTree::new(self));
     }
 
     /// Builds the accelerator
-    pub fn rebuild_accelerator(&mut self) {        
+    pub fn rebuild_accelerator(&mut self) {
         self.accelerator = Some(BoundingVolumeTree::new(self));
     }
 
@@ -189,21 +197,24 @@ impl Scene {
 
     /// Casts a [`Ray3D`] and returns an `Option<Interaction>` describing the
     /// interaction with the first primitive hit by the ray, if any.    
-    pub fn cast_ray(&self, ray: &mut Ray, node_aux: &mut Vec<usize>) -> bool {        
-        if let Some(accelerator) = &self.accelerator{
+    pub fn cast_ray(&self, ray: &mut Ray, node_aux: &mut Vec<usize>) -> bool {
+        if let Some(accelerator) = &self.accelerator {
             accelerator.intersect(&self.objects, ray, node_aux)
-        }else{
+        } else {
             panic!("")
         }
-        
     }
 
     /// Checks whether a [`Ray3D`] can travel a certain distance without hitting any surface
-    pub fn unobstructed_distance(&self, ray: &Ray3D, distance_squared: Float,  node_aux: &mut Vec<usize>) -> bool {
-        
-        if let Some(a)=&self.accelerator{
-            a.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)            
-        }else{
+    pub fn unobstructed_distance(
+        &self,
+        ray: &Ray3D,
+        distance_squared: Float,
+        node_aux: &mut Vec<usize>,
+    ) -> bool {
+        if let Some(a) = &self.accelerator {
+            a.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)
+        } else {
             panic!("Trying to cast a check if unobstructed_distance() in a scene without an acceleration structure")
         }
     }

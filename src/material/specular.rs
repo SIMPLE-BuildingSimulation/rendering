@@ -18,9 +18,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+use crate::ray::Ray;
 use crate::Float;
 use geometry3d::Vector3D;
-use crate::ray::Ray;
 
 /// Calculates the parameters necessary for calculating the
 /// Fresnel's equations. `cos2`—i.e., the cosine of the
@@ -35,7 +35,7 @@ use crate::ray::Ray;
 /// use rendering::material::cos_and_n;
 /// use rendering::ray::Ray;
 /// use rendering::interaction::Interaction;
-/// 
+///
 /// let mat_refraction_index = 1.52;
 /// let normal = Vector3D::new(0., 0., 1.);
 /// let ray = Ray{
@@ -47,7 +47,11 @@ use crate::ray::Ray;
 /// };
 /// let (n1, cos1, n2, cos2) = cos_and_n(&ray, normal, mat_refraction_index);
 /// ```
-pub fn cos_and_n(ray: &Ray, normal: Vector3D, refraction_index: Float) -> (Float, Float, Float, Option<Float>) {
+pub fn cos_and_n(
+    ray: &Ray,
+    normal: Vector3D,
+    refraction_index: Float,
+) -> (Float, Float, Float, Option<Float>) {
     let vin = ray.geometry.direction;
 
     let cos1 = (vin * normal).abs();
@@ -78,8 +82,6 @@ pub fn cos_and_n(ray: &Ray, normal: Vector3D, refraction_index: Float) -> (Float
 
     (n1, cos1, n2, Some(cos2))
 }
-
-
 
 /// Fresnel Coefficient for TE-Polarized Light (i.e., perpendicular), according to PBR-book
 ///
@@ -159,12 +161,9 @@ pub fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
     ret
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
 
     #[test]
     fn test_mirror_direction() {

@@ -51,7 +51,6 @@ fn rusty_ldexp(x: Float, n: i32) -> Float {
 }
 
 fn colour_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
-    
     let mut v = red;
     if green > v {
         v = green;
@@ -183,7 +182,7 @@ impl ImageBuffer {
         let mut lines = content.split(|c| (*c as char) == '\n');
         // READ HEADER
         // while let Some(line) = lines.next() {
-        for line in lines.by_ref(){
+        for line in lines.by_ref() {
             if line.starts_with(b"-Y") {
                 let errmsg = {
                     let l = std::str::from_utf8(line).unwrap();
@@ -248,7 +247,7 @@ impl ImageBuffer {
         let mut g: u8 = 0;
         let mut b: u8 = 0;
         let mut counter: u8 = 0; // Keep note on whether we are in r, g, b, or e
-        for line in lines{
+        for line in lines {
             // if !line.is_empty(){
             //     println!("Line length = {}", line.len());
             //     print!("Line --> ");
@@ -263,12 +262,12 @@ impl ImageBuffer {
             // for i in 0..line.len() {
             for x in line {
                 match counter {
-                    0 => r = *x,//line[i],
-                    1 => g = *x,//line[i],
-                    2 => b = *x,//line[i],
+                    0 => r = *x, //line[i],
+                    1 => g = *x, //line[i],
+                    2 => b = *x, //line[i],
                     3 => {
                         // When we register an e, we push value
-                        let e = *x;//line[i];
+                        let e = *x; //line[i];
                         pixels.push(rgbe_to_colour(r, g, b, e));
                     }
                     _ => unreachable!(),

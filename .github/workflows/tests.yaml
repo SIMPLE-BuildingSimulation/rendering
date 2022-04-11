@@ -11,20 +11,40 @@ env:
 
 jobs:  
   test:
-    runs-on: ubuntu-latest     
+    build:
+    runs-on: ubuntu-latest    
     steps:
-    - uses: actions/checkout@v1  
-    # - uses: taiki-e/install-action@cargo-hack 
-    - name: Run tests default
-      run: cargo test --verbose     
-    - name: Run tests float
-      run: cargo test --features float --verbose     
-    - name: Run tests float parallel
-      run: cargo test --features float --features parallel --verbose    
-    - name: Run tests parallel
-      run: cargo test --features parallel --verbose     
-    - name: Run tests textures
-      run: cargo test --features textures --verbose     
-    - name: Run tests textures
-      run: cargo test --features textures --verbose     
-  
+    - uses: actions/checkout@v1   
+    - name: Build
+      run: cargo test --verbose
+  build_float:    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build Float
+      run: cargo test --verbose --features float   
+  build_parallel:    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build Float
+      run: cargo test --verbose --features parallel
+  build_parallel_float:    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build Float
+      run: cargo test --verbose --features parallel --features float
+  build_textures:    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build Float
+      run: cargo test --verbose --features textures 
+
+  build_textures_float:    
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1   
+    - name: Build Float
+      run: cargo test --verbose --features textures --features textures

@@ -21,7 +21,7 @@ SOFTWARE.
 use crate::colour::Spectrum;
 use crate::Float;
 
-use crate::material::{ Dielectric, Metal, Plastic, Mirror, Light, Glass};
+use crate::material::{Dielectric, Glass, Light, Metal, Mirror, Plastic};
 use crate::primitive::Primitive;
 
 use crate::scene::Scene;
@@ -282,20 +282,14 @@ impl Scanner {
     }
 
     /// Consumes a Light material
-    fn consume_glass(
-        &mut self,
-        source: &[u8],
-        scene: &mut Scene,
-        _modifier: &str,
-        name: &str,
-    ) {
+    fn consume_glass(&mut self, source: &[u8], scene: &mut Scene, _modifier: &str, name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
         let t = self.consume_token(source);
-        let mat = match t.as_bytes(){
-            b"4"=>{
+        let mat = match t.as_bytes() {
+            b"4" => {
                 let red = self.consume_token(source).parse::<Float>().unwrap();
                 let green = self.consume_token(source).parse::<Float>().unwrap();
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
@@ -305,8 +299,8 @@ impl Scanner {
                     colour,
                     refraction_index,
                 }
-            },
-            b"3"=>{
+            }
+            b"3" => {
                 let red = self.consume_token(source).parse::<Float>().unwrap();
                 let green = self.consume_token(source).parse::<Float>().unwrap();
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
@@ -316,12 +310,16 @@ impl Scanner {
                     colour,
                     refraction_index,
                 }
-            },
-            _ => {panic!("Incorrect Glass definition... expected 3 or 4 arguments; found '{}'", t)}
+            }
+            _ => {
+                panic!(
+                    "Incorrect Glass definition... expected 3 or 4 arguments; found '{}'",
+                    t
+                )
+            }
         };
-        
-                
-        self.modifiers.push(name.to_string());        
+
+        self.modifiers.push(name.to_string());
         scene.push_material(Box::new(mat));
     }
 

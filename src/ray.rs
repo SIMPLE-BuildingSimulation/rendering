@@ -18,18 +18,17 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+use crate::interaction::Interaction;
 use crate::Float;
 use geometry3d::{Point3D, Ray3D, Transform, Vector3D};
-use crate::interaction::Interaction;
 /// Represents a ray (of light?) beyond pure geometry. It
 /// includes also the current index of refraction and, potentially,
 /// time (for blurry images)
 #[derive(Clone, Copy)]
 pub struct Ray {
-    
     /// Direction and position
     pub geometry: Ray3D,
-        
+
     /// index of refraction of the current medium
     pub refraction_index: Float,
 
@@ -43,11 +42,10 @@ pub struct Ray {
     pub value: Float,
 }
 
-
 impl std::default::Default for Ray {
-    fn default()->Self{
-        Self{
-            geometry: Ray3D{
+    fn default() -> Self {
+        Self {
+            geometry: Ray3D {
                 origin: Point3D::new(0., 0., 0.),
                 direction: Vector3D::new(0., 0., 0.),
             },
@@ -62,9 +60,8 @@ impl std::default::Default for Ray {
 
 impl Ray {
     pub fn transform(&mut self, t: &Transform) {
-        let (geometry, _o_error, _d_error) = t.transform_ray(&self.geometry);        
+        let (geometry, _o_error, _d_error) = t.transform_ray(&self.geometry);
         self.geometry = geometry;
-            
     }
 
     #[inline(always)]

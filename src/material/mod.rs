@@ -23,7 +23,6 @@ use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
-
 mod light;
 pub use light::Light;
 
@@ -56,45 +55,43 @@ mod ward;
 // }
 
 pub trait Material {
-
     /// Returns an id, for debugging and error reporting purposes
     fn id(&self) -> &str;
-
 
     /// Retrieves the Colour of the material. This will usually
     /// represent the values that will multiply the different
     /// elements of the [`Spectrum`]. E.g., the reflectance values.
     fn colour(&self) -> Spectrum;
 
-
     /// Should this material be tested for direct illumination?    
-    fn emits_direct_light(&self) -> bool{
+    fn emits_direct_light(&self) -> bool {
         false
     }
-    
 
     /// Should this material emits light    
-    fn emits_light(&self) -> bool{
+    fn emits_light(&self) -> bool {
         false
     }
-    
+
     /// Does this material scatter (e.g., like [`Plastic`]) or does it
     /// only transmit/reflects specularly (e.g., like [`Mirror`])?
     ///
     /// Defaults to `false`
-    fn specular_only(&self) -> bool{
+    fn specular_only(&self) -> bool {
         false
     }
-    
+
     fn get_possible_paths(
         &self,
         _normal: &Vector3D,
         _intersection_pt: &Point3D,
         _ray: &Ray,
-    ) -> [Option<(Ray, Float, Float)>; 2]{
-        panic!("Calling unimplemented method get_possible_paths() for material '{}'", self.id())
+    ) -> [Option<(Ray, Float, Float)>; 2] {
+        panic!(
+            "Calling unimplemented method get_possible_paths() for material '{}'",
+            self.id()
+        )
     }
-    
 
     /// Samples the bsdf (returned by modifying the given `Ray`).
     /// Returns the value of the BSDF in that direction (as a Spectrum) and the probability
@@ -106,8 +103,7 @@ pub trait Material {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Spectrum, Float) ;
-    
+    ) -> (Spectrum, Float);
 
     /// Evaluates a BSDF based on an input and outpt directions
     fn eval_bsdf(
@@ -117,8 +113,7 @@ pub trait Material {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum; 
-    
+    ) -> Spectrum;
 }
 
 #[cfg(test)]
@@ -140,7 +135,7 @@ mod tests {
                     origin: geometry3d::Point3D::new(rng.gen(), rng.gen(), rng.gen()),
                 },
                 refraction_index: rng.gen(),
-                .. Ray::default()
+                ..Ray::default()
             };
             let vout = Vector3D::new(1., 4., 12.).get_normalized();
 
@@ -155,7 +150,8 @@ mod tests {
         for _ in 0..99999 {
             let (normal, e1, e2, mut ray, vout) = get_vectors(&mut rng);
             let old_ray = ray.clone();
-            let (bsdf, pdf) = material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
+            let (bsdf, pdf) =
+                material.sample_bsdf(normal, e1, e2, Point3D::new(0., 0., 0.), &mut ray, &mut rng);
             assert!(pdf.is_finite());
             assert!(bsdf.radiance().is_finite());
             assert!(old_ray.geometry.direction.length().is_finite());
@@ -177,7 +173,6 @@ mod tests {
             roughness: 0.0,
         });
 
-        
         println!("{}", std::mem::size_of_val(&plastic));
         test_material(plastic)
     }

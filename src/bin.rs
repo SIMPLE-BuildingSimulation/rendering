@@ -19,13 +19,12 @@ SOFTWARE.
 */
 
 use rendering::scene::Scene;
-// use rendering::from_radiance::from
 use clap::{Arg, Command};
 
 use geometry3d::{Point3D, Vector3D};
 use rendering::camera::{Film, Pinhole, View};
 use rendering::ray_tracer::RayTracer;
-use std::time::Instant;
+
 
 fn main() {
     let matches = Command::new("SIMPLE ray tracer")
@@ -39,8 +38,7 @@ fn main() {
                 .value_name("Radiance file")
                 .help("This is the SIMPLE Model or a Radiance file")
                 .takes_value(true)
-                .required(true)
-                // .index(1),
+                .required(true), // .index(1),
         )
         .arg(
             Arg::new("output")
@@ -49,8 +47,7 @@ fn main() {
                 .value_name("The file where to write the image")
                 .help("The file where to write the image")
                 .takes_value(true)
-                .required(true)
-                // .index(2),
+                .required(true), // .index(2),
         )
         .get_matches();
 
@@ -62,17 +59,17 @@ fn main() {
 
     // Create camera
     let film = Film {
-        resolution: (512, 367),
+        // resolution: (512, 367),
         // resolution: (1024, 768),
-        // resolution: (512, 512),
+        resolution: (512, 512),
     };
 
     // Create view
     let view = View {
         view_direction: Vector3D::new(0., 1., 0.).get_normalized(),
-        // view_point: Point3D::new(2., 1., 1.),
-        view_point: Point3D::new(3., -5., 2.25),
-        field_of_view: 50.,
+        view_point: Point3D::new(2., 1., 1.),
+        // view_point: Point3D::new(3., -5., 2.25),
+        // field_of_view: 50.,
         ..View::default()
     };
 
@@ -80,20 +77,16 @@ fn main() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_shadow_samples: 15,
-        max_depth: 3,
-        limit_weight: 0.001,
-        n_ambient_samples: 100,
+        n_shadow_samples: 1,
+        max_depth: 1,
+        // limit_weight: 0.001,
+        n_ambient_samples: 50,
         ..RayTracer::default()
     };
 
-    let now = Instant::now();
+    
 
     let buffer = integrator.render(&scene, &camera);
-    println!(
-        "Image described in '{}' took {} seconds to render",
-        input_file,
-        now.elapsed().as_secs()
-    );
+    
     buffer.save_hdre(std::path::Path::new(output_file));
 }
