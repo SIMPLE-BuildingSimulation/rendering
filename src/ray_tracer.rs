@@ -109,9 +109,9 @@ impl RayTracer {
             if material.emits_light() {
                 // if current_depth == 0 {
                 // let light_pdf = 1. / object.primitive.omega(intersection_pt);
-                let light_pdf = object
-                    .primitive
-                    .solid_angle_pdf(&ray.interaction.geometry_shading, &ray.geometry);
+                let light_pdf = 2.;//object
+                    // .primitive
+                    // .solid_angle_pdf(&ray.interaction.geometry_shading, &ray.geometry);
                 return (material.colour(), light_pdf);
                 // return Some(Spectrum::gray(1.))
                 // }else{

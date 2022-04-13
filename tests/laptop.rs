@@ -143,7 +143,7 @@ fn test_render_laptop() {
     scene.push_object(plastic, plastic, Primitive::Triangle(tri));
     let tri = Triangle3D::new(
         Point3D::new(WIDTH, 0.0, OFFSET),
-        Point3D::new(WIDTH, 0.0, OFFSET + BASE_THICKNESS),
+        Point3D::new(WIDTH, DEPTH, OFFSET + BASE_THICKNESS),
         Point3D::new(WIDTH, DEPTH, OFFSET),
     )
     .unwrap();

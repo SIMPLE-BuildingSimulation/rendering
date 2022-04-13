@@ -30,6 +30,10 @@ use calendar::Date;
 use geometry3d::{Ray3D, Vector3D};
 use simple_model::SimpleModel;
 
+#[cfg(feature="triangles_only")]
+use crate::triangle::Triangle;
+
+
 #[derive(Clone)]
 pub struct Object {
     pub primitive: Primitive,
@@ -43,7 +47,11 @@ pub struct Scene {
     /// Objects in the scene that are not tested
     /// directly for shadow (e.g., non-luminous objects
     /// and diffuse light)
+    #[cfg(not(feature="triangles_only"))]
     pub objects: Vec<Object>,
+    
+    #[cfg(feature="triangles_only")]
+    pub objects: Vec<Triangle>,
 
     /// The materials in the scene
     pub materials: Vec<Box<dyn Material + Sync>>,
@@ -228,12 +236,13 @@ impl Scene {
     }
 
     /// Pushes an [`Object`] into the [`Scene`]
+    #[cfg(not(feature="triangles_only"))]
     pub fn push_object(
         &mut self,
         front_material_index: usize,
         back_material_index: usize,
         primitive: Primitive,
-    ) -> usize {
+    ) {
         if front_material_index >= self.materials.len() {
             panic!("Pushing object with front material out of bounds")
         }
@@ -270,9 +279,68 @@ impl Scene {
             // Push
             self.objects.push(object);
         }
+        
+    }
 
-        // return
-        this_index
+    /// Pushes an [`Object`] into the [`Scene`]
+    #[cfg(feature="triangles_only")]
+    pub fn push_object(
+        &mut self,
+        front_material_index: usize,
+        back_material_index: usize,
+        primitive: Primitive,
+    )  {
+        if front_material_index >= self.materials.len() {
+            panic!("Pushing object with front material out of bounds")
+        }
+
+        if back_material_index >= self.materials.len() {
+            panic!("Pushing object with back material out of bounds")
+        }
+
+        let is_light = self.materials[front_material_index].emits_direct_light() || self.materials[back_material_index].emits_direct_light();
+        let this_index = self.objects.len();
+        let ob_id = primitive.id();
+        let object = Object {
+            front_material_index,
+            back_material_index,
+            primitive: primitive.clone(),
+            // texture: None,
+        };
+        // add as light, if required
+        if is_light {
+            // I know this is not very fast... but we will
+            // only do this while creating the scene, not while
+            // rendering
+            if ob_id == "source" {
+                self.distant_lights.push(object);
+            } else {
+                // register object as light
+                self.lights.push(object.clone());                
+            }
+        }
+
+        if let Primitive::Triangle(tr) = &primitive {
+                        
+            let object = Triangle{
+                vertices: [tr.a().x, tr.a().y, tr.a().z, 
+                            tr.b().x, tr.b().y, tr.b().z,
+                            tr.c().x, tr.c().y, tr.c().z
+                ],
+                front_material_index,
+                back_material_index,
+            };
+            // Push object
+            self.objects.push(object)
+        }else{
+            if !is_light{
+                eprintln!("Only Triangles are allowed to be Non-light objects... ignoring those that not comply")
+            }
+        }
+
+        
+
+        
     }
 }
 

@@ -46,7 +46,12 @@ pub mod colourmap;
 pub mod image;
 pub mod interaction;
 pub mod material;
+
+
 pub mod primitive;
+#[cfg(feature="triangles_only")]
+pub mod triangle;
+
 pub mod primitive_samplers;
 pub mod rand;
 pub mod ray;

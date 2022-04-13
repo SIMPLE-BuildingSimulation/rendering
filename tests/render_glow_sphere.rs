@@ -6,7 +6,7 @@ use rendering::Float;
 mod glow_sphere_scene;
 
 #[test]
-// #[ignore]
+#[ignore]
 fn test_render_glow_sphere() {
     // cargo test --features parallel --release --package rendering --test glow_sphere -- test_render_glow_sphere --exact --nocapture
     const SCENE_HEIGHT: Float = 40.;

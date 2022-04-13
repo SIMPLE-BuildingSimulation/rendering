@@ -22,6 +22,7 @@ use crate::colour::Spectrum;
 use crate::Float;
 
 use crate::material::{Dielectric, Glass, Light, Metal, Mirror, Plastic};
+
 use crate::primitive::Primitive;
 
 use crate::scene::Scene;
@@ -323,7 +324,7 @@ impl Scanner {
         scene.push_material(Box::new(mat));
     }
 
-    /// Consumes a sphere
+    /// Consumes a sphere    
     fn consume_sphere(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -363,6 +364,8 @@ impl Scanner {
         let mod_index = self.get_modifier_index(modifier);
         scene.push_object(mod_index, mod_index, Primitive::Source(distant_source));
     }
+
+
     /// Consumes a polygon
     fn consume_polygon(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {
         let t = self.consume_token(source);

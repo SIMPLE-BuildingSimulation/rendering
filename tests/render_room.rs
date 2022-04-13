@@ -12,18 +12,18 @@ fn test_render_room() {
     // oconv ../room.rad ../white_sky.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
     let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
-    scene.add_perez_sky(
-        calendar::Date {
-            month: 6,
-            day: 1,
-            hour: 12.,
-        },
-        -33.,
-        70.,
-        65.,
-        200.,
-        500.,
-    );
+    // scene.add_perez_sky(
+    //     calendar::Date {
+    //         month: 6,
+    //         day: 1,
+    //         hour: 12.,
+    //     },
+    //     -33.,
+    //     70.,
+    //     65.,
+    //     200.,
+    //     500.,
+    // );
 
     scene.build_accelerator();
 
