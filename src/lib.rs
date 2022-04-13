@@ -43,7 +43,6 @@ pub mod bvh;
 pub mod camera;
 pub mod colour;
 pub mod colourmap;
-pub mod from_radiance;
 pub mod image;
 pub mod interaction;
 pub mod material;
@@ -54,6 +53,8 @@ pub mod ray;
 pub mod samplers;
 pub mod scene;
 
+// Readers
+pub mod from_radiance;
 mod from_simple_model;
 
 // Ray-tracer

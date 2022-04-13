@@ -201,7 +201,7 @@ impl Scene {
         if let Some(accelerator) = &self.accelerator {
             accelerator.intersect(&self.objects, ray, node_aux)
         } else {
-            panic!("")
+            panic!("Trying to cast_ray() in a scene without an acceleration structure")
         }
     }
 
@@ -215,7 +215,7 @@ impl Scene {
         if let Some(a) = &self.accelerator {
             a.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)
         } else {
-            panic!("Trying to cast a check if unobstructed_distance() in a scene without an acceleration structure")
+            panic!("Trying to check if unobstructed_distance() in a scene without an acceleration structure")
         }
     }
 

@@ -78,12 +78,6 @@ impl ObjectInfo {
     }
 }
 
-#[derive(Clone)]
-struct Leaf {
-    bounds: BBox3D,
-    n_prims: usize,
-    first_prim_offset: usize,
-}
 
 struct Interior {
     bounds: BBox3D,
@@ -337,25 +331,33 @@ impl Node {
     }
 }
 
-type FlatLeaf = Leaf;
 #[derive(Clone)]
-struct FlatInterior {
-    second_child_offset: usize,
+struct Leaf {
     bounds: BBox3D,
-    axis: BBoxAxis,
+    n_prims: usize,
+    first_prim_offset: usize,
 }
+
+
 #[derive(Clone)]
-enum FlatNode {
-    Interior(FlatInterior),
-    Leaf(FlatLeaf),
+struct FlatNode {
+    /// The Bounding Box of this node
+    bounds: BBox3D,
+    /// The number of primitives in the node. Interior Nodes
+    /// have Zero; Leafs should always have more
+    n_prims: i16,
+    /// The axis in which this was split. This value should
+    /// not be used in leafs
+    axis: BBoxAxis,
+    /// The 'next' node to check. This is the equivalent to 
+    /// what in PBR is called `primitivesOffset` for Leafs, and 
+    /// `secondChildOffset` for Interior nodes
+    next: i32,
 }
 
 impl FlatNode {
-    fn bounds(&self) -> &BBox3D {
-        match self {
-            Self::Interior(i) => &i.bounds,
-            Self::Leaf(i) => &i.bounds,
-        }
+    fn is_leaf(&self) -> bool {
+        self.n_prims > 0
     }
 }
 
@@ -414,27 +416,30 @@ impl BoundingVolumeTree {
         let this_offset = nodes.len();
         match node {
             Node::Leaf(l) => {
-                nodes.push(FlatNode::Leaf(FlatLeaf {
+                nodes.push(FlatNode{
                     bounds: l.bounds,
-                    n_prims: l.n_prims,
-                    first_prim_offset: l.first_prim_offset,
-                }));
+                    n_prims: l.n_prims as i16,
+                    next: l.first_prim_offset as i32,
+                    axis: BBoxAxis::X // We won't use this
+                });
             }
             Node::Interior(i) => {
                 let (child1, child2) = &i.children;
-                nodes.push(FlatNode::Interior(FlatInterior {
-                    second_child_offset: 0, // We will fill this in a minute.
+                // nodes.push(FlatNode::Interior(FlatInterior {
+                //     second_child_offset: 0, // We will fill this in a minute.
+                //     bounds: i.bounds,
+                //     axis: i.split_axis,
+                // }));
+                nodes.push(FlatNode{
                     bounds: i.bounds,
-                    axis: i.split_axis,
-                }));
+                    n_prims: 0,
+                    next: 0, // We will patch this
+                    axis: i.split_axis 
+                });
                 Self::flatten_node(child1, nodes);
-                let second_offset = Self::flatten_node(child2, nodes);
                 // Patch second offset
-                if let FlatNode::Interior(this_node) = &mut nodes[this_offset] {
-                    this_node.second_child_offset = second_offset;
-                } else {
-                    unreachable!()
-                }
+                nodes[this_offset].next = Self::flatten_node(child2, nodes) as i32;
+                
             }
         }
         // return
@@ -469,50 +474,57 @@ impl BoundingVolumeTree {
         
         let mut current_node = 0;
 
-        loop {
+        for _ in 0..self.nodes.len() {
             let node = &self.nodes[current_node];
-            if node.bounds().intersect(&ray.geometry, &inv_dir) {
-                match node {
-                    FlatNode::Leaf(data) => {
-                        let offset = data.first_prim_offset;
-                        // Check all the objects in this Node
-                        for i in 0..data.n_prims {
-                            if let Some(intersect_info) =
-                                primitives[offset + i].primitive.intersect(&ray.geometry)
-                            {
-                                // If hit, check the distance.
-                                let this_t_squared =
-                                    (intersect_info.p - ray.geometry.origin).length_squared();
-                                // if the distance is less than the prevous one, update the info
-                                if this_t_squared > MIN_T && this_t_squared < t_squared {
-                                    // If the distance is less than what we had, update return data
-                                    t_squared = this_t_squared;
-                                    prim_index = Some(offset + i);
-                                    ray.interaction.geometry_shading = intersect_info;
-                                }
+            if node.bounds.intersect(&ray.geometry, &inv_dir) {
+                if node.is_leaf() {                    
+                    let offset = node.next;
+                    
+                    // Check all the objects in this Node
+                    for i in 0..node.n_prims {
+                        if let Some(intersect_info) =
+                            primitives[offset as usize + i as usize].primitive.intersect(&ray.geometry)
+                        {
+                            // If hit, check the distance.
+                            let this_t_squared =
+                                (intersect_info.p - ray.geometry.origin).length_squared();                                
+                            // if the distance is less than the prevous one, update the info
+                            if this_t_squared > MIN_T && this_t_squared < t_squared {
+                                
+                                
+                                // If the distance is less than what we had, update return data
+                                t_squared = this_t_squared;
+                                prim_index = Some(offset as usize + i as usize);
+                                ray.interaction.geometry_shading = intersect_info;
+
+
+
                             }
                         }
-                        if let Some(i) = nodes_to_visit.pop() {
-                            current_node = i;
-                        } else {
-                            break;
-                        }
                     }
-                    FlatNode::Interior(data) => {
-                        let is_neg = match data.axis {
-                            BBoxAxis::X => dir_is_neg.0,
-                            BBoxAxis::Y => dir_is_neg.1,
-                            BBoxAxis::Z => dir_is_neg.2,
-                        };
-                        if is_neg {
-                            nodes_to_visit.push(current_node + 1);
-                            current_node = data.second_child_offset;
-                        } else {
-                            nodes_to_visit.push(data.second_child_offset);
-                            current_node += 1;
-                        }
+                    // update node we need to visit next, if any... otherwise, finish
+                    if let Some(i) = nodes_to_visit.pop() {
+                        current_node = i;
+                    } else {
+                        break;
+                    }
+                }else{
+                    // is interior... choose first or second child,
+                    // add to the stack
+                    let is_neg = match node.axis {
+                        BBoxAxis::X => dir_is_neg.0,
+                        BBoxAxis::Y => dir_is_neg.1,
+                        BBoxAxis::Z => dir_is_neg.2,
+                    };
+                    if is_neg {
+                        nodes_to_visit.push(current_node + 1);
+                        current_node = node.next as usize;
+                    } else {
+                        nodes_to_visit.push(node.next as usize);
+                        current_node += 1;
                     }
                 }
+                    
             } else if let Some(i) = nodes_to_visit.pop() {
                 current_node = i;
             } else {
@@ -560,46 +572,50 @@ impl BoundingVolumeTree {
 
         loop {
             let node = &self.nodes[current_node];
-            if node.bounds().intersect(ray, &inv_dir) {
-                match node {
-                    FlatNode::Leaf(data) => {
-                        let offset = data.first_prim_offset;
-                        // Check all the objects in this Node
-                        for i in 0..data.n_prims {
-                            if let Some(pt) = primitives[offset + i].primitive.simple_intersect(ray)
+            if node.bounds.intersect(ray, &inv_dir) {
+                if node.is_leaf(){
+                    let offset = node.next;
+                    // Check all the objects in this Node
+                    for i in 0..node.n_prims {
+                        if let Some(pt) = primitives[offset as usize + i as usize].primitive.simple_intersect(ray)
+                        {
+                            let this_d_squared = (pt - ray.origin).length_squared();
+    
+                            // Is it a valid hit and it is earlier than the rest?
+                            if this_d_squared > MIN_T
+                                && this_d_squared + MIN_T < distance_squared
+                                && (distance_squared - this_d_squared).abs() > 0.0001
                             {
-                                let this_d_squared = (pt - ray.origin).length_squared();
 
-                                // Is it a valid hit and it is earlier than the rest?
-                                if this_d_squared > MIN_T
-                                    && this_d_squared + MIN_T < distance_squared
-                                    && (distance_squared - this_d_squared).abs() > 0.0001
-                                {
-                                    return false;
-                                }
+                                
+                                return false;
+
+
                             }
                         }
-                        if let Some(i) = nodes_to_visit.pop() {
-                            current_node = i;
-                        } else {
-                            break;
-                        }
                     }
-                    FlatNode::Interior(data) => {
-                        let is_neg = match data.axis {
-                            BBoxAxis::X => dir_is_neg.0,
-                            BBoxAxis::Y => dir_is_neg.1,
-                            BBoxAxis::Z => dir_is_neg.2,
-                        };
-                        if is_neg {
-                            nodes_to_visit.push(current_node + 1);
-                            current_node = data.second_child_offset;
-                        } else {
-                            nodes_to_visit.push(data.second_child_offset);
-                            current_node += 1;
-                        }
+                    if let Some(i) = nodes_to_visit.pop() {
+                        current_node = i;
+                    } else {
+                        break;
+                    }
+
+                }else{
+
+                    let is_neg = match node.axis {
+                        BBoxAxis::X => dir_is_neg.0,
+                        BBoxAxis::Y => dir_is_neg.1,
+                        BBoxAxis::Z => dir_is_neg.2,
+                    };
+                    if is_neg {
+                        nodes_to_visit.push(current_node + 1);
+                        current_node = node.next as usize;
+                    } else {
+                        nodes_to_visit.push(node.next as usize);
+                        current_node += 1;
                     }
                 }
+                
             } else if let Some(i) = nodes_to_visit.pop() {
                 current_node = i;
             } else {
@@ -609,5 +625,199 @@ impl BoundingVolumeTree {
 
         // otherwise, return true
         true
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::colour::Spectrum;
+    use crate::material::Plastic;
+    use geometry3d::{Point3D, Sphere3D, Ray3D};
+    use crate::primitive::Primitive;
+
+    #[test]
+    fn test_empty(){
+        let mut scene = Scene::new();
+        let mut ray = Ray::default();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+        let mut aux = vec![0;10];
+        assert!(!bvh.intersect(&scene.objects, &mut ray, &mut aux));
+
+    }
+
+    /// A simple scene with two 0.5-r-spheres; one at x = -1 and the other
+    /// at x = 1. This should lead to three nodes:
+    /// * The main one, being an interior node (e.g., n_prims == 0)
+    /// * First child --> Leaf with one element
+    /// * Second child --> Leaf with one element
+
+    fn get_horizontal_scene() -> Scene{
+        let mut scene = Scene::new();
+        
+        let plastic = Plastic {
+            colour: Spectrum::gray(2.),
+            specularity: 1.,
+            roughness : 0.,
+        };
+        let plastic = scene.push_material(Box::new(plastic));
+
+        // One sphere
+        let sphere = Sphere3D::new(
+            0.5, 
+            Point3D::new(-1., 0., 0.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+
+        // Another sphere
+        let sphere = Sphere3D::new(
+            0.5,
+            Point3D::new(1., 0., 0.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+
+        scene
+
+    }
+
+    fn get_vertical_scene() -> Scene{
+        let mut scene = Scene::new();
+        
+        let plastic = Plastic {
+            colour: Spectrum::gray(2.),
+            specularity: 1.,
+            roughness : 0.,
+        };
+        let plastic = scene.push_material(Box::new(plastic));
+
+        // One sphere
+        let sphere = Sphere3D::new(
+            0.5, 
+            Point3D::new(0., 0., -1.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+
+        // Another sphere
+        let sphere = Sphere3D::new(
+            0.5,
+            Point3D::new(0., 0., 1.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+
+        scene
+
+    }
+
+    #[test]
+    fn test_build_horizontal_bvh(){
+        let mut scene = get_horizontal_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+        assert_eq!(bvh.nodes.len(), 3);
+        
+        let mut node = &bvh.nodes[0];
+        assert_eq!(node.n_prims, 0);
+        assert_eq!(node.axis, BBoxAxis::X);
+        assert_eq!(node.next, 2);
+
+        node = &bvh.nodes[1];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 0); // first sphere
+
+        node = &bvh.nodes[2];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 1); // second sphere
+
+    }
+
+
+    #[test]
+    fn test_build_vertical_bvh(){
+        let mut scene = get_vertical_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+        assert_eq!(bvh.nodes.len(), 3);
+        
+        let mut node = &bvh.nodes[0];
+        assert_eq!(node.n_prims, 0);
+        assert_eq!(node.axis, BBoxAxis::Z);
+        assert_eq!(node.next, 2);
+
+        node = &bvh.nodes[1];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 0); // First sphere
+
+        node = &bvh.nodes[2];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 1); // second sphere
+
+    }
+
+    #[test]
+    fn test_intersect_horizontal(){
+        
+        let mut scene = get_horizontal_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+
+
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(-1., -10., 0.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
+
+        assert!( (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-9 );
+
+
+
+
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(1., -10., 0.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
+
+        assert!( (ray.interaction.point - Point3D::new(1., -0.5, 0.)).length() < 1e-9 );
+    }
+
+
+    #[test]
+    fn test_intersect_vertical(){
+        
+        let mut scene = get_vertical_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+
+
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(0., -10., -1.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
+
+        assert!( (ray.interaction.point - Point3D::new(0., -0.5, -1.)).length() < 1e-9 );
+
+
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(0., -10., 1.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
+
+        assert!( (ray.interaction.point - Point3D::new(0., -0.5, 1.)).length() < 1e-9 );
     }
 }

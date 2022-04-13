@@ -77,10 +77,9 @@ fn main() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
+        n_ambient_samples: 220,
         n_shadow_samples: 1,
-        max_depth: 1,
-        // limit_weight: 0.001,
-        n_ambient_samples: 50,
+        max_depth: 3,
         ..RayTracer::default()
     };
 
