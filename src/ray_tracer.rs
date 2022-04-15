@@ -259,7 +259,7 @@ impl RayTracer {
     fn sample_light_array(
         &self,
         scene: &Scene,
-        material: &Box<dyn Material + Sync>,
+        material: &Material,
         ray: &Ray,
         point: Point3D,
         normal: Vector3D,
@@ -277,7 +277,8 @@ impl RayTracer {
             let mut i = 0;
             // let mut missed = 0;
             while i < n_shadow_samples {
-                let direction = light.primitive.sample_direction(rng, point);
+                // let direction = light.primitive.sample_direction(rng, point);
+                let (_,direction) = light.primitive.direction( point);
                 let shadow_ray = Ray3D {
                     origin: point,
                     direction,
@@ -322,7 +323,7 @@ impl RayTracer {
     fn get_local_illumination(
         &self,
         scene: &Scene,
-        material: &Box<dyn Material + Sync>, //&impl Material,
+        material: &Material, //&impl Material,
         ray: &Ray,
         mut point: Point3D,
         normal: Vector3D,
@@ -374,7 +375,7 @@ impl RayTracer {
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         current_depth: usize,
-        material: &Box<dyn Material + Sync>,
+        material: &Material,
         normal: Vector3D,
         e1: Vector3D,
         e2: Vector3D,
@@ -492,6 +493,7 @@ impl RayTracer {
 /// Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses
 /// the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)`
 /// if the light is hit.
+#[inline(never)]
 pub fn sample_light(
     scene: &Scene,
     light: &Object,
@@ -508,7 +510,7 @@ pub fn sample_light(
 
     let light_distance_squared = (origin - info.p).length_squared();
 
-    // If the light is not visible (this does not consider
+    // If the light is not visible (this should not consider
     // transparent surfaces, yet.)
     if !scene.unobstructed_distance(shadow_ray, light_distance_squared, node_aux) {
         return Some((Spectrum::black(), 0.0));

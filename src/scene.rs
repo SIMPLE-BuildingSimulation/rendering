@@ -54,7 +54,7 @@ pub struct Scene {
     pub objects: Vec<Triangle>,
 
     /// The materials in the scene
-    pub materials: Vec<Box<dyn Material + Sync>>,
+    pub materials: Vec<Material>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light.
@@ -172,7 +172,7 @@ impl Scene {
                 * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
 
             let sun_brightness = dir_illum / omega / Spectrum::WHITE_EFFICACY; //
-            let sun_mat = self.push_material(Box::new(crate::material::Light(Spectrum::gray(
+            let sun_mat = self.push_material(crate::material::Material::Light(crate::material::Light(Spectrum::gray(
                 sun_brightness,
             ))));
 
@@ -229,7 +229,7 @@ impl Scene {
 
     /// Pushes a [`Material`] to the [`Scene`] and return its
     /// position in the `materials` Vector.
-    pub fn push_material(&mut self, material: Box<dyn Material + Sync>) -> usize {
+    pub fn push_material(&mut self, material: Material) -> usize {
         self.materials.push(material);
         // return
         self.materials.len() - 1

@@ -121,7 +121,7 @@ impl SimpleModelReader {
     fn substance_to_material(
         substance: &Substance,
         wavelength: &Wavelengths,
-    ) -> Box<dyn Material + Sync> {
+    ) -> Material {
         if matches!(wavelength, Wavelengths::Visible) {
             unimplemented!();
         }
@@ -142,7 +142,7 @@ impl SimpleModelReader {
         };
 
         // return
-        Box::new(Plastic {
+        Material::Plastic(Plastic {
             colour: Spectrum::gray(color),
             specularity: 0.0,
             roughness: 0.0,
@@ -170,7 +170,7 @@ mod tests {
         let mut reader = SimpleModelReader::default();
         let mut scene = reader.build_scene(&model, &Wavelengths::Solar);
 
-        let light_index = scene.push_material(Box::new(Light(Spectrum::gray(10000.))));
+        let light_index = scene.push_material(Material::Light(Light(Spectrum::gray(10000.))));
         scene.push_object(
             light_index,
             light_index,

@@ -198,9 +198,9 @@ impl Node {
             }
         };
 
-        const TOO_FEW_TO_BUCKET: usize = 2;
+        const TOO_FEW_TO_BUCKET: usize = 4;
         const N_BUCKETS: usize = 12;
-        const RELATIVE_TRANSVERSAL_COST: Float = 2.;
+        const RELATIVE_TRANSVERSAL_COST: Float = 20.;
         // Now, Proceed
         if len_axis < 1e-8 {
             // All primitives seem to be aligned in all directions (i.e., overlapping)
@@ -498,16 +498,44 @@ impl BoundingVolumeTree {
         
         let mut current_node = 0;
 
-        for _ in 0..self.nodes.len() {
+        loop {
             let node = &self.nodes[current_node];
             if node.bounds.intersect(&ray.geometry, &inv_dir) {
                 if node.is_leaf() {                    
                     let offset = node.next;
                     
-                    // Check all the objects in this Node
-                    for i in 0..node.n_prims {
+                    // Check all the objects in this Node                    
+                    const PACK_SIZE : usize = 4;
+                    let ini = offset as usize;
+                    let fin = ini + node.n_prims as usize;
+                    let this_prims : &[Triangle] = &primitives[ini..fin];
+                    let mut iterator = this_prims.chunks_exact(PACK_SIZE);
+                    let mut n_packs = 0; // I need to know how many packs went through                    
+
+                    while let Some(pack) = iterator.next(){
+                        if let Some((i,intersect_info)) = triangle_intersect_pack(pack, &ray.geometry){
+                            let this_t_squared =
+                            (intersect_info.p - ray.geometry.origin).length_squared();                                
+                            // if the distance is less than the prevous one, update the info
+                            if this_t_squared > MIN_T && this_t_squared < t_squared {
+                                
+                                
+                                // If the distance is less than what we had, update return data
+                                t_squared = this_t_squared;
+                                prim_index = Some(offset as usize + PACK_SIZE*n_packs + i as usize);
+                                ray.interaction.geometry_shading = intersect_info;
+                                
+                            }
+                        }
+                        n_packs +=1;
+                    }
+                    
+
+                    let mut i = 0;
+                    let mut iterator = iterator.remainder().iter();
+                    while let Some(tri) = iterator.next(){ // Had to do it this way for debugging purposes.                        
                         if let Some(intersect_info) =
-                            triangle_intersect(&primitives[offset as usize + i as usize],&ray.geometry)
+                            triangle_intersect(tri,&ray.geometry)
                         {
                             // If hit, check the distance.
                             let this_t_squared =
@@ -518,14 +546,15 @@ impl BoundingVolumeTree {
                                 
                                 // If the distance is less than what we had, update return data
                                 t_squared = this_t_squared;
-                                prim_index = Some(offset as usize + i as usize);
+                                let n = offset as usize + PACK_SIZE*n_packs + i as usize;
+                                prim_index = Some(n);
                                 ray.interaction.geometry_shading = intersect_info;
-
-
-
                             }
                         }
+                        i += 1;
+                                  
                     }
+
                     // update node we need to visit next, if any... otherwise, finish
                     if let Some(i) = nodes_to_visit.pop() {
                         current_node = i;
@@ -600,25 +629,55 @@ impl BoundingVolumeTree {
             if node.bounds.intersect(ray, &inv_dir) {
                 if node.is_leaf(){
                     let offset = node.next;
-                    // Check all the objects in this Node
-                    for i in 0..node.n_prims {
-                        if let Some(pt) = simple_triangle_intersect(&primitives[offset as usize + i as usize],ray)
-                        {
-                            let this_d_squared = (pt - ray.origin).length_squared();
-    
+                    
+                    // Check all the objects in this Node                    
+                    const PACK_SIZE : usize = 4;
+                    let ini = offset as usize;
+                    let fin = ini + node.n_prims as usize;
+                    let this_prims : &[Triangle] = &primitives[ini..fin];
+                    let mut iterator = this_prims.chunks_exact(PACK_SIZE);
+                    let mut n_packs = 0; // I need to know how many packs went through                    
+
+                    while let Some(pack) = iterator.next(){
+                        if let Some((_i,p)) = simple_triangle_intersect_pack(pack, &ray){
+                            let this_t_squared =
+                            (p - ray.origin).length_squared();                                
+                            
                             // Is it a valid hit and it is earlier than the rest?
-                            if this_d_squared > MIN_T
-                                && this_d_squared + MIN_T < distance_squared
-                                && (distance_squared - this_d_squared).abs() > 0.0001
-                            {
-
-                                
+                            if this_t_squared > MIN_T
+                                && this_t_squared + MIN_T < distance_squared
+                                && (distance_squared - this_t_squared).abs() > 0.0001
+                            {                                
                                 return false;
-
-
                             }
                         }
+                        n_packs +=1;
                     }
+                    
+
+                    let mut i = 0;
+                    let mut iterator = iterator.remainder().iter();
+                    while let Some(tri) = iterator.next(){ // Had to do it this way for debugging purposes.                        
+                        if let Some(p) =
+                        simple_triangle_intersect(tri,&ray)
+                        {
+                            // If hit, check the distance.
+                            let this_t_squared =
+                                (p - ray.origin).length_squared();                                
+                            
+                            // Is it a valid hit and it is earlier than the rest?
+                            if this_t_squared > MIN_T
+                                && this_t_squared + MIN_T < distance_squared
+                                && (distance_squared - this_t_squared).abs() > 0.0001
+                            {                                
+                                return false;
+                            }
+                        }
+                        i += 1;
+                                  
+                    }
+
+                   
                     if let Some(i) = nodes_to_visit.pop() {
                         current_node = i;
                     } else {

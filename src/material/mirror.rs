@@ -20,7 +20,6 @@ SOFTWARE.
 
 use crate::colour::Spectrum;
 use crate::material::specular::mirror_direction;
-use crate::material::Material;
 use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
@@ -29,20 +28,17 @@ use geometry3d::{Point3D, Vector3D};
 /// A mirror material
 pub struct Mirror(pub Spectrum);
 
-impl Material for Mirror {
-    fn id(&self) -> &str {
+impl  Mirror {
+    pub fn id(&self) -> &str {
         "Mirror"
     }
 
-    fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum {
         self.0
     }
 
-    fn specular_only(&self) -> bool {
-        true
-    }
 
-    fn get_possible_paths(
+    pub fn get_possible_paths(
         &self,
         normal: &Vector3D,
         intersection_pt: &Point3D,
@@ -54,7 +50,7 @@ impl Material for Mirror {
         [Some((ray, v, 1.)), None]
     }
 
-    fn sample_bsdf(
+    pub fn sample_bsdf(
         &self,
         normal: Vector3D,
         _e1: Vector3D,
@@ -67,7 +63,7 @@ impl Material for Mirror {
         (self.0 * bsdf, 1.)
     }
 
-    fn eval_bsdf(
+    pub fn eval_bsdf(
         &self,
         normal: Vector3D,
         _e1: Vector3D,

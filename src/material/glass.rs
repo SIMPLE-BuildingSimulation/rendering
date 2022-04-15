@@ -20,7 +20,6 @@ SOFTWARE.
 
 use crate::colour::Spectrum;
 use crate::material::specular::*;
-use crate::material::Material;
 use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
@@ -97,22 +96,20 @@ impl Glass {
     }
 }
 
-impl Material for Glass {
-    fn id(&self) -> &str {
+impl Glass {
+    pub fn id(&self) -> &str {
         "Glass"
     }
 
-    fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum {
         let mut c = self.colour;
         _ = any_transmission(&mut c);
         c
     }
 
-    fn specular_only(&self) -> bool {
-        true
-    }
+    
 
-    fn get_possible_paths(
+    pub fn get_possible_paths(
         &self,
         normal: &Vector3D,
         intersection_pt: &Point3D,
@@ -152,7 +149,7 @@ impl Material for Glass {
         [pair1, pair2]
     }
 
-    fn sample_bsdf(
+    pub fn sample_bsdf(
         &self,
         normal: Vector3D,
         e1: Vector3D,
@@ -196,7 +193,7 @@ impl Material for Glass {
         }
     }
 
-    fn eval_bsdf(
+    pub fn eval_bsdf(
         &self,
         normal: Vector3D,
         _e1: Vector3D,

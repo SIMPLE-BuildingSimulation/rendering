@@ -43,69 +43,82 @@ pub fn sample_ward_anisotropic(
 ) -> (Float, Float, Float) {
     ray.geometry.origin = intersection_pt + normal * 0.00001;
 
-    let (prob_spec, u, v): (Float, Float, Float) = rng.gen();
+    let (prob_spec, xi1, xi2): (Float, Float, Float) = rng.gen();
 
     if prob_spec < specularity {
         // incident direction
         let l = ray.geometry.direction * -1.;
 
-        // Make sure that phi_h falls in the same quadrant as 2*pi*v;
-        let phi_h: Float;
-        if (0.25 - v).abs() < 1e-6 {
-            phi_h = PI / 2.;
-        } else if (0.75 - v).abs() < 1e-6 {
-            phi_h = PI / 2. + PI;
-        } else if v < 0.25 {
-            phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan();
-        } else if v < 0.75 {
-            phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan() + PI;
-        } else {
-            phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan() + 2. * PI;
-        }
+        // From Radiance's https://github.com/NREL/Radiance/blob/2fcca99ace2f2435f32a09525ad31f2b3be3c1bc/src/rt/normal.c#L409
+        let cosp = (2.*PI*xi1).cos();
+        let sinp = (2.*PI*xi2).sin();
 
-        let cos_phi = phi_h.cos();
-        let sin_phi = phi_h.sin();
+        let mut d = if xi2 < 1e-9 {
+            1.
+        }else{
+            (-xi2.ln() * beta).sqrt()
+        };
+
+        let h = normal + e1*cosp*d + e2*sinp*d;
+        d = (h*l) * (-2.)/(1. + d.powi(2));
+        let v = l + normal * d;
+
+
+        // // Make sure that phi_h falls in the same quadrant as 2*pi*v;
+        // let phi_h: Float;
+        // if (0.25 - v).abs() < 1e-6 {
+        //     phi_h = PI / 2.;
+        // } else if (0.75 - v).abs() < 1e-6 {
+        //     phi_h = PI / 2. + PI;
+        // } else if v < 0.25 {
+        //     phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan();
+        // } else if v < 0.75 {
+        //     phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan() + PI;
+        // } else {
+        //     phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan() + 2. * PI;
+        // }
+
+        // let cos_phi = phi_h.cos();
+        // let sin_phi = phi_h.sin();
 
         // let phi_h = ((alpha_y/alpha_x)*(2.*PI*v)).atan2(other..?);
-        let theta_h = (-u.ln() / ((cos_phi / alpha).powi(2) + (sin_phi / beta).powi(2)))
-            .sqrt()
-            .atan();
-        let sin_theta = theta_h.sin();
-        let cos_theta = theta_h.cos();
-        let h = Vector3D::new(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
+        // let theta_h = (-u.ln() / ((cos_phi / alpha).powi(2) + (sin_phi / beta).powi(2)))
+        //     .sqrt()
+        //     .atan();
+        // let sin_theta = theta_h.sin();
+        // let cos_theta = theta_h.cos();
+        // let h = Vector3D::new(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
+
+        
 
         // reflected direction
-        let v = h * (h * l) * 2. - l;
+        // let v = h * (h * l) * 2. - l;
         let l_n = l * normal;
-        // let l_h = l * h;
+        // // let l_h = l * h;
         let v_n = v * normal;
-        // let v_h = h * v;
+        
+        // // let v_h = h * v;
         if v_n < 0.0 || l_n < 0.0 {
-            // This should not happen... I am not sure
+            // This should not happen, I think... I am not sure
             // whether this is an error in Walter's "Notes on the Ward BRDF" paper... or
             // my own error.
+            // dbg!(v_n, l_n);
             return (0.0, 0., 1.0);
         }
-        let h_n = h * normal;
+        // let h_n = h * normal;
 
-        let h = l + v;
+        // let h = l + v;
 
         // Eq. 11
         // let c1 = specularity  / ( PI*alpha*beta* 4.*l_h.powi(2) * h_n.powi(4) );
         // let c2 = -( (h*e1/alpha).powi(2) + (h*e2/beta).powi(2) )/( h_n.powi(2) );
         // let spec = c1*c2.exp() ;
 
-        // Eq. 17
-        let c1 = specularity / (PI * alpha * beta * h_n.powi(4));
-        let c2 = -((h * e1 / alpha).powi(2) + (h * e2 / beta).powi(2)) / (h_n.powi(2));
-        let spec = c1 * c2.exp();
-
-        let diffuse = (1. - specularity) / PI;
-
-        let weight = 2. / (1. + v_n / l_n); // Eq. 15
+        let (spec, diffuse) = evaluate_ward_anisotropic(normal, e1, e2, specularity, alpha, beta, ray, ray.geometry.direction);
         if spec.is_nan() {
             panic!("incorrect (i.e., NaN) bsdf when calculating Ward aniso.");
         }
+        let weight = 2. / (1. + v_n / l_n); // Eq. 15        
         ray.geometry.direction = v;
          (spec, diffuse, weight)
     } else {

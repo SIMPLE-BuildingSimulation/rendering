@@ -24,7 +24,7 @@ use crate::Float;
 use crate::material::{Dielectric, Glass, Light, Metal, Mirror, Plastic};
 
 use crate::primitive::Primitive;
-
+use crate::material::Material;
 use crate::scene::Scene;
 
 use geometry3d::{
@@ -185,12 +185,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let metal = Metal {
+        let metal = Material::Metal(Metal {
             colour: Spectrum { red, green, blue },
             specularity,
             roughness,
-        };
-        scene.push_material(Box::new(metal));
+        });
+        scene.push_material(metal);
     }
 
     /// Consumes a Plastic material
@@ -209,12 +209,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let plastic = Plastic {
+        let plastic = Material::Plastic(Plastic {
             colour: Spectrum { red, green, blue },
             specularity,
             roughness,
-        };
-        scene.push_material(Box::new(plastic));
+        });
+        scene.push_material(plastic);
     }
 
     /// Consumes a Light material
@@ -231,8 +231,8 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let light = Light(Spectrum { red, green, blue });
-        scene.push_material(Box::new(light));
+        let light = Material::Light(Light(Spectrum { red, green, blue }));
+        scene.push_material(light);
     }
 
     /// Consumes a Light material
@@ -249,8 +249,8 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let mirror = Mirror(Spectrum { red, green, blue });
-        scene.push_material(Box::new(mirror));
+        let mirror = Material::Mirror(Mirror(Spectrum { red, green, blue }));
+        scene.push_material(mirror);
     }
 
     /// Consumes a Light material
@@ -275,11 +275,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let colour = Spectrum { red, green, blue };
-        scene.push_material(Box::new(Dielectric {
-            colour,
+        
+        let dielectric = Material::Dielectric(Dielectric {
+            colour:Spectrum { red, green, blue },
             refraction_index,
-        }));
+        });
+        scene.push_material(dielectric);
     }
 
     /// Consumes a Light material
@@ -296,10 +297,10 @@ impl Scanner {
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = self.consume_token(source).parse::<Float>().unwrap();
                 let colour = Spectrum { red, green, blue };
-                Glass {
+                Material::Glass(Glass {
                     colour,
                     refraction_index,
-                }
+                })
             }
             b"3" => {
                 let red = self.consume_token(source).parse::<Float>().unwrap();
@@ -307,10 +308,10 @@ impl Scanner {
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = 1.52;
                 let colour = Spectrum { red, green, blue };
-                Glass {
+                Material::Glass(Glass {
                     colour,
                     refraction_index,
-                }
+                })
             }
             _ => {
                 panic!(
@@ -321,7 +322,7 @@ impl Scanner {
         };
 
         self.modifiers.push(name.to_string());
-        scene.push_material(Box::new(mat));
+        scene.push_material(mat);
     }
 
     /// Consumes a sphere    

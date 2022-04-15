@@ -181,7 +181,7 @@ fn render_ball(mat: Box<dyn Material + Sync>, filename: &str) {
 #[test]
 #[ignore]
 fn test_render_specular_plastic() {
-    // cargo test --features parallel --release --package rendering --test render_materials -- test_render_specular_plastic --ignored --exact --nocapture
+    // cargo test --no-default-features --features parallel --release --package rendering --test render_materials -- test_render_specular_plastic --ignored --exact --nocapture
 
     let plastic = Box::new(Plastic {
         colour: Spectrum {

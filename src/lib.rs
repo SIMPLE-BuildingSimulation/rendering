@@ -18,6 +18,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#![feature(portable_simd)]
+
 /// The kind of Floating point number used in the
 /// library... the `"float"` feature means it becomes `f32`
 /// and `f64` is used otherwise.

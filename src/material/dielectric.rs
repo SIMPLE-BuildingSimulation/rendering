@@ -20,7 +20,6 @@ SOFTWARE.
 
 use crate::colour::Spectrum;
 use crate::material::specular::*;
-use crate::material::Material;
 use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
@@ -64,20 +63,18 @@ impl Dielectric {
     }
 }
 
-impl Material for Dielectric {
-    fn id(&self) -> &str {
+impl  Dielectric {
+    pub fn id(&self) -> &str {
         "Dielectric"
     }
 
-    fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum {
         self.colour
     }
 
-    fn specular_only(&self) -> bool {
-        true
-    }
+    
 
-    fn get_possible_paths(
+    pub fn get_possible_paths(
         &self,
         normal: &Vector3D,
         intersection_pt: &Point3D,
@@ -117,7 +114,7 @@ impl Material for Dielectric {
         [pair1, pair2]
     }
 
-    fn sample_bsdf(
+    pub fn sample_bsdf(
         &self,
         normal: Vector3D,
         e1: Vector3D,
@@ -180,7 +177,7 @@ impl Material for Dielectric {
         }
     }
 
-    fn eval_bsdf(
+    pub fn eval_bsdf(
         &self,
         normal: Vector3D,
         _e1: Vector3D,
