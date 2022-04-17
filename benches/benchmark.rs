@@ -23,7 +23,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("intersect_room", |b| {
         b.iter(|| {
-            room.cast_ray(&mut ray, &mut aux)
+            black_box(room.cast_ray(&mut ray, &mut aux))
         })
     });
 
@@ -86,7 +86,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("intersect_triangles", |b| {
         b.iter(|| {
-            triangles.cast_ray(&mut ray, &mut aux)
+            black_box(triangles.cast_ray(&mut ray, &mut aux))
         })
     });
 
@@ -96,6 +96,32 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     //         triangles.unobstructed_distance(&ray.geometry, rendering::Float::MAX, &mut aux)
     //     })
     // }
+
+    // SPONZA
+    
+    let mut ray = black_box(rendering::ray::Ray{
+        geometry: geometry3d::Ray3D {
+            direction: geometry3d::Vector3D::new(1., 0., 0.).get_normalized(),
+            origin: geometry3d::Point3D::new(0., 5., 0.),
+        },
+        .. rendering::ray::Ray::default()
+    });
+    
+    let mut scene = black_box(rendering::scene::Scene::default());
+    let gray = scene.push_material(rendering::material::Material::Plastic(rendering::material::Plastic{
+        colour: rendering::colour::Spectrum::gray(0.3),
+        specularity: 0., 
+        roughness: 0.,
+    }));
+    scene.add_from_obj("./test_data/sponza.obj".to_string(), gray, gray);
+    scene.build_accelerator();
+
+    c.bench_function("intersect_sponza", |b| {
+        b.iter(|| {
+            black_box(scene.cast_ray(&mut ray, &mut aux))
+        })
+    });
+    
 
 }
 

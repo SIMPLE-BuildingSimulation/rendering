@@ -51,9 +51,8 @@ pub mod material;
 
 
 pub mod primitive;
-#[cfg(feature="triangles_only")]
-pub mod triangle;
 
+pub mod triangle;
 pub mod primitive_samplers;
 pub mod rand;
 pub mod ray;
@@ -62,7 +61,8 @@ pub mod scene;
 
 // Readers
 pub mod from_radiance;
-mod from_simple_model;
+pub mod from_simple_model;
+pub mod from_obj;
 
 // Ray-tracer
 pub mod ray_tracer;

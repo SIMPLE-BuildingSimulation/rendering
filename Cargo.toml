@@ -15,7 +15,7 @@ calendar = { git = "https://github.com/SIMPLE-BuildingSimulation/calendar.git" }
 rand = { version = "0.8.5", features=["small_rng"]}
 rayon = {version = "1.5", optional = true}
 clap = "3.0.14"
-
+obj-rs = "0.7.0"
 
 
 [[bin]]
@@ -31,8 +31,7 @@ path = "./benches/benchmark.rs"
 harness = false
 
 [features]
-default = ["triangles_only"] 
-triangles_only = []
+default = [] 
 float = ["simple_model/float","geometry3d/float", "matrix/float",  "solar/float"]
 parallel = ["geometry3d/parallel", "rayon"]
 textures = ["geometry3d/textures"]
@@ -54,13 +53,5 @@ name = "render_materials"
 path = "tests/render_materials.rs"
 
 [[test]]
-name = "test_render_laptop"
-path = "tests/laptop.rs"
-
-[[test]]
-name = "test_render_room"
-path = "tests/render_room.rs"
-
-[[test]]
-name = "test_render_cornell"
-path = "tests/render_cornell.rs"
+name = "scenes"
+path = "tests/scenes.rs"

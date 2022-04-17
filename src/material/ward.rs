@@ -61,40 +61,11 @@ pub fn sample_ward_anisotropic(
 
         let h = normal + e1*cosp*d + e2*sinp*d;
         d = (h*l) * (-2.)/(1. + d.powi(2));
-        let v = l + normal * d;
+        let v = (l + normal * d).get_normalized(); 
 
 
-        // // Make sure that phi_h falls in the same quadrant as 2*pi*v;
-        // let phi_h: Float;
-        // if (0.25 - v).abs() < 1e-6 {
-        //     phi_h = PI / 2.;
-        // } else if (0.75 - v).abs() < 1e-6 {
-        //     phi_h = PI / 2. + PI;
-        // } else if v < 0.25 {
-        //     phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan();
-        // } else if v < 0.75 {
-        //     phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan() + PI;
-        // } else {
-        //     phi_h = ((beta / alpha) * (2. * PI * v).tan()).atan() + 2. * PI;
-        // }
-
-        // let cos_phi = phi_h.cos();
-        // let sin_phi = phi_h.sin();
-
-        // let phi_h = ((alpha_y/alpha_x)*(2.*PI*v)).atan2(other..?);
-        // let theta_h = (-u.ln() / ((cos_phi / alpha).powi(2) + (sin_phi / beta).powi(2)))
-        //     .sqrt()
-        //     .atan();
-        // let sin_theta = theta_h.sin();
-        // let cos_theta = theta_h.cos();
-        // let h = Vector3D::new(sin_theta * cos_phi, sin_theta * sin_phi, cos_theta);
-
-        
-
-        // reflected direction
-        // let v = h * (h * l) * 2. - l;
-        let l_n = l * normal;
-        // // let l_h = l * h;
+        // reflected direction        
+        let l_n = l * normal;        
         let v_n = v * normal;
         
         // // let v_h = h * v;
@@ -105,14 +76,7 @@ pub fn sample_ward_anisotropic(
             // dbg!(v_n, l_n);
             return (0.0, 0., 1.0);
         }
-        // let h_n = h * normal;
-
-        // let h = l + v;
-
-        // Eq. 11
-        // let c1 = specularity  / ( PI*alpha*beta* 4.*l_h.powi(2) * h_n.powi(4) );
-        // let c2 = -( (h*e1/alpha).powi(2) + (h*e2/beta).powi(2) )/( h_n.powi(2) );
-        // let spec = c1*c2.exp() ;
+        
 
         let (spec, diffuse) = evaluate_ward_anisotropic(normal, e1, e2, specularity, alpha, beta, ray, ray.geometry.direction);
         if spec.is_nan() {

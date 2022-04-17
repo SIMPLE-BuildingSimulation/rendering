@@ -19,8 +19,6 @@ SOFTWARE.
 */
 use std::time::Instant;
 
-use std::borrow::Borrow;
-
 use crate::camera::{Camera, CameraSample};
 use crate::colour::Spectrum;
 use crate::image::ImageBuffer;
@@ -88,13 +86,11 @@ impl RayTracer {
         // If hits an object
         // Store refraction index???
 
-        if scene.cast_ray(ray, &mut aux.nodes) {
-            // THIS HAS MODIFIED THE INTERACTION.
-
-            let object = &scene.objects[ray.interaction.prim_index];
+        if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
+            // THIS HAS MODIFIED THE INTERACTION.            
             let material = match ray.interaction.geometry_shading.side {
-                SurfaceSide::Front => &scene.materials[object.front_material_index],
-                SurfaceSide::Back => &scene.materials[object.back_material_index],
+                SurfaceSide::Front => &scene.materials[scene.front_material_indexes[triangle_index]],
+                SurfaceSide::Back => &scene.materials[scene.back_material_indexes[triangle_index]],
                 SurfaceSide::NonApplicable => {
                     // Hit parallel to the surface...
                     return (Spectrum::black(), 0.0);
@@ -210,7 +206,7 @@ impl RayTracer {
             /* DIRECT LIGHT */
             let local = self.get_local_illumination(
                 scene,
-                material.borrow(),
+                material,
                 ray,
                 intersection_pt,
                 normal,
@@ -277,8 +273,8 @@ impl RayTracer {
             let mut i = 0;
             // let mut missed = 0;
             while i < n_shadow_samples {
-                // let direction = light.primitive.sample_direction(rng, point);
-                let (_,direction) = light.primitive.direction( point);
+                let direction = light.primitive.sample_direction(rng, point);
+                // let (_,direction) = light.primitive.direction( point);
                 let shadow_ray = Ray3D {
                     origin: point,
                     direction,

@@ -22,15 +22,13 @@ SOFTWARE.
 use crate::bvh::BoundingVolumeTree;
 use crate::colour::Spectrum;
 use crate::from_simple_model::SimpleModelReader;
-use crate::material::Material;
+use crate::material::{Material, Light};
 use crate::primitive::Primitive;
 use crate::ray::Ray;
 use crate::Float;
 use calendar::Date;
 use geometry3d::{Ray3D, Vector3D};
 use simple_model::SimpleModel;
-
-#[cfg(feature="triangles_only")]
 use crate::triangle::Triangle;
 
 
@@ -44,14 +42,18 @@ pub struct Object {
 
 #[derive(Default)]
 pub struct Scene {
-    /// Objects in the scene that are not tested
+    /// The Triangles in the scene that are not tested
     /// directly for shadow (e.g., non-luminous objects
-    /// and diffuse light)
-    #[cfg(not(feature="triangles_only"))]
-    pub objects: Vec<Object>,
+    /// and diffuse light)    
+    pub triangles: Vec<Triangle>,
+
+    /// The normal of each vertex of each triangle.
+    pub normals: Vec<(Vector3D,Vector3D,Vector3D)>,
+
+    pub front_material_indexes: Vec<usize>,
+
+    pub back_material_indexes: Vec<usize>,
     
-    #[cfg(feature="triangles_only")]
-    pub objects: Vec<Triangle>,
 
     /// The materials in the scene
     pub materials: Vec<Material>,
@@ -131,9 +133,9 @@ impl Scene {
         // Add sun if there is any (it might be nighttime)
         let n = solar::Time::Standard(date.day_of_year());
         if let Some(sun_position) = solar.sun_position(n) {
-            let angle = (0.533 as Float).to_radians(); // 0.009302605
-            let tan_half_alpha = (angle / 2.0).tan(); // 0.004651336043
-            let omega = tan_half_alpha * tan_half_alpha * crate::PI; // 0.00006796811354
+            let angle = (0.533 as Float).to_radians(); 
+            let tan_half_alpha = (angle / 2.0).tan(); 
+            let omega = tan_half_alpha * tan_half_alpha * crate::PI; 
 
             let cos_zenit = sun_position.z;
             let zenith = if cos_zenit <= 0. {
@@ -172,7 +174,7 @@ impl Scene {
                 * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
 
             let sun_brightness = dir_illum / omega / Spectrum::WHITE_EFFICACY; //
-            let sun_mat = self.push_material(crate::material::Material::Light(crate::material::Light(Spectrum::gray(
+            let sun_mat = self.push_material(Material::Light(Light(Spectrum::gray(
                 sun_brightness,
             ))));
 
@@ -203,11 +205,12 @@ impl Scene {
         self.lights.len() + self.distant_lights.len()
     }
 
-    /// Casts a [`Ray3D`] and returns an `Option<Interaction>` describing the
-    /// interaction with the first primitive hit by the ray, if any.    
-    pub fn cast_ray(&self, ray: &mut Ray, node_aux: &mut Vec<usize>) -> bool {
+    /// Casts a [`Ray3D`] and returns an `Option<usize>` indicating the index
+    /// of the first primitive hit by the ray, if any. The `ray` passed will now contain
+    /// the Interaction
+    pub fn cast_ray(&self, ray: &mut Ray, node_aux: &mut Vec<usize>) -> Option<usize> {
         if let Some(accelerator) = &self.accelerator {
-            accelerator.intersect(&self.objects, ray, node_aux)
+            accelerator.intersect(&self.triangles, ray, node_aux)
         } else {
             panic!("Trying to cast_ray() in a scene without an acceleration structure")
         }
@@ -221,7 +224,7 @@ impl Scene {
         node_aux: &mut Vec<usize>,
     ) -> bool {
         if let Some(a) = &self.accelerator {
-            a.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)
+            a.unobstructed_distance(&self.triangles, ray, distance_squared, node_aux)
         } else {
             panic!("Trying to check if unobstructed_distance() in a scene without an acceleration structure")
         }
@@ -235,55 +238,9 @@ impl Scene {
         self.materials.len() - 1
     }
 
-    /// Pushes an [`Object`] into the [`Scene`]
-    #[cfg(not(feature="triangles_only"))]
-    pub fn push_object(
-        &mut self,
-        front_material_index: usize,
-        back_material_index: usize,
-        primitive: Primitive,
-    ) {
-        if front_material_index >= self.materials.len() {
-            panic!("Pushing object with front material out of bounds")
-        }
+    
 
-        if back_material_index >= self.materials.len() {
-            panic!("Pushing object with back material out of bounds")
-        }
-
-        let this_index = self.objects.len();
-        let ob_id = primitive.id();
-        let object = Object {
-            front_material_index,
-            back_material_index,
-            primitive,
-            // texture: None,
-        };
-
-        // Mark as source
-        if self.materials[front_material_index].emits_direct_light()
-            || self.materials[back_material_index].emits_direct_light()
-        {
-            // I know this is not very fast... but we will
-            // only do this while creating the scene, not while
-            // rendering
-            if ob_id == "source" {
-                self.distant_lights.push(object);
-            } else {
-                // register object as light
-                self.lights.push(object.clone());
-                // Push object
-                self.objects.push(object)
-            }
-        } else {
-            // Push
-            self.objects.push(object);
-        }
-        
-    }
-
-    /// Pushes an [`Object`] into the [`Scene`]
-    #[cfg(feature="triangles_only")]
+    /// Pushes a [`Meshable`] object into the [`Scene`]    
     pub fn push_object(
         &mut self,
         front_material_index: usize,
@@ -298,8 +255,7 @@ impl Scene {
             panic!("Pushing object with back material out of bounds")
         }
 
-        let is_light = self.materials[front_material_index].emits_direct_light() || self.materials[back_material_index].emits_direct_light();
-        let this_index = self.objects.len();
+        let is_light = self.materials[front_material_index].emits_direct_light() || self.materials[back_material_index].emits_direct_light();        
         let ob_id = primitive.id();
         let object = Object {
             front_material_index,
@@ -322,16 +278,16 @@ impl Scene {
 
         if let Primitive::Triangle(tr) = &primitive {
                         
-            let object = Triangle{
-                vertices: [tr.a().x, tr.a().y, tr.a().z, 
-                            tr.b().x, tr.b().y, tr.b().z,
-                            tr.c().x, tr.c().y, tr.c().z
-                ],
-                front_material_index,
-                back_material_index,
-            };
+            
+            self.front_material_indexes.push(front_material_index);
+            self.back_material_indexes.push(back_material_index);
+                
             // Push object
-            self.objects.push(object)
+            self.triangles.push([
+                tr.a().x, tr.a().y, tr.a().z, 
+                tr.b().x, tr.b().y, tr.b().z,
+                tr.c().x, tr.c().y, tr.c().z
+            ]);
         }else{
             if !is_light{
                 eprintln!("Only Triangles are allowed to be Non-light objects... ignoring those that not comply")

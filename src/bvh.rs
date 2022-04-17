@@ -25,12 +25,10 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
  */
 
 use crate::ray::Ray;
-use crate::scene::{Object, Scene};
+use crate::scene::Scene;
 use crate::Float;
 use geometry3d::{BBox3D, BBoxAxis, Point3D, Ray3D, Vector3D};
 use std::cmp::Ordering;
-
-#[cfg(feature="triangles_only")]
 use crate::triangle::*;
 
 #[derive(Copy, Clone)]
@@ -70,17 +68,7 @@ struct ObjectInfo {
 }
 
 impl ObjectInfo {
-    #[cfg(not(feature="triangles_only"))]
-    fn new(index: usize, object: &Object) -> Self {
-        let bounds = object.primitive.world_bounds();
-        let centroid = (bounds.max + bounds.min) * 0.5;
-        Self {
-            index,
-            bounds,
-            centroid,
-        }
-    }
-    #[cfg(feature="triangles_only")]
+    
     fn new(index: usize, tri: &Triangle) -> Self {
         let bounds = world_bounds(tri);
         let centroid = (bounds.max + bounds.min) * 0.5;
@@ -199,8 +187,8 @@ impl Node {
         };
 
         const TOO_FEW_TO_BUCKET: usize = 4;
-        const N_BUCKETS: usize = 6;
-        const RELATIVE_TRANSVERSAL_COST: Float = 1.;
+        const N_BUCKETS: usize = 12;
+        const RELATIVE_TRANSVERSAL_COST: Float = 10.;
         // Now, Proceed
         if len_axis < 1e-8 {
             // All primitives seem to be aligned in all directions (i.e., overlapping)
@@ -388,7 +376,7 @@ pub struct BoundingVolumeTree {
 
 impl BoundingVolumeTree {
     pub fn new(scene: &mut Scene) -> Self {
-        let n_objects = scene.objects.len();
+        let n_objects = scene.triangles.len();
         if n_objects == 0 {
             return Self::default();
         }
@@ -398,7 +386,7 @@ impl BoundingVolumeTree {
         */
         let mut primitives_info: Vec<ObjectInfo> = Vec::with_capacity(n_objects);
 
-        for (i, ob) in scene.objects.iter().enumerate() {
+        for (i, ob) in scene.triangles.iter().enumerate() {
             primitives_info.push(ObjectInfo::new(i, ob))
         }
 
@@ -409,19 +397,16 @@ impl BoundingVolumeTree {
         leaf node holds references to one or more primitives.
         */
         let mut total_nodes = 0;
-        #[cfg(feature="triangles_only")]
-        let mut ordered_primitives: Vec<Triangle> = Vec::with_capacity(n_objects);
-        #[cfg(not(feature="triangles_only"))]        
-        let mut ordered_primitives: Vec<Object> = Vec::with_capacity(n_objects);
+        let mut ordered_primitives: Vec<Triangle> = Vec::with_capacity(n_objects);        
         let root = Node::recursive_build(
-            &scene.objects,
+            &scene.triangles,
             &mut primitives_info,
             0,
             n_objects,
             &mut total_nodes,
             &mut ordered_primitives,
         );
-        scene.objects = ordered_primitives; // Update the Scene with the ordered primitive.
+        scene.triangles = ordered_primitives; // Update the Scene with the ordered primitive.
 
         /*
         STEP 3: Finally, this tree is converted to a more compact
@@ -469,19 +454,19 @@ impl BoundingVolumeTree {
         this_offset
     }
 
-    /// Returns an `Option<Interaction>`, containing the first primitive
-    /// to be hit by the ray, if any
-    #[cfg(feature="triangles_only")]
+    /// Returns an `Option<usize>`, containing the index of the [`Triangle`]
+    /// to be hit by the ray, if any. The ray given will have the `interaction` 
+    /// 
     pub fn intersect(
         &self,
         primitives: &[Triangle],
         ray: &mut Ray,
         nodes_to_visit: &mut Vec<usize>,
-    ) -> bool {
+    ) -> Option<usize> {
         const MIN_T: Float = 0.0000001;
 
         if self.nodes.is_empty() {
-            return false;
+            return None;
         }
         // reset
         nodes_to_visit.truncate(0);
@@ -593,14 +578,12 @@ impl BoundingVolumeTree {
             ray.interaction.wo = ray.geometry.direction * -1.;
             ray.interaction.prim_index = index;
 
-            true
-        } else {
-            false
-        }
+            
+        } 
+        prim_index
     }
 
-    /// Checks if a ray can travel a certain distance without hitting anything
-    #[cfg(feature="triangles_only")]
+    /// Checks if a ray can travel a certain distance without hitting anything    
     pub fn unobstructed_distance(
         &self,
         primitives: &[Triangle],
@@ -636,7 +619,6 @@ impl BoundingVolumeTree {
                     let fin = ini + node.n_prims as usize;
                     let this_prims : &[Triangle] = &primitives[ini..fin];
                     let mut iterator = this_prims.chunks_exact(PACK_SIZE);
-                    let mut n_packs = 0; // I need to know how many packs went through                    
 
                     while let Some(pack) = iterator.next(){
                         if let Some((_i,p)) = simple_triangle_intersect_pack(pack, &ray){
@@ -651,11 +633,8 @@ impl BoundingVolumeTree {
                                 return false;
                             }
                         }
-                        n_packs +=1;
                     }
                     
-
-                    let mut i = 0;
                     let mut iterator = iterator.remainder().iter();
                     while let Some(tri) = iterator.next(){ // Had to do it this way for debugging purposes.                        
                         if let Some(p) =
@@ -672,9 +651,7 @@ impl BoundingVolumeTree {
                             {                                
                                 return false;
                             }
-                        }
-                        i += 1;
-                                  
+                        }                                  
                     }
 
                    
@@ -711,188 +688,7 @@ impl BoundingVolumeTree {
         true
     }
 
-    /// Returns an `Option<Interaction>`, containing the first primitive
-    /// to be hit by the ray, if any
-    #[cfg(not(feature="triangles_only"))]
-    pub fn intersect(
-        &self,
-        primitives: &[Object],
-        ray: &mut Ray,
-        nodes_to_visit: &mut Vec<usize>,
-    ) -> bool {
-        const MIN_T: Float = 0.0000001;
-
-        if self.nodes.is_empty() {
-            return false;
-        }
-        // reset
-        nodes_to_visit.truncate(0);
-
-        let mut prim_index: Option<usize> = None;
-        let mut t_squared = Float::MAX;
-
-        let inv_x = 1./ray.geometry.direction.x;
-        let inv_y = 1./ray.geometry.direction.y;        
-        let inv_z = 1./ray.geometry.direction.z;
-
-        let inv_dir = Vector3D::new(inv_x, inv_y, inv_z);
-        let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
-        
-        let mut current_node = 0;
-
-        for _ in 0..self.nodes.len() {
-            let node = &self.nodes[current_node];
-            if node.bounds.intersect(&ray.geometry, &inv_dir) {
-                if node.is_leaf() {                    
-                    let offset = node.next;
-                    
-                    // Check all the objects in this Node
-                    for i in 0..node.n_prims {
-                        if let Some(intersect_info) =
-                            primitives[offset as usize + i as usize].primitive.intersect(&ray.geometry)
-                        {
-                            // If hit, check the distance.
-                            let this_t_squared =
-                                (intersect_info.p - ray.geometry.origin).length_squared();                                
-                            // if the distance is less than the prevous one, update the info
-                            if this_t_squared > MIN_T && this_t_squared < t_squared {
-                                
-                                
-                                // If the distance is less than what we had, update return data
-                                t_squared = this_t_squared;
-                                prim_index = Some(offset as usize + i as usize);
-                                ray.interaction.geometry_shading = intersect_info;
-
-
-
-                            }
-                        }
-                    }
-                    // update node we need to visit next, if any... otherwise, finish
-                    if let Some(i) = nodes_to_visit.pop() {
-                        current_node = i;
-                    } else {
-                        break;
-                    }
-                }else{
-                    // is interior... choose first or second child,
-                    // add to the stack
-                    let is_neg = match node.axis {
-                        BBoxAxis::X => dir_is_neg.0,
-                        BBoxAxis::Y => dir_is_neg.1,
-                        BBoxAxis::Z => dir_is_neg.2,
-                    };
-                    if is_neg {
-                        nodes_to_visit.push(current_node + 1);
-                        current_node = node.next as usize;
-                    } else {
-                        nodes_to_visit.push(node.next as usize);
-                        current_node += 1;
-                    }
-                }
-                    
-            } else if let Some(i) = nodes_to_visit.pop() {
-                current_node = i;
-            } else {
-                break;
-            }
-        } // End loop
-
-        // return
-        if let Some(index) = prim_index {
-            let t = t_squared.sqrt();
-
-            ray.interaction.point = ray.geometry.project(t);
-            ray.interaction.wo = ray.geometry.direction * -1.;
-            ray.interaction.prim_index = index;
-
-            true
-        } else {
-            false
-        }
-    }
-
-    /// Checks if a ray can travel a certain distance without hitting anything
-    #[cfg(not(feature="triangles_only"))]
-    pub fn unobstructed_distance(
-        &self,
-        primitives: &[Object],
-        ray: &Ray3D,
-        distance_squared: Float,
-        nodes_to_visit: &mut Vec<usize>,
-    ) -> bool {
-        if self.nodes.is_empty() {
-            return true;
-        }
-        // reset
-        nodes_to_visit.truncate(0);
-        // let d_squared = distance * distance;
-        const MIN_T: Float = 0.000001;
-
-        let inv_dir = Vector3D::new(
-            1. / ray.direction.x,
-            1. / ray.direction.y,
-            1. / ray.direction.z,
-        );
-        let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
-        let mut current_node = 0;
-
-        loop {
-            let node = &self.nodes[current_node];
-            if node.bounds.intersect(ray, &inv_dir) {
-                if node.is_leaf(){
-                    let offset = node.next;
-                    // Check all the objects in this Node
-                    for i in 0..node.n_prims {
-                        if let Some(pt) = primitives[offset as usize + i as usize].primitive.simple_intersect(ray)
-                        {
-                            let this_d_squared = (pt - ray.origin).length_squared();
-    
-                            // Is it a valid hit and it is earlier than the rest?
-                            if this_d_squared > MIN_T
-                                && this_d_squared + MIN_T < distance_squared
-                                && (distance_squared - this_d_squared).abs() > 0.0001
-                            {
-
-                                
-                                return false;
-
-
-                            }
-                        }
-                    }
-                    if let Some(i) = nodes_to_visit.pop() {
-                        current_node = i;
-                    } else {
-                        break;
-                    }
-
-                }else{
-
-                    let is_neg = match node.axis {
-                        BBoxAxis::X => dir_is_neg.0,
-                        BBoxAxis::Y => dir_is_neg.1,
-                        BBoxAxis::Z => dir_is_neg.2,
-                    };
-                    if is_neg {
-                        nodes_to_visit.push(current_node + 1);
-                        current_node = node.next as usize;
-                    } else {
-                        nodes_to_visit.push(node.next as usize);
-                        current_node += 1;
-                    }
-                }
-                
-            } else if let Some(i) = nodes_to_visit.pop() {
-                current_node = i;
-            } else {
-                break;
-            }
-        } // End loop
-
-        // otherwise, return true
-        true
-    }
+   
 }
 
 

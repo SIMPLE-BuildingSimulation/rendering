@@ -34,14 +34,14 @@ use geometry3d::{
 use std::fs;
 
 #[derive(Default)]
-struct Scanner {
+struct RadianceReader {
     current_char_index: usize,
     is_done: bool,
     modifiers: Vec<String>,
     line: usize,
 }
 
-impl Scanner {
+impl RadianceReader {
     fn error_here(&self, msg: String) {
         panic!("Error at line {}: {}", self.line, msg)
     }
@@ -413,7 +413,7 @@ impl Scene {
     pub fn from_radiance_source(source: &[u8]) -> Self {
         let mut ret = Self::default();
 
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
 
         while !scanner.is_done {
             scanner.consume_object(source, &mut ret);
@@ -429,7 +429,7 @@ mod tests {
 
     #[test]
     fn test_default() {
-        let scanner = Scanner::default();
+        let scanner = RadianceReader::default();
         assert!(!scanner.is_done);
         assert_eq!(scanner.current_char_index, 0);
     }
@@ -437,7 +437,7 @@ mod tests {
     #[test]
     fn test_token() {
         let source: &[u8] = "car with wheels".as_bytes();
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
 
         scanner.reach_next_token(source);
         assert_eq!(scanner.current_char_index, 0);
@@ -445,7 +445,7 @@ mod tests {
 
         //===
         let source: &[u8] = "    car with wheels".as_bytes();
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
 
         scanner.reach_next_token(source);
         assert_eq!(scanner.current_char_index, 4);
@@ -478,7 +478,7 @@ mod tests {
         4   0 0 0.5 1.5";
 
         let mut scene = Scene::new();
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
         scanner.consume_object(src, &mut scene);
         assert_eq!(scene.materials.len(), 1);
         assert_eq!(scanner.modifiers.len(), 1);

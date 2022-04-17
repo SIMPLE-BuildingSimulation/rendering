@@ -4,21 +4,24 @@ use geometry3d::{
     BBox3D, Point3D, Ray3D, Vector3D,
 };
 
-#[derive(Clone, Debug)]
-pub struct Triangle {
-    pub vertices: [Float; 9],
-    pub front_material_index: usize,
-    pub back_material_index: usize,
+pub trait Meshable {
+    /// Returns the Triangles and the Normals
+    fn mesh()->(Vec<Triangle>, Vec<(Vector3D,Vector3D,Vector3D)>);
 }
 
+
+pub type Triangle = [Float; 9];
+    
+
+
 pub fn world_bounds(t: &Triangle) -> BBox3D {
-    let a = Point3D::new(t.vertices[0], t.vertices[1], t.vertices[2]);
+    let a = Point3D::new(t[0], t[1], t[2]);
     let bbox = BBox3D::from_point(a);
 
-    let b = Point3D::new(t.vertices[3], t.vertices[4], t.vertices[5]);
+    let b = Point3D::new(t[3], t[4], t[5]);
     let bbox = BBox3D::from_union_point(&bbox, b);
 
-    let c = Point3D::new(t.vertices[6], t.vertices[7], t.vertices[8]);
+    let c = Point3D::new(t[6], t[7], t[8]);
     BBox3D::from_union_point(&bbox, c)
 }
 
@@ -28,60 +31,60 @@ pub fn triangle_pack_baricentric_coorinates(
     ray: &geometry3d::Ray3D,
 ) -> Option<(usize, geometry3d::Point3D, Float, Float)> {
     let ax = std::simd::Simd::from([
-        ts[0].vertices[0],
-        ts[1].vertices[0],
-        ts[2].vertices[0],
-        ts[3].vertices[0],
+        ts[0][0],
+        ts[1][0],
+        ts[2][0],
+        ts[3][0],
     ]);
     let ay = std::simd::Simd::from([
-        ts[0].vertices[1],
-        ts[1].vertices[1],
-        ts[2].vertices[1],
-        ts[3].vertices[1],
+        ts[0][1],
+        ts[1][1],
+        ts[2][1],
+        ts[3][1],
     ]);
     let az = std::simd::Simd::from([
-        ts[0].vertices[2],
-        ts[1].vertices[2],
-        ts[2].vertices[2],
-        ts[3].vertices[2],
+        ts[0][2],
+        ts[1][2],
+        ts[2][2],
+        ts[3][2],
     ]);
 
     let bx = std::simd::Simd::from([
-        ts[0].vertices[3],
-        ts[1].vertices[3],
-        ts[2].vertices[3],
-        ts[3].vertices[3],
+        ts[0][3],
+        ts[1][3],
+        ts[2][3],
+        ts[3][3],
     ]);
     let by = std::simd::Simd::from([
-        ts[0].vertices[4],
-        ts[1].vertices[4],
-        ts[2].vertices[4],
-        ts[3].vertices[4],
+        ts[0][4],
+        ts[1][4],
+        ts[2][4],
+        ts[3][4],
     ]);
     let bz = std::simd::Simd::from([
-        ts[0].vertices[5],
-        ts[1].vertices[5],
-        ts[2].vertices[5],
-        ts[3].vertices[5],
+        ts[0][5],
+        ts[1][5],
+        ts[2][5],
+        ts[3][5],
     ]);
 
     let cx = std::simd::Simd::from([
-        ts[0].vertices[6],
-        ts[1].vertices[6],
-        ts[2].vertices[6],
-        ts[3].vertices[6],
+        ts[0][6],
+        ts[1][6],
+        ts[2][6],
+        ts[3][6],
     ]);
     let cy = std::simd::Simd::from([
-        ts[0].vertices[7],
-        ts[1].vertices[7],
-        ts[2].vertices[7],
-        ts[3].vertices[7],
+        ts[0][7],
+        ts[1][7],
+        ts[2][7],
+        ts[3][7],
     ]);
     let cz = std::simd::Simd::from([
-        ts[0].vertices[8],
-        ts[1].vertices[8],
-        ts[2].vertices[8],
-        ts[3].vertices[8],
+        ts[0][8],
+        ts[1][8],
+        ts[2][8],
+        ts[3][8],
     ]);
 
     // Calculate baricentric coordinates
@@ -222,17 +225,17 @@ pub fn triangle_intersect(
     t: &Triangle,
     ray: &geometry3d::Ray3D,
 ) -> Option<geometry3d::intersection::IntersectionInfo> {
-    let ax = t.vertices[0];
-    let ay = t.vertices[1];
-    let az = t.vertices[2];
+    let ax = t[0];
+    let ay = t[1];
+    let az = t[2];
 
-    let bx = t.vertices[3];
-    let by = t.vertices[4];
-    let bz = t.vertices[5];
+    let bx = t[3];
+    let by = t[4];
+    let bz = t[5];
 
-    let cx = t.vertices[6];
-    let cy = t.vertices[7];
-    let cz = t.vertices[8];
+    let cx = t[6];
+    let cy = t[7];
+    let cz = t[8];
 
     let (p, _u, _v) = baricentric_coorinates(ray, ax, ay, az, bx, by, bz, cx, cy, cz)?;
 
@@ -265,17 +268,17 @@ pub fn simple_triangle_intersect(
     t: &Triangle,
     ray: &geometry3d::Ray3D,
 ) -> Option<geometry3d::Point3D> {
-    let ax = t.vertices[0];
-    let ay = t.vertices[1];
-    let az = t.vertices[2];
+    let ax = t[0];
+    let ay = t[1];
+    let az = t[2];
 
-    let bx = t.vertices[3];
-    let by = t.vertices[4];
-    let bz = t.vertices[5];
+    let bx = t[3];
+    let by = t[4];
+    let bz = t[5];
 
-    let cx = t.vertices[6];
-    let cy = t.vertices[7];
-    let cz = t.vertices[8];
+    let cx = t[6];
+    let cy = t[7];
+    let cz = t[8];
     let (pt, ..) = baricentric_coorinates(ray, ax, ay, az, bx, by, bz, cx, cy, cz)?;
     Some(pt)
 }
@@ -290,17 +293,17 @@ pub fn triangle_intersect_pack(
     
     let (tri_index, p, _u, _v) = triangle_pack_baricentric_coorinates(t, ray)?;
 
-    let ax = t[tri_index].vertices[0];
-    let ay = t[tri_index].vertices[1];
-    let az = t[tri_index].vertices[2];
+    let ax = t[tri_index][0];
+    let ay = t[tri_index][1];
+    let az = t[tri_index][2];
 
-    let bx = t[tri_index].vertices[3];
-    let by = t[tri_index].vertices[4];
-    let bz = t[tri_index].vertices[5];
+    let bx = t[tri_index][3];
+    let by = t[tri_index][4];
+    let bz = t[tri_index][5];
 
-    let cx = t[tri_index].vertices[6];
-    let cy = t[tri_index].vertices[7];
-    let cz = t[tri_index].vertices[8];
+    let cx = t[tri_index][6];
+    let cy = t[tri_index][7];
+    let cz = t[tri_index][8];
 
     let dpdu = Vector3D::new(ax - bx, ay - by, az - bz);
     let dpdv = Vector3D::new(cx - ax, cy - ay, cz - az);
