@@ -86,8 +86,7 @@ impl RayTracer {
         // If hits an object
         // Store refraction index???
 
-        if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
-            let a = triangle_index;
+        if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {            
             // THIS HAS MODIFIED THE INTERACTION.            
             let material = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => &scene.materials[scene.front_material_indexes[triangle_index]],
@@ -104,17 +103,9 @@ impl RayTracer {
             // for now, emmiting materials don't reflect... but they
             // are visible when viewed directly from the camera
             if material.emits_light() {
-                // if current_depth == 0 {
-                // let light_pdf = 1. / object.primitive.omega(intersection_pt);
-                let light_pdf = 2.;//object
-                    // .primitive
-                    // .solid_angle_pdf(&ray.interaction.geometry_shading, &ray.geometry);
+                let light_pdf = crate::triangle::triangle_solid_angle_pdf(&scene.triangles[triangle_index], intersection_pt, ray.interaction.geometry_shading.normal, &ray.geometry);
                 return (material.colour(), light_pdf);
-                // return Some(Spectrum::gray(1.))
-                // }else{
-                //     return None;
-                // return Some(Spectrum::black());
-                // }
+                
             }
 
             // Limit bounces
@@ -123,13 +114,23 @@ impl RayTracer {
             }
 
             // Get basic information on the intersection
+            let u = ray.interaction.geometry_shading.u;
+            let v = ray.interaction.geometry_shading.v;
 
-            let normal = ray.interaction.geometry_shading.normal;
+            // let normal = ray.interaction.geometry_shading.normal;
+            let n0 = scene.normals[triangle_index].0;
+            let n1 = scene.normals[triangle_index].1;
+            let n2 = scene.normals[triangle_index].2;
+            let mut normal = (n0*u + n1*v + n2*(1.-u-v)).get_normalized();
+            if normal*ray.interaction.geometry_shading.normal < 0.0{
+                normal *= -1.
+            }
+
             let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
-            let e2 = normal.cross(e1); //.get_normalized();
+            let e2 = normal.cross(e1).get_normalized();
 
             // Check
-            debug_assert!((1. - normal.length()).abs() < 1e-5);
+            debug_assert!((1.0 - normal.length()).abs() < 1e-5);
             debug_assert!((1.0 - e1.length()).abs() < 1e-5);
             debug_assert!((1.0 - e2.length()).abs() < 1e-5);
             
@@ -461,10 +462,7 @@ impl RayTracer {
                 let y = (pindex as Float / width as Float).floor() as usize;
                 let x = pindex - y * width;
                 let (mut ray, weight) = camera.gen_ray(&CameraSample { p_film: (x, y) });
-
-                if pindex == total_pixels - 1 {
-                    let x = 1+1;
-                }
+                
                 let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &mut aux);
                 *pixel = v;
 

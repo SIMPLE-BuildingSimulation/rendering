@@ -240,7 +240,11 @@ impl Scene {
 
     
 
-    /// Pushes a [`Meshable`] object into the [`Scene`]    
+    /// Pushes a [`Primitive`] object into the [`Scene`]   
+    /// 
+    /// If the [`Primitive`] is made of a light-emmiting [`Material`], then 
+    /// it will be added twice: One to the normal scene, and then another to
+    /// the list of light sources.
     pub fn push_object(
         &mut self,
         front_material_index: usize,
@@ -255,16 +259,16 @@ impl Scene {
             panic!("Pushing object with back material out of bounds")
         }
 
-        let is_light = self.materials[front_material_index].emits_direct_light() || self.materials[back_material_index].emits_direct_light();        
-        let ob_id = primitive.id();
-        let object = Object {
-            front_material_index,
-            back_material_index,
-            primitive: primitive.clone(),
-            // texture: None,
-        };
-        // add as light, if required
-        if is_light {
+        // If it is light
+        let is_light = if self.materials[front_material_index].emits_direct_light() || self.materials[back_material_index].emits_direct_light(){
+
+            let ob_id = primitive.id();
+            let object = Object {
+                front_material_index,
+                back_material_index,
+                primitive: primitive.clone(),
+                // texture: None,
+            };
             // I know this is not very fast... but we will
             // only do this while creating the scene, not while
             // rendering
@@ -274,34 +278,31 @@ impl Scene {
                 // register object as light
                 self.lights.push(object.clone());                
             }
-        }
-
-        if let Primitive::Triangle(tr) = &primitive {
-                        
-            
-            self.front_material_indexes.push(front_material_index);
-            self.back_material_indexes.push(back_material_index);
-                
-            // Push object
-            self.triangles.push([
-                tr.a().x, tr.a().y, tr.a().z, 
-                tr.b().x, tr.b().y, tr.b().z,
-                tr.c().x, tr.c().y, tr.c().z
-            ]);
-
-            let s1 = tr.b() - tr.a();
-            let s2 = tr.c() - tr.a();
-            let normal = s1.cross(s2).get_normalized();
-            // All vertices have the same normal
-            self.normals.push((normal, normal, normal));
-
-
-
+            true
         }else{
-            if !is_light{
-                eprintln!("Only Triangles are allowed to be Non-light objects... ignoring those that not comply")
+            false
+        };
+
+        let (triangles, normals) = match &primitive {
+            Primitive::Triangle(tr)=>crate::triangle::mesh_triangle(tr),        
+            Primitive::Sphere(s)=>crate::triangle::mesh_sphere(s),    
+            _ => {
+                if !is_light{
+                    panic!("Unsupported Primitive '{}'", primitive.id());
+                }else{
+                    (vec![], vec![])
+                }
             }
-        }
+        };
+        
+        let additional = triangles.len();
+        let front = vec![front_material_index; additional];
+        let back = vec![back_material_index; additional];
+
+        self.triangles.extend_from_slice(&triangles);
+        self.normals.extend_from_slice(&normals);        
+        self.front_material_indexes.extend_from_slice(&front);
+        self.back_material_indexes.extend_from_slice(&back);
 
         
 

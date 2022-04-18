@@ -11,7 +11,7 @@ use rendering::primitive::Primitive;
 use rendering::scene::Scene;
 use rendering::Float;
 
-#[cfg(not(feature="triangles_only"))]
+
 fn render_ball(mat: Material, filename: &str) {
     let mut scene = Scene::new();
 
@@ -180,7 +180,7 @@ fn render_ball(mat: Material, filename: &str) {
     buffer.save_hdre(std::path::Path::new(filename));
 }
 
-#[cfg(not(feature="triangles_only"))]
+
 #[test]
 #[ignore]
 fn test_render_specular_plastic() {
@@ -199,7 +199,7 @@ fn test_render_specular_plastic() {
     render_ball(plastic, "./test_data/images/specular_plastic.hdr")
 }
 
-#[cfg(not(feature="triangles_only"))]
+
 #[test]
 #[ignore]
 fn test_render_specular_metal() {
@@ -218,7 +218,7 @@ fn test_render_specular_metal() {
     render_ball(metal, "./test_data/images/specular_metal.hdr")
 }
 
-#[cfg(not(feature="triangles_only"))]
+
 #[test]
 #[ignore]
 fn test_render_glass() {
@@ -235,7 +235,7 @@ fn test_render_glass() {
     render_ball(metal, "./test_data/images/glass.hdr")
 }
 
-#[cfg(not(feature="triangles_only"))]
+
 #[test]
 #[ignore]
 fn test_render_mirror() {
@@ -250,7 +250,7 @@ fn test_render_mirror() {
     render_ball(plastic, "./test_data/images/mirror.hdr")
 }
 
-#[cfg(not(feature="triangles_only"))]
+
 #[test]
 #[ignore]
 fn test_render_dielectric() {

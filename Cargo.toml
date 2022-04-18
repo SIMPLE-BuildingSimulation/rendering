@@ -34,7 +34,6 @@ harness = false
 default = [] 
 float = ["simple_model/float","geometry3d/float", "matrix/float",  "solar/float"]
 parallel = ["geometry3d/parallel", "rayon"]
-textures = ["geometry3d/textures"]
 
 
 [profile.release]

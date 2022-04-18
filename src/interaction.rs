@@ -40,15 +40,6 @@ pub struct Interaction {
     /// pure geometry
     pub geometry_shading: IntersectionInfo,
 
-    /// Stores the shading information after being
-    /// perturbed by a texture
-    #[cfg(feature = "textures")]
-    pub texture_shading: Option<IntersectionInfo>,
-
-    // // /// The [`Object`] in the scene
-    // // pub object: RefCount<Object>,
-    // /// The index of the primitive in the primitives array
-    // pub prim_index: usize,
 }
 
 impl Interaction {
@@ -60,30 +51,18 @@ impl Interaction {
         // shading
         let geometry_shading = self.geometry_shading.transform(t);
 
-        #[cfg(feature = "textures")]
-        let texture_shading = self.texture_shading.as_ref().map(|s| s.transform(t));
-
+        
         Self {
             point,
             wo,
             geometry_shading,
-            // prim_index: self.prim_index,
-
-            #[cfg(feature = "textures")]
-            texture_shading,
         }
     }
 
     /// Retrieves the normal of the [`SurfaceInteractionData`].
     /// Prioritizes the texture geometry (which can deviate the normal).
     /// If there is `None`, then the geometry shading is used.
-    pub fn normal(&self) -> Vector3D {
-        #[cfg(feature = "textures")]
-        match &self.texture_shading {
-            Some(info) => info.normal,
-            None => self.geometry_shading.normal,
-        }
-        #[cfg(not(feature = "textures"))]
+    pub fn normal(&self) -> Vector3D {        
         self.geometry_shading.normal
     }
 }

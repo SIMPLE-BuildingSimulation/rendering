@@ -136,7 +136,10 @@ pub fn fresnel_transmission_dir(
     debug_assert!(cos2 > 0.);
     debug_assert!(n1 > 0.);
     debug_assert!(n2 > 0.);
-    debug_assert!(vin * normal < 0., "vin*normal = {}", vin * normal);
+    if vin * normal > 0.{
+
+        debug_assert!(vin * normal < 0., "vin*normal = {}", vin * normal);
+    }
 
     let n_ratio = n1 / n2;
     let ret = vin * n_ratio + normal * (n_ratio * cos1 - cos2);

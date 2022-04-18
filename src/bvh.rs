@@ -52,7 +52,7 @@ fn get_bucket_index(
     };
     let mut bucket_index = ((centroid_pos - min) * n_buckets as Float / len_axis).floor() as usize;
     debug_assert!(bucket_index <= n_buckets);
-    if bucket_index == n_buckets {
+    if bucket_index >= n_buckets {
         // If we are in the upper limit, this can happen
         bucket_index = n_buckets - 1;
     }
@@ -731,8 +731,7 @@ impl BoundingVolumeTree {
 //     use crate::colour::Spectrum;
 //     use crate::material::Plastic;
 //     use geometry3d::{Point3D, Sphere3D, Ray3D};
-
-//     #[cfg(not(feature="triangles_only"))]
+//     
 //     use crate::primitive::Primitive;
 
 //     #[test]
