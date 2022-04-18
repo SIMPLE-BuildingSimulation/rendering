@@ -44,14 +44,11 @@ codegen-units = 1
 opt-level=3
 
 
-[[test]]
-name = "glow_sphere"
-path = "tests/render_glow_sphere.rs"
 
 [[test]]
 name = "render_materials"
 path = "tests/render_materials.rs"
 
 [[test]]
-name = "scenes"
-path = "tests/scenes.rs"
+name = "test_scenes"
+path = "tests/test_scenes.rs"

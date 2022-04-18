@@ -12,7 +12,7 @@ use rendering::{Float, PI};
 #[test]
 // #[ignore]
 fn laptop() {
-    // cargo test --features parallel --release --package rendering --test scenes -- laptop --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- laptop --exact --nocapture
     let mut scene = Scene::new();
 
     const BASE_THICKNESS: Float = 0.01;
@@ -317,7 +317,7 @@ fn laptop() {
 
 #[test]
 fn sponza(){
-    // cargo test --features parallel --release --package rendering --test scenes -- sponza --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- sponza --exact --nocapture
 
     let mut scene = Scene::default();
         let gray = scene.push_material(Material::Plastic(Plastic{
@@ -380,7 +380,7 @@ fn sponza(){
 #[ignore]
 fn cornell() {
     // 60 seconds
-    // cargo test --features parallel --release --package rendering --test scenes -- cornell --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- cornell --exact --nocapture
     // oconv ../room.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
     let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
@@ -423,7 +423,7 @@ fn cornell() {
 #[ignore]
 fn room() {
     // 60 seconds
-    // cargo test --features parallel --release --package rendering --test scenes -- room --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- room --exact --nocapture
     // oconv ../room.rad ../white_sky.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
     let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
@@ -470,7 +470,7 @@ fn room() {
 
 #[test]
 fn dining(){
-    // cargo test --features parallel --release --package rendering --test scenes -- dining --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- dining --exact --nocapture
 
     let mut scene = Scene::default();
         let gray = scene.push_material(Material::Plastic(Plastic{
