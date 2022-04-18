@@ -121,14 +121,22 @@ impl Node {
 
 
     
-    fn recursive_build<T : Clone>(
-        primitives: &[T],
+    fn recursive_build(
+        scene: &Scene,
         primitives_info: &mut [ObjectInfo],
         start: usize,
         end: usize,
         total_nodes: &mut usize,
-        ordered_primes: &mut Vec<T>,
+        ordered_triangles: &mut Vec<Triangle>,
+        ordered_front_materials: &mut Vec<usize>,
+        ordered_back_materials: &mut Vec<usize>,
+        ordered_normals: &mut Vec<(Vector3D,Vector3D,Vector3D)>
     ) -> Self {
+        let triangles = &scene.triangles;
+        let front_materials = &scene.front_material_indexes;
+        let back_materials = &scene.back_material_indexes;
+        let normals = &scene.normals;
+
         debug_assert!(start < end);
         *total_nodes += 1;
         // The whole point of most of this function is to idenfity
@@ -147,10 +155,13 @@ impl Node {
         let n_primitives = end - start;
         if n_primitives == 1 {
             // Create Leaf
-            let first_prim_offset = ordered_primes.len();
+            let first_prim_offset = ordered_triangles.len();
             for info in primitives_info.iter().take(end).skip(start) {
                 let index = info.index;
-                ordered_primes.push(primitives[index].clone())
+                ordered_triangles.push(triangles[index].clone());
+                ordered_back_materials.push(back_materials[index]);
+                ordered_front_materials.push(front_materials[index]);
+                ordered_normals.push(normals[index]);
             }
             return Node::new_leaf(first_prim_offset, n_primitives, bounds);
         }
@@ -193,11 +204,14 @@ impl Node {
         if len_axis < 1e-8 {
             // All primitives seem to be aligned in all directions (i.e., overlapping)
             // Put them al together in a Leaf
-            let first_prim_offset = ordered_primes.len();
+            let first_prim_offset = ordered_triangles.len();
             // for i in start..end{
             for prim_info in primitives_info.iter().take(end).skip(start) {
                 let index = prim_info.index;
-                ordered_primes.push(primitives[index].clone())
+                ordered_triangles.push(triangles[index].clone());
+                ordered_back_materials.push(back_materials[index]);
+                ordered_front_materials.push(front_materials[index]);
+                ordered_normals.push(normals[index]);
             }
             return Node::new_leaf(first_prim_offset, n_primitives, bounds);
         } else {
@@ -304,11 +318,14 @@ impl Node {
                     }
                 } else {
                     // Don't subdivide... create leaf
-                    let first = ordered_primes.len();
+                    let first = ordered_triangles.len();
                     let n_prims = n_primitives;
                     for prim in primitives_info.iter().take(end).skip(start) {
                         let prim_num = prim.index;
-                        ordered_primes.push(primitives[prim_num].clone());
+                        ordered_triangles.push(triangles[prim_num].clone());
+                        ordered_back_materials.push(back_materials[prim_num]);
+                        ordered_front_materials.push(front_materials[prim_num]);
+                        ordered_normals.push(normals[prim_num]);
                     }
                     return Node::new_leaf(first, n_prims, bounds);
                 }
@@ -317,20 +334,26 @@ impl Node {
         // If we have not returned a Leaf yet... split!
         let mid = mid.unwrap() + start;
         let child1 = Self::recursive_build(
-            primitives,
+            scene,
             primitives_info,
             start,
             mid,
             total_nodes,
-            ordered_primes,
+            ordered_triangles,
+            ordered_front_materials,
+            ordered_back_materials,
+            ordered_normals,
         );
         let child2 = Self::recursive_build(
-            primitives,
+            scene,
             primitives_info,
             mid,
             end,
             total_nodes,
-            ordered_primes,
+            ordered_triangles,
+            ordered_front_materials,
+            ordered_back_materials,
+            ordered_normals,
         );
         Node::new_interior(split_axis, child1, child2)
     }
@@ -397,16 +420,26 @@ impl BoundingVolumeTree {
         leaf node holds references to one or more primitives.
         */
         let mut total_nodes = 0;
-        let mut ordered_primitives: Vec<Triangle> = Vec::with_capacity(n_objects);        
+        let mut ordered_triangles: Vec<Triangle> = Vec::with_capacity(n_objects);        
+        let mut ordered_front_materials: Vec<usize> = Vec::with_capacity(n_objects);        
+        let mut ordered_back_materials: Vec<usize> = Vec::with_capacity(n_objects);        
+        let mut ordered_normals: Vec<(Vector3D,Vector3D,Vector3D)> = Vec::with_capacity(n_objects);        
         let root = Node::recursive_build(
-            &scene.triangles,
+            &scene,
             &mut primitives_info,
             0,
             n_objects,
             &mut total_nodes,
-            &mut ordered_primitives,
+            &mut ordered_triangles,
+            &mut ordered_front_materials,
+            &mut ordered_back_materials,
+            &mut ordered_normals,
         );
-        scene.triangles = ordered_primitives; // Update the Scene with the ordered primitive.
+        
+        scene.triangles = ordered_triangles; // Update the Scene with the ordered primitive.
+        scene.front_material_indexes = ordered_front_materials;
+        scene.back_material_indexes = ordered_back_materials;
+        scene.normals = ordered_normals;
 
         /*
         STEP 3: Finally, this tree is converted to a more compact
@@ -571,12 +604,12 @@ impl BoundingVolumeTree {
         } // End loop
 
         // return
-        if let Some(index) = prim_index {
+        if let Some(_index) = prim_index {
             let t = t_squared.sqrt();
 
             ray.interaction.point = ray.geometry.project(t);
             ray.interaction.wo = ray.geometry.direction * -1.;
-            ray.interaction.prim_index = index;
+            // ray.interaction.prim_index = index;
 
             
         } 

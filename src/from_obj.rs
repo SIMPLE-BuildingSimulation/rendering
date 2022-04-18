@@ -73,7 +73,10 @@ impl <I>FromRawVertex<I> for ObjTriangle {
                     n = Some(pos_text_normal.iter().map(|v| v.2).collect());
                 },
             }
-            assert!(p.len() == 4 || p.len() == 3, "Only faces of 3 and 4 vertices are allowed when reading OBJ files for now... sorry");
+            // assert!(p.len() == 4 || p.len() == 3, "Only faces of 3 and 4 vertices are allowed when reading OBJ files for now... sorry");
+            if p.len() > 4 {
+                continue;
+            }
             let p : Vec<Point3D> = p.iter().map(|index| {
                 let vert = vertices.get(*index).expect("Malformed OBJ file... face references an inexistend vertex");
                 Point3D::new(vert.0 as Float, vert.1 as Float, vert.2 as Float)

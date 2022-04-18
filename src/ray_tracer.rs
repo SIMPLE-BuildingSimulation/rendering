@@ -87,6 +87,7 @@ impl RayTracer {
         // Store refraction index???
 
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
+            let a = triangle_index;
             // THIS HAS MODIFIED THE INTERACTION.            
             let material = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => &scene.materials[scene.front_material_indexes[triangle_index]],
@@ -131,8 +132,7 @@ impl RayTracer {
             debug_assert!((1. - normal.length()).abs() < 1e-5);
             debug_assert!((1.0 - e1.length()).abs() < 1e-5);
             debug_assert!((1.0 - e2.length()).abs() < 1e-5);
-
-            // Calculate the number of ambient samples
+            
             let mut wt = current_value;
 
             // Handle specular materials... we have 1 or 2 rays... spawn those.
@@ -173,6 +173,7 @@ impl RayTracer {
                 return (specular_li, 0.0);
             }
 
+            // Calculate the number of ambient samples
             let n = if self.max_depth == 0 {
                 0 // No ambient samples required
             } else if current_depth == 0 {
@@ -461,6 +462,9 @@ impl RayTracer {
                 let x = pindex - y * width;
                 let (mut ray, weight) = camera.gen_ray(&CameraSample { p_film: (x, y) });
 
+                if pindex == total_pixels - 1 {
+                    let x = 1+1;
+                }
                 let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &mut aux);
                 *pixel = v;
 
@@ -476,6 +480,7 @@ impl RayTracer {
                 }
 
                 pindex += 1;
+                
             }
         });
 

@@ -288,6 +288,15 @@ impl Scene {
                 tr.b().x, tr.b().y, tr.b().z,
                 tr.c().x, tr.c().y, tr.c().z
             ]);
+
+            let s1 = tr.b() - tr.a();
+            let s2 = tr.c() - tr.a();
+            let normal = s1.cross(s2).get_normalized();
+            // All vertices have the same normal
+            self.normals.push((normal, normal, normal));
+
+
+
         }else{
             if !is_light{
                 eprintln!("Only Triangles are allowed to be Non-light objects... ignoring those that not comply")

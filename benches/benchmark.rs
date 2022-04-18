@@ -106,7 +106,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         },
         .. rendering::ray::Ray::default()
     });
-    
+        
     let mut scene = black_box(rendering::scene::Scene::default());
     let gray = scene.push_material(rendering::material::Material::Plastic(rendering::material::Plastic{
         colour: rendering::colour::Spectrum::gray(0.3),
@@ -117,6 +117,33 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     scene.build_accelerator();
 
     c.bench_function("intersect_sponza", |b| {
+        b.iter(|| {
+            black_box(scene.cast_ray(&mut ray, &mut aux))
+        })
+    });
+
+
+
+    // DINING
+    
+    let mut ray = black_box(rendering::ray::Ray{
+        geometry: geometry3d::Ray3D {
+            direction: geometry3d::Vector3D::new(1., 0., 0.).get_normalized(),
+            origin: geometry3d::Point3D::new(-4.0, 1., 0.),
+        },
+        .. rendering::ray::Ray::default()
+    });
+        
+    let mut scene = black_box(rendering::scene::Scene::default());
+    let gray = scene.push_material(rendering::material::Material::Plastic(rendering::material::Plastic{
+        colour: rendering::colour::Spectrum::gray(0.3),
+        specularity: 0., 
+        roughness: 0.,
+    }));
+    scene.add_from_obj("./test_data/sponza.obj".to_string(), gray, gray);
+    scene.build_accelerator();
+
+    c.bench_function("intersect_dining", |b| {
         b.iter(|| {
             black_box(scene.cast_ray(&mut ray, &mut aux))
         })

@@ -45,10 +45,10 @@ pub struct Interaction {
     #[cfg(feature = "textures")]
     pub texture_shading: Option<IntersectionInfo>,
 
-    // /// The [`Object`] in the scene
-    // pub object: RefCount<Object>,
-    /// The index of the primitive in the primitives array
-    pub prim_index: usize,
+    // // /// The [`Object`] in the scene
+    // // pub object: RefCount<Object>,
+    // /// The index of the primitive in the primitives array
+    // pub prim_index: usize,
 }
 
 impl Interaction {
@@ -67,7 +67,7 @@ impl Interaction {
             point,
             wo,
             geometry_shading,
-            prim_index: self.prim_index,
+            // prim_index: self.prim_index,
 
             #[cfg(feature = "textures")]
             texture_shading,
