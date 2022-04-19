@@ -43,48 +43,45 @@ pub fn sample_ward_anisotropic(
 ) -> (Float, Float, Float) {
     ray.geometry.origin = intersection_pt + normal * 0.00001;
 
-    let (prob_spec, xi1, xi2): (Float, Float, Float) = rng.gen();
+    let prob_spec:  Float = rng.gen();
 
     if prob_spec < specularity {
-        // incident direction
-        let l = ray.geometry.direction * -1.;
+        loop {
 
-        // From Radiance's https://github.com/NREL/Radiance/blob/2fcca99ace2f2435f32a09525ad31f2b3be3c1bc/src/rt/normal.c#L409
-        let cosp = (2.*PI*xi1).cos();
-        let sinp = (2.*PI*xi2).sin();
-
-        let mut d = if xi2 < 1e-9 {
-            1.
-        }else{
-            (-xi2.ln() * beta).sqrt()
-        };
-
-        let h = normal + e1*cosp*d + e2*sinp*d;
-        d = (h*l) * (-2.)/(1. + d.powi(2));
-        let v = (l + normal * d).get_normalized(); 
-
-
-        // reflected direction        
-        let l_n = l * normal;        
-        let v_n = v * normal;
-        
-        // // let v_h = h * v;
-        if v_n < 0.0 || l_n < 0.0 {
-            // This should not happen, I think... I am not sure
-            // whether this is an error in Walter's "Notes on the Ward BRDF" paper... or
-            // my own error.
-            // dbg!(v_n, l_n);
-            return (0.0, 0., 1.0);
-        }
-        
-
-        let (spec, diffuse) = evaluate_ward_anisotropic(normal, e1, e2, specularity, alpha, beta, ray, ray.geometry.direction);
-        if spec.is_nan() {
-            panic!("incorrect (i.e., NaN) bsdf when calculating Ward aniso.");
-        }
-        let weight = 2. / (1. + v_n / l_n); // Eq. 15        
-        ray.geometry.direction = v;
-         (spec, diffuse, weight)
+            let (xi1, xi2): (Float, Float) = rng.gen();
+            // incident direction
+            let l = ray.geometry.direction * -1.;
+    
+            // From Radiance's https://github.com/NREL/Radiance/blob/2fcca99ace2f2435f32a09525ad31f2b3be3c1bc/src/rt/normal.c#L409
+            let cosp = (2.*PI*xi1).cos();
+            let sinp = (2.*PI*xi2).sin();
+    
+            let mut d = if xi2 < 1e-9 {
+                1.
+            }else{
+                (-xi2.ln() * beta).sqrt()
+            };
+    
+            let h = normal + e1*cosp*d + e2*sinp*d;
+            d = (h*l) * (-2.)/(1. + d.powi(2));
+            let v = (l + normal * d).get_normalized(); 
+    
+    
+            // reflected direction        
+            let l_n = l * normal;        
+            let v_n = v * normal;
+            
+            // // let v_h = h * v;
+            if v_n > 0.0 || l_n > 0.0 {
+                let (spec, diffuse) = evaluate_ward_anisotropic(normal, e1, e2, specularity, alpha, beta, ray, ray.geometry.direction);
+                if spec.is_nan() {
+                    panic!("incorrect (i.e., NaN) bsdf when calculating Ward aniso.");
+                }
+                let weight = 2. / (1. + v_n / l_n); // Eq. 15        
+                ray.geometry.direction = v;
+                return (spec, diffuse, 1./weight);
+            }                        
+        }// end of loop. If we did not return, try again.
     } else {
         // Probability
 

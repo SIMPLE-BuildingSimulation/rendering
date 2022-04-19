@@ -59,10 +59,5 @@ impl Interaction {
         }
     }
 
-    /// Retrieves the normal of the [`SurfaceInteractionData`].
-    /// Prioritizes the texture geometry (which can deviate the normal).
-    /// If there is `None`, then the geometry shading is used.
-    pub fn normal(&self) -> Vector3D {        
-        self.geometry_shading.normal
-    }
+    
 }

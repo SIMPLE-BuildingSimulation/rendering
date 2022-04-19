@@ -170,9 +170,9 @@ fn render_ball(mat: Material, filename: &str) {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_ambient_samples: 300,
-        n_shadow_samples: 10,
-        max_depth: 2,
+        n_ambient_samples: 100,
+        n_shadow_samples: 1,
+        max_depth: 1,
         ..RayTracer::default()
     };
 
@@ -182,7 +182,7 @@ fn render_ball(mat: Material, filename: &str) {
 
 
 #[test]
-#[ignore]
+
 fn test_render_specular_plastic() {
     // cargo test --no-default-features --features parallel --release --package rendering --test render_materials -- test_render_specular_plastic --ignored --exact --nocapture
 
@@ -201,7 +201,7 @@ fn test_render_specular_plastic() {
 
 
 #[test]
-#[ignore]
+
 fn test_render_specular_metal() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_specular_metal --ignored --exact --nocapture
 
@@ -220,7 +220,7 @@ fn test_render_specular_metal() {
 
 
 #[test]
-#[ignore]
+
 fn test_render_glass() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_glass --ignored --exact --nocapture
     let metal = Material::Glass(Glass {
@@ -237,7 +237,7 @@ fn test_render_glass() {
 
 
 #[test]
-#[ignore]
+
 fn test_render_mirror() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_mirror --ignored --exact --nocapture
 
@@ -252,7 +252,7 @@ fn test_render_mirror() {
 
 
 #[test]
-#[ignore]
+
 fn test_render_dielectric() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_dielectric --ignored --exact --nocapture
 

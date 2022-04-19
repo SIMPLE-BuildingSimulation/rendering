@@ -90,8 +90,8 @@ impl Glass {
             // return
             (refl_comp, t_comp)
         } else {
-            (0., 0.)
-            // panic!("Glass should never reach critical angle, as that only happens when we go from a medium with a higher refraction index into a lower one; and we never do that in glass (i.e., we are always entering the glass)");
+            // (0., 0.)
+            panic!("Glass should never reach critical angle, as that only happens when we go from a medium with a higher refraction index into a lower one; and we never do that in glass (i.e., we are always entering the glass)");
         }
     }
 }
@@ -228,7 +228,7 @@ impl Glass {
                 return self.colour * trans;
             }
         }
-        Spectrum::black()
-        // panic!("Glass should never reach critical angle");
+        // Spectrum::black()
+        panic!("Glass should never reach critical angle");
     }
 }

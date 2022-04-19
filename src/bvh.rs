@@ -725,196 +725,197 @@ impl BoundingVolumeTree {
 }
 
 
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     use crate::colour::Spectrum;
-//     use crate::material::Plastic;
-//     use geometry3d::{Point3D, Sphere3D, Ray3D};
-//     
-//     use crate::primitive::Primitive;
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::colour::Spectrum;
+    use crate::material::Plastic;
+    use geometry3d::{Point3D, Sphere3D, Ray3D};
+    use crate::material::Material;
+    
+    use crate::primitive::Primitive;
 
-//     #[test]
-//     fn test_empty(){
-//         let mut scene = Scene::new();
-//         let mut ray = Ray::default();
-//         let bvh = BoundingVolumeTree::new(&mut scene);
-//         let mut aux = vec![0;10];
-//         assert!(!bvh.intersect(&scene.objects, &mut ray, &mut aux));
+    #[test]
+    fn test_empty(){
+        let mut scene = Scene::new();
+        let mut ray = Ray::default();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_none());
 
-//     }
+    }
 
-//     /// A simple scene with two 0.5-r-spheres; one at x = -1 and the other
-//     /// at x = 1. This should lead to three nodes:
-//     /// * The main one, being an interior node (e.g., n_prims == 0)
-//     /// * First child --> Leaf with one element
-//     /// * Second child --> Leaf with one element
+    /// A simple scene with two 0.5-r-spheres; one at x = -1 and the other
+    /// at x = 1. This should lead to three nodes:
+    /// * The main one, being an interior node (e.g., n_prims == 0)
+    /// * First child --> Leaf with one element
+    /// * Second child --> Leaf with one element
 
-//     fn get_horizontal_scene() -> Scene{
-//         let mut scene = Scene::new();
+    fn get_horizontal_scene() -> Scene{
+        let mut scene = Scene::new();
         
-//         let plastic = Plastic {
-//             colour: Spectrum::gray(2.),
-//             specularity: 1.,
-//             roughness : 0.,
-//         };
-//         let plastic = scene.push_material(Box::new(plastic));
+        let plastic = Plastic {
+            colour: Spectrum::gray(2.),
+            specularity: 1.,
+            roughness : 0.,
+        };
+        let plastic = scene.push_material(Material::Plastic(plastic));
 
-//         // One sphere
-//         let sphere = Sphere3D::new(
-//             0.5, 
-//             Point3D::new(-1., 0., 0.),
-//         );
-//         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+        // One sphere
+        let sphere = Sphere3D::new(
+            0.5, 
+            Point3D::new(-1., 0., 0.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
-//         // Another sphere
-//         let sphere = Sphere3D::new(
-//             0.5,
-//             Point3D::new(1., 0., 0.),
-//         );
-//         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+        // Another sphere
+        let sphere = Sphere3D::new(
+            0.5,
+            Point3D::new(1., 0., 0.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
-//         scene
+        scene
 
-//     }
+    }
 
-//     fn get_vertical_scene() -> Scene{
-//         let mut scene = Scene::new();
+    fn get_vertical_scene() -> Scene{
+        let mut scene = Scene::new();
         
-//         let plastic = Plastic {
-//             colour: Spectrum::gray(2.),
-//             specularity: 1.,
-//             roughness : 0.,
-//         };
-//         let plastic = scene.push_material(Box::new(plastic));
+        let plastic = Plastic {
+            colour: Spectrum::gray(2.),
+            specularity: 1.,
+            roughness : 0.,
+        };
+        let plastic = scene.push_material(Material::Plastic(plastic));
 
-//         // One sphere
-//         let sphere = Sphere3D::new(
-//             0.5, 
-//             Point3D::new(0., 0., -1.),
-//         );
-//         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+        // One sphere
+        let sphere = Sphere3D::new(
+            0.5, 
+            Point3D::new(0., 0., -1.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
-//         // Another sphere
-//         let sphere = Sphere3D::new(
-//             0.5,
-//             Point3D::new(0., 0., 1.),
-//         );
-//         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
+        // Another sphere
+        let sphere = Sphere3D::new(
+            0.5,
+            Point3D::new(0., 0., 1.),
+        );
+        scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
-//         scene
+        scene
 
-//     }
+    }
 
-//     #[test]
-//     fn test_build_horizontal_bvh(){
-//         let mut scene = get_horizontal_scene();
-//         let bvh = BoundingVolumeTree::new(&mut scene);
-//         assert_eq!(bvh.nodes.len(), 3);
+    #[test]
+    fn test_build_horizontal_bvh(){
+        let mut scene = get_horizontal_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+        assert_eq!(bvh.nodes.len(), 3);
         
-//         let mut node = &bvh.nodes[0];
-//         assert_eq!(node.n_prims, 0);
-//         assert_eq!(node.axis, BBoxAxis::X);
-//         assert_eq!(node.next, 2);
+        let mut node = &bvh.nodes[0];
+        assert_eq!(node.n_prims, 0);
+        assert_eq!(node.axis, BBoxAxis::X);
+        assert_eq!(node.next, 2);
 
-//         node = &bvh.nodes[1];
-//         assert_eq!(node.n_prims, 1);
-//         assert_eq!(node.next, 0); // first sphere
+        node = &bvh.nodes[1];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 0); // first sphere
 
-//         node = &bvh.nodes[2];
-//         assert_eq!(node.n_prims, 1);
-//         assert_eq!(node.next, 1); // second sphere
+        node = &bvh.nodes[2];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 1); // second sphere
 
-//     }
+    }
 
 
-//     #[test]
-//     fn test_build_vertical_bvh(){
-//         let mut scene = get_vertical_scene();
-//         let bvh = BoundingVolumeTree::new(&mut scene);
-//         assert_eq!(bvh.nodes.len(), 3);
+    #[test]
+    fn test_build_vertical_bvh(){
+        let mut scene = get_vertical_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
+        assert_eq!(bvh.nodes.len(), 3);
         
-//         let mut node = &bvh.nodes[0];
-//         assert_eq!(node.n_prims, 0);
-//         assert_eq!(node.axis, BBoxAxis::Z);
-//         assert_eq!(node.next, 2);
+        let mut node = &bvh.nodes[0];
+        assert_eq!(node.n_prims, 0);
+        assert_eq!(node.axis, BBoxAxis::Z);
+        assert_eq!(node.next, 2);
 
-//         node = &bvh.nodes[1];
-//         assert_eq!(node.n_prims, 1);
-//         assert_eq!(node.next, 0); // First sphere
+        node = &bvh.nodes[1];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 0); // First sphere
 
-//         node = &bvh.nodes[2];
-//         assert_eq!(node.n_prims, 1);
-//         assert_eq!(node.next, 1); // second sphere
+        node = &bvh.nodes[2];
+        assert_eq!(node.n_prims, 1);
+        assert_eq!(node.next, 1); // second sphere
 
-//     }
+    }
 
-//     #[test]
-//     fn test_intersect_horizontal(){
+    #[test]
+    fn test_intersect_horizontal(){
         
-//         let mut scene = get_horizontal_scene();
-//         let bvh = BoundingVolumeTree::new(&mut scene);
+        let mut scene = get_horizontal_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
 
 
-//         let mut ray = Ray{
-//             geometry: Ray3D{
-//                 origin: Point3D::new(-1., -10., 0.),
-//                 direction: Vector3D::new(0., 1., 0.)
-//             },
-//             ..Ray::default()
-//         };
-//         let mut aux = vec![0;10];
-//         assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(-1., -10., 0.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
 
-//         assert!( (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-9 );
-
-
+        assert!( (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-9 );
 
 
-//         let mut ray = Ray{
-//             geometry: Ray3D{
-//                 origin: Point3D::new(1., -10., 0.),
-//                 direction: Vector3D::new(0., 1., 0.)
-//             },
-//             ..Ray::default()
-//         };
-//         let mut aux = vec![0;10];
-//         assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
-
-//         assert!( (ray.interaction.point - Point3D::new(1., -0.5, 0.)).length() < 1e-9 );
-//     }
 
 
-//     #[test]
-//     fn test_intersect_vertical(){
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(1., -10., 0.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
+
+        assert!( (ray.interaction.point - Point3D::new(1., -0.5, 0.)).length() < 1e-9 );
+    }
+
+
+    #[test]
+    fn test_intersect_vertical(){
         
-//         let mut scene = get_vertical_scene();
-//         let bvh = BoundingVolumeTree::new(&mut scene);
+        let mut scene = get_vertical_scene();
+        let bvh = BoundingVolumeTree::new(&mut scene);
 
 
-//         let mut ray = Ray{
-//             geometry: Ray3D{
-//                 origin: Point3D::new(0., -10., -1.),
-//                 direction: Vector3D::new(0., 1., 0.)
-//             },
-//             ..Ray::default()
-//         };
-//         let mut aux = vec![0;10];
-//         assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(0., -10., -1.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
 
-//         assert!( (ray.interaction.point - Point3D::new(0., -0.5, -1.)).length() < 1e-9 );
+        assert!( (ray.interaction.point - Point3D::new(0., -0.5, -1.)).length() < 1e-9, "Point was {}", ray.interaction.point );
 
 
-//         let mut ray = Ray{
-//             geometry: Ray3D{
-//                 origin: Point3D::new(0., -10., 1.),
-//                 direction: Vector3D::new(0., 1., 0.)
-//             },
-//             ..Ray::default()
-//         };
-//         let mut aux = vec![0;10];
-//         assert!(bvh.intersect(&scene.objects, &mut ray, &mut aux));
+        let mut ray = Ray{
+            geometry: Ray3D{
+                origin: Point3D::new(0., -10., 1.),
+                direction: Vector3D::new(0., 1., 0.)
+            },
+            ..Ray::default()
+        };
+        let mut aux = vec![0;10];
+        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
 
-//         assert!( (ray.interaction.point - Point3D::new(0., -0.5, 1.)).length() < 1e-9 );
-//     }
-// }
+        assert!( (ray.interaction.point - Point3D::new(0., -0.5, 1.)).length() < 1e-9 );
+    }
+}

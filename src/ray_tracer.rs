@@ -104,8 +104,7 @@ impl RayTracer {
             // are visible when viewed directly from the camera
             if material.emits_light() {
                 let light_pdf = crate::triangle::triangle_solid_angle_pdf(&scene.triangles[triangle_index], intersection_pt, ray.interaction.geometry_shading.normal, &ray.geometry);
-                return (material.colour(), light_pdf);
-                
+                return (material.colour(), light_pdf);                
             }
 
             // Limit bounces
@@ -117,15 +116,16 @@ impl RayTracer {
             let u = ray.interaction.geometry_shading.u;
             let v = ray.interaction.geometry_shading.v;
 
-            // let normal = ray.interaction.geometry_shading.normal;
-            let n0 = scene.normals[triangle_index].0;
-            let n1 = scene.normals[triangle_index].1;
-            let n2 = scene.normals[triangle_index].2;
-            let mut normal = (n0*u + n1*v + n2*(1.-u-v)).get_normalized();
-            if normal*ray.interaction.geometry_shading.normal < 0.0{
-                normal *= -1.
-            }
+            let normal = ray.interaction.geometry_shading.normal;
+            // let n0 = scene.normals[triangle_index].0;
+            // let n1 = scene.normals[triangle_index].1;
+            // let n2 = scene.normals[triangle_index].2;
+            // let mut normal = (n0*u + n1*v + n2*(1.-u-v)).get_normalized();
+            // if normal*ray.interaction.geometry_shading.normal < 0.0{
+            //     normal *= -1.
+            // }
 
+            // let e1 = normal.get_perpendicular().unwrap();
             let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
             let e2 = normal.cross(e1).get_normalized();
 
@@ -160,6 +160,7 @@ impl RayTracer {
                             current_depth
                         }
                     };
+                    // let new_depth = current_depth;
 
                     let (li, _light_pdf) =
                         self.trace_ray(rng, scene, &mut new_ray, new_depth, new_value, aux);
@@ -167,15 +168,15 @@ impl RayTracer {
                     let color = material.colour();
                     // let total_samples = n + n_lights * self.n_shadow_samples;
                     // let bsdf_c = 1.;//n as Float / total_samples as Float;
-                    specular_li += (li * cos_theta * *bsdf_value) * (color); // * *ray_weight;
+                    specular_li += (li * cos_theta * *bsdf_value) * (color);// * *_ray_weight;
                                                                              // / ( bsdf_c * bsdf_value );
                 }
                 // return Some(specular_li + local)
                 return (specular_li, 0.0);
             }
 
-            // Calculate the number of ambient samples
-            let n = if self.max_depth == 0 {
+            
+            let n_ambient_samples = if self.max_depth == 0 {
                 0 // No ambient samples required
             } else if current_depth == 0 {
                 self.n_ambient_samples
@@ -199,10 +200,11 @@ impl RayTracer {
 
             // Calculate the number of direct samples
 
-            let direct_n = if current_depth == 0 {
+            let n_shadow_samples = if current_depth == 0 {
                 self.n_shadow_samples
             } else {
-                1
+                // 1
+                self.n_shadow_samples
             };
 
             /* DIRECT LIGHT */
@@ -215,16 +217,16 @@ impl RayTracer {
                 e1,
                 e2,
                 rng,
-                n,
-                direct_n,
+                n_ambient_samples,
+                n_shadow_samples,
                 &mut aux.nodes,
             );
 
             /* INDIRECT */
             let global = self.get_global_illumination(
                 scene,
-                n,
-                direct_n,
+                n_ambient_samples,
+                n_shadow_samples,
                 current_depth,
                 material,
                 normal,
@@ -259,7 +261,7 @@ impl RayTracer {
         scene: &Scene,
         material: &Material,
         ray: &Ray,
-        point: Point3D,
+        intersection_pt: Point3D,
         normal: Vector3D,
         e1: Vector3D,
         e2: Vector3D,
@@ -275,10 +277,10 @@ impl RayTracer {
             let mut i = 0;
             // let mut missed = 0;
             while i < n_shadow_samples {
-                let direction = light.primitive.sample_direction(rng, point);
+                let direction = light.primitive.sample_direction(rng, intersection_pt);
                 // let (_,direction) = light.primitive.direction( point);
                 let shadow_ray = Ray3D {
-                    origin: point,
+                    origin: intersection_pt,
                     direction,
                 };
 
@@ -323,7 +325,7 @@ impl RayTracer {
         scene: &Scene,
         material: &Material, //&impl Material,
         ray: &Ray,
-        mut point: Point3D,
+        mut intersection_pt: Point3D,
         normal: Vector3D,
         e1: Vector3D,
         e2: Vector3D,
@@ -333,12 +335,12 @@ impl RayTracer {
         node_aux: &mut Vec<usize>,
     ) -> Spectrum {
         // prevent self-shading
-        point += normal * 0.001;
+        intersection_pt += normal * 0.001;
         let close = self.sample_light_array(
             scene,
             material,
             ray,
-            point,
+            intersection_pt,
             normal,
             e1,
             e2,
@@ -352,7 +354,7 @@ impl RayTracer {
             scene,
             material,
             ray,
-            point,
+            intersection_pt,
             normal,
             e1,
             e2,
@@ -403,12 +405,12 @@ impl RayTracer {
             let new_value = bsdf_value.radiance() * wt * cos_theta / pdf;
 
             // russian roulette
-            if self.limit_weight > 0. && new_value < self.limit_weight {
-                let q: Float = rng.gen();
-                if q > new_value / self.limit_weight {
-                    continue;
-                }
-            }
+            // if self.limit_weight > 0. && new_value < self.limit_weight {
+            //     let q: Float = rng.gen();
+            //     if q > new_value / self.limit_weight {
+            //         continue;
+            //     }
+            // }
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, aux);
 
