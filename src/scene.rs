@@ -282,19 +282,17 @@ impl Scene {
         }else{
             false
         };
-
         let (triangles, normals) = match &primitive {
             Primitive::Triangle(tr)=>crate::triangle::mesh_triangle(tr),        
             Primitive::Sphere(s)=>crate::triangle::mesh_sphere(s),    
             _ => {
-                if !is_light{
+                // if !is_light{
                     panic!("Unsupported Primitive '{}'", primitive.id());
-                }else{
-                    (vec![], vec![])
-                }
+                // }else{
+                //     (vec![], vec![])
+                // }
             }
         };
-        
         let additional = triangles.len();
         let front = vec![front_material_index; additional];
         let back = vec![back_material_index; additional];
@@ -303,6 +301,8 @@ impl Scene {
         self.normals.extend_from_slice(&normals);        
         self.front_material_indexes.extend_from_slice(&front);
         self.back_material_indexes.extend_from_slice(&back);
+
+        
 
         
 

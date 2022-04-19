@@ -249,6 +249,22 @@ fn laptop() {
     .unwrap();
     scene.push_object(plastic, plastic, Primitive::Triangle(tri));
 
+    // // Bottom of screen (a.k.a. Screen)
+    // let tri = Triangle3D::new(
+    //     Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
+    //     Point3D::new(WIDTH, y, z + OFFSET + BASE_THICKNESS),
+    //     Point3D::new(0.0, y, z + OFFSET + BASE_THICKNESS),
+    // )
+    // .unwrap();
+    // scene.push_object(screen, screen, Primitive::Triangle(tri));
+    // let tri = Triangle3D::new(
+    //     Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
+    //     Point3D::new(WIDTH, 0.0, OFFSET + BASE_THICKNESS),
+    //     Point3D::new(WIDTH, y, z + OFFSET + BASE_THICKNESS),
+    // )
+    // .unwrap();
+    // scene.push_object(screen, screen, Primitive::Triangle(tri));
+
     // Bottom of screen (a.k.a. Screen)
     let tri = Triangle3D::new(
         Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
@@ -266,23 +282,6 @@ fn laptop() {
     scene.push_object(screen, screen, Primitive::Triangle(tri));
 
 
-    // Tests
-    // let exp_materials = vec![
-    //     ground, ground, // ground
-    //     plastic, plastic, // top of base
-    //     plastic, plastic,  // Front
-    //     plastic, plastic,  // back
-    //     plastic, plastic,  // left
-    //     plastic, plastic,  // right
-    //     plastic, plastic,  // Top of screen
-    //     plastic, plastic,  // Left of screen
-    //     plastic, plastic,  // right of screen
-    //     plastic, plastic,  // back of screen
-    //     plastic, plastic,  // Front of screen
-    //     screen, screen,  // Screen
-    // ];
-    // assert_eq!(exp_materials, scene.front_material_indexes);
-    // assert_eq!(exp_materials, scene.back_material_indexes);
 
     scene.build_accelerator();
 
@@ -292,7 +291,15 @@ fn laptop() {
     };
 
     // Create view
-    let view_point = Point3D::new(0.9, -0.4, 0.3);
+    // let view_point = Point3D::new(0.9, -0.4, 0.3);
+    // let view_direction = (Point3D::new(0., WIDTH / 2., DEPTH) - view_point).get_normalized();
+    // let view = View {
+    //     view_direction,
+    //     view_point,
+    //     ..View::default()
+    // };
+
+    let view_point = Point3D::new(0.9, 1.4, 0.3);
     let view_direction = (Point3D::new(0., WIDTH / 2., DEPTH) - view_point).get_normalized();
     let view = View {
         view_direction,
