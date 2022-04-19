@@ -42,7 +42,7 @@ fn laptop() {
             green: 0.8,
             blue: 0.5,
         },
-        specularity: 0.01,
+        specularity: 0.0,
         roughness: 0.0,
     });
     let plastic = scene.push_material(plastic);
@@ -63,7 +63,7 @@ fn laptop() {
             blue: 0.2,
         },
         specularity: 0.0,
-        roughness: 0.0,
+        roughness: 0.01,
     });
     let ground = scene.push_material(ground);
 

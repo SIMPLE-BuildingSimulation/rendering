@@ -125,8 +125,8 @@ impl RayTracer {
             //     normal *= -1.
             // }
 
-            // let e1 = normal.get_perpendicular().unwrap();
-            let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
+            let e1 = normal.get_perpendicular().unwrap();
+            // let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
             let e2 = normal.cross(e1).get_normalized();
 
             // Check
@@ -208,6 +208,7 @@ impl RayTracer {
             };
 
             /* DIRECT LIGHT */
+            // let local = Spectrum::black();
             let local = self.get_local_illumination(
                 scene,
                 material,
@@ -308,8 +309,10 @@ impl RayTracer {
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
                     local_illum += fx / denominator;
                 } else {
-                    // missed += 1;
-                    // eprintln!("Missed Light! {} (i = {})", missed, i)
+                    #[cfg(debug_assertions)]
+                    {                        
+                        eprintln!("Missed Light... primitive '{}' (i = {})", light.primitive.id(), i)
+                    }
                 }
                 // ... missed light. Try again
             } // end of iterating samples
@@ -513,7 +516,7 @@ pub fn sample_light(
 
     // If the light is not visible (this should not consider
     // transparent surfaces, yet.)
-    if !scene.unobstructed_distance(shadow_ray, light_distance_squared, node_aux) {
+    if !scene.unobstructed_distance(shadow_ray, light_distance_squared, node_aux) {        
         return Some((Spectrum::black(), 0.0));
     }
 

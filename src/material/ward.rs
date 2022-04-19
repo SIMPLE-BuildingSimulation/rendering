@@ -81,6 +81,7 @@ pub fn sample_ward_anisotropic(
                 ray.geometry.direction = v;
                 return (spec, diffuse, 1./weight);
             }                        
+            return (0.0, 0., 1.);
         }// end of loop. If we did not return, try again.
     } else {
         // Probability
@@ -100,7 +101,7 @@ pub fn sample_ward_anisotropic(
         );
 
         ray.geometry.direction = Vector3D::new(x, y, z);
-        (0.0, diffuse, weight)
+        (0.0, diffuse, 1./weight)
     }
 }
 
