@@ -527,6 +527,7 @@ impl BoundingVolumeTree {
                     let ini = offset as usize;
                     let fin = ini + node.n_prims as usize;
                     let this_prims : &[Triangle] = &primitives[ini..fin];
+
                     let mut iterator = this_prims.chunks_exact(PACK_SIZE);
                     let mut n_packs = 0; // I need to know how many packs went through                    
 
@@ -551,6 +552,9 @@ impl BoundingVolumeTree {
 
                     let mut i = 0;
                     let mut iterator = iterator.remainder().iter();
+                    
+                    // let mut iterator = this_prims.iter();
+                    // let n_packs = 0;
                     while let Some(tri) = iterator.next(){ // Had to do it this way for debugging purposes.                        
                         if let Some(intersect_info) =
                             triangle_intersect(tri,&ray.geometry)

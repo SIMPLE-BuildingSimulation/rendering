@@ -171,7 +171,7 @@ fn render_ball(mat: Material, filename: &str) {
 
     let integrator = RayTracer {
         n_ambient_samples: 100,
-        n_shadow_samples: 1,
+        n_shadow_samples: 20,
         max_depth: 1,
         ..RayTracer::default()
     };
@@ -182,9 +182,8 @@ fn render_ball(mat: Material, filename: &str) {
 
 
 #[test]
-
 fn test_render_specular_plastic() {
-    // cargo test --no-default-features --features parallel --release --package rendering --test render_materials -- test_render_specular_plastic --ignored --exact --nocapture
+    // cargo test --package rendering --test render_materials -- test_render_specular_plastic --exact --nocapture
 
     let plastic = Material::Plastic(Plastic {
         colour: Spectrum {
@@ -192,8 +191,8 @@ fn test_render_specular_plastic() {
             green: 0.5,
             blue: 0.5,
         },
-        specularity: 0.28,
-        roughness: 0.05,
+        specularity: 0.09,
+        roughness: 0.05, 
     });
 
     render_ball(plastic, "./test_data/images/specular_plastic.hdr")

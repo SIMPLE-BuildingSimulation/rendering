@@ -83,11 +83,9 @@ impl RayTracer {
     ) -> (Spectrum, Float) {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
-        // If hits an object
-        // Store refraction index???
-
+        
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {            
-            // THIS HAS MODIFIED THE INTERACTION.            
+                    
             let material = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => &scene.materials[scene.front_material_indexes[triangle_index]],
                 SurfaceSide::Back => &scene.materials[scene.back_material_indexes[triangle_index]],
@@ -116,14 +114,14 @@ impl RayTracer {
             let u = ray.interaction.geometry_shading.u;
             let v = ray.interaction.geometry_shading.v;
 
-            let normal = ray.interaction.geometry_shading.normal;
-            // let n0 = scene.normals[triangle_index].0;
-            // let n1 = scene.normals[triangle_index].1;
-            // let n2 = scene.normals[triangle_index].2;
-            // let mut normal = (n0*u + n1*v + n2*(1.-u-v)).get_normalized();
-            // if normal*ray.interaction.geometry_shading.normal < 0.0{
-            //     normal *= -1.
-            // }
+            // let normal = ray.interaction.geometry_shading.normal;
+            let n0 = scene.normals[triangle_index].0;
+            let n1 = scene.normals[triangle_index].1;
+            let n2 = scene.normals[triangle_index].2;
+            let mut normal = (n0*u + n1*v + n2*(1.-u-v)).get_normalized();
+            if normal*ray.interaction.geometry_shading.normal < 0.0{
+                normal *= -1.
+            }
 
             let e1 = normal.get_perpendicular().unwrap();
             // let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
@@ -139,18 +137,15 @@ impl RayTracer {
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
                 let mut specular_li = Spectrum::black();
-                let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
-                // let mut n = 0;
-                for (new_ray, bsdf_value, _ray_weight) in paths.iter().flatten() {
-                    // n += 1;
+                
+                let paths = material.get_possible_paths(&normal, &intersection_pt, ray);                
+                for (new_ray, bsdf_value) in paths.iter().flatten() {                    
                     let mut new_ray = *new_ray;
-
+                
                     let new_ray_dir = new_ray.geometry.direction;
                     let cos_theta = (normal * new_ray_dir).abs();
                     let new_value = wt * bsdf_value * cos_theta;
-                    // russian roulette
-                    // if self.limit_weight > 0. && new_value < self.limit_weight {
-                    // }
+                    
                     // avoid infinite interior bouncing
                     let new_depth = {
                         let q: Float = rng.gen();
@@ -160,18 +155,13 @@ impl RayTracer {
                             current_depth
                         }
                     };
-                    // let new_depth = current_depth;
 
                     let (li, _light_pdf) =
                         self.trace_ray(rng, scene, &mut new_ray, new_depth, new_value, aux);
 
                     let color = material.colour();
-                    // let total_samples = n + n_lights * self.n_shadow_samples;
-                    // let bsdf_c = 1.;//n as Float / total_samples as Float;
-                    specular_li += (li * cos_theta * *bsdf_value) * (color);// * *_ray_weight;
-                                                                             // / ( bsdf_c * bsdf_value );
-                }
-                // return Some(specular_li + local)
+                    specular_li += (li * cos_theta * *bsdf_value) * (color);
+                }                
                 return (specular_li, 0.0);
             }
 
@@ -434,14 +424,7 @@ impl RayTracer {
         let (width, height) = camera.film_resolution();
 
         let total_pixels = width * height;
-        let mut pixels = vec![
-            Spectrum {
-                red: 0.,
-                green: 0.,
-                blue: 0.
-            };
-            total_pixels
-        ];
+        let mut pixels = vec![Spectrum::black();total_pixels];
 
         let n_threads = 8;
         let chunk_len = total_pixels / n_threads;

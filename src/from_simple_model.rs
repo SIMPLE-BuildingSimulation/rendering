@@ -161,8 +161,7 @@ mod tests {
     use geometry3d::{DistantSource3D, Point3D, Vector3D};
     use std::time::Instant;
 
-    #[test]
-    #[ignore]
+    #[test]    
     fn test_scene_from_model() {
         // BUILD SCENE
         let (model, _state_header) =

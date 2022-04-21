@@ -79,7 +79,7 @@ impl  Dielectric {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Float, Float)>; 2] {
+    ) -> [Option<(Ray, Float)>; 2] {
         let normal = *normal;
         let intersection_pt = *intersection_pt;
 
@@ -97,7 +97,7 @@ impl  Dielectric {
         let mut ray1 = *ray;
         ray1.geometry.direction = mirror_dir;
         ray1.geometry.origin = intersection_pt + normal * 0.00001;
-        let pair1 = Some((ray1, refl, cos1 * refl /*refl / (refl + trans)*/));
+        let pair1 = Some((ray1, refl));
 
         let mut ray = *ray;
         // process transmission
@@ -106,7 +106,7 @@ impl  Dielectric {
             ray.refraction_index = n2;
             let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
             ray.geometry.direction = trans_dir;
-            Some((ray, trans, /*trans / (refl + trans)*/ 1. - cos1 * refl))
+            Some((ray, trans))
         } else {
             None
         };
@@ -467,4 +467,60 @@ mod tests {
             }
         }
     }
+
+
+
+    #[test]
+    fn test_get_possible_paths_dielectric(){
+
+        let dielectric = Dielectric {
+            colour: Spectrum::gray(0.23), //irrelevant for this test
+            refraction_index: 1.52,
+        };
+
+        let mut rng = get_rng();
+
+        for _ in 0..5000 {
+            let refraction_index : Float = rng.gen();
+            let (x, y, z) : (Float, Float, Float) = rng.gen();
+            let direction = Vector3D::new(x, y, -z).get_normalized();
+    
+            let normal = Vector3D::new(0., 0., 1.);
+            let intersection_pt = Point3D::new(0., 0., 0.);
+            let ray = Ray {
+                geometry: Ray3D { 
+                    origin: Point3D::new(0., 0., 2.), 
+                    direction,
+                }, 
+                refraction_index,
+                .. Ray::default()
+            };
+    
+            let paths = dielectric.get_possible_paths(&normal, &intersection_pt, &ray);
+            // Reflection
+            if let Some((new_ray, bsdf)) = paths[0]{
+                assert_eq!(new_ray.refraction_index, refraction_index, "Expecting the ray's refraction index to be {}... found {}", refraction_index, ray.refraction_index);
+                assert!(bsdf.is_finite() && !bsdf.is_nan(), "impossible BSDF --> {}", bsdf);
+                let new_dir = new_ray.geometry.direction;
+                assert!(( (new_dir.x - direction.x).abs() < 1e-5 && (new_dir.y - direction.y).abs() < 1e-5 && (new_dir.z  + direction.z).abs() < 1e-5 ), "Expecting reflected direction to be mirrored against direction (ray.dir = {} | exp = {}).", ray.geometry.direction, direction);
+            }else{
+                panic!("Expecting a reflection path")
+            }
+            
+            // Transmission
+            if let Some((new_ray, bsdf)) = paths[1]{
+                assert_eq!(new_ray.refraction_index, dielectric.refraction_index, "Expecting the ray's refraction index to be {}... found {}", refraction_index, ray.refraction_index);
+                assert!(bsdf.is_finite() && !bsdf.is_nan(), "impossible BSDF --> {}", bsdf);            
+                // assert!(new_ray.geometry.direction.compare(direction), "Expecting transmitted direction to be the same as the original direction (ray.dir = {} | exp = {})... length of diff = {}", ray.geometry.direction, direction, (new_ray.geometry.direction - direction).length());
+                assert!(new_ray.geometry.direction.z <= 0.0, "Expecting transmitted direction to be going down... found {}", new_ray.geometry.direction);
+            }
+        }
+
+        
+
+    }
 }
+
+
+
+

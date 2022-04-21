@@ -108,18 +108,19 @@ pub fn triangle_pack_baricentric_coorinates(
     const TINY: Float = 1e-5;
     let h = cross(&ray_direction, &edge2);
     let a = dot(&edge1, &h);    
-    if a.reduce_min() > -TINY && a.reduce_max() < TINY {
+    if a.reduce_min().abs() < TINY {
         return None;
     }
     let f = std::simd::Simd::splat(1.) / a;
     let s = [ox - ax, oy - ay, oz - az];
     let u = f * dot(&s, &h);
-    if u.reduce_min() > 1. || u.reduce_max() < 0.0 {
+    if u.reduce_min() > 1. + Float::EPSILON || u.reduce_max() < -Float::EPSILON {
         return None;
     }
     let q = cross(&s, &edge1);
     let v = f * dot(&ray_direction, &q);
-    if v.reduce_min() > 1.0 || v.reduce_max() < 0.0 {
+    let uv = u + v;
+    if uv.reduce_min() > 1.0+ Float::EPSILON || uv.reduce_max() < -Float::EPSILON {
         return None;
     }
     let t = f * dot(&edge2, &q);
@@ -242,18 +243,18 @@ fn baricentric_coorinates(
     let h = cross(&ray_direction, &edge2);
     let a = dot(&edge1, &h);
 
-    if a > -TINY && a < TINY {
+    if a.abs() < TINY {
         return None;
     }
     let f = 1. / a;
     let s = [ray.origin.x - ax, ray.origin.y - ay, ray.origin.z - az];
     let u = f * dot(&s, &h);
-    if u > 1. || u < -Float::EPSILON {
+    if u > 1. + Float::EPSILON || u < -Float::EPSILON {
         return None;
     }
     let q = cross(&s, &edge1);
     let v = f * dot(&ray_direction, &q);
-    if v > 1.0 || v < -Float::EPSILON {
+    if u + v > 1.0 + Float::EPSILON || v < -Float::EPSILON {
         return None;
     }
     let t = f * dot(&edge2, &q);
@@ -531,6 +532,58 @@ pub fn mesh_sphere(s: &Sphere3D) -> (Vec<Triangle>, Vec<(Vector3D, Vector3D, Vec
 #[cfg(test)]
 mod testing {
     use super::*;
+
+    #[test]
+    fn test_mesh_triangle(){
+        let a : (Float, Float, Float) = (0., 1., 2.);
+        let b : (Float, Float, Float) = (3., 4., 5.);
+        let c : (Float, Float, Float) = (6., -7., 8.);
+        let tri : Triangle3D = Triangle3D::new(
+            Point3D::new(a.0, a.1, a.2),
+            Point3D::new(b.0, b.1, b.2),
+            Point3D::new(c.0, c.1, c.2),
+        ).unwrap();
+        let input : Triangle = [a.0, a.1, a.2, b.0, b.1, b.2, c.0, c.1, c.2];
+        let (output, normals) = mesh_triangle(&tri);
+        assert_eq!(1, output.len());
+        assert_eq!(1, normals.len());
+        assert_eq!(input, output[0]);
+        assert_eq!(normals[0].0, tri.normal());
+        assert_eq!(normals[0].1, tri.normal());
+        assert_eq!(normals[0].2, tri.normal());
+    }
+
+    #[test]
+    fn test_mesh_sphere(){
+        let centre = Point3D::new(1., 6., -2.);
+        let radius = 5.21;
+
+        let sphere = Sphere3D::new(radius, centre);
+
+        let (triangles, normals) = mesh_sphere(&sphere);
+        assert_eq!(triangles.len(), normals.len());
+        
+
+        for (trindex, tri) in triangles.iter().enumerate() {
+            let a = Point3D::new(tri[0], tri[1], tri[2]);
+            let b = Point3D::new(tri[3], tri[4], tri[5]);
+            let c = Point3D::new(tri[6], tri[7], tri[8]);
+
+            let ra = a - centre;
+            let rb = b - centre;
+            let rc = c - centre;
+
+            assert!( (ra.length() - radius).abs() < 1e-8, "Expecting ra to be {}... found {}", radius, ra.length() );
+            assert!( (rb.length() - radius).abs() < 1e-8, "Expecting rb to be {}... found {}", radius, rb.length() );
+            assert!( (rc.length() - radius).abs() < 1e-8, "Expecting rc to be {}... found {}", radius, rc.length() );
+
+            assert_eq!(ra.get_normalized(), normals[trindex].0);
+            assert_eq!(rb.get_normalized(), normals[trindex].1);
+            assert_eq!(rc.get_normalized(), normals[trindex].2);
+
+        }
+    }
+
 
     const UP: Vector3D = Vector3D {
         x: 0.,

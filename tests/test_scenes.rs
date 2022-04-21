@@ -52,7 +52,7 @@ fn laptop() {
             red: 145.,
             green: 7.,
             blue: 205.,
-        } * 0.3,
+        } * 0.03,
     ));
     let screen = scene.push_material(screen);
 
@@ -188,14 +188,14 @@ fn laptop() {
     // Left of screen
     let tri = Triangle3D::new(
         Point3D::new(WIDTH, 0., OFFSET + BASE_THICKNESS),
-        Point3D::new(WIDTH, y, z + OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
+        Point3D::new(WIDTH, y,  OFFSET + BASE_THICKNESS + SCREEN_THICKNESS + z),
         Point3D::new(WIDTH, 0.0, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
     )
     .unwrap();
     scene.push_object(plastic, plastic, Primitive::Triangle(tri));
     let tri = Triangle3D::new(
         Point3D::new(WIDTH, 0., OFFSET + BASE_THICKNESS),
-        Point3D::new(WIDTH, y, z + OFFSET + SCREEN_THICKNESS),
+        Point3D::new(WIDTH, y, OFFSET + BASE_THICKNESS + z),
         Point3D::new(WIDTH, y, z + OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
     )
     .unwrap();
@@ -203,16 +203,16 @@ fn laptop() {
 
     // right of screen
     let tri = Triangle3D::new(
-        Point3D::new(0.0, 0., OFFSET + BASE_THICKNESS),
-        Point3D::new(0.0, y, z + OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
-        Point3D::new(0.0, 0.0, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
+        Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
+        Point3D::new(0., y,  OFFSET + BASE_THICKNESS + SCREEN_THICKNESS + z),
+        Point3D::new(0., 0.0, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
     )
     .unwrap();
     scene.push_object(plastic, plastic, Primitive::Triangle(tri));
     let tri = Triangle3D::new(
-        Point3D::new(0.0, 0., OFFSET + BASE_THICKNESS),
-        Point3D::new(0.0, y, z + OFFSET),
-        Point3D::new(0.0, y, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
+        Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
+        Point3D::new(0., y, OFFSET + BASE_THICKNESS + z),
+        Point3D::new(0., y, z + OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
     )
     .unwrap();
     scene.push_object(plastic, plastic, Primitive::Triangle(tri));
@@ -249,21 +249,7 @@ fn laptop() {
     .unwrap();
     scene.push_object(plastic, plastic, Primitive::Triangle(tri));
 
-    // // Bottom of screen (a.k.a. Screen)
-    // let tri = Triangle3D::new(
-    //     Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
-    //     Point3D::new(WIDTH, y, z + OFFSET + BASE_THICKNESS),
-    //     Point3D::new(0.0, y, z + OFFSET + BASE_THICKNESS),
-    // )
-    // .unwrap();
-    // scene.push_object(screen, screen, Primitive::Triangle(tri));
-    // let tri = Triangle3D::new(
-    //     Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
-    //     Point3D::new(WIDTH, 0.0, OFFSET + BASE_THICKNESS),
-    //     Point3D::new(WIDTH, y, z + OFFSET + BASE_THICKNESS),
-    // )
-    // .unwrap();
-    // scene.push_object(screen, screen, Primitive::Triangle(tri));
+    
 
     // Bottom of screen (a.k.a. Screen)
     let tri = Triangle3D::new(
@@ -291,21 +277,21 @@ fn laptop() {
     };
 
     // Create view
-    // let view_point = Point3D::new(0.9, -0.4, 0.3);
-    // let view_direction = (Point3D::new(0., WIDTH / 2., DEPTH) - view_point).get_normalized();
-    // let view = View {
-    //     view_direction,
-    //     view_point,
-    //     ..View::default()
-    // };
-
-    let view_point = Point3D::new(0.9, 1.4, 0.3);
+    let view_point = Point3D::new(0.9, -0.4, 0.3);
     let view_direction = (Point3D::new(0., WIDTH / 2., DEPTH) - view_point).get_normalized();
     let view = View {
         view_direction,
         view_point,
         ..View::default()
     };
+
+    // let view_point = Point3D::new(0.6, 0.9, 0.3);
+    // let view_direction = (Point3D::new(0., WIDTH / 2., DEPTH) - view_point).get_normalized();
+    // let view = View {
+    //     view_direction,
+    //     view_point,
+    //     ..View::default()
+    // };
 
     // Create camera
     let camera = Pinhole::new(view, film);
@@ -325,7 +311,7 @@ fn laptop() {
 #[test]
 #[ignore]
 fn sponza(){
-    // cargo test --features parallel --release --package rendering --test test_scenes -- sponza --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- sponza --ignored --exact --nocapture
 
     let mut scene = Scene::default();
         let gray = scene.push_material(Material::Plastic(Plastic{
@@ -387,9 +373,8 @@ fn sponza(){
 #[test]
 #[ignore]
 fn cornell() {
-    // 60 seconds
-    // cargo test --features parallel --release --package rendering --test test_scenes -- cornell --exact --nocapture
-    // oconv ../room.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
+    // cargo test --features parallel --release --package rendering --test test_scenes -- --ignored cornell --exact --nocapture
+    
 
     let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
 
@@ -416,8 +401,8 @@ fn cornell() {
 
     let integrator = RayTracer {
         n_ambient_samples: 80,
-        n_shadow_samples: 5,
-        max_depth: 1,
+        n_shadow_samples: 10,
+        max_depth: 2,
         // count_specular_bounce: 0.1,
         ..RayTracer::default()
     };

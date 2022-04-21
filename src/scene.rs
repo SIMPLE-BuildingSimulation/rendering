@@ -286,11 +286,11 @@ impl Scene {
             Primitive::Triangle(tr)=>crate::triangle::mesh_triangle(tr),        
             Primitive::Sphere(s)=>crate::triangle::mesh_sphere(s),    
             _ => {
-                // if !is_light{
+                if !is_light{
                     panic!("Unsupported Primitive '{}'", primitive.id());
-                // }else{
-                //     (vec![], vec![])
-                // }
+                }else{
+                    (vec![], vec![])
+                }
             }
         };
         let additional = triangles.len();

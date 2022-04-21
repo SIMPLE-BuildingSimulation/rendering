@@ -20,7 +20,7 @@ SOFTWARE.
 
 use crate::ray::Ray;
 use crate::Float;
-use geometry3d::Vector3D;
+use geometry3d::{Vector3D, Point3D};
 
 /// Calculates the parameters necessary for calculating the
 /// Fresnel's equations. `cos2`—i.e., the cosine of the
@@ -61,7 +61,6 @@ pub fn cos_and_n(
     // we are leaving a volume, entering air.
     if (n1 - n2).abs() < 1e-7 {
         n2 = 1.0;
-        // std::mem::swap(&mut n1, &mut n2);
     }
     // Calculate cos2
     let sin1_sq = (1. - cos1 * cos1).clamp(0., Float::MAX);
@@ -73,7 +72,7 @@ pub fn cos_and_n(
         debug_assert!((lhs - rhs).abs() < 1e-5, "rhs = {}, lhs = {}", lhs, rhs);
     }
     debug_assert!(sin2_sq >= 0.0);
-    if sin2_sq >= 1. {
+    if sin2_sq > 1. {
         // Pure reflection...
         return (n1, cos1, n2, None);
     }
@@ -158,11 +157,40 @@ pub fn fresnel_transmission_dir(
 pub fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
     debug_assert!((vin.length() - 1.).abs() < 1e-6);
     debug_assert!((normal.length() - 1.).abs() < 1e-6);
-    let mut ret = vin - normal * (2. * (vin * normal));
+    let vin_normal = vin*normal;
+    let mut ret = vin - normal * (2. * (vin_normal));
     ret.normalize();
 
     ret
 }
+
+
+/// Calculates the Mirror BSDF and modifies the given ray so that it now points in that direction
+pub fn mirror_bsdf(intersection_pt: Point3D, ray: &mut Ray, normal: Vector3D) -> Float {
+    // avoid self shading
+    ray.geometry.origin = intersection_pt + normal * 0.00001;
+    let ray_dir = ray.geometry.direction;
+    let cos = (ray_dir * normal).abs();
+    ray.geometry.direction = mirror_direction(ray_dir, normal);
+    debug_assert!(
+        (ray.geometry.direction.length() - 1.).abs() < 1e-5,
+        "dir len is {}",
+        ray.geometry.direction.length()
+    );
+    1. / cos
+}
+
+/// Evaluates the mirror BSDf
+pub fn eval_mirror_bsdf(normal: Vector3D, vin: Vector3D, vout: Vector3D) -> Float {
+    let mirror = mirror_direction(vin, normal);
+    if vout.is_parallel(mirror) {
+        let cos = (vin * normal).abs();
+        1. / cos
+    } else {
+        0.
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

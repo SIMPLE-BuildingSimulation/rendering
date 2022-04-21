@@ -91,7 +91,8 @@ impl Glass {
             (refl_comp, t_comp)
         } else {
             // (0., 0.)
-            panic!("Glass should never reach critical angle, as that only happens when we go from a medium with a higher refraction index into a lower one; and we never do that in glass (i.e., we are always entering the glass)");
+            // panic!("Glass should never reach critical angle");
+            (1. / cos1, 0.)
         }
     }
 }
@@ -114,11 +115,12 @@ impl Glass {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Float, Float)>; 2] {
+    ) -> [Option<(Ray, Float)>; 2] {
         let normal = *normal;
         // Only two possible direction:
-        let trans_dir = ray.geometry.direction;
-        let mirror_dir = mirror_direction(trans_dir, normal);
+        
+        let mirror_dir = mirror_direction(ray.geometry.direction, normal);
+         
 
         debug_assert!(
             // some paranoia checks
@@ -134,14 +136,13 @@ impl Glass {
         let mut ray1 = *ray;
         ray1.geometry.direction = mirror_dir;
         ray1.geometry.origin = intersection_pt + normal * 0.00001;
-        let pair1 = Some((ray1, refl, refl / (refl + trans)));
-
+        let pair1 = Some((ray1, refl));
+        
         // process transmission
         let mut ray = *ray;
         let pair2 = if trans > 0.0 {
-            ray.geometry.origin = intersection_pt - normal * 0.00001;
-            ray.geometry.direction = trans_dir;
-            Some((ray, trans, trans / (refl + trans)))
+            ray.geometry.origin = intersection_pt - normal * 0.00001;            
+            Some((ray, trans))
         } else {
             None
         };
@@ -228,7 +229,66 @@ impl Glass {
                 return self.colour * trans;
             }
         }
-        // Spectrum::black()
-        panic!("Glass should never reach critical angle");
+        // panic!("Glass should never reach critical angle");        
+        Spectrum::gray(1.) / cos1
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use geometry3d::{Vector3D, Ray3D};
+    
+
+    #[test]
+    fn test_get_possible_paths_glass(){
+
+        let glass = Glass{
+            colour: Spectrum {red:0.1, green:0.2, blue:0.3},
+            refraction_index: 1.52,
+        };
+        let mut rng = get_rng();
+
+        for _ in 0..500 {
+            let refraction_index : Float = rng.gen();
+            let (x, y, z) : (Float, Float, Float) = rng.gen();
+            let direction = Vector3D::new(x, y, -z).get_normalized();
+    
+            let normal = Vector3D::new(0., 0., 1.);
+            let intersection_pt = Point3D::new(0., 0., 0.);
+            let ray = Ray {
+                geometry: Ray3D { 
+                    origin: Point3D::new(0., 0., 2.), 
+                    direction,
+                }, 
+                refraction_index,
+                .. Ray::default()
+            };
+    
+            let paths = glass.get_possible_paths(&normal, &intersection_pt, &ray);
+            // Reflection
+            if let Some((new_ray, bsdf)) = paths[0]{
+                assert_eq!(new_ray.refraction_index, refraction_index, "Expecting the ray's refraction index to be {}... found {}", refraction_index, ray.refraction_index);
+                assert!(bsdf.is_finite() && !bsdf.is_nan(), "impossible BSDF --> {}", bsdf);
+                let new_dir = new_ray.geometry.direction;
+                assert!(( (new_dir.x - direction.x).abs() < 1e-5 && (new_dir.y - direction.y).abs() < 1e-5 && (new_dir.z  + direction.z).abs() < 1e-5 ), "Expecting reflected direction to be mirrored against direction (ray.dir = {} | exp = {}).", ray.geometry.direction, direction);
+            }else{
+                panic!("Expecting a reflection path")
+            }
+            
+            // Transmission
+            if let Some((new_ray, bsdf)) = paths[1]{
+                assert_eq!(new_ray.refraction_index, refraction_index, "Expecting the ray's refraction index to be {}... found {}", refraction_index, ray.refraction_index);
+                assert!(bsdf.is_finite() && !bsdf.is_nan(), "impossible BSDF --> {}", bsdf);            
+                assert!(new_ray.geometry.direction.compare(direction), "Expecting transmitted direction to be the same as the original direction (ray.dir = {} | exp = {})... length of diff = {}", ray.geometry.direction, direction, (new_ray.geometry.direction - direction).length());
+            }
+        }
+
+        
+
+    }
+
+}
+
+
