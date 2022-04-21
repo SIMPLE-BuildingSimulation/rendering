@@ -288,9 +288,6 @@
 <span id="249">249</span>
 <span id="250">250</span>
 <span id="251">251</span>
-<span id="252">252</span>
-<span id="253">253</span>
-<span id="254">254</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -313,7 +310,7 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
-<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Vector3D</span>, <span class="ident">Point3D</span>};
+<span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 
 <span class="doccomment">/// Calculates the parameters necessary for calculating the</span>
 <span class="doccomment">/// Fresnel&#39;s equations. `cos2`—i.e., the cosine of the</span>
@@ -428,8 +425,7 @@ SOFTWARE.
     <span class="macro">debug_assert!</span>(<span class="ident">cos2</span> <span class="op">&gt;</span> <span class="number">0.</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">n1</span> <span class="op">&gt;</span> <span class="number">0.</span>);
     <span class="macro">debug_assert!</span>(<span class="ident">n2</span> <span class="op">&gt;</span> <span class="number">0.</span>);
-    <span class="kw">if</span> <span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&gt;</span> <span class="number">0.</span>{
-
+    <span class="kw">if</span> <span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&gt;</span> <span class="number">0.</span> {
         <span class="macro">debug_assert!</span>(<span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&lt;</span> <span class="number">0.</span>, <span class="string">&quot;vin*normal = {}&quot;</span>, <span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>);
     }
 
@@ -450,13 +446,12 @@ SOFTWARE.
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mirror_direction</span>(<span class="ident">vin</span>: <span class="ident">Vector3D</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Vector3D</span> {
     <span class="macro">debug_assert!</span>((<span class="ident">vin</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">normal</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
-    <span class="kw">let</span> <span class="ident">vin_normal</span> <span class="op">=</span> <span class="ident">vin</span><span class="kw-2">*</span><span class="ident">normal</span>;
+    <span class="kw">let</span> <span class="ident">vin_normal</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>;
     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> (<span class="number">2.</span> <span class="op">*</span> (<span class="ident">vin_normal</span>));
     <span class="ident">ret</span>.<span class="ident">normalize</span>();
 
     <span class="ident">ret</span>
 }
-
 
 <span class="doccomment">/// Calculates the Mirror BSDF and modifies the given ray so that it now points in that direction</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">mirror_bsdf</span>(<span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>, <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>, <span class="ident">normal</span>: <span class="ident">Vector3D</span>) -&gt; <span class="ident">Float</span> {
@@ -483,7 +478,6 @@ SOFTWARE.
         <span class="number">0.</span>
     }
 }
-
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {

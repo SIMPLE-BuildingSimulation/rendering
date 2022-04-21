@@ -175,9 +175,6 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -229,7 +226,6 @@ SOFTWARE.
     (<span class="ident">t</span>, <span class="ident">direction</span> <span class="op">/</span> <span class="ident">t</span>)
 }
 
-
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">triangle_solid_angle_pdf</span>(
     <span class="ident">triangle</span>: <span class="kw-2">&amp;</span><span class="ident">Triangle3D</span>,
     <span class="ident">info</span>: <span class="kw-2">&amp;</span><span class="ident">IntersectionInfo</span>,
@@ -268,10 +264,10 @@ SOFTWARE.
     <span class="comment">// Sample a sphere of radius 1 centered at the origin</span>
     <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">uniform_sample_sphere</span>(<span class="ident">rng</span>);
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x</span>, <span class="kw-2">mut</span> <span class="ident">y</span>, <span class="kw-2">mut</span> <span class="ident">z</span>) <span class="op">=</span> (<span class="ident">p</span>.<span class="ident">x</span>, <span class="ident">p</span>.<span class="ident">y</span>, <span class="ident">p</span>.<span class="ident">z</span>);
-    <span class="comment">// Scale and translate... avoid missed lights as well    </span>
-    <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span><span class="kw-2">*</span>(<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">x</span>);
-    <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span><span class="kw-2">*</span>(<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">y</span>);
-    <span class="ident">z</span> <span class="op">=</span> <span class="ident">z</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span><span class="kw-2">*</span>(<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">z</span>);
+    <span class="comment">// Scale and translate... avoid missed lights as well</span>
+    <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">x</span>);
+    <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">y</span>);
+    <span class="ident">z</span> <span class="op">=</span> <span class="ident">z</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">z</span>);
 
     <span class="comment">// return</span>
     <span class="ident">Point3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
@@ -296,8 +292,6 @@ SOFTWARE.
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">source_direction</span>(<span class="ident">source</span>: <span class="kw-2">&amp;</span><span class="ident">DistantSource3D</span>, <span class="ident">_point</span>: <span class="ident">Point3D</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">Vector3D</span>) {
     (<span class="ident">Float::MAX</span> <span class="op">-</span> <span class="number">1.</span>, <span class="ident">source</span>.<span class="ident">direction</span>)
 }
-
-
 
 <span class="comment">/* END DISTANT SOURCE */</span>
 

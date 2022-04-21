@@ -364,11 +364,6 @@
 <span id="325">325</span>
 <span id="326">326</span>
 <span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -393,14 +388,13 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 
-
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_triangle</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>, <span class="ident">a</span>: <span class="ident">Point3D</span>, <span class="ident">b</span>: <span class="ident">Point3D</span>, <span class="ident">c</span>: <span class="ident">Point3D</span>) -&gt; <span class="ident">Point3D</span> {
     <span class="kw">let</span> (<span class="ident">rand1</span>, <span class="ident">rand2</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
     <span class="comment">// let rand1 : Float = rng.gen();</span>
     <span class="comment">// let rand2 : Float = rng.gen();</span>
-    <span class="kw">const</span> <span class="ident">TINY</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="number">1e-8</span>;
-    <span class="kw">let</span> <span class="ident">rand1</span> <span class="op">=</span> <span class="ident">rand1</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span><span class="op">-</span><span class="ident">TINY</span> );
-    <span class="kw">let</span> <span class="ident">rand2</span> <span class="op">=</span> <span class="ident">rand2</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span><span class="op">-</span><span class="ident">TINY</span> ) ;
+    <span class="kw">const</span> <span class="ident">TINY</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">1e-8</span>;
+    <span class="kw">let</span> <span class="ident">rand1</span> <span class="op">=</span> <span class="ident">rand1</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span> <span class="op">-</span> <span class="ident">TINY</span>);
+    <span class="kw">let</span> <span class="ident">rand2</span> <span class="op">=</span> <span class="ident">rand2</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span> <span class="op">-</span> <span class="ident">TINY</span>);
     <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> <span class="ident">rand1</span>.<span class="ident">sqrt</span>();
     <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="ident">aux</span>;
     <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">rand2</span> <span class="op">*</span> <span class="ident">aux</span>;
@@ -438,7 +432,6 @@ SOFTWARE.
 <span class="comment">//         Some(uniform_sample_horizontal_disc(&amp;mut self.rng, self.radius))</span>
 <span class="comment">//     }</span>
 <span class="comment">// }</span>
-
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_horizontal_disc</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>, <span class="ident">radius</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">f32</span>, <span class="ident">f32</span>) {
     <span class="comment">// Accurate, non-rejection</span>
@@ -505,7 +498,6 @@ SOFTWARE.
     <span class="ident">Vector3D::new</span>(<span class="ident">local_x</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_y</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="ident">local_z</span> <span class="kw">as</span> <span class="ident">Float</span>)
 }
 
-
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_hemisphere</span>(
     <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
     <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
@@ -541,14 +533,13 @@ SOFTWARE.
     <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
 
-
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_sphere</span>(<span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>) -&gt; <span class="ident">Point3D</span> {
     <span class="kw">const</span> <span class="ident">TWO_PI</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">2.</span> <span class="op">*</span> <span class="ident">std::f32::consts::PI</span>;
-    <span class="kw">const</span> <span class="ident">TINY</span> : <span class="ident">f32</span> <span class="op">=</span> <span class="number">1e-7</span>;
+    <span class="kw">const</span> <span class="ident">TINY</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="number">1e-7</span>;
     <span class="comment">// Sample a sphere of radius 1 centered at the origin</span>
     <span class="kw">let</span> (<span class="ident">rand1</span>, <span class="ident">rand2</span>): (<span class="ident">f32</span>, <span class="ident">f32</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
-    <span class="kw">let</span> <span class="ident">rand1</span> <span class="op">=</span> <span class="ident">rand1</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span><span class="op">-</span><span class="ident">TINY</span> );
-    <span class="kw">let</span> <span class="ident">rand2</span> <span class="op">=</span> <span class="ident">rand2</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span><span class="op">-</span><span class="ident">TINY</span> ) ;
+    <span class="kw">let</span> <span class="ident">rand1</span> <span class="op">=</span> <span class="ident">rand1</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span> <span class="op">-</span> <span class="ident">TINY</span>);
+    <span class="kw">let</span> <span class="ident">rand2</span> <span class="op">=</span> <span class="ident">rand2</span>.<span class="ident">clamp</span>(<span class="ident">TINY</span>, <span class="number">1.</span> <span class="op">-</span> <span class="ident">TINY</span>);
     <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">-</span> <span class="number">2.</span> <span class="op">*</span> <span class="ident">rand1</span>;
     <span class="kw">let</span> <span class="ident">aux</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">z</span> <span class="op">*</span> <span class="ident">z</span>).<span class="ident">sqrt</span>() <span class="kw">as</span> <span class="ident">Float</span>;
     <span class="kw">let</span> <span class="ident">z</span> <span class="op">=</span> <span class="ident">z</span> <span class="kw">as</span> <span class="ident">Float</span>;
@@ -557,7 +548,6 @@ SOFTWARE.
 
     <span class="ident">Point3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
 }
-
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">uniform_sample_disc</span>(
     <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,

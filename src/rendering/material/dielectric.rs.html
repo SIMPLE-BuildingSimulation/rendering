@@ -563,6 +563,14 @@
 <span id="524">524</span>
 <span id="525">525</span>
 <span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -628,7 +636,7 @@ SOFTWARE.
     }
 }
 
-<span class="kw">impl</span>  <span class="ident">Dielectric</span> {
+<span class="kw">impl</span> <span class="ident">Dielectric</span> {
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">&amp;</span><span class="ident">str</span> {
         <span class="string">&quot;Dielectric&quot;</span>
     }
@@ -636,8 +644,6 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span> {
         <span class="self">self</span>.<span class="ident">colour</span>
     }
-
-    
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_possible_paths</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -1033,11 +1039,8 @@ SOFTWARE.
         }
     }
 
-
-
     <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_get_possible_paths_dielectric</span>(){
-
+    <span class="kw">fn</span> <span class="ident">test_get_possible_paths_dielectric</span>() {
         <span class="kw">let</span> <span class="ident">dielectric</span> <span class="op">=</span> <span class="ident">Dielectric</span> {
             <span class="ident">colour</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.23</span>), <span class="comment">//irrelevant for this test</span>
             <span class="ident">refraction_index</span>: <span class="number">1.52</span>,
@@ -1046,49 +1049,62 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
 
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">5000</span> {
-            <span class="kw">let</span> <span class="ident">refraction_index</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
-            <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>) : (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+            <span class="kw">let</span> <span class="ident">refraction_index</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+            <span class="kw">let</span> (<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>): (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>) <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
             <span class="kw">let</span> <span class="ident">direction</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="op">-</span><span class="ident">z</span>).<span class="ident">get_normalized</span>();
-    
+
             <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
             <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
             <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span> {
-                <span class="ident">geometry</span>: <span class="ident">Ray3D</span> { 
-                    <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>), 
+                <span class="ident">geometry</span>: <span class="ident">Ray3D</span> {
+                    <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>),
                     <span class="ident">direction</span>,
-                }, 
+                },
                 <span class="ident">refraction_index</span>,
-                .. <span class="ident">Ray::default</span>()
+                ..<span class="ident">Ray::default</span>()
             };
-    
+
             <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">dielectric</span>.<span class="ident">get_possible_paths</span>(<span class="kw-2">&amp;</span><span class="ident">normal</span>, <span class="kw-2">&amp;</span><span class="ident">intersection_pt</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>);
             <span class="comment">// Reflection</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">new_ray</span>, <span class="ident">bsdf</span>)) <span class="op">=</span> <span class="ident">paths</span>[<span class="number">0</span>]{
-                <span class="macro">assert_eq!</span>(<span class="ident">new_ray</span>.<span class="ident">refraction_index</span>, <span class="ident">refraction_index</span>, <span class="string">&quot;Expecting the ray&#39;s refraction index to be {}... found {}&quot;</span>, <span class="ident">refraction_index</span>, <span class="ident">ray</span>.<span class="ident">refraction_index</span>);
-                <span class="macro">assert!</span>(<span class="ident">bsdf</span>.<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">is_nan</span>(), <span class="string">&quot;impossible BSDF --&gt; {}&quot;</span>, <span class="ident">bsdf</span>);
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">new_ray</span>, <span class="ident">bsdf</span>)) <span class="op">=</span> <span class="ident">paths</span>[<span class="number">0</span>] {
+                <span class="macro">assert_eq!</span>(
+                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span>, <span class="ident">refraction_index</span>,
+                    <span class="string">&quot;Expecting the ray&#39;s refraction index to be {}... found {}&quot;</span>,
+                    <span class="ident">refraction_index</span>, <span class="ident">ray</span>.<span class="ident">refraction_index</span>
+                );
+                <span class="macro">assert!</span>(
+                    <span class="ident">bsdf</span>.<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">is_nan</span>(),
+                    <span class="string">&quot;impossible BSDF --&gt; {}&quot;</span>,
+                    <span class="ident">bsdf</span>
+                );
                 <span class="kw">let</span> <span class="ident">new_dir</span> <span class="op">=</span> <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
                 <span class="macro">assert!</span>(( (<span class="ident">new_dir</span>.<span class="ident">x</span> <span class="op">-</span> <span class="ident">direction</span>.<span class="ident">x</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> <span class="op">&amp;&amp;</span> (<span class="ident">new_dir</span>.<span class="ident">y</span> <span class="op">-</span> <span class="ident">direction</span>.<span class="ident">y</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> <span class="op">&amp;&amp;</span> (<span class="ident">new_dir</span>.<span class="ident">z</span>  <span class="op">+</span> <span class="ident">direction</span>.<span class="ident">z</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> ), <span class="string">&quot;Expecting reflected direction to be mirrored against direction (ray.dir = {} | exp = {}).&quot;</span>, <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>, <span class="ident">direction</span>);
-            }<span class="kw">else</span>{
+            } <span class="kw">else</span> {
                 <span class="macro">panic!</span>(<span class="string">&quot;Expecting a reflection path&quot;</span>)
             }
-            
+
             <span class="comment">// Transmission</span>
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">new_ray</span>, <span class="ident">bsdf</span>)) <span class="op">=</span> <span class="ident">paths</span>[<span class="number">1</span>]{
-                <span class="macro">assert_eq!</span>(<span class="ident">new_ray</span>.<span class="ident">refraction_index</span>, <span class="ident">dielectric</span>.<span class="ident">refraction_index</span>, <span class="string">&quot;Expecting the ray&#39;s refraction index to be {}... found {}&quot;</span>, <span class="ident">refraction_index</span>, <span class="ident">ray</span>.<span class="ident">refraction_index</span>);
-                <span class="macro">assert!</span>(<span class="ident">bsdf</span>.<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">is_nan</span>(), <span class="string">&quot;impossible BSDF --&gt; {}&quot;</span>, <span class="ident">bsdf</span>);            
+            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">new_ray</span>, <span class="ident">bsdf</span>)) <span class="op">=</span> <span class="ident">paths</span>[<span class="number">1</span>] {
+                <span class="macro">assert_eq!</span>(
+                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span>, <span class="ident">dielectric</span>.<span class="ident">refraction_index</span>,
+                    <span class="string">&quot;Expecting the ray&#39;s refraction index to be {}... found {}&quot;</span>,
+                    <span class="ident">refraction_index</span>, <span class="ident">ray</span>.<span class="ident">refraction_index</span>
+                );
+                <span class="macro">assert!</span>(
+                    <span class="ident">bsdf</span>.<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">is_nan</span>(),
+                    <span class="string">&quot;impossible BSDF --&gt; {}&quot;</span>,
+                    <span class="ident">bsdf</span>
+                );
                 <span class="comment">// assert!(new_ray.geometry.direction.compare(direction), &quot;Expecting transmitted direction to be the same as the original direction (ray.dir = {} | exp = {})... length of diff = {}&quot;, ray.geometry.direction, direction, (new_ray.geometry.direction - direction).length());</span>
-                <span class="macro">assert!</span>(<span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">z</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span>, <span class="string">&quot;Expecting transmitted direction to be going down... found {}&quot;</span>, <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>);
+                <span class="macro">assert!</span>(
+                    <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">z</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0.0</span>,
+                    <span class="string">&quot;Expecting transmitted direction to be going down... found {}&quot;</span>,
+                    <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>
+                );
             }
         }
-
-        
-
     }
 }
-
-
-
-
 </code></pre></div>
 </section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (879aff385 2022-04-20)" ></div>
 </body></html>

@@ -246,9 +246,6 @@
 <span id="207">207</span>
 <span id="208">208</span>
 <span id="209">209</span>
-<span id="210">210</span>
-<span id="211">211</span>
-<span id="212">212</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -369,10 +366,7 @@ SOFTWARE.
     }
 
     <span class="doccomment">/// Transformsa a SimpleModel Substance into a Material</span>
-    <span class="kw">fn</span> <span class="ident">substance_to_material</span>(
-        <span class="ident">substance</span>: <span class="kw-2">&amp;</span><span class="ident">Substance</span>,
-        <span class="ident">wavelength</span>: <span class="kw-2">&amp;</span><span class="ident">Wavelengths</span>,
-    ) -&gt; <span class="ident">Material</span> {
+    <span class="kw">fn</span> <span class="ident">substance_to_material</span>(<span class="ident">substance</span>: <span class="kw-2">&amp;</span><span class="ident">Substance</span>, <span class="ident">wavelength</span>: <span class="kw-2">&amp;</span><span class="ident">Wavelengths</span>) -&gt; <span class="ident">Material</span> {
         <span class="kw">if</span> <span class="macro">matches!</span>(<span class="ident">wavelength</span>, <span class="ident">Wavelengths::Visible</span>) {
             <span class="macro">unimplemented!</span>();
         }
@@ -412,7 +406,7 @@ SOFTWARE.
     <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">DistantSource3D</span>, <span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
     <span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>    
+    <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_scene_from_model</span>() {
         <span class="comment">// BUILD SCENE</span>
         <span class="kw">let</span> (<span class="ident">model</span>, <span class="ident">_state_header</span>) <span class="op">=</span>
