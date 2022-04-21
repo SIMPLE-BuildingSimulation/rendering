@@ -118,10 +118,7 @@ impl SimpleModelReader {
     }
 
     /// Transformsa a SimpleModel Substance into a Material
-    fn substance_to_material(
-        substance: &Substance,
-        wavelength: &Wavelengths,
-    ) -> Material {
+    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Material {
         if matches!(wavelength, Wavelengths::Visible) {
             unimplemented!();
         }
@@ -161,7 +158,7 @@ mod tests {
     use geometry3d::{DistantSource3D, Point3D, Vector3D};
     use std::time::Instant;
 
-    #[test]    
+    #[test]
     fn test_scene_from_model() {
         // BUILD SCENE
         let (model, _state_header) =

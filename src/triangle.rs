@@ -106,8 +106,8 @@ pub fn triangle_pack_baricentric_coorinates(
     let edge2 = &[edge2_x, edge2_y, edge2_z];
     let ray_direction = &[dx, dy, dz];
     const TINY: Float = 1e-5;
-    let h = cross(&ray_direction, &edge2);
-    let a = dot(&edge1, &h);    
+    let h = cross(ray_direction, edge2);
+    let a = dot(edge1, &h);
     if a.reduce_min().abs() < TINY {
         return None;
     }
@@ -117,19 +117,16 @@ pub fn triangle_pack_baricentric_coorinates(
     if u.reduce_min() > 1. + Float::EPSILON || u.reduce_max() < -Float::EPSILON {
         return None;
     }
-    let q = cross(&s, &edge1);
-    let v = f * dot(&ray_direction, &q);
+    let q = cross(&s, edge1);
+    let v = f * dot(ray_direction, &q);
     let uv = u + v;
-    if uv.reduce_min() > 1.0+ Float::EPSILON || uv.reduce_max() < -Float::EPSILON {
+    if uv.reduce_min() > 1.0 + Float::EPSILON || uv.reduce_max() < -Float::EPSILON {
         return None;
     }
-    let t = f * dot(&edge2, &q);
+    let t = f * dot(edge2, &q);
     if t.reduce_max() < TINY {
-        return None
+        return None;
     }
-    
-
-
 
     // t must be positive, and alpha, beta and gamma must add to 1 and
     // be positive
@@ -148,7 +145,10 @@ pub fn triangle_pack_baricentric_coorinates(
         let found_v = vs[i];
 
         // If it is valid AND is closer than the other
-        let is_valid = *found_t > TINY && found_u + found_v <= 1. && found_u > -Float::EPSILON && found_v > -Float::EPSILON;
+        let is_valid = *found_t > TINY
+            && found_u + found_v <= 1.
+            && found_u > -Float::EPSILON
+            && found_v > -Float::EPSILON;
         if is_valid && *found_t < t {
             any_intersect = true; // mark as found
             t = *found_t;
@@ -204,6 +204,7 @@ where
 /// Tests the intersection between a `Ray3D` and a
 /// [`Triangle`]. Returns the the point of intersection, and the `u`
 /// and `v` baricentric coordinates of the intersection point.
+#[allow(clippy::too_many_arguments)]
 fn baricentric_coorinates(
     ray: &Ray3D,
     ax: Float,
@@ -240,8 +241,8 @@ fn baricentric_coorinates(
     let edge2 = &[edge2_x, edge2_y, edge2_z];
     let ray_direction = [ray.direction.x, ray.direction.y, ray.direction.z];
     const TINY: Float = 1e-5;
-    let h = cross(&ray_direction, &edge2);
-    let a = dot(&edge1, &h);
+    let h = cross(&ray_direction, edge2);
+    let a = dot(edge1, &h);
 
     if a.abs() < TINY {
         return None;
@@ -249,15 +250,16 @@ fn baricentric_coorinates(
     let f = 1. / a;
     let s = [ray.origin.x - ax, ray.origin.y - ay, ray.origin.z - az];
     let u = f * dot(&s, &h);
-    if u > 1. + Float::EPSILON || u < -Float::EPSILON {
+    // if u > 1. + Float::EPSILON || u < -Float::EPSILON {
+    if !(-Float::EPSILON..=1. + Float::EPSILON).contains(&u) {
         return None;
     }
-    let q = cross(&s, &edge1);
+    let q = cross(&s, edge1);
     let v = f * dot(&ray_direction, &q);
     if u + v > 1.0 + Float::EPSILON || v < -Float::EPSILON {
         return None;
     }
-    let t = f * dot(&edge2, &q);
+    let t = f * dot(edge2, &q);
     if t > TINY {
         return Some((ray.project(t), u, v));
     }
@@ -451,7 +453,7 @@ pub fn mesh_sphere(s: &Sphere3D) -> (Vec<Triangle>, Vec<(Vector3D, Vector3D, Vec
         .collect();
 
     let mut triangles: Vec<(Point3D, Point3D, Point3D)> =
-        Vec::with_capacity((4 as usize).pow(N_REFINEMENTS) * 20);
+        Vec::with_capacity((4_usize).pow(N_REFINEMENTS) * 20);
 
     // In reverse (to respect the triangle's normal direction)
     triangles.push((midtop[0], midtop[4], top));
@@ -534,16 +536,17 @@ mod testing {
     use super::*;
 
     #[test]
-    fn test_mesh_triangle(){
-        let a : (Float, Float, Float) = (0., 1., 2.);
-        let b : (Float, Float, Float) = (3., 4., 5.);
-        let c : (Float, Float, Float) = (6., -7., 8.);
-        let tri : Triangle3D = Triangle3D::new(
+    fn test_mesh_triangle() {
+        let a: (Float, Float, Float) = (0., 1., 2.);
+        let b: (Float, Float, Float) = (3., 4., 5.);
+        let c: (Float, Float, Float) = (6., -7., 8.);
+        let tri: Triangle3D = Triangle3D::new(
             Point3D::new(a.0, a.1, a.2),
             Point3D::new(b.0, b.1, b.2),
             Point3D::new(c.0, c.1, c.2),
-        ).unwrap();
-        let input : Triangle = [a.0, a.1, a.2, b.0, b.1, b.2, c.0, c.1, c.2];
+        )
+        .unwrap();
+        let input: Triangle = [a.0, a.1, a.2, b.0, b.1, b.2, c.0, c.1, c.2];
         let (output, normals) = mesh_triangle(&tri);
         assert_eq!(1, output.len());
         assert_eq!(1, normals.len());
@@ -554,7 +557,7 @@ mod testing {
     }
 
     #[test]
-    fn test_mesh_sphere(){
+    fn test_mesh_sphere() {
         let centre = Point3D::new(1., 6., -2.);
         let radius = 5.21;
 
@@ -562,7 +565,6 @@ mod testing {
 
         let (triangles, normals) = mesh_sphere(&sphere);
         assert_eq!(triangles.len(), normals.len());
-        
 
         for (trindex, tri) in triangles.iter().enumerate() {
             let a = Point3D::new(tri[0], tri[1], tri[2]);
@@ -573,17 +575,30 @@ mod testing {
             let rb = b - centre;
             let rc = c - centre;
 
-            assert!( (ra.length() - radius).abs() < 1e-8, "Expecting ra to be {}... found {}", radius, ra.length() );
-            assert!( (rb.length() - radius).abs() < 1e-8, "Expecting rb to be {}... found {}", radius, rb.length() );
-            assert!( (rc.length() - radius).abs() < 1e-8, "Expecting rc to be {}... found {}", radius, rc.length() );
+            assert!(
+                (ra.length() - radius).abs() < 1e-8,
+                "Expecting ra to be {}... found {}",
+                radius,
+                ra.length()
+            );
+            assert!(
+                (rb.length() - radius).abs() < 1e-8,
+                "Expecting rb to be {}... found {}",
+                radius,
+                rb.length()
+            );
+            assert!(
+                (rc.length() - radius).abs() < 1e-8,
+                "Expecting rc to be {}... found {}",
+                radius,
+                rc.length()
+            );
 
             assert_eq!(ra.get_normalized(), normals[trindex].0);
             assert_eq!(rb.get_normalized(), normals[trindex].1);
             assert_eq!(rc.get_normalized(), normals[trindex].2);
-
         }
     }
-
 
     const UP: Vector3D = Vector3D {
         x: 0.,
@@ -793,25 +808,25 @@ mod testing {
 
         /* FROM THE TOP, GOING DOWN */
         // Vertex A
-        test_hit(a + UP, DOWN, 3, Some(a + UP*0.3), SurfaceSide::Front).unwrap();
+        test_hit(a + UP, DOWN, 3, Some(a + UP * 0.3), SurfaceSide::Front).unwrap();
 
         // Vertex B.
-        test_hit(b + UP, DOWN, 3, Some(b+ UP*0.3), SurfaceSide::Front).unwrap();
+        test_hit(b + UP, DOWN, 3, Some(b + UP * 0.3), SurfaceSide::Front).unwrap();
 
         // Vertex C.
-        test_hit(c + UP, DOWN, 3, Some(c+ UP*0.3), SurfaceSide::Front).unwrap();
+        test_hit(c + UP, DOWN, 3, Some(c + UP * 0.3), SurfaceSide::Front).unwrap();
 
         // Segment AB.
         let p = Point3D::new(0.5, 0., 0.);
-        test_hit(p + UP, DOWN, 3, Some(p+ UP*0.3), SurfaceSide::Front).unwrap();
+        test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();
 
         // Segment AC.
         let p = Point3D::new(0., 0.5, 0.);
-        test_hit(p + UP, DOWN, 3, Some(p+ UP*0.3), SurfaceSide::Front).unwrap();
+        test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();
 
         // Segment BC.
         let p = Point3D::new(0.5, 0.5, 0.);
-        test_hit(p + UP, DOWN, 3, Some(p+ UP*0.3), SurfaceSide::Front).unwrap();
+        test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();
 
         // Point outside
         let p = Point3D::new(0., -1., 0.);
@@ -819,29 +834,71 @@ mod testing {
 
         // Point inside
         let p = Point3D::new(0.1, 0.1, 0.);
-        test_hit(p + UP, DOWN, 3, Some(p+ UP*0.3), SurfaceSide::Front).unwrap();
+        test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();
 
         /* FROM THE TOP, GOING DOWN... BUT STARTING BETWEEN TRIANGLES */
         // Vertex A
-        test_hit(a + UP * 0.15, DOWN, 1, Some(a+ UP*0.1), SurfaceSide::Front).unwrap();
+        test_hit(
+            a + UP * 0.15,
+            DOWN,
+            1,
+            Some(a + UP * 0.1),
+            SurfaceSide::Front,
+        )
+        .unwrap();
 
         // Vertex B.
-        test_hit(b + UP * 0.15, DOWN, 1, Some(b+ UP*0.1), SurfaceSide::Front).unwrap();
+        test_hit(
+            b + UP * 0.15,
+            DOWN,
+            1,
+            Some(b + UP * 0.1),
+            SurfaceSide::Front,
+        )
+        .unwrap();
 
         // Vertex C.
-        test_hit(c + UP * 0.15, DOWN, 1, Some(c+ UP*0.1), SurfaceSide::Front).unwrap();
+        test_hit(
+            c + UP * 0.15,
+            DOWN,
+            1,
+            Some(c + UP * 0.1),
+            SurfaceSide::Front,
+        )
+        .unwrap();
 
         // Segment AB.
         let p = Point3D::new(0.5, 0., 0.);
-        test_hit(p + UP * 0.15, DOWN, 1, Some(p+ UP*0.1), SurfaceSide::Front).unwrap();
+        test_hit(
+            p + UP * 0.15,
+            DOWN,
+            1,
+            Some(p + UP * 0.1),
+            SurfaceSide::Front,
+        )
+        .unwrap();
 
         // Segment AC.
         let p = Point3D::new(0., 0.5, 0.);
-        test_hit(p + UP * 0.15, DOWN, 1, Some(p+ UP*0.1), SurfaceSide::Front).unwrap();
+        test_hit(
+            p + UP * 0.15,
+            DOWN,
+            1,
+            Some(p + UP * 0.1),
+            SurfaceSide::Front,
+        )
+        .unwrap();
 
         // Segment BC.
         let p = Point3D::new(0.5, 0.5, 0.);
-        test_hit(p + UP * 0.15, DOWN, 1, Some(p+ UP*0.1), SurfaceSide::Front).unwrap();
+        test_hit(
+            p + UP * 0.15,
+            DOWN,
+            1,
+            Some(p + UP * 0.1),
+            SurfaceSide::Front,
+        )
+        .unwrap();
 
         // Point outside
         let p = Point3D::new(0., -1., 0.);
@@ -849,6 +906,13 @@ mod testing {
 
         // Point inside
         let p = Point3D::new(0.1, 0.1, 0.);
-        test_hit(p + UP * 0.15, DOWN, 1, Some(p+ UP*0.1), SurfaceSide::Front).unwrap();
+        test_hit(
+            p + UP * 0.15,
+            DOWN,
+            1,
+            Some(p + UP * 0.1),
+            SurfaceSide::Front,
+        )
+        .unwrap();
     }
 }

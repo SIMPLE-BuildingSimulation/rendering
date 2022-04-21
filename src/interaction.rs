@@ -39,7 +39,6 @@ pub struct Interaction {
     /// Stores the shading information based on
     /// pure geometry
     pub geometry_shading: IntersectionInfo,
-
 }
 
 impl Interaction {
@@ -51,13 +50,10 @@ impl Interaction {
         // shading
         let geometry_shading = self.geometry_shading.transform(t);
 
-        
         Self {
             point,
             wo,
             geometry_shading,
         }
     }
-
-    
 }

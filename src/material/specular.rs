@@ -20,7 +20,7 @@ SOFTWARE.
 
 use crate::ray::Ray;
 use crate::Float;
-use geometry3d::{Vector3D, Point3D};
+use geometry3d::{Point3D, Vector3D};
 
 /// Calculates the parameters necessary for calculating the
 /// Fresnel's equations. `cos2`—i.e., the cosine of the
@@ -135,8 +135,7 @@ pub fn fresnel_transmission_dir(
     debug_assert!(cos2 > 0.);
     debug_assert!(n1 > 0.);
     debug_assert!(n2 > 0.);
-    if vin * normal > 0.{
-
+    if vin * normal > 0. {
         debug_assert!(vin * normal < 0., "vin*normal = {}", vin * normal);
     }
 
@@ -157,13 +156,12 @@ pub fn fresnel_transmission_dir(
 pub fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
     debug_assert!((vin.length() - 1.).abs() < 1e-6);
     debug_assert!((normal.length() - 1.).abs() < 1e-6);
-    let vin_normal = vin*normal;
+    let vin_normal = vin * normal;
     let mut ret = vin - normal * (2. * (vin_normal));
     ret.normalize();
 
     ret
 }
-
 
 /// Calculates the Mirror BSDF and modifies the given ray so that it now points in that direction
 pub fn mirror_bsdf(intersection_pt: Point3D, ray: &mut Ray, normal: Vector3D) -> Float {
@@ -190,7 +188,6 @@ pub fn eval_mirror_bsdf(normal: Vector3D, vin: Vector3D, vout: Vector3D) -> Floa
         0.
     }
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -23,8 +23,8 @@ use crate::Float;
 
 use crate::material::{Dielectric, Glass, Light, Metal, Mirror, Plastic};
 
-use crate::primitive::Primitive;
 use crate::material::Material;
+use crate::primitive::Primitive;
 use crate::scene::Scene;
 
 use geometry3d::{
@@ -275,9 +275,8 @@ impl RadianceReader {
 
         self.modifiers.push(name.to_string());
 
-        
         let dielectric = Material::Dielectric(Dielectric {
-            colour:Spectrum { red, green, blue },
+            colour: Spectrum { red, green, blue },
             refraction_index,
         });
         scene.push_material(dielectric);
@@ -365,7 +364,6 @@ impl RadianceReader {
         let mod_index = self.get_modifier_index(modifier);
         scene.push_object(mod_index, mod_index, Primitive::Source(distant_source));
     }
-
 
     /// Consumes a polygon
     fn consume_polygon(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {

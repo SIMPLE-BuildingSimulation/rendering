@@ -23,7 +23,7 @@ use crate::colour::Spectrum;
 /// A mirror material
 pub struct Light(pub Spectrum);
 
-impl  Light {
+impl Light {
     pub fn id(&self) -> &str {
         "Light"
     }
@@ -31,5 +31,4 @@ impl  Light {
     pub fn colour(&self) -> Spectrum {
         self.0
     }
-    
 }

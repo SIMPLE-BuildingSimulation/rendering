@@ -83,11 +83,11 @@ impl RayTracer {
     ) -> (Spectrum, Float) {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
-        
-        if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {            
-                    
+        if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
             let material = match ray.interaction.geometry_shading.side {
-                SurfaceSide::Front => &scene.materials[scene.front_material_indexes[triangle_index]],
+                SurfaceSide::Front => {
+                    &scene.materials[scene.front_material_indexes[triangle_index]]
+                }
                 SurfaceSide::Back => &scene.materials[scene.back_material_indexes[triangle_index]],
                 SurfaceSide::NonApplicable => {
                     // Hit parallel to the surface...
@@ -101,8 +101,13 @@ impl RayTracer {
             // for now, emmiting materials don't reflect... but they
             // are visible when viewed directly from the camera
             if material.emits_light() {
-                let light_pdf = crate::triangle::triangle_solid_angle_pdf(&scene.triangles[triangle_index], intersection_pt, ray.interaction.geometry_shading.normal, &ray.geometry);
-                return (material.colour(), light_pdf);                
+                let light_pdf = crate::triangle::triangle_solid_angle_pdf(
+                    &scene.triangles[triangle_index],
+                    intersection_pt,
+                    ray.interaction.geometry_shading.normal,
+                    &ray.geometry,
+                );
+                return (material.colour(), light_pdf);
             }
 
             // Limit bounces
@@ -118,8 +123,8 @@ impl RayTracer {
             let n0 = scene.normals[triangle_index].0;
             let n1 = scene.normals[triangle_index].1;
             let n2 = scene.normals[triangle_index].2;
-            let mut normal = (n0*u + n1*v + n2*(1.-u-v)).get_normalized();
-            if normal*ray.interaction.geometry_shading.normal < 0.0{
+            let mut normal = (n0 * u + n1 * v + n2 * (1. - u - v)).get_normalized();
+            if normal * ray.interaction.geometry_shading.normal < 0.0 {
                 normal *= -1.
             }
 
@@ -131,21 +136,21 @@ impl RayTracer {
             debug_assert!((1.0 - normal.length()).abs() < 1e-5);
             debug_assert!((1.0 - e1.length()).abs() < 1e-5);
             debug_assert!((1.0 - e2.length()).abs() < 1e-5);
-            
+
             let mut wt = current_value;
 
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
                 let mut specular_li = Spectrum::black();
-                
-                let paths = material.get_possible_paths(&normal, &intersection_pt, ray);                
-                for (new_ray, bsdf_value) in paths.iter().flatten() {                    
+
+                let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
+                for (new_ray, bsdf_value) in paths.iter().flatten() {
                     let mut new_ray = *new_ray;
-                
+
                     let new_ray_dir = new_ray.geometry.direction;
                     let cos_theta = (normal * new_ray_dir).abs();
                     let new_value = wt * bsdf_value * cos_theta;
-                    
+
                     // avoid infinite interior bouncing
                     let new_depth = {
                         let q: Float = rng.gen();
@@ -161,11 +166,10 @@ impl RayTracer {
 
                     let color = material.colour();
                     specular_li += (li * cos_theta * *bsdf_value) * (color);
-                }                
+                }
                 return (specular_li, 0.0);
             }
 
-            
             let n_ambient_samples = if self.max_depth == 0 {
                 0 // No ambient samples required
             } else if current_depth == 0 {
@@ -193,8 +197,7 @@ impl RayTracer {
             let n_shadow_samples = if current_depth == 0 {
                 self.n_shadow_samples
             } else {
-                // 1
-                self.n_shadow_samples
+                1
             };
 
             /* DIRECT LIGHT */
@@ -239,7 +242,7 @@ impl RayTracer {
             // Did not hit... so, let's check the sky
             if let Some(sky) = &scene.sky {
                 let sky_brightness = sky(ray.geometry.direction);
-                let colour = scene.sky_colour.unwrap_or_else(||Spectrum::gray(1.0));
+                let colour = scene.sky_colour.unwrap_or_else(|| Spectrum::gray(1.0));
                 (colour * sky_brightness, 1. / 2. / crate::PI)
             } else {
                 (Spectrum::black(), 0.0)
@@ -247,6 +250,7 @@ impl RayTracer {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn sample_light_array(
         &self,
         scene: &Scene,
@@ -300,8 +304,12 @@ impl RayTracer {
                     local_illum += fx / denominator;
                 } else {
                     #[cfg(debug_assertions)]
-                    {                        
-                        eprintln!("Missed Light... primitive '{}' (i = {})", light.primitive.id(), i)
+                    {
+                        eprintln!(
+                            "Missed Light... primitive '{}' (i = {})",
+                            light.primitive.id(),
+                            i
+                        )
                     }
                 }
                 // ... missed light. Try again
@@ -313,6 +321,7 @@ impl RayTracer {
 
     /// Calculates the luminance produced by the direct sources in the
     /// scene
+    #[allow(clippy::too_many_arguments)]
     fn get_local_illumination(
         &self,
         scene: &Scene,
@@ -362,6 +371,7 @@ impl RayTracer {
         close + distant
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn get_global_illumination(
         &self,
         scene: &Scene,
@@ -420,11 +430,12 @@ impl RayTracer {
         global
     }
 
+    #[allow(clippy::needless_collect)]
     pub fn render(self, scene: &Scene, camera: &dyn Camera) -> ImageBuffer {
         let (width, height) = camera.film_resolution();
 
         let total_pixels = width * height;
-        let mut pixels = vec![Spectrum::black();total_pixels];
+        let mut pixels = vec![Spectrum::black(); total_pixels];
 
         let n_threads = 8;
         let chunk_len = total_pixels / n_threads;
@@ -450,7 +461,7 @@ impl RayTracer {
                 let y = (pindex as Float / width as Float).floor() as usize;
                 let x = pindex - y * width;
                 let (mut ray, weight) = camera.gen_ray(&CameraSample { p_film: (x, y) });
-                
+
                 let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &mut aux);
                 *pixel = v;
 
@@ -466,7 +477,6 @@ impl RayTracer {
                 }
 
                 pindex += 1;
-                
             }
         });
 
@@ -499,7 +509,7 @@ pub fn sample_light(
 
     // If the light is not visible (this should not consider
     // transparent surfaces, yet.)
-    if !scene.unobstructed_distance(shadow_ray, light_distance_squared, node_aux) {        
+    if !scene.unobstructed_distance(shadow_ray, light_distance_squared, node_aux) {
         return Some((Spectrum::black(), 0.0));
     }
 
@@ -514,7 +524,7 @@ pub fn sample_light(
     // let light_material = &scene.materials[light.front_material_index];
 
     let light_colour = light_material.colour();
-    let light_pdf = light.primitive.solid_angle_pdf(&info, &shadow_ray);
+    let light_pdf = light.primitive.solid_angle_pdf(&info, shadow_ray);
 
     // let light_pdf = 1. / light.primitive.omega(origin);
 
@@ -525,6 +535,4 @@ pub fn sample_light(
 #[cfg(test)]
 mod tests {
     // use super::*;
-
-
 }

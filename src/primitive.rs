@@ -92,7 +92,6 @@ impl Primitive {
         }
     }
 
-
     pub fn direction(&self, point: Point3D) -> (Float, Vector3D) {
         match self {
             Self::Sphere(s) => sphere_direction(s, point),

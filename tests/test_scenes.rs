@@ -188,7 +188,7 @@ fn laptop() {
     // Left of screen
     let tri = Triangle3D::new(
         Point3D::new(WIDTH, 0., OFFSET + BASE_THICKNESS),
-        Point3D::new(WIDTH, y,  OFFSET + BASE_THICKNESS + SCREEN_THICKNESS + z),
+        Point3D::new(WIDTH, y, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS + z),
         Point3D::new(WIDTH, 0.0, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
     )
     .unwrap();
@@ -204,7 +204,7 @@ fn laptop() {
     // right of screen
     let tri = Triangle3D::new(
         Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
-        Point3D::new(0., y,  OFFSET + BASE_THICKNESS + SCREEN_THICKNESS + z),
+        Point3D::new(0., y, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS + z),
         Point3D::new(0., 0.0, OFFSET + BASE_THICKNESS + SCREEN_THICKNESS),
     )
     .unwrap();
@@ -249,8 +249,6 @@ fn laptop() {
     .unwrap();
     scene.push_object(plastic, plastic, Primitive::Triangle(tri));
 
-    
-
     // Bottom of screen (a.k.a. Screen)
     let tri = Triangle3D::new(
         Point3D::new(0., 0., OFFSET + BASE_THICKNESS),
@@ -266,8 +264,6 @@ fn laptop() {
     )
     .unwrap();
     scene.push_object(screen, screen, Primitive::Triangle(tri));
-
-
 
     scene.build_accelerator();
 
@@ -307,18 +303,17 @@ fn laptop() {
     buffer.save_hdre(std::path::Path::new("./test_data/images/laptop.hdr"));
 }
 
-
 #[test]
 #[ignore]
-fn sponza(){
+fn sponza() {
     // cargo test --features parallel --release --package rendering --test test_scenes -- sponza --ignored --exact --nocapture
 
     let mut scene = Scene::default();
-        let gray = scene.push_material(Material::Plastic(Plastic{
-            colour: Spectrum::gray(0.3),
-            specularity: 0., 
-            roughness: 0.,
-        }));
+    let gray = scene.push_material(Material::Plastic(Plastic {
+        colour: Spectrum::gray(0.3),
+        specularity: 0.,
+        roughness: 0.,
+    }));
 
     scene.add_from_obj("./test_data/sponza.obj".to_string(), gray, gray);
 
@@ -348,7 +343,7 @@ fn sponza(){
     let view = View {
         view_direction,
         view_point,
-        view_up : Vector3D::new(0., 1., 0.),
+        view_up: Vector3D::new(0., 1., 0.),
         ..View::default()
     };
 
@@ -364,17 +359,12 @@ fn sponza(){
 
     let buffer = integrator.render(&scene, &camera);
     buffer.save_hdre(std::path::Path::new("./test_data/images/sponza.hdr"));
-
 }
-
-
-
 
 #[test]
 #[ignore]
 fn cornell() {
     // cargo test --features parallel --release --package rendering --test test_scenes -- --ignored cornell --exact --nocapture
-    
 
     let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
 
@@ -393,7 +383,7 @@ fn cornell() {
         // view_point: Point3D::new(2., 1., 1.),
         view_point: Point3D::new(3., -5., 2.25),
         field_of_view: 50.,
-        ..View::default() 
+        ..View::default()
     };
 
     // Create camera
@@ -410,8 +400,6 @@ fn cornell() {
     let buffer = integrator.render(&scene, &camera);
     buffer.save_hdre(std::path::Path::new("./test_data/images/cornell.hdr"));
 }
-
-
 
 #[test]
 #[ignore]
@@ -461,21 +449,20 @@ fn room() {
     buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
 }
 
-
 #[test]
 #[ignore]
-fn dining(){
+fn dining() {
     // cargo test --features parallel --release --package rendering --test test_scenes -- dining --exact --nocapture
 
     let mut scene = Scene::default();
-        let gray = scene.push_material(Material::Plastic(Plastic{
-            colour: Spectrum::gray(0.3),
-            specularity: 0., 
-            roughness: 0.,
-        }));
+    let gray = scene.push_material(Material::Plastic(Plastic {
+        colour: Spectrum::gray(0.3),
+        specularity: 0.,
+        roughness: 0.,
+    }));
 
     scene.add_from_obj("./test_data/casa2.obj".to_string(), gray, gray);
-    
+
     scene.add_perez_sky(
         calendar::Date {
             month: 6,
@@ -503,8 +490,8 @@ fn dining(){
         view_direction,
         view_point,
         field_of_view: 48.,
-        
-        view_up : Vector3D::new(0., 1., 0.),
+
+        view_up: Vector3D::new(0., 1., 0.),
         ..View::default()
     };
 
@@ -520,5 +507,4 @@ fn dining(){
 
     let buffer = integrator.render(&scene, &camera);
     buffer.save_hdre(std::path::Path::new("./test_data/images/dining.hdr"));
-
 }

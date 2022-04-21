@@ -18,13 +18,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use rendering::scene::Scene;
 use clap::{Arg, Command};
+use rendering::scene::Scene;
 
 use geometry3d::{Point3D, Vector3D};
 use rendering::camera::{Film, Pinhole, View};
 use rendering::ray_tracer::RayTracer;
-
 
 fn main() {
     let matches = Command::new("SIMPLE ray tracer")
@@ -83,9 +82,7 @@ fn main() {
         ..RayTracer::default()
     };
 
-    
-
     let buffer = integrator.render(&scene, &camera);
-    
+
     buffer.save_hdre(std::path::Path::new(output_file));
 }

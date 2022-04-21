@@ -31,7 +31,7 @@ pub struct Metal {
     pub roughness: Float,
 }
 
-impl  Metal {
+impl Metal {
     pub fn id(&self) -> &str {
         "Metal"
     }

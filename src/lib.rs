@@ -49,20 +49,19 @@ pub mod image;
 pub mod interaction;
 pub mod material;
 
-
 pub mod primitive;
 
-pub mod triangle;
 pub mod primitive_samplers;
 pub mod rand;
 pub mod ray;
 pub mod samplers;
 pub mod scene;
+pub mod triangle;
 
 // Readers
+pub mod from_obj;
 pub mod from_radiance;
 pub mod from_simple_model;
-pub mod from_obj;
 
 // Ray-tracer
 pub mod ray_tracer;

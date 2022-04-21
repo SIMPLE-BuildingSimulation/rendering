@@ -1,16 +1,13 @@
-
-
 use geometry3d::Point3D;
-use rendering::camera::{Film, Pinhole, View};
-use rendering::material::Material;
-use rendering::ray_tracer::RayTracer;
 use geometry3d::{Sphere3D, Triangle3D};
+use rendering::camera::{Film, Pinhole, View};
 use rendering::colour::Spectrum;
+use rendering::material::Material;
 use rendering::material::*;
 use rendering::primitive::Primitive;
+use rendering::ray_tracer::RayTracer;
 use rendering::scene::Scene;
 use rendering::Float;
-
 
 fn render_ball(mat: Material, filename: &str) {
     let mut scene = Scene::new();
@@ -180,7 +177,6 @@ fn render_ball(mat: Material, filename: &str) {
     buffer.save_hdre(std::path::Path::new(filename));
 }
 
-
 #[test]
 fn test_render_specular_plastic() {
     // cargo test --package rendering --test render_materials -- test_render_specular_plastic --exact --nocapture
@@ -192,12 +188,11 @@ fn test_render_specular_plastic() {
             blue: 0.5,
         },
         specularity: 0.09,
-        roughness: 0.05, 
+        roughness: 0.05,
     });
 
     render_ball(plastic, "./test_data/images/specular_plastic.hdr")
 }
-
 
 #[test]
 
@@ -217,7 +212,6 @@ fn test_render_specular_metal() {
     render_ball(metal, "./test_data/images/specular_metal.hdr")
 }
 
-
 #[test]
 
 fn test_render_glass() {
@@ -234,7 +228,6 @@ fn test_render_glass() {
     render_ball(metal, "./test_data/images/glass.hdr")
 }
 
-
 #[test]
 
 fn test_render_mirror() {
@@ -248,7 +241,6 @@ fn test_render_mirror() {
 
     render_ball(plastic, "./test_data/images/mirror.hdr")
 }
-
 
 #[test]
 

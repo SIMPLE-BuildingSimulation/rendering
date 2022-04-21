@@ -28,7 +28,7 @@ use geometry3d::{Point3D, Vector3D};
 /// A mirror material
 pub struct Mirror(pub Spectrum);
 
-impl  Mirror {
+impl Mirror {
     pub fn id(&self) -> &str {
         "Mirror"
     }
@@ -36,7 +36,6 @@ impl  Mirror {
     pub fn colour(&self) -> Spectrum {
         self.0
     }
-
 
     pub fn get_possible_paths(
         &self,
@@ -76,55 +75,60 @@ impl  Mirror {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
-    use geometry3d::{Vector3D, Ray3D};
-    
+    use geometry3d::{Ray3D, Vector3D};
 
     #[test]
-    fn test_get_possible_paths_mirror(){
+    fn test_get_possible_paths_mirror() {
+        let mirror = Mirror(Spectrum {
+            red: 0.1,
+            green: 0.2,
+            blue: 0.3,
+        });
 
-        let mirror = Mirror(Spectrum {red:0.1, green:0.2, blue:0.3});
-            
         let mut rng = get_rng();
 
         for _ in 0..500 {
-            let refraction_index : Float = rng.gen();
-            let (x, y, z) : (Float, Float, Float) = rng.gen();
+            let refraction_index: Float = rng.gen();
+            let (x, y, z): (Float, Float, Float) = rng.gen();
             let direction = Vector3D::new(x, y, -z).get_normalized();
-    
+
             let normal = Vector3D::new(0., 0., 1.);
             let intersection_pt = Point3D::new(0., 0., 0.);
             let ray = Ray {
-                geometry: Ray3D { 
-                    origin: Point3D::new(0., 0., 2.), 
+                geometry: Ray3D {
+                    origin: Point3D::new(0., 0., 2.),
                     direction,
-                }, 
+                },
                 refraction_index,
-                .. Ray::default()
+                ..Ray::default()
             };
-    
+
             let paths = mirror.get_possible_paths(&normal, &intersection_pt, &ray);
             // Reflection
-            if let Some((new_ray, bsdf)) = paths[0]{
-                assert_eq!(new_ray.refraction_index, refraction_index, "Expecting the ray's refraction index to be {}... found {}", refraction_index, ray.refraction_index);
-                assert!(bsdf.is_finite() && !bsdf.is_nan(), "impossible BSDF --> {}", bsdf);
+            if let Some((new_ray, bsdf)) = paths[0] {
+                assert_eq!(
+                    new_ray.refraction_index, refraction_index,
+                    "Expecting the ray's refraction index to be {}... found {}",
+                    refraction_index, ray.refraction_index
+                );
+                assert!(
+                    bsdf.is_finite() && !bsdf.is_nan(),
+                    "impossible BSDF --> {}",
+                    bsdf
+                );
                 let new_dir = new_ray.geometry.direction;
                 assert!(( (new_dir.x - direction.x).abs() < 1e-5 && (new_dir.y - direction.y).abs() < 1e-5 && (new_dir.z  + direction.z).abs() < 1e-5 ), "Expecting reflected direction to be mirrored against direction (ray.dir = {} | exp = {}).", ray.geometry.direction, direction);
-            }else{
+            } else {
                 panic!("Expecting a reflection path")
             }
-            
+
             // Transmission
-            if let Some(_) = paths[1]{
+            if let Some(_) = paths[1] {
                 panic!("Mirrors should not transmit!")
             }
         }
-
-        
-
     }
-
 }

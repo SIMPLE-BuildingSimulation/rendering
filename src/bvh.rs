@@ -26,10 +26,10 @@ https://pbr-book.org/3ed-2018/Primitives_and_Intersection_Acceleration/Bounding_
 
 use crate::ray::Ray;
 use crate::scene::Scene;
+use crate::triangle::*;
 use crate::Float;
 use geometry3d::{BBox3D, BBoxAxis, Point3D, Ray3D, Vector3D};
 use std::cmp::Ordering;
-use crate::triangle::*;
 
 #[derive(Copy, Clone)]
 struct BucketInfo {
@@ -68,7 +68,6 @@ struct ObjectInfo {
 }
 
 impl ObjectInfo {
-    
     fn new(index: usize, tri: &Triangle) -> Self {
         let bounds = world_bounds(tri);
         let centroid = (bounds.max + bounds.min) * 0.5;
@@ -78,9 +77,7 @@ impl ObjectInfo {
             centroid,
         }
     }
-
 }
-
 
 struct Interior {
     bounds: BBox3D,
@@ -119,8 +116,7 @@ impl Node {
         })
     }
 
-
-    
+    #[allow(clippy::too_many_arguments)]
     fn recursive_build(
         scene: &Scene,
         primitives_info: &mut [ObjectInfo],
@@ -130,7 +126,7 @@ impl Node {
         ordered_triangles: &mut Vec<Triangle>,
         ordered_front_materials: &mut Vec<usize>,
         ordered_back_materials: &mut Vec<usize>,
-        ordered_normals: &mut Vec<(Vector3D,Vector3D,Vector3D)>
+        ordered_normals: &mut Vec<(Vector3D, Vector3D, Vector3D)>,
     ) -> Self {
         let triangles = &scene.triangles;
         let front_materials = &scene.front_material_indexes;
@@ -158,7 +154,7 @@ impl Node {
             let first_prim_offset = ordered_triangles.len();
             for info in primitives_info.iter().take(end).skip(start) {
                 let index = info.index;
-                ordered_triangles.push(triangles[index].clone());
+                ordered_triangles.push(triangles[index]);
                 ordered_back_materials.push(back_materials[index]);
                 ordered_front_materials.push(front_materials[index]);
                 ordered_normals.push(normals[index]);
@@ -208,7 +204,7 @@ impl Node {
             // for i in start..end{
             for prim_info in primitives_info.iter().take(end).skip(start) {
                 let index = prim_info.index;
-                ordered_triangles.push(triangles[index].clone());
+                ordered_triangles.push(triangles[index]);
                 ordered_back_materials.push(back_materials[index]);
                 ordered_front_materials.push(front_materials[index]);
                 ordered_normals.push(normals[index]);
@@ -322,7 +318,7 @@ impl Node {
                     let n_prims = n_primitives;
                     for prim in primitives_info.iter().take(end).skip(start) {
                         let prim_num = prim.index;
-                        ordered_triangles.push(triangles[prim_num].clone());
+                        ordered_triangles.push(triangles[prim_num]);
                         ordered_back_materials.push(back_materials[prim_num]);
                         ordered_front_materials.push(front_materials[prim_num]);
                         ordered_normals.push(normals[prim_num]);
@@ -357,9 +353,6 @@ impl Node {
         );
         Node::new_interior(split_axis, child1, child2)
     }
-
-
-
 }
 
 #[derive(Clone)]
@@ -368,7 +361,6 @@ struct Leaf {
     n_prims: usize,
     first_prim_offset: usize,
 }
-
 
 #[derive(Clone)]
 struct FlatNode {
@@ -380,8 +372,8 @@ struct FlatNode {
     /// The axis in which this was split. This value should
     /// not be used in leafs
     axis: BBoxAxis,
-    /// The 'next' node to check. This is the equivalent to 
-    /// what in PBR is called `primitivesOffset` for Leafs, and 
+    /// The 'next' node to check. This is the equivalent to
+    /// what in PBR is called `primitivesOffset` for Leafs, and
     /// `secondChildOffset` for Interior nodes
     next: i32,
 }
@@ -420,12 +412,13 @@ impl BoundingVolumeTree {
         leaf node holds references to one or more primitives.
         */
         let mut total_nodes = 0;
-        let mut ordered_triangles: Vec<Triangle> = Vec::with_capacity(n_objects);        
-        let mut ordered_front_materials: Vec<usize> = Vec::with_capacity(n_objects);        
-        let mut ordered_back_materials: Vec<usize> = Vec::with_capacity(n_objects);        
-        let mut ordered_normals: Vec<(Vector3D,Vector3D,Vector3D)> = Vec::with_capacity(n_objects);        
+        let mut ordered_triangles: Vec<Triangle> = Vec::with_capacity(n_objects);
+        let mut ordered_front_materials: Vec<usize> = Vec::with_capacity(n_objects);
+        let mut ordered_back_materials: Vec<usize> = Vec::with_capacity(n_objects);
+        let mut ordered_normals: Vec<(Vector3D, Vector3D, Vector3D)> =
+            Vec::with_capacity(n_objects);
         let root = Node::recursive_build(
-            &scene,
+            scene,
             &mut primitives_info,
             0,
             n_objects,
@@ -435,7 +428,7 @@ impl BoundingVolumeTree {
             &mut ordered_back_materials,
             &mut ordered_normals,
         );
-        
+
         scene.triangles = ordered_triangles; // Update the Scene with the ordered primitive.
         scene.front_material_indexes = ordered_front_materials;
         scene.back_material_indexes = ordered_back_materials;
@@ -457,11 +450,11 @@ impl BoundingVolumeTree {
         let this_offset = nodes.len();
         match node {
             Node::Leaf(l) => {
-                nodes.push(FlatNode{
+                nodes.push(FlatNode {
                     bounds: l.bounds,
                     n_prims: l.n_prims as i16,
                     next: l.first_prim_offset as i32,
-                    axis: BBoxAxis::X // We won't use this
+                    axis: BBoxAxis::X, // We won't use this
                 });
             }
             Node::Interior(i) => {
@@ -471,16 +464,15 @@ impl BoundingVolumeTree {
                 //     bounds: i.bounds,
                 //     axis: i.split_axis,
                 // }));
-                nodes.push(FlatNode{
+                nodes.push(FlatNode {
                     bounds: i.bounds,
                     n_prims: 0,
                     next: 0, // We will patch this
-                    axis: i.split_axis 
+                    axis: i.split_axis,
                 });
                 Self::flatten_node(child1, nodes);
                 // Patch second offset
                 nodes[this_offset].next = Self::flatten_node(child2, nodes) as i32;
-                
             }
         }
         // return
@@ -488,8 +480,8 @@ impl BoundingVolumeTree {
     }
 
     /// Returns an `Option<usize>`, containing the index of the [`Triangle`]
-    /// to be hit by the ray, if any. The ray given will have the `interaction` 
-    /// 
+    /// to be hit by the ray, if any. The ray given will have the `interaction`
+    ///
     pub fn intersect(
         &self,
         primitives: &[Triangle],
@@ -507,74 +499,68 @@ impl BoundingVolumeTree {
         let mut prim_index: Option<usize> = None;
         let mut t_squared = Float::MAX;
 
-        let inv_x = 1./ray.geometry.direction.x;
-        let inv_y = 1./ray.geometry.direction.y;        
-        let inv_z = 1./ray.geometry.direction.z;
+        let inv_x = 1. / ray.geometry.direction.x;
+        let inv_y = 1. / ray.geometry.direction.y;
+        let inv_z = 1. / ray.geometry.direction.z;
 
         let inv_dir = Vector3D::new(inv_x, inv_y, inv_z);
         let dir_is_neg = (inv_dir.x < 0., inv_dir.y < 0., inv_dir.z < 0.);
-        
+
         let mut current_node = 0;
 
         loop {
             let node = &self.nodes[current_node];
             if node.bounds.intersect(&ray.geometry, &inv_dir) {
-                if node.is_leaf() {                    
+                if node.is_leaf() {
                     let offset = node.next;
-                    
-                    // Check all the objects in this Node                    
-                    const PACK_SIZE : usize = 4;
+
+                    // Check all the objects in this Node
+                    const PACK_SIZE: usize = 4;
                     let ini = offset as usize;
                     let fin = ini + node.n_prims as usize;
-                    let this_prims : &[Triangle] = &primitives[ini..fin];
+                    let this_prims: &[Triangle] = &primitives[ini..fin];
 
+                    let mut n_packs = 0; // I need to know how many packs went through
                     let mut iterator = this_prims.chunks_exact(PACK_SIZE);
-                    let mut n_packs = 0; // I need to know how many packs went through                    
 
-                    while let Some(pack) = iterator.next(){
-                        if let Some((i,intersect_info)) = triangle_intersect_pack(pack, &ray.geometry){
+                    for pack in iterator.by_ref() {
+                        if let Some((i, intersect_info)) =
+                            triangle_intersect_pack(pack, &ray.geometry)
+                        {
                             let this_t_squared =
-                            (intersect_info.p - ray.geometry.origin).length_squared();                                
+                                (intersect_info.p - ray.geometry.origin).length_squared();
                             // if the distance is less than the prevous one, update the info
                             if this_t_squared > MIN_T && this_t_squared < t_squared {
-                                
-                                
                                 // If the distance is less than what we had, update return data
                                 t_squared = this_t_squared;
-                                prim_index = Some(offset as usize + PACK_SIZE*n_packs + i as usize);
+                                prim_index =
+                                    Some(offset as usize + PACK_SIZE * n_packs + i as usize);
                                 ray.interaction.geometry_shading = intersect_info;
-                                
                             }
                         }
-                        n_packs +=1;
+                        n_packs += 1;
                     }
-                    
 
-                    let mut i = 0;
+                    // let mut i = 0;
                     let mut iterator = iterator.remainder().iter();
-                    
+
                     // let mut iterator = this_prims.iter();
                     // let n_packs = 0;
-                    while let Some(tri) = iterator.next(){ // Had to do it this way for debugging purposes.                        
-                        if let Some(intersect_info) =
-                            triangle_intersect(tri,&ray.geometry)
-                        {
+                    for (i, tri) in iterator.by_ref().enumerate() {
+                        if let Some(intersect_info) = triangle_intersect(tri, &ray.geometry) {
                             // If hit, check the distance.
                             let this_t_squared =
-                                (intersect_info.p - ray.geometry.origin).length_squared();                                
+                                (intersect_info.p - ray.geometry.origin).length_squared();
                             // if the distance is less than the prevous one, update the info
                             if this_t_squared > MIN_T && this_t_squared < t_squared {
-                                
-                                
                                 // If the distance is less than what we had, update return data
                                 t_squared = this_t_squared;
-                                let n = offset as usize + PACK_SIZE*n_packs + i as usize;
+                                let n = offset as usize + PACK_SIZE * n_packs + i as usize;
                                 prim_index = Some(n);
                                 ray.interaction.geometry_shading = intersect_info;
                             }
                         }
-                        i += 1;
-                                  
+                        // i += 1;
                     }
 
                     // update node we need to visit next, if any... otherwise, finish
@@ -583,7 +569,7 @@ impl BoundingVolumeTree {
                     } else {
                         break;
                     }
-                }else{
+                } else {
                     // is interior... choose first or second child,
                     // add to the stack
                     let is_neg = match node.axis {
@@ -599,7 +585,6 @@ impl BoundingVolumeTree {
                         current_node += 1;
                     }
                 }
-                    
             } else if let Some(i) = nodes_to_visit.pop() {
                 current_node = i;
             } else {
@@ -614,9 +599,7 @@ impl BoundingVolumeTree {
             ray.interaction.point = ray.geometry.project(t);
             ray.interaction.wo = ray.geometry.direction * -1.;
             // ray.interaction.prim_index = index;
-
-            
-        } 
+        }
         prim_index
     }
 
@@ -647,59 +630,52 @@ impl BoundingVolumeTree {
         loop {
             let node = &self.nodes[current_node];
             if node.bounds.intersect(ray, &inv_dir) {
-                if node.is_leaf(){
+                if node.is_leaf() {
                     let offset = node.next;
-                    
-                    // Check all the objects in this Node                    
-                    const PACK_SIZE : usize = 4;
+
+                    // Check all the objects in this Node
+                    const PACK_SIZE: usize = 4;
                     let ini = offset as usize;
                     let fin = ini + node.n_prims as usize;
-                    let this_prims : &[Triangle] = &primitives[ini..fin];
+                    let this_prims: &[Triangle] = &primitives[ini..fin];
                     let mut iterator = this_prims.chunks_exact(PACK_SIZE);
 
-                    while let Some(pack) = iterator.next(){
-                        if let Some((_i,p)) = simple_triangle_intersect_pack(pack, &ray){
-                            let this_t_squared =
-                            (p - ray.origin).length_squared();                                
-                            
+                    for pack in iterator.by_ref() {
+                        if let Some((_i, p)) = simple_triangle_intersect_pack(pack, ray) {
+                            let this_t_squared = (p - ray.origin).length_squared();
+
                             // Is it a valid hit and it is earlier than the rest?
                             if this_t_squared > MIN_T
                                 && this_t_squared + MIN_T < distance_squared
                                 && (distance_squared - this_t_squared).abs() > 0.0001
-                            {                                
+                            {
                                 return false;
                             }
                         }
                     }
-                    
-                    let mut iterator = iterator.remainder().iter();
-                    while let Some(tri) = iterator.next(){ // Had to do it this way for debugging purposes.                        
-                        if let Some(p) =
-                        simple_triangle_intersect(tri,&ray)
-                        {
+
+                    let iterator = iterator.remainder().iter();
+                    for tri in iterator {
+                        if let Some(p) = simple_triangle_intersect(tri, ray) {
                             // If hit, check the distance.
-                            let this_t_squared =
-                                (p - ray.origin).length_squared();                                
-                            
+                            let this_t_squared = (p - ray.origin).length_squared();
+
                             // Is it a valid hit and it is earlier than the rest?
                             if this_t_squared > MIN_T
                                 && this_t_squared + MIN_T < distance_squared
                                 && (distance_squared - this_t_squared).abs() > 0.0001
-                            {                                
+                            {
                                 return false;
                             }
-                        }                                  
+                        }
                     }
 
-                   
                     if let Some(i) = nodes_to_visit.pop() {
                         current_node = i;
                     } else {
                         break;
                     }
-
-                }else{
-
+                } else {
                     let is_neg = match node.axis {
                         BBoxAxis::X => dir_is_neg.0,
                         BBoxAxis::Y => dir_is_neg.1,
@@ -713,7 +689,6 @@ impl BoundingVolumeTree {
                         current_node += 1;
                     }
                 }
-                
             } else if let Some(i) = nodes_to_visit.pop() {
                 current_node = i;
             } else {
@@ -724,29 +699,27 @@ impl BoundingVolumeTree {
         // otherwise, return true
         true
     }
-
-   
 }
-
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::colour::Spectrum;
-    use crate::material::Plastic;
-    use geometry3d::{Point3D, Sphere3D, Ray3D};
     use crate::material::Material;
-    
+    use crate::material::Plastic;
+    use geometry3d::{Point3D, Ray3D, Sphere3D};
+
     use crate::primitive::Primitive;
 
     #[test]
-    fn test_empty(){
+    fn test_empty() {
         let mut scene = Scene::new();
         let mut ray = Ray::default();
         let bvh = BoundingVolumeTree::new(&mut scene);
-        let mut aux = vec![0;10];
-        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_none());
-
+        let mut aux = vec![0; 10];
+        assert!(bvh
+            .intersect(&scene.triangles, &mut ray, &mut aux)
+            .is_none());
     }
 
     /// A simple scene with two 0.5-r-spheres; one at x = -1 and the other
@@ -755,68 +728,54 @@ mod tests {
     /// * First child --> Leaf with one element
     /// * Second child --> Leaf with one element
 
-    fn get_horizontal_scene() -> Scene{
+    fn get_horizontal_scene() -> Scene {
         let mut scene = Scene::new();
-        
+
         let plastic = Plastic {
             colour: Spectrum::gray(2.),
             specularity: 1.,
-            roughness : 0.,
+            roughness: 0.,
         };
         let plastic = scene.push_material(Material::Plastic(plastic));
 
         // One sphere
-        let sphere = Sphere3D::new(
-            0.5, 
-            Point3D::new(-1., 0., 0.),
-        );
+        let sphere = Sphere3D::new(0.5, Point3D::new(-1., 0., 0.));
         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
         // Another sphere
-        let sphere = Sphere3D::new(
-            0.5,
-            Point3D::new(1., 0., 0.),
-        );
+        let sphere = Sphere3D::new(0.5, Point3D::new(1., 0., 0.));
         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
         scene
-
     }
 
-    fn get_vertical_scene() -> Scene{
+    fn get_vertical_scene() -> Scene {
         let mut scene = Scene::new();
-        
+
         let plastic = Plastic {
             colour: Spectrum::gray(2.),
             specularity: 1.,
-            roughness : 0.,
+            roughness: 0.,
         };
         let plastic = scene.push_material(Material::Plastic(plastic));
 
         // One sphere
-        let sphere = Sphere3D::new(
-            0.5, 
-            Point3D::new(0., 0., -1.),
-        );
+        let sphere = Sphere3D::new(0.5, Point3D::new(0., 0., -1.));
         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
         // Another sphere
-        let sphere = Sphere3D::new(
-            0.5,
-            Point3D::new(0., 0., 1.),
-        );
+        let sphere = Sphere3D::new(0.5, Point3D::new(0., 0., 1.));
         scene.push_object(plastic, plastic, Primitive::Sphere(sphere));
 
         scene
-
     }
 
     #[test]
-    fn test_build_horizontal_bvh(){
+    fn test_build_horizontal_bvh() {
         let mut scene = get_horizontal_scene();
         let bvh = BoundingVolumeTree::new(&mut scene);
         // assert_eq!(bvh.nodes.len(), 3);
-        
+
         let node = &bvh.nodes[0];
         assert_eq!(node.n_prims, 0);
         assert_eq!(node.axis, BBoxAxis::X);
@@ -829,16 +788,14 @@ mod tests {
         // node = &bvh.nodes[2];
         // assert_eq!(node.n_prims, 1);
         // assert_eq!(node.next, 1); // second sphere
-
     }
 
-
     #[test]
-    fn test_build_vertical_bvh(){
+    fn test_build_vertical_bvh() {
         let mut scene = get_vertical_scene();
         let bvh = BoundingVolumeTree::new(&mut scene);
         // assert_eq!(bvh.nodes.len(), 3);
-        
+
         let node = &bvh.nodes[0];
         assert_eq!(node.n_prims, 0);
         assert_eq!(node.axis, BBoxAxis::Z);
@@ -851,75 +808,77 @@ mod tests {
         // node = &bvh.nodes[2];
         // assert_eq!(node.n_prims, 1);
         // assert_eq!(node.next, 1); // second sphere
-
     }
 
     #[test]
-    fn test_intersect_horizontal(){
-        
+    fn test_intersect_horizontal() {
         let mut scene = get_horizontal_scene();
         let bvh = BoundingVolumeTree::new(&mut scene);
 
-
-        let mut ray = Ray{
-            geometry: Ray3D{
+        let mut ray = Ray {
+            geometry: Ray3D {
                 origin: Point3D::new(-1., -10., 0.),
-                direction: Vector3D::new(0., 1., 0.)
+                direction: Vector3D::new(0., 1., 0.),
             },
             ..Ray::default()
         };
-        let mut aux = vec![0;10];
-        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
+        let mut aux = vec![0; 10];
+        assert!(bvh
+            .intersect(&scene.triangles, &mut ray, &mut aux)
+            .is_some());
 
-        assert!( (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-9 );
+        assert!((ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-9);
 
-
-
-
-        let mut ray = Ray{
-            geometry: Ray3D{
+        let mut ray = Ray {
+            geometry: Ray3D {
                 origin: Point3D::new(1., -10., 0.),
-                direction: Vector3D::new(0., 1., 0.)
+                direction: Vector3D::new(0., 1., 0.),
             },
             ..Ray::default()
         };
-        let mut aux = vec![0;10];
-        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
+        let mut aux = vec![0; 10];
+        assert!(bvh
+            .intersect(&scene.triangles, &mut ray, &mut aux)
+            .is_some());
 
-        assert!( (ray.interaction.point - Point3D::new(1., -0.5, 0.)).length() < 1e-9 );
+        assert!((ray.interaction.point - Point3D::new(1., -0.5, 0.)).length() < 1e-9);
     }
 
-
     #[test]
-    fn test_intersect_vertical(){
-        
+    fn test_intersect_vertical() {
         let mut scene = get_vertical_scene();
         let bvh = BoundingVolumeTree::new(&mut scene);
 
-
-        let mut ray = Ray{
-            geometry: Ray3D{
+        let mut ray = Ray {
+            geometry: Ray3D {
                 origin: Point3D::new(0., -10., -1.),
-                direction: Vector3D::new(0., 1., 0.)
+                direction: Vector3D::new(0., 1., 0.),
             },
             ..Ray::default()
         };
-        let mut aux = vec![0;10];
-        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
+        let mut aux = vec![0; 10];
+        assert!(bvh
+            .intersect(&scene.triangles, &mut ray, &mut aux)
+            .is_some());
 
-        assert!( (ray.interaction.point - Point3D::new(0., -0.5, -1.)).length() < 1e-9, "Point was {}", ray.interaction.point );
+        assert!(
+            (ray.interaction.point - Point3D::new(0., -0.5, -1.)).length() < 1e-9,
+            "Point was {}",
+            ray.interaction.point
+        );
 
-
-        let mut ray = Ray{
-            geometry: Ray3D{
+        let mut ray = Ray {
+            geometry: Ray3D {
                 origin: Point3D::new(0., -10., 1.),
-                direction: Vector3D::new(0., 1., 0.)
+                direction: Vector3D::new(0., 1., 0.),
             },
             ..Ray::default()
         };
-        let mut aux = vec![0;10];
-        assert!(bvh.intersect(&scene.triangles, &mut ray, &mut aux).is_some());
+        let mut aux = vec![0; 10];
+        assert!(bvh
+            .intersect(&scene.triangles, &mut ray, &mut aux)
+            .is_some());
 
-        assert!( (ray.interaction.point - Point3D::new(0., -0.5, 1.)).length() < 1e-9 );
+        assert!((ray.interaction.point - Point3D::new(0., -0.5, 1.)).length() < 1e-9);
     }
 }

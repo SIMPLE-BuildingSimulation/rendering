@@ -22,14 +22,13 @@ use crate::rand::*;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
-
 pub fn uniform_sample_triangle(rng: &mut RandGen, a: Point3D, b: Point3D, c: Point3D) -> Point3D {
     let (rand1, rand2): (Float, Float) = rng.gen();
     // let rand1 : Float = rng.gen();
     // let rand2 : Float = rng.gen();
-    const TINY : Float = 1e-8;
-    let rand1 = rand1.clamp(TINY, 1.-TINY );
-    let rand2 = rand2.clamp(TINY, 1.-TINY ) ;
+    const TINY: Float = 1e-8;
+    let rand1 = rand1.clamp(TINY, 1. - TINY);
+    let rand2 = rand2.clamp(TINY, 1. - TINY);
     let aux = rand1.sqrt();
     let u = 1. - aux;
     let v = rand2 * aux;
@@ -67,7 +66,6 @@ pub fn uniform_sample_triangle(rng: &mut RandGen, a: Point3D, b: Point3D, c: Poi
 //         Some(uniform_sample_horizontal_disc(&mut self.rng, self.radius))
 //     }
 // }
-
 
 pub fn uniform_sample_horizontal_disc(rng: &mut RandGen, radius: Float) -> (f32, f32) {
     // Accurate, non-rejection
@@ -134,7 +132,6 @@ pub fn sample_cosine_weighted_horizontal_hemisphere(rng: &mut RandGen) -> Vector
     Vector3D::new(local_x as Float, local_y as Float, local_z as Float)
 }
 
-
 pub fn uniform_sample_hemisphere(
     rng: &mut RandGen,
     e1: Vector3D,
@@ -170,14 +167,13 @@ pub fn uniform_sample_hemisphere(
     Vector3D::new(x, y, z)
 }
 
-
 pub fn uniform_sample_sphere(rng: &mut RandGen) -> Point3D {
     const TWO_PI: f32 = 2. * std::f32::consts::PI;
-    const TINY : f32 = 1e-7;
+    const TINY: f32 = 1e-7;
     // Sample a sphere of radius 1 centered at the origin
     let (rand1, rand2): (f32, f32) = rng.gen();
-    let rand1 = rand1.clamp(TINY, 1.-TINY );
-    let rand2 = rand2.clamp(TINY, 1.-TINY ) ;
+    let rand1 = rand1.clamp(TINY, 1. - TINY);
+    let rand2 = rand2.clamp(TINY, 1. - TINY);
     let z = 1. - 2. * rand1;
     let aux = (1. - z * z).sqrt() as Float;
     let z = z as Float;
@@ -186,7 +182,6 @@ pub fn uniform_sample_sphere(rng: &mut RandGen) -> Point3D {
 
     Point3D::new(x, y, z)
 }
-
 
 pub fn uniform_sample_disc(
     rng: &mut RandGen,

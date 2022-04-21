@@ -63,7 +63,7 @@ impl Dielectric {
     }
 }
 
-impl  Dielectric {
+impl Dielectric {
     pub fn id(&self) -> &str {
         "Dielectric"
     }
@@ -71,8 +71,6 @@ impl  Dielectric {
     pub fn colour(&self) -> Spectrum {
         self.colour
     }
-
-    
 
     pub fn get_possible_paths(
         &self,
@@ -468,11 +466,8 @@ mod tests {
         }
     }
 
-
-
     #[test]
-    fn test_get_possible_paths_dielectric(){
-
+    fn test_get_possible_paths_dielectric() {
         let dielectric = Dielectric {
             colour: Spectrum::gray(0.23), //irrelevant for this test
             refraction_index: 1.52,
@@ -481,46 +476,59 @@ mod tests {
         let mut rng = get_rng();
 
         for _ in 0..5000 {
-            let refraction_index : Float = rng.gen();
-            let (x, y, z) : (Float, Float, Float) = rng.gen();
+            let refraction_index: Float = rng.gen();
+            let (x, y, z): (Float, Float, Float) = rng.gen();
             let direction = Vector3D::new(x, y, -z).get_normalized();
-    
+
             let normal = Vector3D::new(0., 0., 1.);
             let intersection_pt = Point3D::new(0., 0., 0.);
             let ray = Ray {
-                geometry: Ray3D { 
-                    origin: Point3D::new(0., 0., 2.), 
+                geometry: Ray3D {
+                    origin: Point3D::new(0., 0., 2.),
                     direction,
-                }, 
+                },
                 refraction_index,
-                .. Ray::default()
+                ..Ray::default()
             };
-    
+
             let paths = dielectric.get_possible_paths(&normal, &intersection_pt, &ray);
             // Reflection
-            if let Some((new_ray, bsdf)) = paths[0]{
-                assert_eq!(new_ray.refraction_index, refraction_index, "Expecting the ray's refraction index to be {}... found {}", refraction_index, ray.refraction_index);
-                assert!(bsdf.is_finite() && !bsdf.is_nan(), "impossible BSDF --> {}", bsdf);
+            if let Some((new_ray, bsdf)) = paths[0] {
+                assert_eq!(
+                    new_ray.refraction_index, refraction_index,
+                    "Expecting the ray's refraction index to be {}... found {}",
+                    refraction_index, ray.refraction_index
+                );
+                assert!(
+                    bsdf.is_finite() && !bsdf.is_nan(),
+                    "impossible BSDF --> {}",
+                    bsdf
+                );
                 let new_dir = new_ray.geometry.direction;
                 assert!(( (new_dir.x - direction.x).abs() < 1e-5 && (new_dir.y - direction.y).abs() < 1e-5 && (new_dir.z  + direction.z).abs() < 1e-5 ), "Expecting reflected direction to be mirrored against direction (ray.dir = {} | exp = {}).", ray.geometry.direction, direction);
-            }else{
+            } else {
                 panic!("Expecting a reflection path")
             }
-            
+
             // Transmission
-            if let Some((new_ray, bsdf)) = paths[1]{
-                assert_eq!(new_ray.refraction_index, dielectric.refraction_index, "Expecting the ray's refraction index to be {}... found {}", refraction_index, ray.refraction_index);
-                assert!(bsdf.is_finite() && !bsdf.is_nan(), "impossible BSDF --> {}", bsdf);            
+            if let Some((new_ray, bsdf)) = paths[1] {
+                assert_eq!(
+                    new_ray.refraction_index, dielectric.refraction_index,
+                    "Expecting the ray's refraction index to be {}... found {}",
+                    refraction_index, ray.refraction_index
+                );
+                assert!(
+                    bsdf.is_finite() && !bsdf.is_nan(),
+                    "impossible BSDF --> {}",
+                    bsdf
+                );
                 // assert!(new_ray.geometry.direction.compare(direction), "Expecting transmitted direction to be the same as the original direction (ray.dir = {} | exp = {})... length of diff = {}", ray.geometry.direction, direction, (new_ray.geometry.direction - direction).length());
-                assert!(new_ray.geometry.direction.z <= 0.0, "Expecting transmitted direction to be going down... found {}", new_ray.geometry.direction);
+                assert!(
+                    new_ray.geometry.direction.z <= 0.0,
+                    "Expecting transmitted direction to be going down... found {}",
+                    new_ray.geometry.direction
+                );
             }
         }
-
-        
-
     }
 }
-
-
-
-

@@ -25,13 +25,14 @@ use geometry3d::{Point3D, Vector3D};
 
 use crate::samplers::{local_to_world, sample_cosine_weighted_horizontal_hemisphere};
 
-const LOW_ROUGHNESS : Float = 1e-3;
+const LOW_ROUGHNESS: Float = 1e-3;
 
 /// Samples a Ward BSDF, changing the direction of a given Ray. Returns a tuple with the
 /// Specular and Diffuse reflections, as well as the Weighting factor for the BSDF
 ///
 /// This implementation is based on "A new Ward BRDF model with bounded albedo" (2010),
 /// by David Geisler-Moroder and Arne Dür
+#[allow(clippy::too_many_arguments)]
 pub fn sample_ward_anisotropic(
     normal: Vector3D,
     e1: Vector3D,
@@ -43,60 +44,67 @@ pub fn sample_ward_anisotropic(
     ray: &mut Ray,
     rng: &mut RandGen,
 ) -> (Float, Float, Float) {
-    if alpha < LOW_ROUGHNESS{        
+    if alpha < LOW_ROUGHNESS {
         alpha = LOW_ROUGHNESS
     }
-    if beta < LOW_ROUGHNESS{
+    if beta < LOW_ROUGHNESS {
         beta = LOW_ROUGHNESS
     }
     ray.geometry.origin = intersection_pt + normal * 0.00001;
-    
-    let prob_spec:  Float = rng.gen();
+
+    let prob_spec: Float = rng.gen();
 
     if prob_spec < specularity {
         loop {
-
             let (xi1, xi2): (Float, Float) = rng.gen();
             // incident direction
             let l = ray.geometry.direction * -1.;
-    
+
             // From Radiance's https://github.com/NREL/Radiance/blob/2fcca99ace2f2435f32a09525ad31f2b3be3c1bc/src/rt/normal.c#L409
-            let mut d = 2.*PI*xi1;
-            let mut cosp = d.cos()*alpha;
-            let mut sinp = d.sin()*beta;
-            d = 1./(cosp.powi(2) + sinp.powi(2)).sqrt();
+            let mut d = 2. * PI * xi1;
+            let mut cosp = d.cos() * alpha;
+            let mut sinp = d.sin() * beta;
+            d = 1. / (cosp.powi(2) + sinp.powi(2)).sqrt();
             cosp *= d;
             sinp *= d;
-    
+
             d = if xi2 < 1e-9 {
                 1.
-            }else{
+            } else {
                 // (-xi2.ln() * beta).sqrt()
-                (-xi2.ln() / ( (cosp/alpha).powi(2) + (sinp/beta).powi(2) )).sqrt()
+                (-xi2.ln() / ((cosp / alpha).powi(2) + (sinp / beta).powi(2))).sqrt()
             };
-                        
-            let h = normal + e1*cosp*d + e2*sinp*d;
-            d = (h*l) * (-2.)/(1. + d.powi(2));
-            let v = (l + normal * d).get_normalized(); 
-            debug_assert!( (1. - v.length()).abs() < 1e-5, "len of v = {}", v.length() );
-    
-        
-            let l_n = l * normal;        
+
+            let h = normal + e1 * cosp * d + e2 * sinp * d;
+            d = (h * l) * (-2.) / (1. + d.powi(2));
+            let v = (l + normal * d).get_normalized();
+            debug_assert!((1. - v.length()).abs() < 1e-5, "len of v = {}", v.length());
+
+            let l_n = l * normal;
             let v_n = v * normal;
-            
+
             // // let v_h = h * v;
             if v_n > 0.0 || l_n > 0.0 {
                 // Here we want to evaluate the BSDF before we update the ray... otherwise the returned value would be incorrect
-                let (spec, diffuse) = evaluate_ward_anisotropic(normal, e1, e2, specularity, alpha, beta, ray, v*-1.);
+                let (spec, diffuse) = evaluate_ward_anisotropic(
+                    normal,
+                    e1,
+                    e2,
+                    specularity,
+                    alpha,
+                    beta,
+                    ray,
+                    v * -1.,
+                );
                 if spec.is_nan() {
                     panic!("incorrect (i.e., NaN) bsdf when calculating Ward aniso.");
                 }
                 ray.geometry.direction = v; // update ray
-                let weight = 2. / (1. + v_n / l_n); // Eq. 15        
-                return (spec, diffuse, 1./weight);
-            }                        
-            return (0.0, 0., 1.);
-        }// end of loop. If we did not return, try again.
+                let weight = 2. / (1. + v_n / l_n); // Eq. 15
+                return (spec, diffuse, 1. / weight);
+            }
+            // return (0.0, 0., 1.);
+        } // end of loop. If we did not return, try again.
     } else {
         // Probability
 
@@ -115,7 +123,7 @@ pub fn sample_ward_anisotropic(
         );
 
         ray.geometry.direction = Vector3D::new(x, y, z);
-        (0.0, diffuse, 1./weight)
+        (0.0, diffuse, 1. / weight)
     }
 }
 
@@ -123,6 +131,7 @@ pub fn sample_ward_anisotropic(
 ///
 /// This implementation is based on "A new Ward BRDF model with bounded albedo" (2010),
 /// by David Geisler-Moroder and Arne Dür
+#[allow(clippy::too_many_arguments)]
 pub fn evaluate_ward_anisotropic(
     normal: Vector3D,
     e1: Vector3D,
@@ -139,31 +148,29 @@ pub fn evaluate_ward_anisotropic(
     // if l_n < -1e-5  {
     //     return (0.0, 0.0);
     // }
-    
-    let spec = if specularity > 1e-5 /*&& (alpha > 1e-5 || beta > 1e-5) */{        
-        
+
+    let spec = if specularity > 1e-5
+    /*&& (alpha > 1e-5 || beta > 1e-5) */
+    {
         if alpha < LOW_ROUGHNESS {
-            alpha = LOW_ROUGHNESS;    
+            alpha = LOW_ROUGHNESS;
         }
         if beta < LOW_ROUGHNESS {
             beta = LOW_ROUGHNESS;
-        }        
+        }
 
-        
-        let i = ray.geometry.direction ;
-        let h = l - i;        
+        let i = ray.geometry.direction;
+        let h = l - i;
         let i_n = i * normal;
-        if i_n > 0. {            
+        if i_n > 0. {
             return (0.0, 0.0);
         }
-        
 
         let h_n = h * normal;
         // Eq. 17
-        let c1 = (h*h)*specularity / (PI * alpha * beta * h_n.powi(4));
+        let c1 = (h * h) * specularity / (PI * alpha * beta * h_n.powi(4));
         let c2 = -((h * e1 / alpha).powi(2) + (h * e2 / beta).powi(2)) / (h_n.powi(2));
         c1 * c2.exp()
-    
     } else {
         0.0
     };

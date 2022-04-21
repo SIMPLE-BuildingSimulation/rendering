@@ -57,39 +57,39 @@ pub enum Material {
 
 impl Material {
     /// Returns an id, for debugging and error reporting purposes
-    pub fn id(&self) -> &str{
-        match self{
-            Self::Plastic(m)=>m.id(),
-            Self::Metal(m)=>m.id(),
-            Self::Light(m)=>m.id(),
-            Self::Mirror(m)=>m.id(),
-            Self::Dielectric(m)=>m.id(),
-            Self::Glass(m)=>m.id(),
+    pub fn id(&self) -> &str {
+        match self {
+            Self::Plastic(m) => m.id(),
+            Self::Metal(m) => m.id(),
+            Self::Light(m) => m.id(),
+            Self::Mirror(m) => m.id(),
+            Self::Dielectric(m) => m.id(),
+            Self::Glass(m) => m.id(),
         }
     }
 
     /// Retrieves the Colour of the material. This will usually
     /// represent the values that will multiply the different
     /// elements of the [`Spectrum`]. E.g., the reflectance values.
-    pub fn colour(&self) -> Spectrum{
-        match self{
-            Self::Plastic(m)=>m.colour(),
-            Self::Metal(m)=>m.colour(),
-            Self::Light(m)=>m.colour(),
-            Self::Mirror(m)=>m.colour(),
-            Self::Dielectric(m)=>m.colour(),
-            Self::Glass(m)=>m.colour(),
+    pub fn colour(&self) -> Spectrum {
+        match self {
+            Self::Plastic(m) => m.colour(),
+            Self::Metal(m) => m.colour(),
+            Self::Light(m) => m.colour(),
+            Self::Mirror(m) => m.colour(),
+            Self::Dielectric(m) => m.colour(),
+            Self::Glass(m) => m.colour(),
         }
     }
 
     /// Should this material be tested for direct illumination?    
     pub fn emits_direct_light(&self) -> bool {
-        matches!(self, Self::Light(_))        
+        matches!(self, Self::Light(_))
     }
 
     /// Should this material emits light    
     pub fn emits_light(&self) -> bool {
-        matches!(self, Self::Light(_))        
+        matches!(self, Self::Light(_))
     }
 
     /// Does this material scatter (e.g., like [`Plastic`]) or does it
@@ -106,11 +106,11 @@ impl Material {
         intersection_pt: &Point3D,
         ray: &Ray,
     ) -> [Option<(Ray, Float)>; 2] {
-        match self{            
-            Self::Mirror(m)=>m.get_possible_paths(normal, intersection_pt, ray),
-            Self::Dielectric(m)=>m.get_possible_paths(normal, intersection_pt, ray),
-            Self::Glass(m)=>m.get_possible_paths(normal, intersection_pt, ray),
-            _ => panic!("Trying to get possible paths in non-specular material")
+        match self {
+            Self::Mirror(m) => m.get_possible_paths(normal, intersection_pt, ray),
+            Self::Dielectric(m) => m.get_possible_paths(normal, intersection_pt, ray),
+            Self::Glass(m) => m.get_possible_paths(normal, intersection_pt, ray),
+            _ => panic!("Trying to get possible paths in non-specular material"),
         }
     }
 
@@ -124,14 +124,14 @@ impl Material {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Spectrum, Float){
-        match self{
-            Self::Plastic(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            Self::Metal(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            Self::Light(m)=>panic!("Material '{}' has no BSDF", m.id()),
-            Self::Mirror(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            Self::Dielectric(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            Self::Glass(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+    ) -> (Spectrum, Float) {
+        match self {
+            Self::Plastic(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Metal(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Light(m) => panic!("Material '{}' has no BSDF", m.id()),
+            Self::Mirror(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Dielectric(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Glass(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
         }
     }
 
@@ -143,18 +143,17 @@ impl Material {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum{
-        match self{
-            Self::Plastic(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
-            Self::Metal(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
-            Self::Light(m)=>panic!("Material '{}' has no BSDF", m.id()),
-            Self::Mirror(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
-            Self::Dielectric(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
-            Self::Glass(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
+    ) -> Spectrum {
+        match self {
+            Self::Plastic(m) => m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Metal(m) => m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Light(m) => panic!("Material '{}' has no BSDF", m.id()),
+            Self::Mirror(m) => m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Dielectric(m) => m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Glass(m) => m.eval_bsdf(normal, e1, e2, ray, vout),
         }
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -195,7 +194,7 @@ mod tests {
             assert!(pdf.is_finite());
             assert!(bsdf.radiance().is_finite());
             assert!(old_ray.geometry.direction.length().is_finite());
-            let v : Vector3D = old_ray.geometry.origin.into();
+            let v: Vector3D = old_ray.geometry.origin.into();
             assert!(v.length().is_finite());
             let pdf = material.eval_bsdf(normal, e1, e2, &old_ray, vout);
             assert!(pdf.radiance().is_finite());

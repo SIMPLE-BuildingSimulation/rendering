@@ -391,30 +391,28 @@ mod tests {
 
     #[test]
     fn test_rgbe_to_colour() {
-
-        let check = |a: Spectrum, b: Spectrum| ->Result<(),String>{
+        let check = |a: Spectrum, b: Spectrum| -> Result<(), String> {
             let a_r = a.radiance();
             let b_r = b.radiance();
-            let percent_error = (b_r - a_r).abs()/ b_r;            
+            let percent_error = (b_r - a_r).abs() / b_r;
             if percent_error > 0.015 {
-                return Err(format!("Radiance Error {} is to high ", percent_error))
+                return Err(format!("Radiance Error {} is to high ", percent_error));
             }
             let ared_ratio = a.red / a.blue;
-            let bred_ratio = b.red/b.blue;
-            let percent_error = (bred_ratio - ared_ratio).abs()/ bred_ratio;
+            let bred_ratio = b.red / b.blue;
+            let percent_error = (bred_ratio - ared_ratio).abs() / bred_ratio;
             if percent_error > 0.05 {
-                return Err(format!("Red Ratio Error {} is to high ", percent_error))
+                return Err(format!("Red Ratio Error {} is to high ", percent_error));
             }
 
             let agreen_ratio = a.red / a.blue;
-            let bgreen_ratio = b.red/b.blue;
-            let percent_error = (agreen_ratio - bgreen_ratio).abs()/ bgreen_ratio;
+            let bgreen_ratio = b.red / b.blue;
+            let percent_error = (agreen_ratio - bgreen_ratio).abs() / bgreen_ratio;
             if percent_error > 0.05 {
-                return Err(format!("Green Ratio Error {} is to high ", percent_error))
+                return Err(format!("Green Ratio Error {} is to high ", percent_error));
             }
 
             Ok(())
-
         };
 
         // Produced automatically
@@ -423,74 +421,83 @@ mod tests {
             Spectrum {
                 red: 807.,
                 green: 249.,
-                blue: 73.
-            }
-        ).unwrap();
+                blue: 73.,
+            },
+        )
+        .unwrap();
         check(
             rgbe_to_colour(117, 136, 56, 159),
             Spectrum {
                 red: 984943658.,
                 green: 1144108930.,
-                blue: 470211272.
-            }
-        ).unwrap();
+                blue: 470211272.,
+            },
+        )
+        .unwrap();
         check(
             rgbe_to_colour(12, 173, 173, 159),
             Spectrum {
                 red: 101027544.,
                 green: 1457850878.,
-                blue: 1458777923.
-            }
-        ).unwrap();
+                blue: 1458777923.,
+            },
+        )
+        .unwrap();
         check(
             rgbe_to_colour(239, 98, 132, 159),
             Spectrum {
                 red: 2007237709.,
                 green: 823564440.,
-                blue: 1115438165.
-            }
-        ).unwrap();
+                blue: 1115438165.,
+            },
+        )
+        .unwrap();
         check(
             rgbe_to_colour(212, 8, 13, 159),
             Spectrum {
                 red: 1784484492.,
                 green: 74243042.,
-                blue: 114807987.
-            }
-        ).unwrap();
-        
+                blue: 114807987.,
+            },
+        )
+        .unwrap();
+
         check(
             rgbe_to_colour(196, 34, 213, 158),
             Spectrum {
                 red: 823378840.,
                 green: 143542612.,
-                blue: 896544303.
-            }
-        ).unwrap();
+                blue: 896544303.,
+            },
+        )
+        .unwrap();
         check(
             rgbe_to_colour(175, 150, 238, 159),
             Spectrum {
                 red: 1474833169.,
                 green: 1264817709.,
-                blue: 1998097157.
-            }
-        ).unwrap();
+                blue: 1998097157.,
+            },
+        )
+        .unwrap();
         check(
             rgbe_to_colour(216, 134, 23, 159),
             Spectrum {
                 red: 1817129560.,
                 green: 1131570933.,
-                blue: 197493099.
-            }
-        ).unwrap();
+                blue: 197493099.,
+            },
+        )
+        .unwrap();
         check(
             rgbe_to_colour(167, 106, 179, 159),
             Spectrum {
                 red: 1404280278.,
                 green: 893351816.,
-                blue: 1505795335.
-            }
-        ).unwrap();
+                blue: 1505795335.,
+            },
+        )
+        .unwrap();
     }
 
     #[test]
