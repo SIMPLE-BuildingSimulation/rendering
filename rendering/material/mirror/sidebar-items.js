@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["eval_mirror_bsdf","Evaluates the mirror BSDf"],["mirror_bsdf","Calculates the Mirror BSDF and modifies the given ray so that it now points in that direction"]],"struct":[["Mirror","A mirror material"]]});
+initSidebarItems({"struct":[["Mirror","A mirror material"]]});

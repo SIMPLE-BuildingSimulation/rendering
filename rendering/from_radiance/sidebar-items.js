@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Scanner",""]]});
+initSidebarItems({"struct":[["RadianceReader",""]]});

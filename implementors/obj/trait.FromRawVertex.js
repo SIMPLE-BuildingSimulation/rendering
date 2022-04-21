@@ -1,0 +1,3 @@
+(function() {var implementors = {};
+implementors["rendering"] = [{"text":"impl&lt;I&gt; FromRawVertex&lt;I&gt; for <a class=\"struct\" href=\"rendering/from_obj/struct.ObjTriangle.html\" title=\"struct rendering::from_obj::ObjTriangle\">ObjTriangle</a>","synthetic":false,"types":["rendering::from_obj::ObjTriangle"]}];
+if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
