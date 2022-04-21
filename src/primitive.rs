@@ -92,14 +92,6 @@ impl Primitive {
         }
     }
 
-    pub fn omega(&self, point: Point3D) -> Float {
-        match self {
-            Self::Sphere(s) => sphere_omega(s, point),
-            Self::Triangle(s) => triangle_omega(s, point),
-            Self::Cylinder(_s) => unimplemented!(),
-            Self::Source(s) => source_omega(s, point),
-        }
-    }
 
     pub fn direction(&self, point: Point3D) -> (Float, Vector3D) {
         match self {

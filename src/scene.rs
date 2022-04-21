@@ -22,13 +22,15 @@ SOFTWARE.
 use crate::bvh::BoundingVolumeTree;
 use crate::colour::Spectrum;
 use crate::from_simple_model::SimpleModelReader;
-use crate::material::Material;
+use crate::material::{Material, Light};
 use crate::primitive::Primitive;
 use crate::ray::Ray;
 use crate::Float;
 use calendar::Date;
 use geometry3d::{Ray3D, Vector3D};
 use simple_model::SimpleModel;
+use crate::triangle::Triangle;
+
 
 #[derive(Clone)]
 pub struct Object {
@@ -40,13 +42,21 @@ pub struct Object {
 
 #[derive(Default)]
 pub struct Scene {
-    /// Objects in the scene that are not tested
+    /// The Triangles in the scene that are not tested
     /// directly for shadow (e.g., non-luminous objects
-    /// and diffuse light)
-    pub objects: Vec<Object>,
+    /// and diffuse light)    
+    pub triangles: Vec<Triangle>,
+
+    /// The normal of each vertex of each triangle.
+    pub normals: Vec<(Vector3D,Vector3D,Vector3D)>,
+
+    pub front_material_indexes: Vec<usize>,
+
+    pub back_material_indexes: Vec<usize>,
+    
 
     /// The materials in the scene
-    pub materials: Vec<Box<dyn Material + Sync>>,
+    pub materials: Vec<Material>,
 
     /// A vector of [`Light`] objects that
     /// are considered sources of direct light.
@@ -123,9 +133,9 @@ impl Scene {
         // Add sun if there is any (it might be nighttime)
         let n = solar::Time::Standard(date.day_of_year());
         if let Some(sun_position) = solar.sun_position(n) {
-            let angle = (0.533 as Float).to_radians(); // 0.009302605
-            let tan_half_alpha = (angle / 2.0).tan(); // 0.004651336043
-            let omega = tan_half_alpha * tan_half_alpha * crate::PI; // 0.00006796811354
+            let angle = (0.533 as Float).to_radians(); 
+            let tan_half_alpha = (angle / 2.0).tan(); 
+            let omega = tan_half_alpha * tan_half_alpha * crate::PI; 
 
             let cos_zenit = sun_position.z;
             let zenith = if cos_zenit <= 0. {
@@ -164,7 +174,7 @@ impl Scene {
                 * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
 
             let sun_brightness = dir_illum / omega / Spectrum::WHITE_EFFICACY; //
-            let sun_mat = self.push_material(Box::new(crate::material::Light(Spectrum::gray(
+            let sun_mat = self.push_material(Material::Light(Light(Spectrum::gray(
                 sun_brightness,
             ))));
 
@@ -195,11 +205,12 @@ impl Scene {
         self.lights.len() + self.distant_lights.len()
     }
 
-    /// Casts a [`Ray3D`] and returns an `Option<Interaction>` describing the
-    /// interaction with the first primitive hit by the ray, if any.    
-    pub fn cast_ray(&self, ray: &mut Ray, node_aux: &mut Vec<usize>) -> bool {
+    /// Casts a [`Ray3D`] and returns an `Option<usize>` indicating the index
+    /// of the first primitive hit by the ray, if any. The `ray` passed will now contain
+    /// the Interaction
+    pub fn cast_ray(&self, ray: &mut Ray, node_aux: &mut Vec<usize>) -> Option<usize> {
         if let Some(accelerator) = &self.accelerator {
-            accelerator.intersect(&self.objects, ray, node_aux)
+            accelerator.intersect(&self.triangles, ray, node_aux)
         } else {
             panic!("Trying to cast_ray() in a scene without an acceleration structure")
         }
@@ -213,7 +224,7 @@ impl Scene {
         node_aux: &mut Vec<usize>,
     ) -> bool {
         if let Some(a) = &self.accelerator {
-            a.unobstructed_distance(&self.objects, ray, distance_squared, node_aux)
+            a.unobstructed_distance(&self.triangles, ray, distance_squared, node_aux)
         } else {
             panic!("Trying to check if unobstructed_distance() in a scene without an acceleration structure")
         }
@@ -221,19 +232,25 @@ impl Scene {
 
     /// Pushes a [`Material`] to the [`Scene`] and return its
     /// position in the `materials` Vector.
-    pub fn push_material(&mut self, material: Box<dyn Material + Sync>) -> usize {
+    pub fn push_material(&mut self, material: Material) -> usize {
         self.materials.push(material);
         // return
         self.materials.len() - 1
     }
 
-    /// Pushes an [`Object`] into the [`Scene`]
+    
+
+    /// Pushes a [`Primitive`] object into the [`Scene`]   
+    /// 
+    /// If the [`Primitive`] is made of a light-emmiting [`Material`], then 
+    /// it will be added twice: One to the normal scene, and then another to
+    /// the list of light sources.
     pub fn push_object(
         &mut self,
         front_material_index: usize,
         back_material_index: usize,
         primitive: Primitive,
-    ) -> usize {
+    )  {
         if front_material_index >= self.materials.len() {
             panic!("Pushing object with front material out of bounds")
         }
@@ -242,19 +259,16 @@ impl Scene {
             panic!("Pushing object with back material out of bounds")
         }
 
-        let this_index = self.objects.len();
-        let ob_id = primitive.id();
-        let object = Object {
-            front_material_index,
-            back_material_index,
-            primitive,
-            // texture: None,
-        };
+        // If it is light
+        let is_light = if self.materials[front_material_index].emits_direct_light() || self.materials[back_material_index].emits_direct_light(){
 
-        // Mark as source
-        if self.materials[front_material_index].emits_direct_light()
-            || self.materials[back_material_index].emits_direct_light()
-        {
+            let ob_id = primitive.id();
+            let object = Object {
+                front_material_index,
+                back_material_index,
+                primitive: primitive.clone(),
+                // texture: None,
+            };
             // I know this is not very fast... but we will
             // only do this while creating the scene, not while
             // rendering
@@ -262,17 +276,37 @@ impl Scene {
                 self.distant_lights.push(object);
             } else {
                 // register object as light
-                self.lights.push(object.clone());
-                // Push object
-                self.objects.push(object)
+                self.lights.push(object.clone());                
             }
-        } else {
-            // Push
-            self.objects.push(object);
-        }
+            true
+        }else{
+            false
+        };
+        let (triangles, normals) = match &primitive {
+            Primitive::Triangle(tr)=>crate::triangle::mesh_triangle(tr),        
+            Primitive::Sphere(s)=>crate::triangle::mesh_sphere(s),    
+            _ => {
+                if !is_light{
+                    panic!("Unsupported Primitive '{}'", primitive.id());
+                }else{
+                    (vec![], vec![])
+                }
+            }
+        };
+        let additional = triangles.len();
+        let front = vec![front_material_index; additional];
+        let back = vec![back_material_index; additional];
 
-        // return
-        this_index
+        self.triangles.extend_from_slice(&triangles);
+        self.normals.extend_from_slice(&normals);        
+        self.front_material_indexes.extend_from_slice(&front);
+        self.back_material_indexes.extend_from_slice(&back);
+
+        
+
+        
+
+        
     }
 }
 

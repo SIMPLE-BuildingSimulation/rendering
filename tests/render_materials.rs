@@ -1,8 +1,9 @@
+
+
 use geometry3d::Point3D;
 use rendering::camera::{Film, Pinhole, View};
 use rendering::material::Material;
 use rendering::ray_tracer::RayTracer;
-
 use geometry3d::{Sphere3D, Triangle3D};
 use rendering::colour::Spectrum;
 use rendering::material::*;
@@ -10,13 +11,14 @@ use rendering::primitive::Primitive;
 use rendering::scene::Scene;
 use rendering::Float;
 
-fn render_ball(mat: Box<dyn Material + Sync>, filename: &str) {
+
+fn render_ball(mat: Material, filename: &str) {
     let mut scene = Scene::new();
 
     // Add room
     const HALF_ROOM_SIZE: Float = 2.5;
 
-    let gray = Box::new(Plastic {
+    let gray = Material::Plastic(Plastic {
         colour: Spectrum {
             red: 0.2,
             green: 0.2,
@@ -27,7 +29,7 @@ fn render_ball(mat: Box<dyn Material + Sync>, filename: &str) {
     });
     let gray = scene.push_material(gray);
 
-    let red = Box::new(Plastic {
+    let red = Material::Plastic(Plastic {
         colour: Spectrum {
             red: 0.9,
             green: 0.36,
@@ -38,7 +40,7 @@ fn render_ball(mat: Box<dyn Material + Sync>, filename: &str) {
     });
     let red = scene.push_material(red);
 
-    let blue = Box::new(Plastic {
+    let blue = Material::Plastic(Plastic {
         colour: Spectrum {
             red: 0.36,
             green: 0.36,
@@ -136,7 +138,7 @@ fn render_ball(mat: Box<dyn Material + Sync>, filename: &str) {
     scene.push_object(mat, mat, Primitive::Sphere(s));
 
     // Add light
-    let glow = scene.push_material(Box::new(Light(
+    let glow = scene.push_material(Material::Light(Light(
         //145, 7, 205
         Spectrum {
             red: 1.,
@@ -168,9 +170,9 @@ fn render_ball(mat: Box<dyn Material + Sync>, filename: &str) {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_ambient_samples: 300,
-        n_shadow_samples: 10,
-        max_depth: 2,
+        n_ambient_samples: 100,
+        n_shadow_samples: 20,
+        max_depth: 1,
         ..RayTracer::default()
     };
 
@@ -178,30 +180,31 @@ fn render_ball(mat: Box<dyn Material + Sync>, filename: &str) {
     buffer.save_hdre(std::path::Path::new(filename));
 }
 
-#[test]
-#[ignore]
-fn test_render_specular_plastic() {
-    // cargo test --features parallel --release --package rendering --test render_materials -- test_render_specular_plastic --ignored --exact --nocapture
 
-    let plastic = Box::new(Plastic {
+#[test]
+fn test_render_specular_plastic() {
+    // cargo test --package rendering --test render_materials -- test_render_specular_plastic --exact --nocapture
+
+    let plastic = Material::Plastic(Plastic {
         colour: Spectrum {
             red: 0.8,
             green: 0.5,
             blue: 0.5,
         },
-        specularity: 0.28,
-        roughness: 0.05,
+        specularity: 0.09,
+        roughness: 0.05, 
     });
 
     render_ball(plastic, "./test_data/images/specular_plastic.hdr")
 }
 
+
 #[test]
-#[ignore]
+
 fn test_render_specular_metal() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_specular_metal --ignored --exact --nocapture
 
-    let metal = Box::new(Metal {
+    let metal = Material::Metal(Metal {
         colour: Spectrum {
             red: 0.0,
             green: 0.5,
@@ -214,11 +217,12 @@ fn test_render_specular_metal() {
     render_ball(metal, "./test_data/images/specular_metal.hdr")
 }
 
+
 #[test]
-#[ignore]
+
 fn test_render_glass() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_glass --ignored --exact --nocapture
-    let metal = Box::new(Glass {
+    let metal = Material::Glass(Glass {
         colour: Spectrum {
             red: 0.9,
             green: 0.9,
@@ -230,12 +234,13 @@ fn test_render_glass() {
     render_ball(metal, "./test_data/images/glass.hdr")
 }
 
+
 #[test]
-#[ignore]
+
 fn test_render_mirror() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_mirror --ignored --exact --nocapture
 
-    let plastic = Box::new(Mirror(Spectrum {
+    let plastic = Material::Mirror(Mirror(Spectrum {
         red: 0.5,
         green: 0.5,
         blue: 0.5,
@@ -244,12 +249,13 @@ fn test_render_mirror() {
     render_ball(plastic, "./test_data/images/mirror.hdr")
 }
 
+
 #[test]
-#[ignore]
+
 fn test_render_dielectric() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_dielectric --ignored --exact --nocapture
 
-    let plastic = Box::new(Dielectric {
+    let dielectric = Material::Dielectric(Dielectric {
         colour: Spectrum {
             red: 0.95,
             green: 0.95,
@@ -258,5 +264,5 @@ fn test_render_dielectric() {
         refraction_index: 1.6,
     });
 
-    render_ball(plastic, "./test_data/images/dielectric.hdr")
+    render_ball(dielectric, "./test_data/images/dielectric.hdr")
 }

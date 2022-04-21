@@ -46,56 +46,77 @@ pub use specular::*;
 
 mod ward;
 
-// pub enum Material {
-//     Plastic(PlasticMetal),
-//     Metal(PlasticMetal),
-//     Light(Spectrum),
-//     Mirror(Spectrum),
-//     Dielectric(Dielectric),
-// }
+pub enum Material {
+    Plastic(Plastic),
+    Metal(Metal),
+    Light(Light),
+    Mirror(Mirror),
+    Dielectric(Dielectric),
+    Glass(Glass),
+}
 
-pub trait Material {
+impl Material {
     /// Returns an id, for debugging and error reporting purposes
-    fn id(&self) -> &str;
+    pub fn id(&self) -> &str{
+        match self{
+            Self::Plastic(m)=>m.id(),
+            Self::Metal(m)=>m.id(),
+            Self::Light(m)=>m.id(),
+            Self::Mirror(m)=>m.id(),
+            Self::Dielectric(m)=>m.id(),
+            Self::Glass(m)=>m.id(),
+        }
+    }
 
     /// Retrieves the Colour of the material. This will usually
     /// represent the values that will multiply the different
     /// elements of the [`Spectrum`]. E.g., the reflectance values.
-    fn colour(&self) -> Spectrum;
+    pub fn colour(&self) -> Spectrum{
+        match self{
+            Self::Plastic(m)=>m.colour(),
+            Self::Metal(m)=>m.colour(),
+            Self::Light(m)=>m.colour(),
+            Self::Mirror(m)=>m.colour(),
+            Self::Dielectric(m)=>m.colour(),
+            Self::Glass(m)=>m.colour(),
+        }
+    }
 
     /// Should this material be tested for direct illumination?    
-    fn emits_direct_light(&self) -> bool {
-        false
+    pub fn emits_direct_light(&self) -> bool {
+        matches!(self, Self::Light(_))        
     }
 
     /// Should this material emits light    
-    fn emits_light(&self) -> bool {
-        false
+    pub fn emits_light(&self) -> bool {
+        matches!(self, Self::Light(_))        
     }
 
     /// Does this material scatter (e.g., like [`Plastic`]) or does it
     /// only transmit/reflects specularly (e.g., like [`Mirror`])?
     ///
     /// Defaults to `false`
-    fn specular_only(&self) -> bool {
-        false
+    pub fn specular_only(&self) -> bool {
+        matches!(self, Self::Mirror(_) | Self::Glass(_) | Self::Dielectric(_))
     }
 
-    fn get_possible_paths(
+    pub fn get_possible_paths(
         &self,
-        _normal: &Vector3D,
-        _intersection_pt: &Point3D,
-        _ray: &Ray,
-    ) -> [Option<(Ray, Float, Float)>; 2] {
-        panic!(
-            "Calling unimplemented method get_possible_paths() for material '{}'",
-            self.id()
-        )
+        normal: &Vector3D,
+        intersection_pt: &Point3D,
+        ray: &Ray,
+    ) -> [Option<(Ray, Float)>; 2] {
+        match self{            
+            Self::Mirror(m)=>m.get_possible_paths(normal, intersection_pt, ray),
+            Self::Dielectric(m)=>m.get_possible_paths(normal, intersection_pt, ray),
+            Self::Glass(m)=>m.get_possible_paths(normal, intersection_pt, ray),
+            _ => panic!("Trying to get possible paths in non-specular material")
+        }
     }
 
     /// Samples the bsdf (returned by modifying the given `Ray`).
     /// Returns the value of the BSDF in that direction (as a Spectrum) and the probability
-    fn sample_bsdf(
+    pub fn sample_bsdf(
         &self,
         normal: Vector3D,
         e1: Vector3D,
@@ -103,18 +124,99 @@ pub trait Material {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Spectrum, Float);
+    ) -> (Spectrum, Float){
+        match self{
+            Self::Plastic(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Metal(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Light(m)=>panic!("Material '{}' has no BSDF", m.id()),
+            Self::Mirror(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Dielectric(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Glass(m)=>m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+        }
+    }
 
     /// Evaluates a BSDF based on an input and outpt directions
-    fn eval_bsdf(
+    pub fn eval_bsdf(
         &self,
         normal: Vector3D,
         e1: Vector3D,
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum;
+    ) -> Spectrum{
+        match self{
+            Self::Plastic(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Metal(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Light(m)=>panic!("Material '{}' has no BSDF", m.id()),
+            Self::Mirror(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Dielectric(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
+            Self::Glass(m)=>m.eval_bsdf(normal, e1, e2, ray, vout),
+        }
+    }
 }
+
+
+// pub trait Material {
+//     /// Returns an id, for debugging and error reporting purposes
+//     pub fn id(&self) -> &str;
+
+//     /// Retrieves the Colour of the material. This will usually
+//     /// represent the values that will multiply the different
+//     /// elements of the [`Spectrum`]. E.g., the reflectance values.
+//     pub fn colour(&self) -> Spectrum;
+
+//     /// Should this material be tested for direct illumination?    
+//     fn emits_direct_light(&self) -> bool {
+//         false
+//     }
+
+//     /// Should this material emits light    
+//     fn emits_light(&self) -> bool {
+//         false
+//     }
+
+//     /// Does this material scatter (e.g., like [`Plastic`]) or does it
+//     /// only transmit/reflects specularly (e.g., like [`Mirror`])?
+//     ///
+//     /// Defaults to `false`
+//     fn specular_only(&self) -> bool {
+//         false
+//     }
+
+//     pub fn get_possible_paths(
+//         &self,
+//         _normal: &Vector3D,
+//         _intersection_pt: &Point3D,
+//         _ray: &Ray,
+//     ) -> [Option<(Ray, Float, Float)>; 2] {
+//         panic!(
+//             "Calling unimplemented method get_possible_paths() for material '{}'",
+//             self.id()
+//         )
+//     }
+
+//     /// Samples the bsdf (returned by modifying the given `Ray`).
+//     /// Returns the value of the BSDF in that direction (as a Spectrum) and the probability
+//     pub fn sample_bsdf(
+//         &self,
+//         normal: Vector3D,
+//         e1: Vector3D,
+//         e2: Vector3D,
+//         intersection_pt: Point3D,
+//         ray: &mut Ray,
+//         rng: &mut RandGen,
+//     ) -> (Spectrum, Float);
+
+//     /// Evaluates a BSDF based on an input and outpt directions
+//     pub fn eval_bsdf(
+//         &self,
+//         normal: Vector3D,
+//         e1: Vector3D,
+//         e2: Vector3D,
+//         ray: &Ray,
+//         vout: Vector3D,
+//     ) -> Spectrum;
+// }
 
 #[cfg(test)]
 mod tests {
@@ -145,7 +247,7 @@ mod tests {
         }
     }
 
-    fn test_material(material: Box<dyn Material>) {
+    fn test_material(material: Material) {
         let mut rng = crate::rand::get_rng();
         for _ in 0..99999 {
             let (normal, e1, e2, mut ray, vout) = get_vectors(&mut rng);
@@ -163,7 +265,7 @@ mod tests {
 
     #[test]
     fn test_sample_plastic() {
-        let plastic = Box::new(Plastic {
+        let plastic = Material::Plastic(Plastic {
             colour: Spectrum {
                 red: 0.5,
                 green: 0.2,
@@ -179,7 +281,7 @@ mod tests {
 
     #[test]
     fn test_sample_metal() {
-        let metal = Box::new(Metal {
+        let metal = Material::Metal(Metal {
             colour: Spectrum {
                 red: 0.5,
                 green: 0.2,
@@ -194,7 +296,7 @@ mod tests {
 
     #[test]
     fn test_sample_mirror() {
-        let mirror = Box::new(Mirror(Spectrum {
+        let mirror = Material::Mirror(Mirror(Spectrum {
             red: 0.5,
             green: 0.2,
             blue: 0.9,
@@ -204,7 +306,7 @@ mod tests {
 
     #[test]
     fn test_sample_dielectric() {
-        let dielectric = Box::new(Dielectric {
+        let dielectric = Material::Dielectric(Dielectric {
             colour: Spectrum {
                 red: 0.5,
                 green: 0.2,

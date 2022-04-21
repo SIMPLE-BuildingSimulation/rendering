@@ -49,12 +49,6 @@ pub fn triangle_direction(triangle: &Triangle3D, point: Point3D) -> (Float, Vect
     (t, direction / t)
 }
 
-pub fn triangle_omega(_triangle: &Triangle3D, _point: Point3D) -> Float {
-    unimplemented!();
-    // let direction = self.outer_centroid() - point;
-    // let t = direction.length_squared();
-    // self.area() / t
-}
 
 pub fn triangle_solid_angle_pdf(
     triangle: &Triangle3D,
@@ -90,19 +84,14 @@ pub fn sphere_direction(sphere: &Sphere3D, point: Point3D) -> (Float, Vector3D) 
     (t - sphere.radius, direction / t)
 }
 
-pub fn sphere_omega(sphere: &Sphere3D, point: Point3D) -> Float {
-    let d2 = (sphere.centre() - point).length_squared();
-    PI * sphere.radius * sphere.radius / d2
-}
-
 pub fn sample_sphere_surface(sphere: &Sphere3D, rng: &mut RandGen) -> Point3D {
     // Sample a sphere of radius 1 centered at the origin
     let p = uniform_sample_sphere(rng);
     let (mut x, mut y, mut z) = (p.x, p.y, p.z);
-    // Scale and translate
-    x = x.mul_add(sphere.radius, sphere.centre().x);
-    y = y.mul_add(sphere.radius, sphere.centre().y);
-    z = z.mul_add(sphere.radius, sphere.centre().z);
+    // Scale and translate... avoid missed lights as well    
+    x = x.mul_add(sphere.radius*(1. - 1e-5), sphere.centre().x);
+    y = y.mul_add(sphere.radius*(1. - 1e-5), sphere.centre().y);
+    z = z.mul_add(sphere.radius*(1. - 1e-5), sphere.centre().z);
 
     // return
     Point3D::new(x, y, z)
@@ -128,9 +117,7 @@ pub fn source_direction(source: &DistantSource3D, _point: Point3D) -> (Float, Ve
     (Float::MAX - 1., source.direction)
 }
 
-pub fn source_omega(source: &DistantSource3D, _point: Point3D) -> Float {
-    source.omega
-}
+
 
 /* END DISTANT SOURCE */
 

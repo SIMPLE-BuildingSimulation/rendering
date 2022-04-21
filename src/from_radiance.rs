@@ -22,8 +22,9 @@ use crate::colour::Spectrum;
 use crate::Float;
 
 use crate::material::{Dielectric, Glass, Light, Metal, Mirror, Plastic};
-use crate::primitive::Primitive;
 
+use crate::primitive::Primitive;
+use crate::material::Material;
 use crate::scene::Scene;
 
 use geometry3d::{
@@ -33,14 +34,14 @@ use geometry3d::{
 use std::fs;
 
 #[derive(Default)]
-struct Scanner {
+struct RadianceReader {
     current_char_index: usize,
     is_done: bool,
     modifiers: Vec<String>,
     line: usize,
 }
 
-impl Scanner {
+impl RadianceReader {
     fn error_here(&self, msg: String) {
         panic!("Error at line {}: {}", self.line, msg)
     }
@@ -184,12 +185,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let metal = Metal {
+        let metal = Material::Metal(Metal {
             colour: Spectrum { red, green, blue },
             specularity,
             roughness,
-        };
-        scene.push_material(Box::new(metal));
+        });
+        scene.push_material(metal);
     }
 
     /// Consumes a Plastic material
@@ -208,12 +209,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let plastic = Plastic {
+        let plastic = Material::Plastic(Plastic {
             colour: Spectrum { red, green, blue },
             specularity,
             roughness,
-        };
-        scene.push_material(Box::new(plastic));
+        });
+        scene.push_material(plastic);
     }
 
     /// Consumes a Light material
@@ -230,8 +231,8 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let light = Light(Spectrum { red, green, blue });
-        scene.push_material(Box::new(light));
+        let light = Material::Light(Light(Spectrum { red, green, blue }));
+        scene.push_material(light);
     }
 
     /// Consumes a Light material
@@ -248,8 +249,8 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let mirror = Mirror(Spectrum { red, green, blue });
-        scene.push_material(Box::new(mirror));
+        let mirror = Material::Mirror(Mirror(Spectrum { red, green, blue }));
+        scene.push_material(mirror);
     }
 
     /// Consumes a Light material
@@ -274,11 +275,12 @@ impl Scanner {
 
         self.modifiers.push(name.to_string());
 
-        let colour = Spectrum { red, green, blue };
-        scene.push_material(Box::new(Dielectric {
-            colour,
+        
+        let dielectric = Material::Dielectric(Dielectric {
+            colour:Spectrum { red, green, blue },
             refraction_index,
-        }));
+        });
+        scene.push_material(dielectric);
     }
 
     /// Consumes a Light material
@@ -295,10 +297,10 @@ impl Scanner {
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = self.consume_token(source).parse::<Float>().unwrap();
                 let colour = Spectrum { red, green, blue };
-                Glass {
+                Material::Glass(Glass {
                     colour,
                     refraction_index,
-                }
+                })
             }
             b"3" => {
                 let red = self.consume_token(source).parse::<Float>().unwrap();
@@ -306,10 +308,10 @@ impl Scanner {
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = 1.52;
                 let colour = Spectrum { red, green, blue };
-                Glass {
+                Material::Glass(Glass {
                     colour,
                     refraction_index,
-                }
+                })
             }
             _ => {
                 panic!(
@@ -320,10 +322,10 @@ impl Scanner {
         };
 
         self.modifiers.push(name.to_string());
-        scene.push_material(Box::new(mat));
+        scene.push_material(mat);
     }
 
-    /// Consumes a sphere
+    /// Consumes a sphere    
     fn consume_sphere(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {
         let t = self.consume_token(source);
         assert_eq!(t, "0".to_string());
@@ -363,6 +365,8 @@ impl Scanner {
         let mod_index = self.get_modifier_index(modifier);
         scene.push_object(mod_index, mod_index, Primitive::Source(distant_source));
     }
+
+
     /// Consumes a polygon
     fn consume_polygon(&mut self, source: &[u8], scene: &mut Scene, modifier: &str, _name: &str) {
         let t = self.consume_token(source);
@@ -409,7 +413,7 @@ impl Scene {
     pub fn from_radiance_source(source: &[u8]) -> Self {
         let mut ret = Self::default();
 
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
 
         while !scanner.is_done {
             scanner.consume_object(source, &mut ret);
@@ -425,7 +429,7 @@ mod tests {
 
     #[test]
     fn test_default() {
-        let scanner = Scanner::default();
+        let scanner = RadianceReader::default();
         assert!(!scanner.is_done);
         assert_eq!(scanner.current_char_index, 0);
     }
@@ -433,7 +437,7 @@ mod tests {
     #[test]
     fn test_token() {
         let source: &[u8] = "car with wheels".as_bytes();
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
 
         scanner.reach_next_token(source);
         assert_eq!(scanner.current_char_index, 0);
@@ -441,7 +445,7 @@ mod tests {
 
         //===
         let source: &[u8] = "    car with wheels".as_bytes();
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
 
         scanner.reach_next_token(source);
         assert_eq!(scanner.current_char_index, 4);
@@ -474,7 +478,7 @@ mod tests {
         4   0 0 0.5 1.5";
 
         let mut scene = Scene::new();
-        let mut scanner = Scanner::default();
+        let mut scanner = RadianceReader::default();
         scanner.consume_object(src, &mut scene);
         assert_eq!(scene.materials.len(), 1);
         assert_eq!(scanner.modifiers.len(), 1);

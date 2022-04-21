@@ -18,6 +18,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+#![feature(portable_simd)]
+
 /// The kind of Floating point number used in the
 /// library... the `"float"` feature means it becomes `f32`
 /// and `f64` is used otherwise.
@@ -46,7 +48,11 @@ pub mod colourmap;
 pub mod image;
 pub mod interaction;
 pub mod material;
+
+
 pub mod primitive;
+
+pub mod triangle;
 pub mod primitive_samplers;
 pub mod rand;
 pub mod ray;
@@ -55,7 +61,8 @@ pub mod scene;
 
 // Readers
 pub mod from_radiance;
-mod from_simple_model;
+pub mod from_simple_model;
+pub mod from_obj;
 
 // Ray-tracer
 pub mod ray_tracer;

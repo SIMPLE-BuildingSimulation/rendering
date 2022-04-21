@@ -19,7 +19,6 @@ SOFTWARE.
 */
 
 use crate::colour::Spectrum;
-use crate::material::Material;
 use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
@@ -32,16 +31,16 @@ pub struct Plastic {
     pub roughness: Float,
 }
 
-impl Material for Plastic {
-    fn id(&self) -> &str {
+impl  Plastic {
+    pub fn id(&self) -> &str {
         "Plastic"
     }
 
-    fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum {
         self.colour
     }
 
-    fn sample_bsdf(
+    pub fn sample_bsdf(
         &self,
         normal: Vector3D,
         e1: Vector3D,
@@ -67,7 +66,7 @@ impl Material for Plastic {
         (bsdf, 1. / weight)
     }
 
-    fn eval_bsdf(
+    pub fn eval_bsdf(
         &self,
         normal: Vector3D,
         e1: Vector3D,
