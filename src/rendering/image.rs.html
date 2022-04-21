@@ -549,6 +549,8 @@
 <span id="510">510</span>
 <span id="511">511</span>
 <span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -870,6 +872,7 @@ SOFTWARE.
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_frexp</span>() {
         <span class="kw">let</span> <span class="ident">xs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1e6</span>, <span class="number">2.</span>, <span class="ident">PI</span>, <span class="number">123987.</span>, <span class="number">0.</span>, <span class="number">99.</span>, <span class="number">2.3123</span>, <span class="number">1024.</span>, <span class="number">0.1</span>];
         <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">xs</span>.<span class="ident">iter</span>() {
@@ -885,6 +888,7 @@ SOFTWARE.
     }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_ldexp</span>() {
         <span class="kw">let</span> <span class="ident">is</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">i32</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>, <span class="op">-</span><span class="number">1</span>, <span class="op">-</span><span class="number">2</span>, <span class="op">-</span><span class="number">3</span>, <span class="op">-</span><span class="number">4</span>];
         <span class="kw">let</span> <span class="ident">xs</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">1e6</span>, <span class="number">2.</span>, <span class="ident">PI</span>, <span class="number">123987.</span>, <span class="number">0.</span>, <span class="number">99.</span>, <span class="number">2.3123</span>, <span class="number">1024.</span>, <span class="number">0.1</span>];
@@ -893,12 +897,12 @@ SOFTWARE.
                 <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">c_ldexp</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">i</span>);
                 <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">rusty_ldexp</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="kw-2">*</span><span class="ident">i</span>);
                 <span class="macro">println!</span>(<span class="string">&quot;{}*2^{} = {} in C and {} in Rust&quot;</span>, <span class="ident">x</span>, <span class="ident">i</span>, <span class="ident">c</span>, <span class="ident">r</span>);
-                <span class="macro">assert_eq!</span>(<span class="ident">c</span>, <span class="ident">r</span>);
+                <span class="macro">assert!</span>( (<span class="ident">c</span> <span class="op">-</span> <span class="ident">r</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;c = {}, r = {} | diff is {}&quot;</span>, <span class="ident">c</span>, <span class="ident">r</span>, (<span class="ident">c</span> <span class="op">-</span> <span class="ident">r</span>).<span class="ident">abs</span>());
             }
         }
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">test</span>]</span>    
     <span class="kw">fn</span> <span class="ident">test_colour_to_rgbe</span>() {
         <span class="comment">// Produced automatically</span>
         <span class="macro">assert_eq!</span>(<span class="ident">colour_to_rgbe</span>(<span class="number">807.</span>, <span class="number">249.</span>, <span class="number">73.</span>), [<span class="number">201</span>, <span class="number">62</span>, <span class="number">18</span>, <span class="number">138</span>]);

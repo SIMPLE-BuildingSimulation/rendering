@@ -992,7 +992,7 @@ SOFTWARE.
                 <span class="ident">trans_dir</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_dir</span>);
             } <span class="kw">else</span> {
                 <span class="comment">// reflection</span>
-                <span class="macro">assert!</span>(<span class="ident">new_dir</span>.<span class="ident">is_same_direction</span>(<span class="ident">mirror_dir</span>));
+                <span class="macro">assert!</span>( (<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_dir</span> <span class="op">*</span> <span class="ident">mirror_dir</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> );
                 <span class="macro">assert!</span>(
                     <span class="ident">new_ray</span>.<span class="ident">refraction_index</span> <span class="op">==</span> <span class="number">1.0</span>,
                     <span class="string">&quot;Expeting n={}, found n={}&quot;</span>,
@@ -1026,9 +1026,9 @@ SOFTWARE.
                     <span class="string">&quot;Expeting n={}, found n={}&quot;</span>,
                     <span class="number">1</span>,
                     <span class="ident">new_ray</span>.<span class="ident">refraction_index</span>
-                );
+                );                
                 <span class="macro">assert!</span>(
-                    <span class="ident">new_dir</span>.<span class="ident">is_same_direction</span>(<span class="ident">dir_zero</span>),
+                    (<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_dir</span> <span class="op">*</span> <span class="ident">dir_zero</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
                     <span class="string">&quot;ray_dir = {} | new_dir = {} | dir_zero = {}&quot;</span>,
                     <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>,
                     <span class="ident">new_dir</span>,
