@@ -13,25 +13,33 @@ jobs:
   test:
     runs-on: ubuntu-latest    
     steps:
-    - uses: actions/checkout@v1   
+    - uses: actions/checkout@v1      
+    - name: Set Toolchain
+      run: rustup default nightly    
     - name: Build
       run: cargo test --verbose
   build_float:    
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1   
+    - uses: actions/checkout@v1      
+    - name: Set Toolchain
+      run: rustup default nightly    
     - name: Build Float
       run: cargo test --verbose --features float   
   build_parallel:    
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1   
+    - uses: actions/checkout@v1      
+    - name: Set Toolchain
+      run: rustup default nightly    
     - name: Build Float
       run: cargo test --verbose --features parallel
   build_parallel_float:    
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1   
+    - uses: actions/checkout@v1      
+    - name: Set Toolchain
+      run: rustup default nightly    
     - name: Build Float
       run: cargo test --verbose --features parallel --features float
   
