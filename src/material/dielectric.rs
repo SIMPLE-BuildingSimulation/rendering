@@ -419,7 +419,7 @@ mod tests {
                 trans_dir = Some(new_dir);
             } else {
                 // reflection
-                assert!(new_dir.is_same_direction(mirror_dir));
+                assert!( (1. - new_dir * mirror_dir).abs() < 1e-5 );
                 assert!(
                     new_ray.refraction_index == 1.0,
                     "Expeting n={}, found n={}",
@@ -453,9 +453,9 @@ mod tests {
                     "Expeting n={}, found n={}",
                     1,
                     new_ray.refraction_index
-                );
+                );                
                 assert!(
-                    new_dir.is_same_direction(dir_zero),
+                    (1. - new_dir * dir_zero).abs() < 1e-5,
                     "ray_dir = {} | new_dir = {} | dir_zero = {}",
                     new_ray.geometry.direction,
                     new_dir,

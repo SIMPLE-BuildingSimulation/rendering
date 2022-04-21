@@ -827,7 +827,7 @@ mod tests {
             .intersect(&scene.triangles, &mut ray, &mut aux)
             .is_some());
 
-        assert!((ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-9);
+        assert!((ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-5, "diff is {}", (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() );
 
         let mut ray = Ray {
             geometry: Ray3D {
@@ -841,7 +841,7 @@ mod tests {
             .intersect(&scene.triangles, &mut ray, &mut aux)
             .is_some());
 
-        assert!((ray.interaction.point - Point3D::new(1., -0.5, 0.)).length() < 1e-9);
+        assert!((ray.interaction.point - Point3D::new(1., -0.5, 0.)).length() < 1e-5);
     }
 
     #[test]

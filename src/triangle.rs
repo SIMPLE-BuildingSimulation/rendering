@@ -576,19 +576,19 @@ mod testing {
             let rc = c - centre;
 
             assert!(
-                (ra.length() - radius).abs() < 1e-8,
+                (ra.length() - radius).abs() < 1e-5,
                 "Expecting ra to be {}... found {}",
                 radius,
                 ra.length()
             );
             assert!(
-                (rb.length() - radius).abs() < 1e-8,
+                (rb.length() - radius).abs() < 1e-5,
                 "Expecting rb to be {}... found {}",
                 radius,
                 rb.length()
             );
             assert!(
-                (rc.length() - radius).abs() < 1e-8,
+                (rc.length() - radius).abs() < 1e-5,
                 "Expecting rc to be {}... found {}",
                 radius,
                 rc.length()
