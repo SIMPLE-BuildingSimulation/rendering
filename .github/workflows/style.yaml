@@ -1,13 +1,15 @@
-on: push
-name: Clippy check
+on: [push, pull_request]
+name: Clippy
 jobs:
-  clippy_check:
+  clippy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1         
-      - name: Set Toolchain
-        run: rustup default nightly    
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
+      - uses: actions/checkout@v1
+      - uses: actions-rs/toolchain@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}          
+            toolchain: nightly
+            components: clippy
+            override: true      
+      - uses: actions-rs/clippy@master
+        with:
+          args: --all-features --all-targets
