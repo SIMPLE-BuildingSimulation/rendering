@@ -390,9 +390,9 @@ fn cornell() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_ambient_samples: 380,
-        n_shadow_samples: 10,
-        max_depth: 3,
+        n_ambient_samples: 1080,
+        n_shadow_samples: 100,
+        max_depth: 0,
         // count_specular_bounce: 0.1,
         ..RayTracer::default()
     };
