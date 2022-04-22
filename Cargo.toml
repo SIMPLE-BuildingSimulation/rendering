@@ -20,7 +20,7 @@ obj-rs = "0.7.0"
 
 [[bin]]
 name = "spict"
-path = "src/bin.rs"
+path = "bin/spict.rs"
 
 [dev-dependencies]
 criterion = "0.3"

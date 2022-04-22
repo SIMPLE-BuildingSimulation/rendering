@@ -165,7 +165,7 @@ impl ImageBuffer {
 
     /// Creates a new empty [`ImageBuffer`] from a File
     pub fn from_file(filename: &Path) -> Result<Self, String> {
-        let content = match std::fs::read(filename) {
+        let mut content = match std::fs::read(filename) {
             Ok(v) => v,
             Err(_) => {
                 return Err(format!(
@@ -174,15 +174,25 @@ impl ImageBuffer {
                 ))
             }
         };
+        let mut content = content.as_slice();
         let filename = filename.to_str().unwrap();
 
         // Read header
         let mut height: Option<usize> = None;
-        let mut width: Option<usize> = None;
-        let mut lines = content.split(|c| (*c as char) == '\n');
-        // READ HEADER
-        // while let Some(line) = lines.next() {
-        for line in lines.by_ref() {
+        let mut width: Option<usize> = None;        
+        
+        // READ HEADER               
+        loop {
+            let nl = match &content.iter().position(|u| *u as char == '\n' ){
+                None => {return Err(format!("Apparentyly incorrectly formatted file"))},
+                Some(i) => *i
+            };
+            
+            let line = &content[0..nl];            
+            dbg!(nl, std::str::from_utf8(line).unwrap() );
+            content = &content[nl+1..];
+            
+            
             if line.starts_with(b"-Y") {
                 let errmsg = {
                     let l = std::str::from_utf8(line).unwrap();
@@ -210,8 +220,7 @@ impl ImageBuffer {
                     Err(_) => {
                         return errmsg;
                     }
-                };
-
+                };                
                 break; // Done with header
             }
 
@@ -236,46 +245,21 @@ impl ImageBuffer {
                 };
                 continue;
             }
-        } // Done with header
+        }        
+        
 
         let width = width.unwrap();
         let height = height.unwrap();
-        let mut pixels: Vec<Spectrum> = Vec::with_capacity(width * height);
+        
 
-        // Now the body
-        let mut r: u8 = 0;
-        let mut g: u8 = 0;
-        let mut b: u8 = 0;
-        let mut counter: u8 = 0; // Keep note on whether we are in r, g, b, or e
-        for line in lines {
-            // if !line.is_empty(){
-            //     println!("Line length = {}", line.len());
-            //     print!("Line --> ");
-            //     for c in line.iter(){
-            //         print!("{}|", *c);
-            //     }
-            //     println!("");
-            // }
-            // break;
-            // for each line and
-            // for each Byte in line
-            // for i in 0..line.len() {
-            for x in line {
-                match counter {
-                    0 => r = *x, //line[i],
-                    1 => g = *x, //line[i],
-                    2 => b = *x, //line[i],
-                    3 => {
-                        // When we register an e, we push value
-                        let e = *x; //line[i];
-                        pixels.push(rgbe_to_colour(r, g, b, e));
-                    }
-                    _ => unreachable!(),
-                }
-                counter += 1;
-                counter %= 4;
-            }
-        } // Finished iterating lines
+        
+        let pixels = content.chunks_exact(4).map(|x| {
+            let (r, g, b, e) = (x[0], x[1], x[2], x[3]);
+            rgbe_to_colour(r, g, b, e)
+
+        }).collect();
+
+        
 
         // return
         Ok(Self {
