@@ -165,7 +165,7 @@ impl ImageBuffer {
 
     /// Creates a new empty [`ImageBuffer`] from a File
     pub fn from_file(filename: &Path) -> Result<Self, String> {
-        let mut content = match std::fs::read(filename) {
+        let content = match std::fs::read(filename) {
             Ok(v) => v,
             Err(_) => {
                 return Err(format!(
@@ -177,11 +177,10 @@ impl ImageBuffer {
         let mut content = content.as_slice();
         let filename = filename.to_str().unwrap();
 
-        // Read header
-        let mut height: Option<usize> = None;
-        let mut width: Option<usize> = None;        
         
         // READ HEADER               
+        let height: Option<usize>;
+        let width: Option<usize>;        
         loop {
             let nl = match &content.iter().position(|u| *u as char == '\n' ){
                 None => {return Err(format!("Apparentyly incorrectly formatted file"))},
@@ -189,7 +188,6 @@ impl ImageBuffer {
             };
             
             let line = &content[0..nl];            
-            dbg!(nl, std::str::from_utf8(line).unwrap() );
             content = &content[nl+1..];
             
             
@@ -246,17 +244,13 @@ impl ImageBuffer {
                 continue;
             }
         }        
-        
-
+        // Setup
         let width = width.unwrap();
         let height = height.unwrap();
-        
-
-        
+        // Read body
         let pixels = content.chunks_exact(4).map(|x| {
             let (r, g, b, e) = (x[0], x[1], x[2], x[3]);
             rgbe_to_colour(r, g, b, e)
-
         }).collect();
 
         
