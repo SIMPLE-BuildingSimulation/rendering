@@ -167,8 +167,8 @@ fn render_ball(mat: Material, filename: &str) {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_ambient_samples: 100,
-        n_shadow_samples: 20,
+        n_ambient_samples: 60,
+        n_shadow_samples: 3,
         max_depth: 1,
         ..RayTracer::default()
     };
@@ -245,7 +245,7 @@ fn test_render_mirror() {
 #[test]
 
 fn test_render_dielectric() {
-    // cargo test --features parallel --release --package rendering --test render_materials -- test_render_dielectric --ignored --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test render_materials -- test_render_dielectric --exact --nocapture
 
     let dielectric = Material::Dielectric(Dielectric {
         colour: Spectrum {

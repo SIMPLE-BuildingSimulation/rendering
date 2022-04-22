@@ -84,11 +84,13 @@ impl RayTracer {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
 
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
-            let material = match ray.interaction.geometry_shading.side {
+            let (material, is_back_side) = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => {
-                    &scene.materials[scene.front_material_indexes[triangle_index]]
+                    (&scene.materials[scene.front_material_indexes[triangle_index]], false)
                 }
-                SurfaceSide::Back => &scene.materials[scene.back_material_indexes[triangle_index]],
+                SurfaceSide::Back => {
+                    (&scene.materials[scene.back_material_indexes[triangle_index]], true)
+                },
                 SurfaceSide::NonApplicable => {
                     // Hit parallel to the surface...
                     return (Spectrum::black(), 0.0);
@@ -124,7 +126,8 @@ impl RayTracer {
             let n1 = scene.normals[triangle_index].1;
             let n2 = scene.normals[triangle_index].2;
             let mut normal = (n0 * u + n1 * v + n2 * (1. - u - v)).get_normalized();
-            if normal * ray.interaction.geometry_shading.normal < 0.0 {
+            // if normal * ray.interaction.geometry_shading.normal < 0.0 {
+            if is_back_side { // Assumed that Normals are at the front
                 normal *= -1.
             }
 

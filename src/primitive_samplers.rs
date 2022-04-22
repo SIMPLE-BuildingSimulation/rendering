@@ -87,10 +87,17 @@ pub fn sample_sphere_surface(sphere: &Sphere3D, rng: &mut RandGen) -> Point3D {
     // Sample a sphere of radius 1 centered at the origin
     let p = uniform_sample_sphere(rng);
     let (mut x, mut y, mut z) = (p.x, p.y, p.z);
-    // Scale and translate... avoid missed lights as well
-    x = x.mul_add(sphere.radius * (1. - 1e-5), sphere.centre().x);
-    y = y.mul_add(sphere.radius * (1. - 1e-5), sphere.centre().y);
-    z = z.mul_add(sphere.radius * (1. - 1e-5), sphere.centre().z);
+    
+    // So, this is here to avoid missed lights as well    
+    #[cfg(feature="float")]
+    const TINY : Float = 1e-2;
+    #[cfg(not(feature="float"))]
+    const TINY : Float = 1e-5;
+    
+    // Scale and translate.
+    x = x.mul_add(sphere.radius * (1. - TINY), sphere.centre().x);
+    y = y.mul_add(sphere.radius * (1. - TINY), sphere.centre().y);
+    z = z.mul_add(sphere.radius * (1. - TINY), sphere.centre().z);
 
     // return
     Point3D::new(x, y, z)

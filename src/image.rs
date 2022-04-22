@@ -61,7 +61,7 @@ fn colour_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
     if v < 1e-19 {
         [0, 0, 0, 0]
     } else {
-        let (mut mantissa, e) = rusty_frexp(v);
+        let (mut mantissa, e) = rusty_frexp(v.into());
         mantissa *= 256.0 / v;
         let r = (red * mantissa).floor() as u8;
         let g = (green * mantissa).floor() as u8;
@@ -290,38 +290,30 @@ impl ImageBuffer {
 mod tests {
     use super::*;
     use crate::PI;
-    #[cfg(not(feature = "float"))]
     use std::os::raw::c_double;
-    #[cfg(feature = "float")]
-    use std::os::raw::c_float;
     use std::os::raw::c_int;
 
-    #[cfg(not(feature = "float"))]
+    
     extern "C" {
         fn frexp(x: c_double, exp: *mut c_int) -> c_double;
         fn ldexp(x: c_double, ex: c_int) -> c_double;
     }
 
-    #[cfg(feature = "float")]
-    extern "C" {
-        fn frexp(x: c_float, exp: *mut c_int) -> c_float;
-        fn ldexp(x: c_float, ex: c_int) -> c_float;
-    }
+    
 
     fn c_frexp(x: Float) -> (Float, i32) {
         let mut exp: c_int = 0;
-        let res = unsafe { frexp(x, &mut exp) };
+        let res = unsafe { frexp(x.into(), &mut exp) } as Float;
         (res, exp as i32)
     }
 
     fn c_ldexp(x: Float, n: i32) -> Float {
-        unsafe { ldexp(x, n) }
+        (unsafe { ldexp(x.into() , n) }) as Float
     }
 
     #[test]
-    #[ignore]
     fn test_frexp() {
-        let xs: Vec<Float> = vec![1e6, 2., PI, 123987., 0., 99., 2.3123, 1024., 0.1];
+        let xs: Vec<Float> = vec![1e6, 2., PI.into(), 123987., 0., 99., 2.3123, 1024., 0.1];
         for x in xs.iter() {
             let (c_mantissa, c_exp) = c_frexp(*x);
             let (mantissa, exp) = rusty_frexp(*x);
@@ -335,7 +327,6 @@ mod tests {
     }
 
     #[test]
-    #[ignore]
     fn test_ldexp() {
         let is: Vec<i32> = vec![1, 2, 3, 4, 5, 6, -1, -2, -3, -4];
         let xs: Vec<Float> = vec![1e6, 2., PI, 123987., 0., 99., 2.3123, 1024., 0.1];

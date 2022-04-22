@@ -99,7 +99,7 @@ impl Dielectric {
 
         let mut ray = *ray;
         // process transmission
-        let pair2 = if trans > 0.0 {
+        let pair2 = if trans > 0.0 && ray_dir * normal < 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;
             ray.refraction_index = n2;
             let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());

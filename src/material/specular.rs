@@ -135,7 +135,8 @@ pub fn fresnel_transmission_dir(
     debug_assert!(cos2 > 0.);
     debug_assert!(n1 > 0.);
     debug_assert!(n2 > 0.);
-    if vin * normal > 0. {
+    if vin * normal > 0.0 {
+        dbg!(vin * normal);
         debug_assert!(vin * normal < 0., "vin*normal = {}", vin * normal);
     }
 
