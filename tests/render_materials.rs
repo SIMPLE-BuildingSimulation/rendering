@@ -151,7 +151,7 @@ fn render_ball(mat: Material, filename: &str) {
 
     // Create film
     let film = Film {
-        resolution: (512, 512),
+        resolution: (64, 64),
     };
 
     // Create view
