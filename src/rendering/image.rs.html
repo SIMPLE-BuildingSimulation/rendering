@@ -526,22 +526,6 @@
 <span id="487">487</span>
 <span id="488">488</span>
 <span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -709,7 +693,7 @@ SOFTWARE.
 
     <span class="doccomment">/// Creates a new empty [`ImageBuffer`] from a File</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_file</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">std::fs::read</span>(<span class="ident">filename</span>) {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">std::fs::read</span>(<span class="ident">filename</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
@@ -718,15 +702,25 @@ SOFTWARE.
                 ))
             }
         };
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">as_slice</span>();
         <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="ident">filename</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>();
 
         <span class="comment">// Read header</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">height</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">lines</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">split</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> (<span class="kw-2">*</span><span class="ident">c</span> <span class="kw">as</span> <span class="ident">char</span>) <span class="op">==</span> <span class="string">&#39;\n&#39;</span>);
-        <span class="comment">// READ HEADER</span>
-        <span class="comment">// while let Some(line) = lines.next() {</span>
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">lines</span>.<span class="ident">by_ref</span>() {
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;        
+        
+        <span class="comment">// READ HEADER               </span>
+        <span class="kw">loop</span> {
+            <span class="kw">let</span> <span class="ident">nl</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">content</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">u</span> <span class="kw">as</span> <span class="ident">char</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> ){
+                <span class="prelude-val">None</span> =&gt; {<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Apparentyly incorrectly formatted file&quot;</span>))},
+                <span class="prelude-val">Some</span>(<span class="ident">i</span>) =&gt; <span class="kw-2">*</span><span class="ident">i</span>
+            };
+            
+            <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="number">0</span>..<span class="ident">nl</span>];            
+            <span class="macro">dbg!</span>(<span class="ident">nl</span>, <span class="ident">std::str::from_utf8</span>(<span class="ident">line</span>).<span class="ident">unwrap</span>() );
+            <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="ident">nl</span><span class="op">+</span><span class="number">1</span>..];
+            
+            
             <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;-Y&quot;</span>) {
                 <span class="kw">let</span> <span class="ident">errmsg</span> <span class="op">=</span> {
                     <span class="kw">let</span> <span class="ident">l</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">line</span>).<span class="ident">unwrap</span>();
@@ -754,8 +748,7 @@ SOFTWARE.
                     <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                         <span class="kw">return</span> <span class="ident">errmsg</span>;
                     }
-                };
-
+                };                
                 <span class="kw">break</span>; <span class="comment">// Done with header</span>
             }
 
@@ -780,46 +773,21 @@ SOFTWARE.
                 };
                 <span class="kw">continue</span>;
             }
-        } <span class="comment">// Done with header</span>
+        }        
+        
 
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">height</span>.<span class="ident">unwrap</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pixels</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>);
+        
 
-        <span class="comment">// Now the body</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">g</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">b</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">counter</span>: <span class="ident">u8</span> <span class="op">=</span> <span class="number">0</span>; <span class="comment">// Keep note on whether we are in r, g, b, or e</span>
-        <span class="kw">for</span> <span class="ident">line</span> <span class="kw">in</span> <span class="ident">lines</span> {
-            <span class="comment">// if !line.is_empty(){</span>
-            <span class="comment">//     println!(&quot;Line length = {}&quot;, line.len());</span>
-            <span class="comment">//     print!(&quot;Line --&gt; &quot;);</span>
-            <span class="comment">//     for c in line.iter(){</span>
-            <span class="comment">//         print!(&quot;{}|&quot;, *c);</span>
-            <span class="comment">//     }</span>
-            <span class="comment">//     println!(&quot;&quot;);</span>
-            <span class="comment">// }</span>
-            <span class="comment">// break;</span>
-            <span class="comment">// for each line and</span>
-            <span class="comment">// for each Byte in line</span>
-            <span class="comment">// for i in 0..line.len() {</span>
-            <span class="kw">for</span> <span class="ident">x</span> <span class="kw">in</span> <span class="ident">line</span> {
-                <span class="kw">match</span> <span class="ident">counter</span> {
-                    <span class="number">0</span> =&gt; <span class="ident">r</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">x</span>, <span class="comment">//line[i],</span>
-                    <span class="number">1</span> =&gt; <span class="ident">g</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">x</span>, <span class="comment">//line[i],</span>
-                    <span class="number">2</span> =&gt; <span class="ident">b</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">x</span>, <span class="comment">//line[i],</span>
-                    <span class="number">3</span> =&gt; {
-                        <span class="comment">// When we register an e, we push value</span>
-                        <span class="kw">let</span> <span class="ident">e</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">x</span>; <span class="comment">//line[i];</span>
-                        <span class="ident">pixels</span>.<span class="ident">push</span>(<span class="ident">rgbe_to_colour</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">e</span>));
-                    }
-                    <span class="kw">_</span> =&gt; <span class="macro">unreachable!</span>(),
-                }
-                <span class="ident">counter</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="ident">counter</span> <span class="op">%</span><span class="op">=</span> <span class="number">4</span>;
-            }
-        } <span class="comment">// Finished iterating lines</span>
+        
+        <span class="kw">let</span> <span class="ident">pixels</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">chunks_exact</span>(<span class="number">4</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">e</span>) <span class="op">=</span> (<span class="ident">x</span>[<span class="number">0</span>], <span class="ident">x</span>[<span class="number">1</span>], <span class="ident">x</span>[<span class="number">2</span>], <span class="ident">x</span>[<span class="number">3</span>]);
+            <span class="ident">rgbe_to_colour</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">e</span>)
+
+        }).<span class="ident">collect</span>();
+
+        
 
         <span class="comment">// return</span>
         <span class="prelude-val">Ok</span>(<span class="self">Self</span> {
