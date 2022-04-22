@@ -520,12 +520,6 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -693,7 +687,7 @@ SOFTWARE.
 
     <span class="doccomment">/// Creates a new empty [`ImageBuffer`] from a File</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_file</span>(<span class="ident">filename</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span> {
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">std::fs::read</span>(<span class="ident">filename</span>) {
+        <span class="kw">let</span> <span class="ident">content</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">std::fs::read</span>(<span class="ident">filename</span>) {
             <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
             <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
                 <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
@@ -705,11 +699,10 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">content</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">as_slice</span>();
         <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="ident">filename</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>();
 
-        <span class="comment">// Read header</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">height</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;        
         
         <span class="comment">// READ HEADER               </span>
+        <span class="kw">let</span> <span class="ident">height</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;
+        <span class="kw">let</span> <span class="ident">width</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>;        
         <span class="kw">loop</span> {
             <span class="kw">let</span> <span class="ident">nl</span> <span class="op">=</span> <span class="kw">match</span> <span class="kw-2">&amp;</span><span class="ident">content</span>.<span class="ident">iter</span>().<span class="ident">position</span>(<span class="op">|</span><span class="ident">u</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">u</span> <span class="kw">as</span> <span class="ident">char</span> <span class="op">==</span> <span class="string">&#39;\n&#39;</span> ){
                 <span class="prelude-val">None</span> =&gt; {<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Apparentyly incorrectly formatted file&quot;</span>))},
@@ -717,7 +710,6 @@ SOFTWARE.
             };
             
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="number">0</span>..<span class="ident">nl</span>];            
-            <span class="macro">dbg!</span>(<span class="ident">nl</span>, <span class="ident">std::str::from_utf8</span>(<span class="ident">line</span>).<span class="ident">unwrap</span>() );
             <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="ident">nl</span><span class="op">+</span><span class="number">1</span>..];
             
             
@@ -774,17 +766,13 @@ SOFTWARE.
                 <span class="kw">continue</span>;
             }
         }        
-        
-
+        <span class="comment">// Setup</span>
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">height</span>.<span class="ident">unwrap</span>();
-        
-
-        
+        <span class="comment">// Read body</span>
         <span class="kw">let</span> <span class="ident">pixels</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">chunks_exact</span>(<span class="number">4</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">e</span>) <span class="op">=</span> (<span class="ident">x</span>[<span class="number">0</span>], <span class="ident">x</span>[<span class="number">1</span>], <span class="ident">x</span>[<span class="number">2</span>], <span class="ident">x</span>[<span class="number">3</span>]);
             <span class="ident">rgbe_to_colour</span>(<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">e</span>)
-
         }).<span class="ident">collect</span>();
 
         
