@@ -175,6 +175,13 @@
 <span id="136">136</span>
 <span id="137">137</span>
 <span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -264,10 +271,17 @@ SOFTWARE.
     <span class="comment">// Sample a sphere of radius 1 centered at the origin</span>
     <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">uniform_sample_sphere</span>(<span class="ident">rng</span>);
     <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">x</span>, <span class="kw-2">mut</span> <span class="ident">y</span>, <span class="kw-2">mut</span> <span class="ident">z</span>) <span class="op">=</span> (<span class="ident">p</span>.<span class="ident">x</span>, <span class="ident">p</span>.<span class="ident">y</span>, <span class="ident">p</span>.<span class="ident">z</span>);
-    <span class="comment">// Scale and translate... avoid missed lights as well</span>
-    <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">x</span>);
-    <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">y</span>);
-    <span class="ident">z</span> <span class="op">=</span> <span class="ident">z</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">1e-5</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">z</span>);
+    
+    <span class="comment">// So, this is here to avoid missed lights as well    </span>
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;float&quot;</span>)]</span>
+    <span class="kw">const</span> <span class="ident">TINY</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="number">1e-2</span>;
+    <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span><span class="op">=</span><span class="string">&quot;float&quot;</span>))]</span>
+    <span class="kw">const</span> <span class="ident">TINY</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="number">1e-5</span>;
+    
+    <span class="comment">// Scale and translate.</span>
+    <span class="ident">x</span> <span class="op">=</span> <span class="ident">x</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">TINY</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">x</span>);
+    <span class="ident">y</span> <span class="op">=</span> <span class="ident">y</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">TINY</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">y</span>);
+    <span class="ident">z</span> <span class="op">=</span> <span class="ident">z</span>.<span class="ident">mul_add</span>(<span class="ident">sphere</span>.<span class="ident">radius</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">TINY</span>), <span class="ident">sphere</span>.<span class="ident">centre</span>().<span class="ident">z</span>);
 
     <span class="comment">// return</span>
     <span class="ident">Point3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>)
@@ -314,5 +328,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (879aff385 2022-04-20)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
 </body></html>

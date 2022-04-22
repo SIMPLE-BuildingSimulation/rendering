@@ -575,6 +575,9 @@
 <span id="536">536</span>
 <span id="537">537</span>
 <span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -661,11 +664,13 @@ SOFTWARE.
         <span class="kw">let</span> <span class="ident">one_over_ambient_samples</span> <span class="op">=</span> <span class="number">1.</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
 
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">triangle_index</span>) <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">cast_ray</span>(<span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">aux</span>.<span class="ident">nodes</span>) {
-            <span class="kw">let</span> <span class="ident">material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>.<span class="ident">side</span> {
+            <span class="kw">let</span> (<span class="ident">material</span>, <span class="ident">is_back_side</span>) <span class="op">=</span> <span class="kw">match</span> <span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>.<span class="ident">side</span> {
                 <span class="ident">SurfaceSide::Front</span> =&gt; {
-                    <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">scene</span>.<span class="ident">front_material_indexes</span>[<span class="ident">triangle_index</span>]]
+                    (<span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">scene</span>.<span class="ident">front_material_indexes</span>[<span class="ident">triangle_index</span>]], <span class="bool-val">false</span>)
                 }
-                <span class="ident">SurfaceSide::Back</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">scene</span>.<span class="ident">back_material_indexes</span>[<span class="ident">triangle_index</span>]],
+                <span class="ident">SurfaceSide::Back</span> =&gt; {
+                    (<span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">scene</span>.<span class="ident">back_material_indexes</span>[<span class="ident">triangle_index</span>]], <span class="bool-val">true</span>)
+                },
                 <span class="ident">SurfaceSide::NonApplicable</span> =&gt; {
                     <span class="comment">// Hit parallel to the surface...</span>
                     <span class="kw">return</span> (<span class="ident">Spectrum::black</span>(), <span class="number">0.0</span>);
@@ -701,7 +706,8 @@ SOFTWARE.
             <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">normals</span>[<span class="ident">triangle_index</span>].<span class="number">1</span>;
             <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">normals</span>[<span class="ident">triangle_index</span>].<span class="number">2</span>;
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">normal</span> <span class="op">=</span> (<span class="ident">n0</span> <span class="op">*</span> <span class="ident">u</span> <span class="op">+</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">v</span> <span class="op">+</span> <span class="ident">n2</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">u</span> <span class="op">-</span> <span class="ident">v</span>)).<span class="ident">get_normalized</span>();
-            <span class="kw">if</span> <span class="ident">normal</span> <span class="op">*</span> <span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
+            <span class="comment">// if normal * ray.interaction.geometry_shading.normal &lt; 0.0 {</span>
+            <span class="kw">if</span> <span class="ident">is_back_side</span> { <span class="comment">// Assumed that Normals are at the front</span>
                 <span class="ident">normal</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1.</span>
             }
 
@@ -1114,5 +1120,5 @@ SOFTWARE.
     <span class="comment">// use super::*;</span>
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (879aff385 2022-04-20)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
 </body></html>
