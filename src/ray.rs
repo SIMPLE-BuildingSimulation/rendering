@@ -37,7 +37,7 @@ pub struct Ray {
 
     pub depth: usize,
 
-    pub specular_depth: usize,
+    
 
     pub value: Float,
 }
@@ -52,7 +52,6 @@ impl std::default::Default for Ray {
             refraction_index: 1.,
             interaction: Interaction::default(),
             depth: 0,
-            specular_depth: 0,
             value: 1.,
         }
     }

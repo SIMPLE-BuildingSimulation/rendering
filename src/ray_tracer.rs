@@ -34,8 +34,8 @@ use geometry3d::{Point3D, Ray3D, Vector3D};
 use rayon::prelude::*;
 
 pub struct RayTracerHelper {
-    rays: Vec<Ray>,
-    nodes: Vec<usize>,
+    pub rays: Vec<Ray>,
+    pub nodes: Vec<usize>,
 }
 
 impl std::default::Default for RayTracerHelper {
@@ -77,8 +77,8 @@ impl RayTracer {
         rng: &mut RandGen,
         scene: &Scene,
         ray: &mut Ray,
-        current_depth: usize,
-        current_value: Float,
+        // current_depth: usize,
+        // current_value: Float,
         aux: &mut RayTracerHelper,
     ) -> (Spectrum, Float) {
         let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
@@ -97,7 +97,6 @@ impl RayTracer {
                 }
             };
 
-            // let intersection_pt = ray.geometry.project(t);
             let intersection_pt = ray.interaction.point;
 
             // for now, emmiting materials don't reflect... but they
@@ -113,7 +112,7 @@ impl RayTracer {
             }
 
             // Limit bounces
-            if current_depth > self.max_depth {
+            if ray.depth > self.max_depth {
                 return (Spectrum::black(), 0.0);
             }
 
@@ -140,7 +139,7 @@ impl RayTracer {
             debug_assert!((1.0 - e1.length()).abs() < 1e-5);
             debug_assert!((1.0 - e2.length()).abs() < 1e-5);
 
-            let mut wt = current_value;
+            let mut wt = ray.value;
 
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
@@ -153,19 +152,21 @@ impl RayTracer {
                     let new_ray_dir = new_ray.geometry.direction;
                     let cos_theta = (normal * new_ray_dir).abs();
                     let new_value = wt * bsdf_value * cos_theta;
+                    ray.value = new_value;
 
                     // avoid infinite interior bouncing
-                    let new_depth = {
+                    // let new_depth = {
                         let q: Float = rng.gen();
                         if q < self.count_specular_bounce {
-                            current_depth + 1
-                        } else {
-                            current_depth
-                        }
-                    };
+                            new_ray.depth += 1;
+                        } 
+                    //     else {
+                    //         current_depth
+                    //     }
+                    // };
 
                     let (li, _light_pdf) =
-                        self.trace_ray(rng, scene, &mut new_ray, new_depth, new_value, aux);
+                        self.trace_ray(rng, scene, &mut new_ray, /*new_depth, new_value,*/ aux);
 
                     let color = material.colour();
                     specular_li += (li * cos_theta * *bsdf_value) * (color);
@@ -175,12 +176,12 @@ impl RayTracer {
 
             let n_ambient_samples = if self.max_depth == 0 {
                 0 // No ambient samples required
-            } else if current_depth == 0 {
+            } else if ray.depth == 0 {
                 self.n_ambient_samples
             } else {
                 /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
 
-                let d = 0.8 * current_value /*intens(rcol)*/* current_value * one_over_ambient_samples
+                let d = 0.8 * ray.value /*intens(rcol)*/* ray.value * one_over_ambient_samples
                     / self.limit_weight;
                 if wt > d {
                     wt = d;
@@ -197,7 +198,7 @@ impl RayTracer {
 
             // Calculate the number of direct samples
 
-            let n_shadow_samples = if current_depth == 0 {
+            let n_shadow_samples = if ray.depth == 0 {
                 self.n_shadow_samples
             } else {
                 1
@@ -224,14 +225,14 @@ impl RayTracer {
                 scene,
                 n_ambient_samples,
                 n_shadow_samples,
-                current_depth,
+                // current_depth,
                 material,
                 normal,
                 e1,
                 e2,
                 ray,
                 intersection_pt,
-                wt,
+                // wt,
                 rng,
                 aux,
             );
@@ -380,19 +381,18 @@ impl RayTracer {
         scene: &Scene,
         n_ambient_samples: usize,
         n_shadow_samples: usize,
-        current_depth: usize,
         material: &Material,
         normal: Vector3D,
         e1: Vector3D,
         e2: Vector3D,
         ray: &mut Ray,
         intersection_pt: Point3D,
-        wt: Float,
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
     ) -> Spectrum {
         let mut global = Spectrum::black();
-        let depth = current_depth; //ray.depth;
+        // let depth = current_depth; //ray.depth;
+        let depth = ray.depth;
         aux.rays[depth] = *ray;
 
         for _ in 0..n_ambient_samples {
@@ -406,9 +406,11 @@ impl RayTracer {
             );
 
             // increase depth
-            let new_depth = current_depth + 1;
+            // let new_depth = current_depth + 1;
+            ray.depth += 1;
             let cos_theta = (normal * new_ray_dir).abs();
-            let new_value = bsdf_value.radiance() * wt * cos_theta / pdf;
+            // let new_value = bsdf_value.radiance() * wt * cos_theta / pdf;
+            ray.value = bsdf_value.radiance() * ray.value * cos_theta / pdf;
 
             // russian roulette
             // if self.limit_weight > 0. && new_value < self.limit_weight {
@@ -418,7 +420,7 @@ impl RayTracer {
             //     }
             // }
 
-            let (li, light_pdf) = self.trace_ray(rng, scene, ray, new_depth, new_value, aux);
+            let (li, light_pdf) = self.trace_ray(rng, scene, ray, /*new_depth, new_value,*/ aux);
 
             let fx = (li * cos_theta) * bsdf_value;
             let denominator = bsdf_value.radiance() * n_ambient_samples as Float
@@ -440,8 +442,8 @@ impl RayTracer {
         let total_pixels = width * height;
         let mut pixels = vec![Spectrum::black(); total_pixels];
 
-        let n_threads = 8;
-        let chunk_len = total_pixels / n_threads;
+        
+        let chunk_len = 128;
         let i: Vec<&mut [Spectrum]> = pixels.chunks_mut(chunk_len).collect();
 
         #[cfg(not(feature = "parallel"))]
@@ -464,8 +466,9 @@ impl RayTracer {
                 let y = (pindex as Float / width as Float).floor() as usize;
                 let x = pindex - y * width;
                 let (mut ray, weight) = camera.gen_ray(&CameraSample { p_film: (x, y) });
+                ray.value = weight;
 
-                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, 0, weight, &mut aux);
+                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, /*0, weight, */&mut aux);
                 *pixel = v;
 
                 // report

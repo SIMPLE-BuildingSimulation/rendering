@@ -32,6 +32,7 @@ use crate::colour::Spectrum;
 use crate::Float;
 use std::io::Write;
 use std::path::Path;
+use crate::colourmap::Colourmap;
 
 /// Equivalent to C's `frexp` function
 fn rusty_frexp(s: Float) -> (Float, i32) {
@@ -262,6 +263,98 @@ impl ImageBuffer {
             pixels,
         })
     } // end of from_file()
+
+
+
+
+    /// Creates a new version of an image, but in (log10) falsecolour
+    pub fn log_falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap)->Self{
+        
+        let log_luminance : Vec<Float> = self.pixels.iter().map(|x| x.luminance().log10()).collect();
+        const MIN_MIN: Float = 0.001;
+        // Get min and max        
+        let log_min = match min {
+            Some(mut v)=> { v = v.max(MIN_MIN); v.log10()},
+            None => MIN_MIN.log10()
+        };
+        let log_max = match max {
+            Some(v)=>v.log10(),
+            None => {
+                let mut m = MIN_MIN;
+                log_luminance.iter().for_each(|v| if *v > m { m = *v });
+                if m <= MIN_MIN {
+                    m = 2.*MIN_MIN;
+                }
+                m
+            }
+        };
+        
+        
+        let scale = match scale {
+            Colourmap::Inferno => crate::colourmap::inferno::INFERNO_COLOURMAP.as_slice(),
+            Colourmap::Magma => crate::colourmap::magma::MAGMA_COLOURMAP.as_slice(),
+            Colourmap::Plasma => crate::colourmap::plasma::PLASMA_COLOURMAP.as_slice(),
+            Colourmap::Radiance => crate::colourmap::radiance::RADIANCE_COLOURMAP.as_slice(),
+            Colourmap::Viridis => crate::colourmap::viridis::VIRIDIS_COLOURMAP.as_slice(),
+        };
+
+        let pixels = log_luminance.iter().map(|x| {
+            crate::colourmap::map_linear_colour(*x, log_min, log_max, scale)
+        } ).collect();
+
+        Self{
+            pixels, 
+            width: self.width,
+            height: self.height,
+        }
+
+        
+    }
+
+    /// Creates a new version of an image, but in (linear) falsecolour
+    pub fn falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap)->Self{
+                
+        let luminance : Vec<Float> = self.pixels.iter().map(|x| x.luminance()).collect();
+
+        const MIN_MIN: Float = 0.000;
+        // Get min and max        
+        let min = match min {
+            Some(mut v)=> { v = v.max(MIN_MIN); v},
+            None => MIN_MIN
+        };
+        let max = match max {
+            Some(v)=>v,
+            None => {
+                let mut m = MIN_MIN;
+                luminance.iter().for_each(|v| if *v > m { m = *v });
+                if m <= MIN_MIN {
+                    m = 2.*MIN_MIN;
+                }
+                m
+            }
+        };
+        
+        
+        let scale = match scale {
+            Colourmap::Inferno => crate::colourmap::inferno::INFERNO_COLOURMAP.as_slice(),
+            Colourmap::Magma => crate::colourmap::magma::MAGMA_COLOURMAP.as_slice(),
+            Colourmap::Plasma => crate::colourmap::plasma::PLASMA_COLOURMAP.as_slice(),
+            Colourmap::Radiance => crate::colourmap::radiance::RADIANCE_COLOURMAP.as_slice(),
+            Colourmap::Viridis => crate::colourmap::viridis::VIRIDIS_COLOURMAP.as_slice(),
+        };
+
+        let pixels = luminance.iter().map(|x| {
+            crate::colourmap::map_linear_colour(*x, min, max, scale)
+        } ).collect();
+
+        Self{
+            pixels, 
+            width: self.width,
+            height: self.height,
+        }
+
+        
+    }
 }
 
 #[cfg(test)]
@@ -317,6 +410,8 @@ mod tests {
             }
         }
     }
+
+
 
     #[test]    
     fn test_colour_to_rgbe() {
@@ -479,5 +574,16 @@ mod tests {
         assert_eq!(buffer.height, 367);
         // assert_eq!(buffer.pixels.len(), 1024*768);
         buffer.save_hdre(Path::new("./test_data/images/cornell_COPIED.hdr"))
+    }
+
+    #[test]
+    #[ignore]
+    fn test_falsecolor() {
+        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/cornell.hdr")).unwrap();
+        // assert_eq!(buffer.width, 512);
+        // assert_eq!(buffer.height, 367);
+        // assert_eq!(buffer.pixels.len(), 1024*768);
+        let buffer = buffer.falsecolour(None, Some(100.), Colourmap::Viridis);
+        buffer.save_hdre(Path::new("./test_data/images/cornell_fc.hdr"))
     }
 }

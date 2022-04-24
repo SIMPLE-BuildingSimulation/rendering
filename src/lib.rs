@@ -58,6 +58,9 @@ pub mod samplers;
 pub mod scene;
 pub mod triangle;
 
+// Climate Based Daylight Model
+pub mod d_coefficients;
+pub mod colour_matrix;
 // Readers
 pub mod from_obj;
 pub mod from_radiance;

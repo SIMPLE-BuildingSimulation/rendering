@@ -18,8 +18,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+pub mod radiance;
+pub mod inferno;
+pub mod magma;
+pub mod plasma;
+pub mod viridis;
+
 use crate::colour::Spectrum;
 use crate::Float;
+
+/// The options of Colourmap to choose from when falsecolouring an image.
+pub enum Colourmap {
+    /// Emulates the default Radiance's Colourmap. 
+    Radiance,
+    /// One of the colourmaps that is "analytically be perfectly 
+    /// perceptually-uniform, both in regular form and also when 
+    /// converted to black-and-white" described in [here](https://bids.github.io/colormap/)
+    Inferno,
+    /// One of the colourmaps that is "analytically be perfectly 
+    /// perceptually-uniform, both in regular form and also when 
+    /// converted to black-and-white" described in [here](https://bids.github.io/colormap/)
+    Magma, 
+    /// One of the colourmaps that is "analytically be perfectly 
+    /// perceptually-uniform, both in regular form and also when 
+    /// converted to black-and-white" described in [here](https://bids.github.io/colormap/)
+    Plasma, 
+    /// The deafult Colourmap in this library. 
+    /// Also, one of the colourmaps that is "analytically be perfectly 
+    /// perceptually-uniform, both in regular form and also when 
+    /// converted to black-and-white" described in [here](https://bids.github.io/colormap/).    
+    Viridis
+}
 
 pub fn map_linear_colour(x: Float, min: Float, max: Float, map: &[Spectrum]) -> Spectrum {
     if x <= min {
@@ -30,7 +59,7 @@ pub fn map_linear_colour(x: Float, min: Float, max: Float, map: &[Spectrum]) -> 
 
     let delta = (max - min) / (map.len() - 1) as Float;
     for i in 1..map.len() {
-        let bin_start = i as Float * delta;
+        let bin_start = min + (i-1) as Float * delta;
         let bin_end = bin_start + delta;
         if x <= bin_end {
             let lam = (x - bin_start) / delta;
