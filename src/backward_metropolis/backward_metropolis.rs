@@ -93,7 +93,7 @@ impl BackwardMetropolis {
         let mut fx1 = x1.eval_from_node(0, scene);
         let mut pixel1 = anchor_i;
 
-        let mut pixels = vec![Spectrum::black(); total_pixels];
+        let mut pixels = vec![Spectrum::BLACK; total_pixels];
 
         let mut lp = 0.0;
         // Now loop.

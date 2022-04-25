@@ -38,27 +38,27 @@ impl Dielectric {
         cos1: Float,
         n2: Float,
         cos2: Option<Float>,
-    ) -> (Float, Float) {
+    ) -> (Spectrum, Spectrum) {
         debug_assert!(cos1 > 0.0);
         if let Some(cos2) = cos2 {
             // There is refraction
             let refl = fresnel_reflectance(n1, cos1, n2, cos2);
-            let refl_comp = refl / cos1;
+            let refl_comp = refl;
             // This is one source of non-symmetrical BSDF
             // (check Eric Veach's thesis, chapter 5 )
             /* IF RADIANCE */
             let ratio = n2 / n1;
             let n_ratio2 = ratio * ratio;
-            let t_comp = (1. - refl) * n_ratio2 / cos1;
+            let t_comp = (1. - refl) * n_ratio2;
             /* IF IMPORTANCE */
             // let t_comp = (1. - refl) / cos1;
 
             // return
-            (refl_comp, t_comp)
+            (Spectrum::gray(1.)*refl_comp/cos1, self.colour*t_comp/cos2)
         } else {
             // pure reflection
             // (1. / cos1, 0.)
-            (1. / cos1, 0.)
+            (Spectrum::gray(1.) / cos1, Spectrum::BLACK)
         }
     }
 }
@@ -77,7 +77,7 @@ impl Dielectric {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Float)>; 2] {
+    ) -> [Option<(Ray, Spectrum)>; 2] {
         let normal = *normal;
         let intersection_pt = *intersection_pt;
 
@@ -99,7 +99,7 @@ impl Dielectric {
 
         let mut ray = *ray;
         // process transmission
-        let pair2 = if trans > 0.0 && ray_dir * normal < 0.0 {
+        let pair2 = if trans.radiance() > 0.0 && ray_dir * normal < 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;
             ray.refraction_index = n2;
             let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
@@ -115,65 +115,66 @@ impl Dielectric {
 
     pub fn sample_bsdf(
         &self,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
-        intersection_pt: Point3D,
-        ray: &mut Ray,
-        rng: &mut RandGen,
+        _normal: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
+        _intersection_pt: Point3D,
+        _ray: &mut Ray,
+        _rng: &mut RandGen,
     ) -> (Spectrum, Float) {
-        debug_assert!(
-            (ray.geometry.direction.length() - 1.).abs() < 1e-5,
-            "Length was {}",
-            ray.geometry.direction.length()
-        );
-        debug_assert!((e1 * e2).abs() < 1e-5, "e1*e2= {} ", (e1 * e2).abs());
-        debug_assert!(
-            (e1 * normal).abs() < 1e-5,
-            "e1*normal = {}",
-            e1 * normal.abs()
-        );
+        unreachable!();
+        // debug_assert!(
+        //     (ray.geometry.direction.length() - 1.).abs() < 1e-5,
+        //     "Length was {}",
+        //     ray.geometry.direction.length()
+        // );
+        // debug_assert!((e1 * e2).abs() < 1e-5, "e1*e2= {} ", (e1 * e2).abs());
+        // debug_assert!(
+        //     (e1 * normal).abs() < 1e-5,
+        //     "e1*normal = {}",
+        //     e1 * normal.abs()
+        // );
 
-        debug_assert!(
-            (e2 * normal).abs() < 1e-5,
-            "e2*normal = {}",
-            (e2 * normal).abs()
-        );
+        // debug_assert!(
+        //     (e2 * normal).abs() < 1e-5,
+        //     "e2*normal = {}",
+        //     (e2 * normal).abs()
+        // );
 
-        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
-        let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
-        let mirror_dir = mirror_direction(ray.geometry.direction, normal);
-        debug_assert!(
-            (1. - mirror_dir.length()).abs() < 1e-5,
-            "length is {}",
-            mirror_dir.length()
-        );
+        // let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
+        // let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
+        // let mirror_dir = mirror_direction(ray.geometry.direction, normal);
+        // debug_assert!(
+        //     (1. - mirror_dir.length()).abs() < 1e-5,
+        //     "length is {}",
+        //     mirror_dir.length()
+        // );
 
-        let r: Float = rng.gen();
-        if r <= refl / (refl + trans) {
-            // Reflection
-            // avoid self shading
-            ray.geometry.origin = intersection_pt + normal * 0.00001;
+        // let r: Float = rng.gen();
+        // if r <= refl / (refl + trans) {
+        //     // Reflection
+        //     // avoid self shading
+        //     ray.geometry.origin = intersection_pt + normal * 0.00001;
 
-            ray.geometry.direction = mirror_dir;
-            (self.colour * refl, refl / (refl + trans))
-        } else {
-            // Transmission
-            // avoid self shading
-            ray.geometry.origin = intersection_pt - normal * 0.00001;
+        //     ray.geometry.direction = mirror_dir;
+        //     (self.colour * refl, refl / (refl + trans))
+        // } else {
+        //     // Transmission
+        //     // avoid self shading
+        //     ray.geometry.origin = intersection_pt - normal * 0.00001;
 
-            ray.refraction_index = n2;
-            let trans_dir = fresnel_transmission_dir(
-                ray.geometry.direction,
-                normal,
-                n1,
-                cos1,
-                n2,
-                cos2.unwrap(),
-            );
-            ray.geometry.direction = trans_dir;
-            (self.colour * trans, trans / (refl + trans))
-        }
+        //     ray.refraction_index = n2;
+        //     let trans_dir = fresnel_transmission_dir(
+        //         ray.geometry.direction,
+        //         normal,
+        //         n1,
+        //         cos1,
+        //         n2,
+        //         cos2.unwrap(),
+        //     );
+        //     ray.geometry.direction = trans_dir;
+        //     (self.colour * trans, trans / (refl + trans))
+        // }
     }
 
     pub fn eval_bsdf(
@@ -215,7 +216,7 @@ impl Dielectric {
         }
 
         // Neither...
-        Spectrum::black()
+        Spectrum::BLACK
     }
 }
 
@@ -501,7 +502,7 @@ mod tests {
                     refraction_index, ray.refraction_index
                 );
                 assert!(
-                    bsdf.is_finite() && !bsdf.is_nan(),
+                    bsdf.radiance().is_finite() && !bsdf.radiance().is_nan(),
                     "impossible BSDF --> {}",
                     bsdf
                 );
@@ -519,7 +520,7 @@ mod tests {
                     refraction_index, ray.refraction_index
                 );
                 assert!(
-                    bsdf.is_finite() && !bsdf.is_nan(),
+                    bsdf.radiance().is_finite() && !bsdf.radiance().is_nan(),
                     "impossible BSDF --> {}",
                     bsdf
                 );

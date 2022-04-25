@@ -55,7 +55,7 @@ impl Glass {
         cos1: Float,
         n2: Float,
         cos2: Option<Float>,
-    ) -> (Float, Float) {
+    ) -> (Spectrum, Spectrum) {
         debug_assert!(cos1 > 0.0);
 
         // Check if there is any transmission
@@ -65,7 +65,7 @@ impl Glass {
         // Now calculate components
         if let Some(cos2) = cos2 {
             // There is refraction
-            let ct = 1. / cos2;
+            let ct = self.colour/cos2;
             let ct2 = ct.powi(2);
 
             let fte = fresnel_te(n1, cos1, n2, cos2).powi(2);
@@ -74,25 +74,26 @@ impl Glass {
             let ftm2 = ftm.powi(2);
 
             // Process transmission
+            
             let t_comp = if any_transmission {
-                0.5 * ct
-                    * ((1.0 - fte).powi(2) / (1.0 - fte2 * ct2)
-                        + (1.0 - ftm).powi(2) / (1.0 - ftm2 * ct2))
+                ct * 0.5
+                    * ((1. - fte).powi(2) / (1. -  ct2*fte2)
+                        + (1. - ftm).powi(2) / (1. - ct2*ftm2))
             } else {
-                0.0
+                Spectrum::BLACK
             };
 
             // Process reflection
-            let refl_comp = 0.5
-                * (fte * (1. + (1. - 2. * fte) * ct2) / (1. - fte2 * ct2)
-                    + ftm * (1. + (1. - 2. * ftm) * ct2) / (1. - ftm2 * ct2));
+            let refl_comp = 
+                0.5*((1. + ct2 * (1. - 2. * fte)) * fte  / (1. -  ct2*fte2)
+                    +  (1. + (1. - 2. * ftm) * ct2) * ftm / (1. - ct2*ftm2)) ;
 
             // return
-            (refl_comp, t_comp)
+            (refl_comp/cos1, t_comp/cos2)
         } else {
             // (0., 0.)
             // panic!("Glass should never reach critical angle");
-            (1. / cos1, 0.)
+            (Spectrum::ONE / cos1, Spectrum::BLACK)
         }
     }
 }
@@ -113,7 +114,7 @@ impl Glass {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Float)>; 2] {
+    ) -> [Option<(Ray, Spectrum)>; 2] {
         let normal = *normal;
         // Only two possible direction:
 
@@ -137,10 +138,10 @@ impl Glass {
 
         // process transmission
         let mut ray = *ray;
-        let pair2 = if trans > 0.0 {
+        let pair2 = if trans.radiance() > 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;
             ray.colour *= self.colour() * trans;
-            Some((ray, trans))
+            Some((ray, trans ))
         } else {
             None
         };
@@ -150,46 +151,47 @@ impl Glass {
 
     pub fn sample_bsdf(
         &self,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
-        intersection_pt: Point3D,
-        ray: &mut Ray,
-        rng: &mut RandGen,
+        _normal: Vector3D,
+        _e1: Vector3D,
+        _e2: Vector3D,
+        _intersection_pt: Point3D,
+        _ray: &mut Ray,
+        _rng: &mut RandGen,
     ) -> (Spectrum, Float) {
-        debug_assert!(
-            (ray.geometry.direction.length() - 1.).abs() < 1e-5,
-            "Length was {}",
-            ray.geometry.direction.length()
-        );
-        debug_assert!((e1 * e2).abs() < 1e-8);
-        debug_assert!((e1 * normal).abs() < 1e-8);
-        debug_assert!((e2 * normal).abs() < 1e-8);
+        unreachable!();
+        // debug_assert!(
+        //     (ray.geometry.direction.length() - 1.).abs() < 1e-5,
+        //     "Length was {}",
+        //     ray.geometry.direction.length()
+        // );
+        // debug_assert!((e1 * e2).abs() < 1e-8);
+        // debug_assert!((e1 * normal).abs() < 1e-8);
+        // debug_assert!((e2 * normal).abs() < 1e-8);
 
-        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
-        let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
-        let ray_dir = ray.geometry.direction;
-        let mirror_dir = mirror_direction(ray_dir, normal);
-        debug_assert!(
-            (1. - mirror_dir.length()).abs() < 1e-5,
-            "length is {}",
-            mirror_dir.length()
-        );
+        // let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
+        // let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
+        // let ray_dir = ray.geometry.direction;
+        // let mirror_dir = mirror_direction(ray_dir, normal);
+        // debug_assert!(
+        //     (1. - mirror_dir.length()).abs() < 1e-5,
+        //     "length is {}",
+        //     mirror_dir.length()
+        // );
 
-        let r: Float = rng.gen();
-        if r <= refl / (refl + trans) {
-            // Reflection
-            // avoid self shading
-            ray.geometry.origin = intersection_pt + normal * 0.00001;
+        // let r: Float = rng.gen();
+        // if r <= refl / (refl + trans) {
+        //     // Reflection
+        //     // avoid self shading
+        //     ray.geometry.origin = intersection_pt + normal * 0.00001;
 
-            ray.geometry.direction = mirror_dir;
-            (Spectrum::gray(1.) * refl, refl / (refl + trans))
-        } else {
-            // Transmission... keep same direction, dont change refraction
-            // avoid self shading
-            ray.geometry.origin = intersection_pt - normal * 0.00001;
-            (self.colour * trans, trans / (refl + trans))
-        }
+        //     ray.geometry.direction = mirror_dir;
+        //     (Spectrum::gray(1.) * refl, refl / (refl + trans))
+        // } else {
+        //     // Transmission... keep same direction, dont change refraction
+        //     // avoid self shading
+        //     ray.geometry.origin = intersection_pt - normal * 0.00001;
+        //     (self.colour * trans, trans / (refl + trans))
+        // }
     }
 
     pub fn eval_bsdf(
@@ -212,13 +214,13 @@ impl Glass {
 
         // If reflection
         if vout.is_same_direction(mirror_dir) {
-            return Spectrum::gray(refl);
+            return refl;
         }
 
         let mut colour = self.colour;
         if any_transmission(&mut colour) {
             // it is not refraction either
-            return Spectrum::black();
+            return Spectrum::BLACK;
         }
         // Check transmission
         if let Some(_cos2) = cos2 {
@@ -273,7 +275,7 @@ mod tests {
                     refraction_index, ray.refraction_index
                 );
                 assert!(
-                    bsdf.is_finite() && !bsdf.is_nan(),
+                    bsdf.radiance().is_finite() && !bsdf.radiance().is_nan(),
                     "impossible BSDF --> {}",
                     bsdf
                 );
@@ -291,7 +293,7 @@ mod tests {
                     refraction_index, ray.refraction_index
                 );
                 assert!(
-                    bsdf.is_finite() && !bsdf.is_nan(),
+                    bsdf.radiance().is_finite() && !bsdf.radiance().is_nan(),
                     "impossible BSDF --> {}",
                     bsdf
                 );

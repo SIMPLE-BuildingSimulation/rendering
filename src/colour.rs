@@ -31,29 +31,29 @@ pub struct RGBSpectrum {
 
 impl std::default::Default for RGBSpectrum {
     fn default() -> Self {
-        Self::black()
+        Self::BLACK
     }
 }
 
 impl matrix::OneZero for RGBSpectrum {
     fn one() -> Self {
-        Self::gray(1.)
+        Self::ONE
     }
 
     fn zero() -> Self {
-        Self::black()
+        Self::BLACK
     }
 }
 
+
+
+
 impl RGBSpectrum {
-    /// Creates a new Spectrum full of Zeroes
-    pub fn black() -> Self {
-        Self {
-            red: 0.,
-            green: 0.,
-            blue: 0.,
-        }
-    }
+
+    pub const ONE: Self = Self{red:1., green: 1., blue: 1.};
+    pub const BLACK: Self = Self{red:0., green: 0., blue: 0.};
+
+    
 
     /// Creates a new Spectrum full of equal values `v`
     pub fn gray(v: Float) -> Self {
@@ -64,7 +64,22 @@ impl RGBSpectrum {
         }
     }
 
-    /// Checks whether `Spectrum::black() == self`
+    pub fn powi(&self, n: i32)->Self{
+        Self{
+            red: self.red.powi(n),
+            green: self.green.powi(n),
+            blue: self.blue.powi(n),
+        }
+    }
+    pub fn powf(&self, n: Float)->Self{
+        Self{
+            red: self.red.powf(n),
+            green: self.green.powf(n),
+            blue: self.blue.powf(n),
+        }
+    }
+
+    /// Checks whether `Spectrum::BLACK == self`
     pub fn is_black(&self) -> bool {
         self.red < 1e-24 && self.green < 1e-24 && self.blue < 1e-24
     }
@@ -229,6 +244,75 @@ impl std::ops::DivAssign for RGBSpectrum {
         self.blue *= other.blue;
     }
 }
+
+
+
+impl std::ops::Add<RGBSpectrum> for Float {
+    type Output = Spectrum;
+    fn add(self, c: RGBSpectrum)->RGBSpectrum{
+        RGBSpectrum{
+            red: self + c.red,
+            green: self + c.green,
+            blue: self + c.blue,
+        }
+    }
+}
+
+impl std::ops::Sub<RGBSpectrum> for Float {
+    type Output = RGBSpectrum;
+    fn sub(self, c: RGBSpectrum)->RGBSpectrum{
+        RGBSpectrum{
+            red: self - c.red,
+            green: self - c.green,
+            blue: self - c.blue,
+        }
+    }
+}
+
+
+impl std::ops::Mul<RGBSpectrum> for Float {
+    type Output = Spectrum;
+    fn mul(self, c: RGBSpectrum)->RGBSpectrum{
+        RGBSpectrum{
+            red: self * c.red,
+            green: self * c.green,
+            blue: self * c.blue,
+        }
+    }
+}
+
+impl std::ops::Div<RGBSpectrum> for Float {
+    type Output = RGBSpectrum;
+    fn div(self, c: RGBSpectrum)->RGBSpectrum{
+        RGBSpectrum{
+            red: self / c.red,
+            green: self / c.green,
+            blue: self / c.blue,
+        }
+    }
+}
+
+
+// impl std::convert::Into<RGBSpectrum> for Float {
+//     fn into(self)->RGBSpectrum{
+//         RGBSpectrum{
+//             red: self, 
+//             green: self, 
+//             blue: self
+//         }
+//     }
+// }
+
+impl std::convert::From<Float> for Spectrum {
+    fn from(f: Float)->Self{
+        RGBSpectrum{
+            red: f,
+            green:f,
+            blue:f,
+        }
+    }
+}
+
 
 #[cfg(test)]
 mod tests {

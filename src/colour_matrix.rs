@@ -205,7 +205,7 @@ pub fn read_colour_matrix(filename: &Path) -> Result<ColourMatrix, String> {
     }
     let nrows = nrows.unwrap();
     let ncols = ncols.unwrap();
-    let mut matrix = ColourMatrix::new(Spectrum::black(), nrows, ncols);
+    let mut matrix = ColourMatrix::new(Spectrum::BLACK, nrows, ncols);
 
     // Read content.
     for (nrow, line) in content.lines().skip(header_lines).enumerate() {

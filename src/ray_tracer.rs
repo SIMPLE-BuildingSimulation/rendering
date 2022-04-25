@@ -93,8 +93,8 @@ impl RayTracer {
                 },
                 SurfaceSide::NonApplicable => {
                     // Hit parallel to the surface...
-                    // ray.colour = Spectrum::black(); // We won't use this, I think
-                    return (Spectrum::black(), 0.0);
+                    // ray.colour = Spectrum::BLACK; // We won't use this, I think
+                    return (Spectrum::BLACK, 0.0);
                 }
             };
 
@@ -115,7 +115,7 @@ impl RayTracer {
 
             // Limit bounces
             if ray.depth > self.max_depth {
-                return (Spectrum::black(), 0.0);
+                return (Spectrum::BLACK, 0.0);
             }
             
             ray.interaction.interpolate_normal(scene.normals[triangle_index]);
@@ -126,7 +126,7 @@ impl RayTracer {
 
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
-                let mut specular_li = Spectrum::black();
+                let mut specular_li = Spectrum::BLACK;
 
                 let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
                 for (new_ray, bsdf_value) in paths.iter().flatten() {
@@ -134,7 +134,7 @@ impl RayTracer {
 
                     let new_ray_dir = new_ray.geometry.direction;
                     let cos_theta = (normal * new_ray_dir).abs();
-                    ray.value *= bsdf_value * cos_theta;                    
+                    ray.value *= bsdf_value.radiance() * cos_theta;                    
 
                     let q: Float = rng.gen();
                     if q < self.count_specular_bounce {
@@ -163,7 +163,7 @@ impl RayTracer {
             };
 
             /* DIRECT LIGHT */
-            // let local = Spectrum::black();
+            // let local = Spectrum::BLACK;
             let local = self.get_local_illumination(
                 scene,
                 material,
@@ -199,7 +199,7 @@ impl RayTracer {
                 ray.colour *= colour * sky_brightness;
                 (colour * sky_brightness, 1. / 2. / crate::PI)
             } else {
-                (Spectrum::black(), 0.0)
+                (Spectrum::BLACK, 0.0)
             }
         }
     }
@@ -218,7 +218,7 @@ impl RayTracer {
     ) -> Spectrum {
         let (mut intersection_pt, normal, e1, e2) = ray.get_triad();
         intersection_pt += normal * 0.001; // prevent self-shading
-        let mut local_illum = Spectrum::black();
+        let mut local_illum = Spectrum::BLACK;
         for light in lights.iter() {
             // let this_origin = this_origin + normal * 0.001;
             let mut i = 0;
@@ -321,7 +321,7 @@ impl RayTracer {
         aux: &mut RayTracerHelper,
     ) -> Spectrum {
         let (intersection_pt, normal, e1, e2) = ray.get_triad();
-        let mut global = Spectrum::black();
+        let mut global = Spectrum::BLACK;
         // let depth = current_depth; //ray.depth;
         let depth = ray.depth;
         aux.rays[depth] = *ray;
@@ -371,7 +371,7 @@ impl RayTracer {
         let (width, height) = camera.film_resolution();
 
         let total_pixels = width * height;
-        let mut pixels = vec![Spectrum::black(); total_pixels];
+        let mut pixels = vec![Spectrum::BLACK; total_pixels];
 
         
         let chunk_len = 128;
@@ -447,7 +447,7 @@ pub fn sample_light(
     // If the light is not visible (this should not consider
     // transparent surfaces, yet.)
     if !scene.unobstructed_distance(shadow_ray, light_distance_squared, node_aux) {
-        return Some((Spectrum::black(), 0.0));
+        return Some((Spectrum::BLACK, 0.0));
     }
 
     let light_material = match info.side {
@@ -455,7 +455,7 @@ pub fn sample_light(
         SurfaceSide::Back => &scene.materials[light.back_material_index],
         SurfaceSide::NonApplicable => {
             // Hit parallel to the surface
-            return Some((Spectrum::black(), 0.0));
+            return Some((Spectrum::BLACK, 0.0));
         }
     };
     // let light_material = &scene.materials[light.front_material_index];

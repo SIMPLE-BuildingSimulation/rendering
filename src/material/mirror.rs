@@ -42,24 +42,25 @@ impl Mirror {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Float)>; 2] {
+    ) -> [Option<(Ray, Spectrum)>; 2] {
         // Calculate the ray direction and BSDF
         let mut ray = *ray;
         let v = mirror_bsdf(*intersection_pt, &mut ray, *normal);
-        [Some((ray, v)), None]
+        [Some((ray, Spectrum::gray(1.0)*v)), None]
     }
 
     pub fn sample_bsdf(
         &self,
-        normal: Vector3D,
+        _normal: Vector3D,
         _e1: Vector3D,
         _e2: Vector3D,
-        intersection_pt: Point3D,
-        ray: &mut Ray,
+        _intersection_pt: Point3D,
+        _ray: &mut Ray,
         _rng: &mut RandGen,
     ) -> (Spectrum, Float) {
-        let bsdf = mirror_bsdf(intersection_pt, ray, normal);
-        (self.0 * bsdf, 1.)
+        unreachable!();
+        // let bsdf = mirror_bsdf(intersection_pt, ray, normal);
+        // (self.0 * bsdf, 1.)
     }
 
     pub fn eval_bsdf(
@@ -115,7 +116,7 @@ mod tests {
                     refraction_index, ray.refraction_index
                 );
                 assert!(
-                    bsdf.is_finite() && !bsdf.is_nan(),
+                    bsdf.radiance().is_finite() && !bsdf.radiance().is_nan(),
                     "impossible BSDF --> {}",
                     bsdf
                 );

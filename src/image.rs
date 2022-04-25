@@ -81,7 +81,7 @@ fn colour_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
 
 fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8) -> Spectrum {
     if e == 0 {
-        return Spectrum::black();
+        return Spectrum::BLACK;
     }
 
     let n = e as i32 - (128 + 8) as i32;
@@ -130,7 +130,7 @@ impl ImageBuffer {
         Self {
             width,
             height,
-            pixels: vec![Spectrum::black(); width * height],
+            pixels: vec![Spectrum::BLACK; width * height],
         }
     }
 

@@ -101,7 +101,8 @@ pub fn fresnel_te(n1: Float, cos1: Float, n2: Float, cos2: Float) -> Float {
 /// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the
 /// cosine of the angle between the surface's normal and transmitted ray
 pub fn fresnel_tm(n1: Float, cos1: Float, n2: Float, cos2: Float) -> Float {
-    (n2 * cos1 - n1 * cos2) / (n2 * cos1 + n1 * cos2)
+    // (n2 * cos1 - n1 * cos2) / (n2 * cos1 + n1 * cos2)
+    (n1/cos1 - n2/cos2)/(n1/cos1 + n2/cos2)
 }
 
 pub fn fresnel_reflectance(n1: Float, cos1: Float, n2: Float, cos2: Float) -> Float {

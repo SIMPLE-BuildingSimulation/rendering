@@ -105,7 +105,7 @@ impl Material {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Float)>; 2] {
+    ) -> [Option<(Ray, Spectrum)>; 2] {
         match self {
             Self::Mirror(m) => m.get_possible_paths(normal, intersection_pt, ray),
             Self::Dielectric(m) => m.get_possible_paths(normal, intersection_pt, ray),

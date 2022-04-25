@@ -104,7 +104,7 @@ impl DCFactory {
                         );
                         let new_ray_dir = Vector3D::new(x, y, z);
 
-                        let mut this_ret = ColourMatrix::new(Spectrum::black(), 1, n_bins);
+                        let mut this_ret = ColourMatrix::new(Spectrum::BLACK, 1, n_bins);
 
                         debug_assert!(
                             (1. - new_ray_dir.length()).abs() < 0.0000001,
@@ -144,7 +144,7 @@ impl DCFactory {
                     })
                     .collect(); // End of iterating primary rays
 
-                let mut ret = ColourMatrix::new(Spectrum::black(), 1, n_bins);
+                let mut ret = ColourMatrix::new(Spectrum::BLACK, 1, n_bins);
                 ray_contributions.iter().for_each(|v| {
                     ret += v;
                 });
@@ -154,7 +154,7 @@ impl DCFactory {
             .collect(); // End of iterating rays
 
         // Write down the results
-        let mut ret = ColourMatrix::new(Spectrum::black(), rays.len(), n_bins);
+        let mut ret = ColourMatrix::new(Spectrum::BLACK, rays.len(), n_bins);
         for (sensor_index, contribution) in dcs.iter().enumerate() {
             // add contribution
             for patch_index in 0..n_bins {

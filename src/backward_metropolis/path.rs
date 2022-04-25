@@ -121,7 +121,7 @@ impl<'a> Path<'a> {
     /// nodes.
     pub fn eval_from_node(&self, i: usize, scene: &Scene) -> Spectrum {
         if self.nodes.is_empty() {
-            return Spectrum::black();
+            return Spectrum::BLACK;
         }
         assert!(
             i < self.nodes.len(),
@@ -285,7 +285,7 @@ impl<'a> PathNode<'a> {
         };
         let mat_colour = self.material.colour();
 
-        let mut ret = Spectrum::black();
+        let mut ret = Spectrum::BLACK;
 
         // Denominator of the Balance Heuristic... I am assuming that
 
@@ -314,7 +314,7 @@ fn get_local_illumination(
     rng: &mut RandGen,
     scene: &Scene,
 ) -> (Vector3D, Spectrum) {
-    let mut ret_light = Spectrum::black();
+    let mut ret_light = Spectrum::BLACK;
     let mut average_direction = Vector3D::new(0., 0., 0.);
 
     // prevent self-shading... this assumes we are reflecting
