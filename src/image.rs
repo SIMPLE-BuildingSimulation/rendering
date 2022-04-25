@@ -33,6 +33,8 @@ use crate::Float;
 use std::io::Write;
 use std::path::Path;
 use crate::colourmap::Colourmap;
+use jpeg_encoder::{Encoder, ColorType};
+
 
 /// Equivalent to C's `frexp` function
 fn rusty_frexp(s: Float) -> (Float, i32) {
@@ -190,7 +192,8 @@ impl ImageBuffer {
             
             let line = &content[0..nl];            
             content = &content[nl+1..];
-            
+            let line_str = std::str::from_utf8(line).unwrap();
+            dbg!(line_str);
             
             if line.starts_with(b"-Y") {
                 let errmsg = {
@@ -248,6 +251,7 @@ impl ImageBuffer {
         // Setup
         let width = width.unwrap();
         let height = height.unwrap();
+        
         // Read body
         let pixels = content.chunks_exact(4).map(|x| {
             let (r, g, b, e) = (x[0], x[1], x[2], x[3]);
@@ -268,7 +272,7 @@ impl ImageBuffer {
 
 
     /// Creates a new version of an image, but in (log10) falsecolour
-    pub fn log_falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap)->Self{
+    pub fn save_log_falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap, outfile: &Path){
         
         let log_luminance : Vec<Float> = self.pixels.iter().map(|x| x.luminance().log10()).collect();
         const MIN_MIN: Float = 0.001;
@@ -298,21 +302,23 @@ impl ImageBuffer {
             Colourmap::Viridis => crate::colourmap::viridis::VIRIDIS_COLOURMAP.as_slice(),
         };
 
-        let pixels = log_luminance.iter().map(|x| {
-            crate::colourmap::map_linear_colour(*x, log_min, log_max, scale)
-        } ).collect();
-
-        Self{
-            pixels, 
-            width: self.width,
-            height: self.height,
-        }
-
         
+        let mut data : Vec<u8> = Vec::with_capacity(self.width * self.height * 3 );
+        log_luminance.iter().for_each(|x| {
+            let s = crate::colourmap::map_linear_colour(*x, log_min, log_max, scale);            
+            data.push((s.red * 256.).round() as u8); 
+            data.push((s.green * 256.).round() as u8); 
+            data.push((s.blue * 256.).round() as u8);
+        
+        } );
+
+        let encoder = Encoder::new_file(outfile, 100).unwrap();
+        encoder.encode(&data, self.width as u16, self.height as u16, ColorType::Rgb).unwrap();
+                
     }
 
     /// Creates a new version of an image, but in (linear) falsecolour
-    pub fn falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap)->Self{
+    pub fn save_falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap, outfile: &Path) {
                 
         let luminance : Vec<Float> = self.pixels.iter().map(|x| x.luminance()).collect();
 
@@ -325,6 +331,17 @@ impl ImageBuffer {
         let max = match max {
             Some(v)=>v,
             None => {
+                /* // From RADIANCE's Falsecolor.pl
+                 # Find a good scale for auto mode.
+                if ($scale =~ m/[aA].* /) {
+                    my @histo = split(/\s/, `phisto $picture`);
+                    # e.g. $ phisto tests/richmond.hdr| tail -2
+                    # 3.91267	14
+                    # 3.94282	6
+                    my $LogLmax = $histo[-4];
+                    $scale = $mult / 179 * 10**$LogLmax;
+                }
+                */
                 let mut m = MIN_MIN;
                 luminance.iter().for_each(|v| if *v > m { m = *v });
                 if m <= MIN_MIN {
@@ -343,15 +360,19 @@ impl ImageBuffer {
             Colourmap::Viridis => crate::colourmap::viridis::VIRIDIS_COLOURMAP.as_slice(),
         };
 
-        let pixels = luminance.iter().map(|x| {
-            crate::colourmap::map_linear_colour(*x, min, max, scale)
-        } ).collect();
+        let mut data : Vec<u8> = Vec::with_capacity(self.width * self.height * 3 );
+        luminance.iter().for_each(|x| {
+            let s = crate::colourmap::map_linear_colour(*x, min, max, scale);            
+            data.push((s.red * 256.).round() as u8); 
+            data.push((s.green * 256.).round() as u8); 
+            data.push((s.blue * 256.).round() as u8);
+        
+        } );
 
-        Self{
-            pixels, 
-            width: self.width,
-            height: self.height,
-        }
+        let encoder = Encoder::new_file(outfile, 100).unwrap();
+        encoder.encode(&data, self.width as u16, self.height as u16, ColorType::Rgb).unwrap();
+        
+        
 
         
     }
@@ -569,7 +590,7 @@ mod tests {
     #[test]
     #[ignore]
     fn test_from_file() {
-        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/cornell.hdr")).unwrap();
+        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
         assert_eq!(buffer.width, 512);
         assert_eq!(buffer.height, 367);
         // assert_eq!(buffer.pixels.len(), 1024*768);
@@ -579,11 +600,11 @@ mod tests {
     #[test]
     #[ignore]
     fn test_falsecolor() {
-        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/cornell.hdr")).unwrap();
+        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
         // assert_eq!(buffer.width, 512);
         // assert_eq!(buffer.height, 367);
         // assert_eq!(buffer.pixels.len(), 1024*768);
-        let buffer = buffer.falsecolour(None, Some(100.), Colourmap::Viridis);
-        buffer.save_hdre(Path::new("./test_data/images/cornell_fc.hdr"))
+        buffer.save_falsecolour(None, Some(100.), Colourmap::Radiance, Path::new("./test_data/images/cornell_fc.jpeg"));
+        // buffer.save_hdre(Path::new("./test_data/images/cornell_fc.hdr"))
     }
 }

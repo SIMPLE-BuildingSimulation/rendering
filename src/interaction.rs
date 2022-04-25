@@ -20,6 +20,7 @@ SOFTWARE.
 
 use geometry3d::intersection::IntersectionInfo;
 use geometry3d::{Point3D, Transform, Vector3D};
+use geometry3d::intersection::SurfaceSide;
 
 /// The data for a SurfaceInteraction]
 #[derive(Default, Clone, Copy)]
@@ -56,4 +57,22 @@ impl Interaction {
             geometry_shading,
         }
     }
+
+
+    pub fn interpolate_normal(&mut self, normals: (Vector3D, Vector3D, Vector3D)){
+        let n0 = normals.0;
+        let n1 = normals.1;
+        let n2 = normals.2;
+        let u = self.geometry_shading.u;
+        let v = self.geometry_shading.v;
+
+        let mut n =(n0 * u + n1 * v + n2 * (1. - u - v)).get_normalized();
+        if self.geometry_shading.side == SurfaceSide::Back{
+            n *= -1.
+        }
+
+        self.geometry_shading.normal = n;
+    }
+
+    
 }

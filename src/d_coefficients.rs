@@ -25,7 +25,6 @@ use geometry3d::intersection::SurfaceSide;
 use geometry3d::Vector3D;
 use geometry3d::{Point3D, Ray3D};
 use crate::colour::Spectrum;
-use crate::interaction::Interaction;
 use crate::rand::*;
 use crate::ray::Ray;
 use crate::samplers::sample_cosine_weighted_horizontal_hemisphere;
@@ -120,7 +119,7 @@ impl DCFactory {
                                 direction: new_ray_dir,
                                 origin,
                             },
-                            refraction_index: 1.,
+                            colour: Spectrum::gray(1.),
                             .. Ray::default()
                         };
 
@@ -128,9 +127,7 @@ impl DCFactory {
                         // let current_weight = cos_theta;
                         self.trace_ray(
                             scene,
-                            &mut new_ray,
-                            0,
-                            Spectrum::gray(1.),
+                            &mut new_ray,                            
                             self.n_ambient_samples,
                             &mut this_ret,
                             &mut rng,
@@ -176,17 +173,14 @@ impl DCFactory {
         &self,
         scene: &Scene,
         ray: &mut Ray,
-        current_depth: usize,
-        current_value: Spectrum,
-        denom_samples: usize,
+        accum_denom_samples: usize,
         contribution: &mut ColourMatrix,
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
     ) {
-        let one_over_ambient_samples = 1./self.n_ambient_samples as Float;
 
         // Limit bounces
-        if current_depth > self.max_depth {
+        if ray.depth > self.max_depth {
             return;
         }
 
@@ -195,150 +189,89 @@ impl DCFactory {
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
 
                 // NEARLY copied... except from the return statement
-                let (material, is_back_side) = match ray.interaction.geometry_shading.side {
+                let material = match ray.interaction.geometry_shading.side {
                     SurfaceSide::Front => {
-                        (&scene.materials[scene.front_material_indexes[triangle_index]], false)
+                        &scene.materials[scene.front_material_indexes[triangle_index]]
                     }
                     SurfaceSide::Back => {
-                        (&scene.materials[scene.back_material_indexes[triangle_index]], true)
+                        &scene.materials[scene.back_material_indexes[triangle_index]]
                     },
                     SurfaceSide::NonApplicable => {
                         // Hit parallel to the surface...
                         return
                     }
                 };
-                // copied
-                let intersection_pt = ray.interaction.point;
+                
 
                 // Limit bounces... also, emmiting materials don't reflect
-                if current_depth > self.max_depth || material.emits_direct_light(){
+                if ray.depth > self.max_depth || material.emits_direct_light(){
                     return;
                 }
 
-                // CLONED
-                let u = ray.interaction.geometry_shading.u;
-                let v = ray.interaction.geometry_shading.v;
-
-                // let normal = ray.interaction.geometry_shading.normal;
-                let n0 = scene.normals[triangle_index].0;
-                let n1 = scene.normals[triangle_index].1;
-                let n2 = scene.normals[triangle_index].2;
-                let mut normal = (n0 * u + n1 * v + n2 * (1. - u - v)).get_normalized();
-                // if normal * ray.interaction.geometry_shading.normal < 0.0 {
-                if is_back_side { // Assumed that Normals are at the front
-                    normal *= -1.
-                }
-                let e1 = normal.get_perpendicular().unwrap();
-                // let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
-                let e2 = normal.cross(e1).get_normalized();
-    
-                // Check
-                debug_assert!((1.0 - normal.length()).abs() < 1e-5);
-                debug_assert!((1.0 - e1.length()).abs() < 1e-5);
-                debug_assert!((1.0 - e2.length()).abs() < 1e-5);
-    
-                let mut intens = current_value.max();
-                let mut wt = intens;
+                let (intersection_pt, normal, ..) = ray.get_triad();
+                ray.interaction.interpolate_normal(scene.normals[triangle_index]);
+            
 
                 // Handle specular materials... we have 1 or 2 rays... spawn those.
                 if material.specular_only() {
                     
                     let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
-                    for (new_ray, bsdf_value) in paths.iter().flatten() {
+                    for (new_ray, _bsdf_value) in paths.iter().flatten() {
                         let mut new_ray = *new_ray;
 
-                        let new_ray_dir = new_ray.geometry.direction;
-                        let cos_theta = (normal * new_ray_dir).abs();
-                        let new_value = wt * bsdf_value * cos_theta;
+                        // let new_ray_dir = new_ray.geometry.direction;
+                        // let cos_theta = (normal * new_ray_dir).abs();
+                        // new_ray.value *= bsdf_value * cos_theta * 1.5  ;
 
                         // avoid infinite interior bouncing
-                        let new_depth = {
-                            let q: Float = rng.gen();
-                            if q < self.count_specular_bounce {
-                                current_depth + 1
-                            } else {
-                                current_depth
-                            }
-                        };
+                        let q: Float = rng.gen();
+                        if q < self.count_specular_bounce {
+                            ray.depth += 1
+                        } 
                         
                         // self.trace_ray(rng, scene, &mut new_ray, new_depth, new_value, aux);
-                        self.trace_ray(scene, &mut new_ray, new_depth, Spectrum::gray(1.)*new_value, denom_samples, contribution, rng, aux)
+                        self.trace_ray(scene, &mut new_ray, accum_denom_samples, contribution, rng, aux)
                         
                     }
                     return 
                 }
 
-
                 
-                
-                // CLONED
-                let this_current_value = intens;
-                let n_ambient_samples = if self.max_depth == 0 {
-                    0 // No ambient samples required
-                } else if current_depth == 0 {
-                    self.n_ambient_samples
-                } else {
-                    /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
-    
-                    let d = 0.8 * this_current_value /*intens(rcol)*/* this_current_value * one_over_ambient_samples
-                        / self.limit_weight;
-                    if wt > d {
-                        wt = d;
-                    }
-                    let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
-    
-                    const MIN_AMBS: usize = 1;
-                    if n < MIN_AMBS {
-                        MIN_AMBS
-                    } else {
-                        n
-                    }
-                };
+                let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight);
 
                 // Spawn more rays
-                let depth = current_depth; //ray.depth;
+                let depth = ray.depth;
                 aux.rays[depth] = *ray;
+                let (_pt, normal, e1, e2, ..) = ray.get_triad();
                 (0..n_ambient_samples).for_each(|_| {
-                
-            
-                    // let (new_ray, _bsdf_value, _is_specular) = material.sample_bsdf(&normal, &e1, &e2, &intersection_pt, ray, rng);                            
+                                                
                     let (bsdf_value, pdf) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);                    
                     let new_ray_dir = ray.geometry.direction;
                     debug_assert!((1. as Float-new_ray_dir.length()).abs() < 1e-5, "Length is {}", new_ray_dir.length());
 
                     // increase depth
-                    let new_depth = current_depth + 1;
                     let cos_theta = (normal * new_ray_dir).abs();
-                    let new_value = bsdf_value * wt * cos_theta / pdf;
+                    dbg!(pdf);
+                    ray.colour *= bsdf_value * cos_theta * 1.5; // / pdf;
+                    ray.depth += 1;
 
+                                    
                     
-
-                    // let cos_theta = (normal * new_ray_dir).abs();
-                    // let refl = material.colour();
-
-                    // current_value * refl * cos_theta * bsdf_value / pdf == bsdf_value
-                    // let new_value = current_value * refl * cos_theta  /* * bsdf_value   * one_over_samples * 1.5*/ ;
-
-                    // Check reflection limits... as described in RTRACE's man
-                    // if  self.limit_reflections > 0 && new_value < self.limit_weight {
-                    //     return;
-                    // } 
-                    intens = new_value.max();
-                    self.trace_ray(scene, ray, current_depth + 1, new_value * 1.5, denom_samples * n_ambient_samples, contribution, rng, aux);
+                    self.trace_ray(scene, ray,  accum_denom_samples * n_ambient_samples, contribution, rng, aux);
                 }); // End the foreach spawned ray
             
             
         } else {
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
 
-            let li = Spectrum::gray(3.)*self.reinhart.bin_solid_angle(bin_n);
+            let li = Spectrum::gray(3.);//*self.reinhart.bin_solid_angle(bin_n);
             let old_value = contribution.get(0, bin_n).unwrap();
 
             contribution
                 .set(
                     0,
                     bin_n,
-                    old_value + li * current_value / denom_samples as Float,
+                    old_value + li * ray.colour / accum_denom_samples as Float,
                 )
                 .unwrap();
         }

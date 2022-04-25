@@ -271,7 +271,7 @@ fn baricentric_coorinates(
 pub fn triangle_intersect(
     t: &Triangle,
     ray: &geometry3d::Ray3D,
-) -> Option<geometry3d::intersection::IntersectionInfo> {
+) -> Option<IntersectionInfo> {
     let ax = t[0];
     let ay = t[1];
     let az = t[2];
@@ -285,26 +285,9 @@ pub fn triangle_intersect(
     let cz = t[8];
 
     let (p, u, v) = baricentric_coorinates(ray, ax, ay, az, bx, by, bz, cx, cy, cz)?;
+    Some(new_info(t, p, u, v, ray.direction))
 
-    let dpdu = Vector3D::new(bx - ax, by - ay, bz - az);
-    let dpdv = Vector3D::new(cx - ax, cy - ay, cz - az);
-    // eprintln!("dpdu = {} | dpdv = {}", dpdu, dpdv);
-    let normal = dpdu.cross(dpdv).get_normalized();
-    // eprintln!("normal = {}", normal);
-    let (normal, side) = SurfaceSide::get_side(normal, ray.direction);
-
-    Some(IntersectionInfo {
-        p,
-        dpdu,
-        dpdv,
-        normal,
-        side,
-
-        u,
-        v,
-        dndu: Vector3D::new(0., 0., 0.),
-        dndv: Vector3D::new(0., 0., 0.),
-    })
+    
 }
 
 /// Intersects a `Ray3D` and a [`Triangle`], returning the `Point3D` of
@@ -334,42 +317,11 @@ pub fn simple_triangle_intersect(
 pub fn triangle_intersect_pack(
     t: &[Triangle],
     ray: &geometry3d::Ray3D,
-) -> Option<(usize, geometry3d::intersection::IntersectionInfo)> {
+) -> Option<(usize, IntersectionInfo)> {
     let (tri_index, p, u, v) = triangle_pack_baricentric_coorinates(t, ray)?;
-
-    let ax = t[tri_index][0];
-    let ay = t[tri_index][1];
-    let az = t[tri_index][2];
-
-    let bx = t[tri_index][3];
-    let by = t[tri_index][4];
-    let bz = t[tri_index][5];
-
-    let cx = t[tri_index][6];
-    let cy = t[tri_index][7];
-    let cz = t[tri_index][8];
-
-    let dpdu = Vector3D::new(bx - ax, by - ay, bz - az);
-    let dpdv = Vector3D::new(cx - ax, cy - ay, cz - az);
-    // eprintln!("dpdu = {} | dpdv = {}", dpdu, dpdv);
-    let normal = dpdu.cross(dpdv).get_normalized();
-    // eprintln!("normal = {}", normal);
-    let (normal, side) = SurfaceSide::get_side(normal, ray.direction);
-
-    Some((
-        tri_index,
-        IntersectionInfo {
-            p,
-            dpdu,
-            dpdv,
-            normal,
-            side,
-            u,
-            v,
-            dndu: Vector3D::new(0., 0., 0.),
-            dndv: Vector3D::new(0., 0., 0.),
-        },
-    ))
+    let triangle = &t[tri_index];
+    Some((tri_index,new_info(triangle, p, u, v, ray.direction)))
+    
 }
 
 /// Intersects a `Ray3D` and a pack (i.e., `&[]`) of [`Triangle`], returning the
@@ -382,6 +334,61 @@ pub fn simple_triangle_intersect_pack(
     let (tri_index, pt, ..) = triangle_pack_baricentric_coorinates(t, ray)?;
     Some((tri_index, pt))
 }
+
+
+
+pub struct Intersection {
+    pub e1: Vector3D,
+    pub e2:Vector3D,
+    pub normal: Vector3D,
+    pub point: Point3D,
+    // pub tri_index: usize,
+    pub side: SurfaceSide,
+    pub u: Float,
+    pub v: Float,
+}
+
+
+
+pub fn new_info(triangle: &Triangle, point: Point3D, u: Float, v: Float, ray_dir: Vector3D)->IntersectionInfo{
+    let ax = triangle[0];
+    let ay = triangle[1];
+    let az = triangle[2];
+
+    let bx = triangle[3];
+    let by = triangle[4];
+    let bz = triangle[5];
+
+    let cx = triangle[6];
+    let cy = triangle[7];
+    let cz = triangle[8];
+
+    let dpdu = Vector3D::new(bx - ax, by - ay, bz - az);
+    let dpdv = Vector3D::new(cx - ax, cy - ay, cz - az);
+    // eprintln!("dpdu = {} | dpdv = {}", dpdu, dpdv);
+    let normal = dpdu.cross(dpdv).get_normalized();
+    // eprintln!("normal = {}", normal);
+    let (normal, side) = SurfaceSide::get_side(normal, ray_dir);
+    let e1 = dpdu.get_normalized();
+    let e2 = normal.cross(e1).get_normalized();
+    debug_assert!((1.0 - normal.length()).abs() < 1e-5);
+    debug_assert!((1.0 - e1.length()).abs() < 1e-5);
+    debug_assert!((1.0 - e2.length()).abs() < 1e-5);
+    IntersectionInfo{
+        normal,
+        dpdu:e1,
+        dpdv:e2,
+        p:point,side, u, v,
+        dndu: Vector3D::new(0., 0., 0.),
+        dndv: Vector3D::new(0., 0., 0.),
+    }
+}
+
+
+
+
+
+
 
 /// Transforms a `Triangle3D` and transforms it into a `Vec<Triangle>` and their
 /// respective normals

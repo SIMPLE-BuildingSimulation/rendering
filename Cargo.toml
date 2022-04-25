@@ -16,6 +16,7 @@ rand = { version = "0.8.5", features=["small_rng"]}
 rayon = {version = "1.5", optional = true}
 clap = "3.0.14"
 obj-rs = "0.7.0"
+jpeg-encoder = "0.5.1"
 
 
 [[bin]]

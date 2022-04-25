@@ -63,7 +63,7 @@ impl Plastic {
 
         let bsdf = Spectrum::gray(direct) + self.colour * diffuse;
 
-        (bsdf, 1. / weight)
+        (bsdf,  weight)
     }
 
     pub fn eval_bsdf(

@@ -28,7 +28,7 @@ use crate::ray::Ray;
 use crate::scene::{Object, Scene};
 use crate::Float;
 use geometry3d::intersection::SurfaceSide;
-use geometry3d::{Point3D, Ray3D, Vector3D};
+use geometry3d::Ray3D;
 
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
@@ -81,23 +81,24 @@ impl RayTracer {
         // current_value: Float,
         aux: &mut RayTracerHelper,
     ) -> (Spectrum, Float) {
-        let one_over_ambient_samples = 1. / self.n_ambient_samples as Float;
+        
 
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
-            let (material, is_back_side) = match ray.interaction.geometry_shading.side {
+            let material = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => {
-                    (&scene.materials[scene.front_material_indexes[triangle_index]], false)
+                    &scene.materials[scene.front_material_indexes[triangle_index]]
                 }
                 SurfaceSide::Back => {
-                    (&scene.materials[scene.back_material_indexes[triangle_index]], true)
+                    &scene.materials[scene.back_material_indexes[triangle_index]]
                 },
                 SurfaceSide::NonApplicable => {
                     // Hit parallel to the surface...
+                    // ray.colour = Spectrum::black(); // We won't use this, I think
                     return (Spectrum::black(), 0.0);
                 }
             };
 
-            let intersection_pt = ray.interaction.point;
+            let (intersection_pt, normal, ..) = ray.get_triad();
 
             // for now, emmiting materials don't reflect... but they
             // are visible when viewed directly from the camera
@@ -108,6 +109,7 @@ impl RayTracer {
                     ray.interaction.geometry_shading.normal,
                     &ray.geometry,
                 );
+
                 return (material.colour(), light_pdf);
             }
 
@@ -115,31 +117,12 @@ impl RayTracer {
             if ray.depth > self.max_depth {
                 return (Spectrum::black(), 0.0);
             }
+            
+            ray.interaction.interpolate_normal(scene.normals[triangle_index]);
+            
+            
 
-            // Get basic information on the intersection
-            let u = ray.interaction.geometry_shading.u;
-            let v = ray.interaction.geometry_shading.v;
-
-            // let normal = ray.interaction.geometry_shading.normal;
-            let n0 = scene.normals[triangle_index].0;
-            let n1 = scene.normals[triangle_index].1;
-            let n2 = scene.normals[triangle_index].2;
-            let mut normal = (n0 * u + n1 * v + n2 * (1. - u - v)).get_normalized();
-            // if normal * ray.interaction.geometry_shading.normal < 0.0 {
-            if is_back_side { // Assumed that Normals are at the front
-                normal *= -1.
-            }
-
-            let e1 = normal.get_perpendicular().unwrap();
-            // let e1 = ray.interaction.geometry_shading.dpdu.get_normalized();
-            let e2 = normal.cross(e1).get_normalized();
-
-            // Check
-            debug_assert!((1.0 - normal.length()).abs() < 1e-5);
-            debug_assert!((1.0 - e1.length()).abs() < 1e-5);
-            debug_assert!((1.0 - e2.length()).abs() < 1e-5);
-
-            let mut wt = ray.value;
+            // let mut wt = ray.value;
 
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
@@ -151,19 +134,13 @@ impl RayTracer {
 
                     let new_ray_dir = new_ray.geometry.direction;
                     let cos_theta = (normal * new_ray_dir).abs();
-                    let new_value = wt * bsdf_value * cos_theta;
-                    ray.value = new_value;
+                    ray.value *= bsdf_value * cos_theta;                    
 
-                    // avoid infinite interior bouncing
-                    // let new_depth = {
-                        let q: Float = rng.gen();
-                        if q < self.count_specular_bounce {
-                            new_ray.depth += 1;
-                        } 
-                    //     else {
-                    //         current_depth
-                    //     }
-                    // };
+                    let q: Float = rng.gen();
+                    if q < self.count_specular_bounce {
+                        new_ray.depth += 1;
+                    } 
+                    
 
                     let (li, _light_pdf) =
                         self.trace_ray(rng, scene, &mut new_ray, /*new_depth, new_value,*/ aux);
@@ -171,30 +148,11 @@ impl RayTracer {
                     let color = material.colour();
                     specular_li += (li * cos_theta * *bsdf_value) * (color);
                 }
+                ray.colour *= specular_li;
                 return (specular_li, 0.0);
             }
 
-            let n_ambient_samples = if self.max_depth == 0 {
-                0 // No ambient samples required
-            } else if ray.depth == 0 {
-                self.n_ambient_samples
-            } else {
-                /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
-
-                let d = 0.8 * ray.value /*intens(rcol)*/* ray.value * one_over_ambient_samples
-                    / self.limit_weight;
-                if wt > d {
-                    wt = d;
-                }
-                let n = ((self.n_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
-
-                const MIN_AMBS: usize = 1;
-                if n < MIN_AMBS {
-                    MIN_AMBS
-                } else {
-                    n
-                }
-            };
+            let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight);
 
             // Calculate the number of direct samples
 
@@ -210,10 +168,6 @@ impl RayTracer {
                 scene,
                 material,
                 ray,
-                intersection_pt,
-                normal,
-                e1,
-                e2,
                 rng,
                 n_ambient_samples,
                 n_shadow_samples,
@@ -224,15 +178,9 @@ impl RayTracer {
             let global = self.get_global_illumination(
                 scene,
                 n_ambient_samples,
-                n_shadow_samples,
-                // current_depth,
+                n_shadow_samples,                
                 material,
-                normal,
-                e1,
-                e2,
                 ray,
-                intersection_pt,
-                // wt,
                 rng,
                 aux,
             );
@@ -241,12 +189,14 @@ impl RayTracer {
             // global /= total_samples as Float;
 
             // return
+            ray.colour *= local + global;
             ((local + global), 0.0) // /total_samples as Float , 0.0)
         } else {
             // Did not hit... so, let's check the sky
             if let Some(sky) = &scene.sky {
                 let sky_brightness = sky(ray.geometry.direction);
                 let colour = scene.sky_colour.unwrap_or_else(|| Spectrum::gray(1.0));
+                ray.colour *= colour * sky_brightness;
                 (colour * sky_brightness, 1. / 2. / crate::PI)
             } else {
                 (Spectrum::black(), 0.0)
@@ -254,22 +204,20 @@ impl RayTracer {
         }
     }
 
-    #[allow(clippy::too_many_arguments)]
+    
     fn sample_light_array(
         &self,
         scene: &Scene,
         material: &Material,
         ray: &Ray,
-        intersection_pt: Point3D,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
         rng: &mut RandGen,
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         lights: &[Object],
         node_aux: &mut Vec<usize>,
     ) -> Spectrum {
+        let (mut intersection_pt, normal, e1, e2) = ray.get_triad();
+        intersection_pt += normal * 0.001; // prevent self-shading
         let mut local_illum = Spectrum::black();
         for light in lights.iter() {
             // let this_origin = this_origin + normal * 0.001;
@@ -325,31 +273,21 @@ impl RayTracer {
 
     /// Calculates the luminance produced by the direct sources in the
     /// scene
-    #[allow(clippy::too_many_arguments)]
     fn get_local_illumination(
         &self,
         scene: &Scene,
         material: &Material, //&impl Material,
         ray: &Ray,
-        mut intersection_pt: Point3D,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
         rng: &mut RandGen,
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         node_aux: &mut Vec<usize>,
     ) -> Spectrum {
-        // prevent self-shading
-        intersection_pt += normal * 0.001;
+        
         let close = self.sample_light_array(
             scene,
             material,
-            ray,
-            intersection_pt,
-            normal,
-            e1,
-            e2,
+            ray,        
             rng,
             n_ambient_samples,
             n_shadow_samples,
@@ -360,10 +298,6 @@ impl RayTracer {
             scene,
             material,
             ray,
-            intersection_pt,
-            normal,
-            e1,
-            e2,
             rng,
             n_ambient_samples,
             n_shadow_samples,
@@ -375,21 +309,18 @@ impl RayTracer {
         close + distant
     }
 
-    #[allow(clippy::too_many_arguments)]
+    
     fn get_global_illumination(
         &self,
         scene: &Scene,
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         material: &Material,
-        normal: Vector3D,
-        e1: Vector3D,
-        e2: Vector3D,
         ray: &mut Ray,
-        intersection_pt: Point3D,
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
     ) -> Spectrum {
+        let (intersection_pt, normal, e1, e2) = ray.get_triad();
         let mut global = Spectrum::black();
         // let depth = current_depth; //ray.depth;
         let depth = ray.depth;
@@ -410,7 +341,7 @@ impl RayTracer {
             ray.depth += 1;
             let cos_theta = (normal * new_ray_dir).abs();
             // let new_value = bsdf_value.radiance() * wt * cos_theta / pdf;
-            ray.value = bsdf_value.radiance() * ray.value * cos_theta / pdf;
+            ray.value = bsdf_value.radiance() * ray.value * cos_theta * pdf;
 
             // russian roulette
             // if self.limit_weight > 0. && new_value < self.limit_weight {
@@ -431,7 +362,7 @@ impl RayTracer {
             // restore ray, because it was modified by trace_ray executions
             *ray = aux.rays[depth];
         }
-        // return
+        // return        
         global
     }
 

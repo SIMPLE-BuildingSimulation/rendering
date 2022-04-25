@@ -104,6 +104,7 @@ impl Dielectric {
             ray.refraction_index = n2;
             let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
             ray.geometry.direction = trans_dir;
+            ray.colour *= self.colour;
             Some((ray, trans))
         } else {
             None

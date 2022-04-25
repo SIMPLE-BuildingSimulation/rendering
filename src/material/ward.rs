@@ -70,8 +70,7 @@ pub fn sample_ward_anisotropic(
 
             d = if xi2 < 1e-9 {
                 1.
-            } else {
-                // (-xi2.ln() * beta).sqrt()
+            } else {                
                 (-xi2.ln() / ((cosp / alpha).powi(2) + (sinp / beta).powi(2))).sqrt()
             };
 
@@ -101,7 +100,7 @@ pub fn sample_ward_anisotropic(
                 }
                 ray.geometry.direction = v; // update ray
                 let weight = 2. / (1. + v_n / l_n); // Eq. 15
-                return (spec, diffuse, 1. / weight);
+                return (spec, diffuse,  weight);
             }
             // return (0.0, 0., 1.);
         } // end of loop. If we did not return, try again.
@@ -110,7 +109,7 @@ pub fn sample_ward_anisotropic(
 
         let local_dir = sample_cosine_weighted_horizontal_hemisphere(rng);
         let diffuse = (1. - specularity) / PI;
-        let weight = PI;
+        // let weight = PI;
 
         let (x, y, z) = local_to_world(
             e1,
@@ -123,7 +122,7 @@ pub fn sample_ward_anisotropic(
         );
 
         ray.geometry.direction = Vector3D::new(x, y, z);
-        (0.0, diffuse, 1. / weight)
+        (0.0, diffuse, 1. / PI)
     }
 }
 

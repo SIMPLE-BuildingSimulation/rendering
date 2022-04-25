@@ -139,6 +139,7 @@ impl Glass {
         let mut ray = *ray;
         let pair2 = if trans > 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;
+            ray.colour *= self.colour() * trans;
             Some((ray, trans))
         } else {
             None

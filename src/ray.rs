@@ -21,6 +21,7 @@ SOFTWARE.
 use crate::interaction::Interaction;
 use crate::Float;
 use geometry3d::{Point3D, Ray3D, Transform, Vector3D};
+use crate::colour::Spectrum;
 /// Represents a ray (of light?) beyond pure geometry. It
 /// includes also the current index of refraction and, potentially,
 /// time (for blurry images)
@@ -37,9 +38,9 @@ pub struct Ray {
 
     pub depth: usize,
 
-    
-
     pub value: Float,
+
+    pub colour: Spectrum,
 }
 
 impl std::default::Default for Ray {
@@ -53,6 +54,7 @@ impl std::default::Default for Ray {
             interaction: Interaction::default(),
             depth: 0,
             value: 1.,
+            colour: Spectrum::gray(1.),
         }
     }
 }
@@ -63,13 +65,72 @@ impl Ray {
         self.geometry = geometry;
     }
 
-    #[inline(always)]
     pub fn direction(&self) -> Vector3D {
         self.geometry.direction
     }
 
-    #[inline(always)]
+    
     pub fn origin(&self) -> Point3D {
         self.geometry.origin
     }
+
+    /// Returns the Intersection point, Normal, e1, e2
+    pub fn get_triad(&self)->(Point3D, Vector3D, Vector3D, Vector3D){
+        let intersection_pt = self.interaction.point;
+        let normal = self.interaction.geometry_shading.normal;
+        let e1 = self.interaction.geometry_shading.dpdu;
+        let e2 = self.interaction.geometry_shading.dpdv;
+        (intersection_pt, normal, e1, e2)
+    }
+
+
+    /// Get 
+    pub fn get_n_ambient_samples(&self,  max_ambient_samples: usize, max_depth: usize, limit_weight: Float)->usize{
+        
+        if max_depth == 0 || max_ambient_samples <= 0 {
+            0 // No ambient samples required
+        } else if self.depth == 0 {
+            max_ambient_samples
+        } else {
+
+
+            /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
+            /* 
+            
+            
+            if (ambacc <= FTINY && wt > (d = 0.8*intens(rcol)*r->rweight/(ambdiv*minweight)))
+                wt = d;			/* avoid ray termination */
+            n = sqrt(ambdiv * wt) + 0.5;
+            i = 1 + (MINADIV-1)*(ambacc > FTINY);
+            if (n < i)			/* use minimum number of samples? */
+                n = i;
+
+            // Improve readability, assuming that ambacc == 0.0, always (we don't have ambient cache here)
+            
+            d = 0.8*intens(rcol)*r->rweight/(ambdiv*minweight)
+            if ( wt > d){
+                wt = d;			/* avoid ray termination */
+            }
+            n = sqrt(ambdiv * wt) + 0.5;
+            i = 1 + (MINADIV-1);
+            if (n < i)			/* use minimum number of samples? */
+                n = i;
+            */
+            let mut wt = self.value;//self.colour.radiance();
+
+            let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);        
+            if wt > d {
+                wt = d;
+            }
+            let n = ((max_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
+            const MIN_AMBS: usize = 1;
+            if n < MIN_AMBS {
+                MIN_AMBS
+            } else {
+                n
+            }
+        }
+    }
+        
+    
 }
