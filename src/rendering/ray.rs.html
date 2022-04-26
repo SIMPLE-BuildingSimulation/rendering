@@ -113,6 +113,66 @@
 <span id="74">74</span>
 <span id="75">75</span>
 <span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -136,6 +196,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::interaction::Interaction</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Ray3D</span>, <span class="ident">Transform</span>, <span class="ident">Vector3D</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="doccomment">/// Represents a ray (of light?) beyond pure geometry. It</span>
 <span class="doccomment">/// includes also the current index of refraction and, potentially,</span>
 <span class="doccomment">/// time (for blurry images)</span>
@@ -152,9 +213,9 @@ SOFTWARE.
 
     <span class="kw">pub</span> <span class="ident">depth</span>: <span class="ident">usize</span>,
 
-    <span class="kw">pub</span> <span class="ident">specular_depth</span>: <span class="ident">usize</span>,
-
     <span class="kw">pub</span> <span class="ident">value</span>: <span class="ident">Float</span>,
+
+    <span class="kw">pub</span> <span class="ident">colour</span>: <span class="ident">Spectrum</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">std::default::Default</span> <span class="kw">for</span> <span class="ident">Ray</span> {
@@ -167,8 +228,8 @@ SOFTWARE.
             <span class="ident">refraction_index</span>: <span class="number">1.</span>,
             <span class="ident">interaction</span>: <span class="ident">Interaction::default</span>(),
             <span class="ident">depth</span>: <span class="number">0</span>,
-            <span class="ident">specular_depth</span>: <span class="number">0</span>,
             <span class="ident">value</span>: <span class="number">1.</span>,
+            <span class="ident">colour</span>: <span class="ident">Spectrum::ONE</span>,
         }
     }
 }
@@ -179,16 +240,75 @@ SOFTWARE.
         <span class="self">self</span>.<span class="ident">geometry</span> <span class="op">=</span> <span class="ident">geometry</span>;
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">direction</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vector3D</span> {
         <span class="self">self</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>
     }
 
-    <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
+    
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">origin</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Point3D</span> {
         <span class="self">self</span>.<span class="ident">geometry</span>.<span class="ident">origin</span>
     }
+
+    <span class="doccomment">/// Returns the Intersection point, Normal, e1, e2</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_triad</span>(<span class="kw-2">&amp;</span><span class="self">self</span>)-&gt;(<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>){
+        <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">interaction</span>.<span class="ident">point</span>;
+        <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span>;
+        <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>.<span class="ident">dpdu</span>;
+        <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>.<span class="ident">dpdv</span>;
+        (<span class="ident">intersection_pt</span>, <span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>)
+    }
+
+
+    <span class="doccomment">/// Get </span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_n_ambient_samples</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,  <span class="ident">max_ambient_samples</span>: <span class="ident">usize</span>, <span class="ident">max_depth</span>: <span class="ident">usize</span>, <span class="ident">limit_weight</span>: <span class="ident">Float</span>)-&gt;<span class="ident">usize</span>{
+        
+        <span class="kw">if</span> <span class="ident">max_depth</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">max_ambient_samples</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
+            <span class="number">0</span> <span class="comment">// No ambient samples required</span>
+        } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
+            <span class="ident">max_ambient_samples</span>
+        } <span class="kw">else</span> {
+
+
+            <span class="comment">/* Adapted From Radiance&#39;s samp_hemi() at src/rt/ambcomp.c */</span>
+            <span class="comment">/* 
+            
+            
+            if (ambacc &lt;= FTINY &amp;&amp; wt &gt; (d = 0.8*intens(rcol)*r-&gt;rweight/(ambdiv*minweight)))
+                wt = d;			/* avoid ray termination */
+            n = sqrt(ambdiv * wt) + 0.5;
+            i = 1 + (MINADIV-1)*(ambacc &gt; FTINY);
+            if (n &lt; i)			/* use minimum number of samples? */
+                n = i;
+
+            // Improve readability, assuming that ambacc == 0.0, always (we don&#39;t have ambient cache here)
+            
+            d = 0.8*intens(rcol)*r-&gt;rweight/(ambdiv*minweight)
+            if ( wt &gt; d){
+                wt = d;			/* avoid ray termination */
+            }
+            n = sqrt(ambdiv * wt) + 0.5;
+            i = 1 + (MINADIV-1);
+            if (n &lt; i)			/* use minimum number of samples? */
+                n = i;
+            */</span>
+            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">value</span>;<span class="comment">//self.colour.radiance();</span>
+
+            <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="number">0.8</span> <span class="op">*</span> <span class="ident">wt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">colour</span>.<span class="ident">max</span>() <span class="op">/</span> (<span class="ident">max_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">limit_weight</span>);        
+            <span class="kw">if</span> <span class="ident">wt</span> <span class="op">&gt;</span> <span class="ident">d</span> {
+                <span class="ident">wt</span> <span class="op">=</span> <span class="ident">d</span>;
+            }
+            <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> ((<span class="ident">max_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">wt</span>).<span class="ident">sqrt</span>() <span class="op">+</span> <span class="number">0.5</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">usize</span>;
+            <span class="kw">const</span> <span class="ident">MIN_AMBS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1</span>;
+            <span class="kw">if</span> <span class="ident">n</span> <span class="op">&lt;</span> <span class="ident">MIN_AMBS</span> {
+                <span class="ident">MIN_AMBS</span>
+            } <span class="kw">else</span> {
+                <span class="ident">n</span>
+            }
+        }
+    }
+        
+    
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
 </body></html>

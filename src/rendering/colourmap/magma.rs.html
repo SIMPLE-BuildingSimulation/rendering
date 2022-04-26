@@ -1,0 +1,607 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/colourmap/magma.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>magma.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
+<script>
+  "use strict";
+  document.addEventListener("DOMContentLoaded", function () {
+      var maths = document.getElementsByClassName("language-math");
+      for (var i=0; i<maths.length; i++) {
+          var el = maths[i];
+          katex.render(el.innerText, el, {displayMode: true});
+      }
+
+      var codes = document.getElementsByTagName("code");
+      for (i=0; i<codes.length; i++) {
+          el = codes[i];
+          if (el.classList.contains("language-math")) continue;
+          if (el.classList.contains("language-inline-math")) {
+              katex.render(el.innerText, el);
+              continue;
+          }
+
+          var parent = el.parentNode;
+          if (parent.nodeName.toLowerCase() === "pre") continue;
+          // TODO: Can this be done with DOM manipulation rather than string manipulation?
+          // https://stackoverflow.com/q/48438067/3019990
+          var inlineMath = "$" + el.outerHTML + "$";
+          if (parent.innerHTML.indexOf(inlineMath) !== -1) {
+              el.classList.add("language-inline-math");
+              parent.innerHTML = parent.innerHTML.replace("$" + el.outerHTML + "$", el.outerHTML);
+              i--;
+          }
+      }
+  });
+</script>
+
+</head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../../../rendering/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a><h2 class="location"></h2>
+    </nav>
+    <nav class="sidebar"><a class="sidebar-logo" href="../../../rendering/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rendering/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+<span id="2">2</span>
+<span id="3">3</span>
+<span id="4">4</span>
+<span id="5">5</span>
+<span id="6">6</span>
+<span id="7">7</span>
+<span id="8">8</span>
+<span id="9">9</span>
+<span id="10">10</span>
+<span id="11">11</span>
+<span id="12">12</span>
+<span id="13">13</span>
+<span id="14">14</span>
+<span id="15">15</span>
+<span id="16">16</span>
+<span id="17">17</span>
+<span id="18">18</span>
+<span id="19">19</span>
+<span id="20">20</span>
+<span id="21">21</span>
+<span id="22">22</span>
+<span id="23">23</span>
+<span id="24">24</span>
+<span id="25">25</span>
+<span id="26">26</span>
+<span id="27">27</span>
+<span id="28">28</span>
+<span id="29">29</span>
+<span id="30">30</span>
+<span id="31">31</span>
+<span id="32">32</span>
+<span id="33">33</span>
+<span id="34">34</span>
+<span id="35">35</span>
+<span id="36">36</span>
+<span id="37">37</span>
+<span id="38">38</span>
+<span id="39">39</span>
+<span id="40">40</span>
+<span id="41">41</span>
+<span id="42">42</span>
+<span id="43">43</span>
+<span id="44">44</span>
+<span id="45">45</span>
+<span id="46">46</span>
+<span id="47">47</span>
+<span id="48">48</span>
+<span id="49">49</span>
+<span id="50">50</span>
+<span id="51">51</span>
+<span id="52">52</span>
+<span id="53">53</span>
+<span id="54">54</span>
+<span id="55">55</span>
+<span id="56">56</span>
+<span id="57">57</span>
+<span id="58">58</span>
+<span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
+<span id="106">106</span>
+<span id="107">107</span>
+<span id="108">108</span>
+<span id="109">109</span>
+<span id="110">110</span>
+<span id="111">111</span>
+<span id="112">112</span>
+<span id="113">113</span>
+<span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
+<span id="119">119</span>
+<span id="120">120</span>
+<span id="121">121</span>
+<span id="122">122</span>
+<span id="123">123</span>
+<span id="124">124</span>
+<span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
+<span id="166">166</span>
+<span id="167">167</span>
+<span id="168">168</span>
+<span id="169">169</span>
+<span id="170">170</span>
+<span id="171">171</span>
+<span id="172">172</span>
+<span id="173">173</span>
+<span id="174">174</span>
+<span id="175">175</span>
+<span id="176">176</span>
+<span id="177">177</span>
+<span id="178">178</span>
+<span id="179">179</span>
+<span id="180">180</span>
+<span id="181">181</span>
+<span id="182">182</span>
+<span id="183">183</span>
+<span id="184">184</span>
+<span id="185">185</span>
+<span id="186">186</span>
+<span id="187">187</span>
+<span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
+<span id="197">197</span>
+<span id="198">198</span>
+<span id="199">199</span>
+<span id="200">200</span>
+<span id="201">201</span>
+<span id="202">202</span>
+<span id="203">203</span>
+<span id="204">204</span>
+<span id="205">205</span>
+<span id="206">206</span>
+<span id="207">207</span>
+<span id="208">208</span>
+<span id="209">209</span>
+<span id="210">210</span>
+<span id="211">211</span>
+<span id="212">212</span>
+<span id="213">213</span>
+<span id="214">214</span>
+<span id="215">215</span>
+<span id="216">216</span>
+<span id="217">217</span>
+<span id="218">218</span>
+<span id="219">219</span>
+<span id="220">220</span>
+<span id="221">221</span>
+<span id="222">222</span>
+<span id="223">223</span>
+<span id="224">224</span>
+<span id="225">225</span>
+<span id="226">226</span>
+<span id="227">227</span>
+<span id="228">228</span>
+<span id="229">229</span>
+<span id="230">230</span>
+<span id="231">231</span>
+<span id="232">232</span>
+<span id="233">233</span>
+<span id="234">234</span>
+<span id="235">235</span>
+<span id="236">236</span>
+<span id="237">237</span>
+<span id="238">238</span>
+<span id="239">239</span>
+<span id="240">240</span>
+<span id="241">241</span>
+<span id="242">242</span>
+<span id="243">243</span>
+<span id="244">244</span>
+<span id="245">245</span>
+<span id="246">246</span>
+<span id="247">247</span>
+<span id="248">248</span>
+<span id="249">249</span>
+<span id="250">250</span>
+<span id="251">251</span>
+<span id="252">252</span>
+<span id="253">253</span>
+<span id="254">254</span>
+<span id="255">255</span>
+<span id="256">256</span>
+<span id="257">257</span>
+<span id="258">258</span>
+<span id="259">259</span>
+<span id="260">260</span>
+<span id="261">261</span>
+<span id="262">262</span>
+<span id="263">263</span>
+<span id="264">264</span>
+<span id="265">265</span>
+<span id="266">266</span>
+<span id="267">267</span>
+<span id="268">268</span>
+<span id="269">269</span>
+<span id="270">270</span>
+<span id="271">271</span>
+<span id="272">272</span>
+<span id="273">273</span>
+<span id="274">274</span>
+<span id="275">275</span>
+<span id="276">276</span>
+<span id="277">277</span>
+<span id="278">278</span>
+<span id="279">279</span>
+<span id="280">280</span>
+<span id="281">281</span>
+<span id="282">282</span>
+<span id="283">283</span>
+</pre><pre class="rust"><code><span class="comment">/*
+MIT License
+Copyright (c) 2021 Germán Molina
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the &quot;Software&quot;), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+*/</span>
+
+
+<span class="comment">// From https://github.com/bids/colormap</span>
+
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
+
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">MAGMA_COLOURMAP</span> : [<span class="ident">Spectrum</span>; <span class="number">256</span>] <span class="op">=</span> [
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0014616</span>, <span class="ident">green</span>:<span class="number">0.0004661</span>, <span class="ident">blue</span>:<span class="number">0.0138655</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0022576</span>, <span class="ident">green</span>:<span class="number">0.0012950</span>, <span class="ident">blue</span>:<span class="number">0.0183311</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0032794</span>, <span class="ident">green</span>:<span class="number">0.0023045</span>, <span class="ident">blue</span>:<span class="number">0.0237083</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0045123</span>, <span class="ident">green</span>:<span class="number">0.0034904</span>, <span class="ident">blue</span>:<span class="number">0.0299647</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0059498</span>, <span class="ident">green</span>:<span class="number">0.0048429</span>, <span class="ident">blue</span>:<span class="number">0.0371297</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0075880</span>, <span class="ident">green</span>:<span class="number">0.0063561</span>, <span class="ident">blue</span>:<span class="number">0.0449731</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0094260</span>, <span class="ident">green</span>:<span class="number">0.0080219</span>, <span class="ident">blue</span>:<span class="number">0.0528444</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0114654</span>, <span class="ident">green</span>:<span class="number">0.0098283</span>, <span class="ident">blue</span>:<span class="number">0.0607496</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0137076</span>, <span class="ident">green</span>:<span class="number">0.0117706</span>, <span class="ident">blue</span>:<span class="number">0.0686666</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0161558</span>, <span class="ident">green</span>:<span class="number">0.0138405</span>, <span class="ident">blue</span>:<span class="number">0.0766027</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0188154</span>, <span class="ident">green</span>:<span class="number">0.0160263</span>, <span class="ident">blue</span>:<span class="number">0.0845845</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0216919</span>, <span class="ident">green</span>:<span class="number">0.0183201</span>, <span class="ident">blue</span>:<span class="number">0.0926101</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0247918</span>, <span class="ident">green</span>:<span class="number">0.0207148</span>, <span class="ident">blue</span>:<span class="number">0.1006756</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0281228</span>, <span class="ident">green</span>:<span class="number">0.0232009</span>, <span class="ident">blue</span>:<span class="number">0.1087870</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0316955</span>, <span class="ident">green</span>:<span class="number">0.0257651</span>, <span class="ident">blue</span>:<span class="number">0.1169647</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0355204</span>, <span class="ident">green</span>:<span class="number">0.0283975</span>, <span class="ident">blue</span>:<span class="number">0.1252094</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0396085</span>, <span class="ident">green</span>:<span class="number">0.0310896</span>, <span class="ident">blue</span>:<span class="number">0.1335151</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0438295</span>, <span class="ident">green</span>:<span class="number">0.0338300</span>, <span class="ident">blue</span>:<span class="number">0.1418862</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0480616</span>, <span class="ident">green</span>:<span class="number">0.0366066</span>, <span class="ident">blue</span>:<span class="number">0.1503270</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0523204</span>, <span class="ident">green</span>:<span class="number">0.0394066</span>, <span class="ident">blue</span>:<span class="number">0.1588410</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0566149</span>, <span class="ident">green</span>:<span class="number">0.0421599</span>, <span class="ident">blue</span>:<span class="number">0.1674456</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0609494</span>, <span class="ident">green</span>:<span class="number">0.0447945</span>, <span class="ident">blue</span>:<span class="number">0.1761288</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0653302</span>, <span class="ident">green</span>:<span class="number">0.0473178</span>, <span class="ident">blue</span>:<span class="number">0.1848915</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0697637</span>, <span class="ident">green</span>:<span class="number">0.0497265</span>, <span class="ident">blue</span>:<span class="number">0.1937351</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0742565</span>, <span class="ident">green</span>:<span class="number">0.0520168</span>, <span class="ident">blue</span>:<span class="number">0.2026604</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0788150</span>, <span class="ident">green</span>:<span class="number">0.0541845</span>, <span class="ident">blue</span>:<span class="number">0.2116674</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0834456</span>, <span class="ident">green</span>:<span class="number">0.0562249</span>, <span class="ident">blue</span>:<span class="number">0.2207551</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0881548</span>, <span class="ident">green</span>:<span class="number">0.0581331</span>, <span class="ident">blue</span>:<span class="number">0.2299216</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0929487</span>, <span class="ident">green</span>:<span class="number">0.0599038</span>, <span class="ident">blue</span>:<span class="number">0.2391637</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.0978335</span>, <span class="ident">green</span>:<span class="number">0.0615314</span>, <span class="ident">blue</span>:<span class="number">0.2484767</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1028150</span>, <span class="ident">green</span>:<span class="number">0.0630104</span>, <span class="ident">blue</span>:<span class="number">0.2578544</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1078987</span>, <span class="ident">green</span>:<span class="number">0.0643351</span>, <span class="ident">blue</span>:<span class="number">0.2672889</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1130945</span>, <span class="ident">green</span>:<span class="number">0.0654920</span>, <span class="ident">blue</span>:<span class="number">0.2767840</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1184050</span>, <span class="ident">green</span>:<span class="number">0.0664792</span>, <span class="ident">blue</span>:<span class="number">0.2863207</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1238327</span>, <span class="ident">green</span>:<span class="number">0.0672946</span>, <span class="ident">blue</span>:<span class="number">0.2958794</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1293802</span>, <span class="ident">green</span>:<span class="number">0.0679349</span>, <span class="ident">blue</span>:<span class="number">0.3054429</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1350533</span>, <span class="ident">green</span>:<span class="number">0.0683913</span>, <span class="ident">blue</span>:<span class="number">0.3149999</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1408580</span>, <span class="ident">green</span>:<span class="number">0.0686541</span>, <span class="ident">blue</span>:<span class="number">0.3245376</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1467852</span>, <span class="ident">green</span>:<span class="number">0.0687382</span>, <span class="ident">blue</span>:<span class="number">0.3340111</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1528392</span>, <span class="ident">green</span>:<span class="number">0.0686369</span>, <span class="ident">blue</span>:<span class="number">0.3434045</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1590175</span>, <span class="ident">green</span>:<span class="number">0.0683540</span>, <span class="ident">blue</span>:<span class="number">0.3526880</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1653081</span>, <span class="ident">green</span>:<span class="number">0.0679109</span>, <span class="ident">blue</span>:<span class="number">0.3618164</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1717130</span>, <span class="ident">green</span>:<span class="number">0.0673053</span>, <span class="ident">blue</span>:<span class="number">0.3707708</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1782117</span>, <span class="ident">green</span>:<span class="number">0.0665758</span>, <span class="ident">blue</span>:<span class="number">0.3794972</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1848009</span>, <span class="ident">green</span>:<span class="number">0.0657324</span>, <span class="ident">blue</span>:<span class="number">0.3879725</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1914597</span>, <span class="ident">green</span>:<span class="number">0.0648183</span>, <span class="ident">blue</span>:<span class="number">0.3961520</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.1981769</span>, <span class="ident">green</span>:<span class="number">0.0638624</span>, <span class="ident">blue</span>:<span class="number">0.4040090</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2049349</span>, <span class="ident">green</span>:<span class="number">0.0629066</span>, <span class="ident">blue</span>:<span class="number">0.4115143</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2117181</span>, <span class="ident">green</span>:<span class="number">0.0619918</span>, <span class="ident">blue</span>:<span class="number">0.4186467</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2185116</span>, <span class="ident">green</span>:<span class="number">0.0611585</span>, <span class="ident">blue</span>:<span class="number">0.4253918</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2253020</span>, <span class="ident">green</span>:<span class="number">0.0604452</span>, <span class="ident">blue</span>:<span class="number">0.4317418</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2320765</span>, <span class="ident">green</span>:<span class="number">0.0598887</span>, <span class="ident">blue</span>:<span class="number">0.4376947</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2388260</span>, <span class="ident">green</span>:<span class="number">0.0595170</span>, <span class="ident">blue</span>:<span class="number">0.4432560</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2455432</span>, <span class="ident">green</span>:<span class="number">0.0593524</span>, <span class="ident">blue</span>:<span class="number">0.4484359</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2522203</span>, <span class="ident">green</span>:<span class="number">0.0594147</span>, <span class="ident">blue</span>:<span class="number">0.4532477</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2588573</span>, <span class="ident">green</span>:<span class="number">0.0597056</span>, <span class="ident">blue</span>:<span class="number">0.4577099</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2654467</span>, <span class="ident">green</span>:<span class="number">0.0602369</span>, <span class="ident">blue</span>:<span class="number">0.4618403</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2719941</span>, <span class="ident">green</span>:<span class="number">0.0609936</span>, <span class="ident">blue</span>:<span class="number">0.4656604</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2784933</span>, <span class="ident">green</span>:<span class="number">0.0619778</span>, <span class="ident">blue</span>:<span class="number">0.4691903</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2849511</span>, <span class="ident">green</span>:<span class="number">0.0631676</span>, <span class="ident">blue</span>:<span class="number">0.4724509</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2913658</span>, <span class="ident">green</span>:<span class="number">0.0645534</span>, <span class="ident">blue</span>:<span class="number">0.4754622</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.2977404</span>, <span class="ident">green</span>:<span class="number">0.0661170</span>, <span class="ident">blue</span>:<span class="number">0.4782435</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3040809</span>, <span class="ident">green</span>:<span class="number">0.0678353</span>, <span class="ident">blue</span>:<span class="number">0.4808116</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3103820</span>, <span class="ident">green</span>:<span class="number">0.0697025</span>, <span class="ident">blue</span>:<span class="number">0.4831863</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3166542</span>, <span class="ident">green</span>:<span class="number">0.0716895</span>, <span class="ident">blue</span>:<span class="number">0.4853804</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3228991</span>, <span class="ident">green</span>:<span class="number">0.0737820</span>, <span class="ident">blue</span>:<span class="number">0.4874084</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3291140</span>, <span class="ident">green</span>:<span class="number">0.0759715</span>, <span class="ident">blue</span>:<span class="number">0.4892868</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3353075</span>, <span class="ident">green</span>:<span class="number">0.0782361</span>, <span class="ident">blue</span>:<span class="number">0.4910241</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3414817</span>, <span class="ident">green</span>:<span class="number">0.0805635</span>, <span class="ident">blue</span>:<span class="number">0.4926313</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3476357</span>, <span class="ident">green</span>:<span class="number">0.0829464</span>, <span class="ident">blue</span>:<span class="number">0.4941209</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3537732</span>, <span class="ident">green</span>:<span class="number">0.0853726</span>, <span class="ident">blue</span>:<span class="number">0.4955011</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3598979</span>, <span class="ident">green</span>:<span class="number">0.0878312</span>, <span class="ident">blue</span>:<span class="number">0.4967783</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3660119</span>, <span class="ident">green</span>:<span class="number">0.0903143</span>, <span class="ident">blue</span>:<span class="number">0.4979600</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3721162</span>, <span class="ident">green</span>:<span class="number">0.0928160</span>, <span class="ident">blue</span>:<span class="number">0.4990533</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3782105</span>, <span class="ident">green</span>:<span class="number">0.0953323</span>, <span class="ident">blue</span>:<span class="number">0.5000666</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3842994</span>, <span class="ident">green</span>:<span class="number">0.0978549</span>, <span class="ident">blue</span>:<span class="number">0.5010020</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3903844</span>, <span class="ident">green</span>:<span class="number">0.1003795</span>, <span class="ident">blue</span>:<span class="number">0.5018642</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.3964667</span>, <span class="ident">green</span>:<span class="number">0.1029022</span>, <span class="ident">blue</span>:<span class="number">0.5026576</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4025477</span>, <span class="ident">green</span>:<span class="number">0.1054199</span>, <span class="ident">blue</span>:<span class="number">0.5033858</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4086285</span>, <span class="ident">green</span>:<span class="number">0.1079298</span>, <span class="ident">blue</span>:<span class="number">0.5040521</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4147087</span>, <span class="ident">green</span>:<span class="number">0.1104312</span>, <span class="ident">blue</span>:<span class="number">0.5046618</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4207912</span>, <span class="ident">green</span>:<span class="number">0.1129202</span>, <span class="ident">blue</span>:<span class="number">0.5052149</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4268770</span>, <span class="ident">green</span>:<span class="number">0.1153953</span>, <span class="ident">blue</span>:<span class="number">0.5057136</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4329670</span>, <span class="ident">green</span>:<span class="number">0.1178550</span>, <span class="ident">blue</span>:<span class="number">0.5061598</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4390621</span>, <span class="ident">green</span>:<span class="number">0.1202983</span>, <span class="ident">blue</span>:<span class="number">0.5065550</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4451631</span>, <span class="ident">green</span>:<span class="number">0.1227244</span>, <span class="ident">blue</span>:<span class="number">0.5069008</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4512707</span>, <span class="ident">green</span>:<span class="number">0.1251325</span>, <span class="ident">blue</span>:<span class="number">0.5071983</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4573855</span>, <span class="ident">green</span>:<span class="number">0.1275221</span>, <span class="ident">blue</span>:<span class="number">0.5074483</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4635083</span>, <span class="ident">green</span>:<span class="number">0.1298930</span>, <span class="ident">blue</span>:<span class="number">0.5076518</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4696395</span>, <span class="ident">green</span>:<span class="number">0.1322448</span>, <span class="ident">blue</span>:<span class="number">0.5078093</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4757797</span>, <span class="ident">green</span>:<span class="number">0.1345775</span>, <span class="ident">blue</span>:<span class="number">0.5079212</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4819290</span>, <span class="ident">green</span>:<span class="number">0.1368914</span>, <span class="ident">blue</span>:<span class="number">0.5079885</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4880882</span>, <span class="ident">green</span>:<span class="number">0.1391862</span>, <span class="ident">blue</span>:<span class="number">0.5080107</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.4942577</span>, <span class="ident">green</span>:<span class="number">0.1414621</span>, <span class="ident">blue</span>:<span class="number">0.5079878</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5004378</span>, <span class="ident">green</span>:<span class="number">0.1437193</span>, <span class="ident">blue</span>:<span class="number">0.5079198</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5066289</span>, <span class="ident">green</span>:<span class="number">0.1459582</span>, <span class="ident">blue</span>:<span class="number">0.5078064</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5128312</span>, <span class="ident">green</span>:<span class="number">0.1481791</span>, <span class="ident">blue</span>:<span class="number">0.5076476</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5190448</span>, <span class="ident">green</span>:<span class="number">0.1503826</span>, <span class="ident">blue</span>:<span class="number">0.5074429</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5252700</span>, <span class="ident">green</span>:<span class="number">0.1525691</span>, <span class="ident">blue</span>:<span class="number">0.5071922</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5315067</span>, <span class="ident">green</span>:<span class="number">0.1547392</span>, <span class="ident">blue</span>:<span class="number">0.5068949</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5377552</span>, <span class="ident">green</span>:<span class="number">0.1568936</span>, <span class="ident">blue</span>:<span class="number">0.5065505</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5440154</span>, <span class="ident">green</span>:<span class="number">0.1590329</span>, <span class="ident">blue</span>:<span class="number">0.5061587</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5502873</span>, <span class="ident">green</span>:<span class="number">0.1611578</span>, <span class="ident">blue</span>:<span class="number">0.5057188</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5565708</span>, <span class="ident">green</span>:<span class="number">0.1632691</span>, <span class="ident">blue</span>:<span class="number">0.5052302</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5628659</span>, <span class="ident">green</span>:<span class="number">0.1653677</span>, <span class="ident">blue</span>:<span class="number">0.5046924</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5691724</span>, <span class="ident">green</span>:<span class="number">0.1674544</span>, <span class="ident">blue</span>:<span class="number">0.5041046</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5754901</span>, <span class="ident">green</span>:<span class="number">0.1695301</span>, <span class="ident">blue</span>:<span class="number">0.5034663</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5818189</span>, <span class="ident">green</span>:<span class="number">0.1715957</span>, <span class="ident">blue</span>:<span class="number">0.5027767</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5881584</span>, <span class="ident">green</span>:<span class="number">0.1736524</span>, <span class="ident">blue</span>:<span class="number">0.5020352</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.5945083</span>, <span class="ident">green</span>:<span class="number">0.1757011</span>, <span class="ident">blue</span>:<span class="number">0.5012410</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6008684</span>, <span class="ident">green</span>:<span class="number">0.1777430</span>, <span class="ident">blue</span>:<span class="number">0.5003935</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6072382</span>, <span class="ident">green</span>:<span class="number">0.1797793</span>, <span class="ident">blue</span>:<span class="number">0.4994920</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6136172</span>, <span class="ident">green</span>:<span class="number">0.1818112</span>, <span class="ident">blue</span>:<span class="number">0.4985357</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6200050</span>, <span class="ident">green</span>:<span class="number">0.1838399</span>, <span class="ident">blue</span>:<span class="number">0.4975241</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6264011</span>, <span class="ident">green</span>:<span class="number">0.1858669</span>, <span class="ident">blue</span>:<span class="number">0.4964563</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6328049</span>, <span class="ident">green</span>:<span class="number">0.1878935</span>, <span class="ident">blue</span>:<span class="number">0.4953318</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6392156</span>, <span class="ident">green</span>:<span class="number">0.1899212</span>, <span class="ident">blue</span>:<span class="number">0.4941498</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6456328</span>, <span class="ident">green</span>:<span class="number">0.1919516</span>, <span class="ident">blue</span>:<span class="number">0.4929098</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6520555</span>, <span class="ident">green</span>:<span class="number">0.1939862</span>, <span class="ident">blue</span>:<span class="number">0.4916112</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6584831</span>, <span class="ident">green</span>:<span class="number">0.1960268</span>, <span class="ident">blue</span>:<span class="number">0.4902533</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6649147</span>, <span class="ident">green</span>:<span class="number">0.1980752</span>, <span class="ident">blue</span>:<span class="number">0.4888357</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6713493</span>, <span class="ident">green</span>:<span class="number">0.2001332</span>, <span class="ident">blue</span>:<span class="number">0.4873578</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6777860</span>, <span class="ident">green</span>:<span class="number">0.2022027</span>, <span class="ident">blue</span>:<span class="number">0.4858192</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6842237</span>, <span class="ident">green</span>:<span class="number">0.2042857</span>, <span class="ident">blue</span>:<span class="number">0.4842193</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6906614</span>, <span class="ident">green</span>:<span class="number">0.2063845</span>, <span class="ident">blue</span>:<span class="number">0.4825579</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.6970978</span>, <span class="ident">green</span>:<span class="number">0.2085011</span>, <span class="ident">blue</span>:<span class="number">0.4808347</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7035317</span>, <span class="ident">green</span>:<span class="number">0.2106380</span>, <span class="ident">blue</span>:<span class="number">0.4790493</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7099619</span>, <span class="ident">green</span>:<span class="number">0.2127973</span>, <span class="ident">blue</span>:<span class="number">0.4772011</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7163870</span>, <span class="ident">green</span>:<span class="number">0.2149817</span>, <span class="ident">blue</span>:<span class="number">0.4752898</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7228055</span>, <span class="ident">green</span>:<span class="number">0.2171938</span>, <span class="ident">blue</span>:<span class="number">0.4733157</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7292155</span>, <span class="ident">green</span>:<span class="number">0.2194365</span>, <span class="ident">blue</span>:<span class="number">0.4712789</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7356155</span>, <span class="ident">green</span>:<span class="number">0.2217126</span>, <span class="ident">blue</span>:<span class="number">0.4691795</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7420037</span>, <span class="ident">green</span>:<span class="number">0.2240252</span>, <span class="ident">blue</span>:<span class="number">0.4670178</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7483781</span>, <span class="ident">green</span>:<span class="number">0.2263773</span>, <span class="ident">blue</span>:<span class="number">0.4647940</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7547367</span>, <span class="ident">green</span>:<span class="number">0.2287724</span>, <span class="ident">blue</span>:<span class="number">0.4625085</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7610773</span>, <span class="ident">green</span>:<span class="number">0.2312136</span>, <span class="ident">blue</span>:<span class="number">0.4601621</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7673977</span>, <span class="ident">green</span>:<span class="number">0.2337047</span>, <span class="ident">blue</span>:<span class="number">0.4577554</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7736954</span>, <span class="ident">green</span>:<span class="number">0.2362493</span>, <span class="ident">blue</span>:<span class="number">0.4552894</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7799678</span>, <span class="ident">green</span>:<span class="number">0.2388512</span>, <span class="ident">blue</span>:<span class="number">0.4527650</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7862124</span>, <span class="ident">green</span>:<span class="number">0.2415143</span>, <span class="ident">blue</span>:<span class="number">0.4501837</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7924270</span>, <span class="ident">green</span>:<span class="number">0.2442423</span>, <span class="ident">blue</span>:<span class="number">0.4475432</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.7986078</span>, <span class="ident">green</span>:<span class="number">0.2470398</span>, <span class="ident">blue</span>:<span class="number">0.4448484</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8047515</span>, <span class="ident">green</span>:<span class="number">0.2499114</span>, <span class="ident">blue</span>:<span class="number">0.4421016</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8108548</span>, <span class="ident">green</span>:<span class="number">0.2528614</span>, <span class="ident">blue</span>:<span class="number">0.4393050</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8169142</span>, <span class="ident">green</span>:<span class="number">0.2558946</span>, <span class="ident">blue</span>:<span class="number">0.4364611</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8229258</span>, <span class="ident">green</span>:<span class="number">0.2590155</span>, <span class="ident">blue</span>:<span class="number">0.4335729</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8288857</span>, <span class="ident">green</span>:<span class="number">0.2622290</span>, <span class="ident">blue</span>:<span class="number">0.4306436</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8347908</span>, <span class="ident">green</span>:<span class="number">0.2655397</span>, <span class="ident">blue</span>:<span class="number">0.4276714</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8406357</span>, <span class="ident">green</span>:<span class="number">0.2689529</span>, <span class="ident">blue</span>:<span class="number">0.4246656</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8464158</span>, <span class="ident">green</span>:<span class="number">0.2724735</span>, <span class="ident">blue</span>:<span class="number">0.4216311</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8521265</span>, <span class="ident">green</span>:<span class="number">0.2761065</span>, <span class="ident">blue</span>:<span class="number">0.4185728</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8577629</span>, <span class="ident">green</span>:<span class="number">0.2798567</span>, <span class="ident">blue</span>:<span class="number">0.4154963</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8633204</span>, <span class="ident">green</span>:<span class="number">0.2837290</span>, <span class="ident">blue</span>:<span class="number">0.4124029</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8687934</span>, <span class="ident">green</span>:<span class="number">0.2877282</span>, <span class="ident">blue</span>:<span class="number">0.4093030</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8741763</span>, <span class="ident">green</span>:<span class="number">0.2918587</span>, <span class="ident">blue</span>:<span class="number">0.4062054</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8794639</span>, <span class="ident">green</span>:<span class="number">0.2961246</span>, <span class="ident">blue</span>:<span class="number">0.4031180</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8846508</span>, <span class="ident">green</span>:<span class="number">0.3005301</span>, <span class="ident">blue</span>:<span class="number">0.4000471</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8897314</span>, <span class="ident">green</span>:<span class="number">0.3050788</span>, <span class="ident">blue</span>:<span class="number">0.3970016</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8947002</span>, <span class="ident">green</span>:<span class="number">0.3097734</span>, <span class="ident">blue</span>:<span class="number">0.3939946</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.8995519</span>, <span class="ident">green</span>:<span class="number">0.3146164</span>, <span class="ident">blue</span>:<span class="number">0.3910367</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9042813</span>, <span class="ident">green</span>:<span class="number">0.3196100</span>, <span class="ident">blue</span>:<span class="number">0.3881369</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9088835</span>, <span class="ident">green</span>:<span class="number">0.3247551</span>, <span class="ident">blue</span>:<span class="number">0.3853080</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9133541</span>, <span class="ident">green</span>:<span class="number">0.3300519</span>, <span class="ident">blue</span>:<span class="number">0.3825634</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9176889</span>, <span class="ident">green</span>:<span class="number">0.3355001</span>, <span class="ident">blue</span>:<span class="number">0.3799151</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9218842</span>, <span class="ident">green</span>:<span class="number">0.3410981</span>, <span class="ident">blue</span>:<span class="number">0.3773760</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9259371</span>, <span class="ident">green</span>:<span class="number">0.3468437</span>, <span class="ident">blue</span>:<span class="number">0.3749591</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9298451</span>, <span class="ident">green</span>:<span class="number">0.3527338</span>, <span class="ident">blue</span>:<span class="number">0.3726765</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9336065</span>, <span class="ident">green</span>:<span class="number">0.3587644</span>, <span class="ident">blue</span>:<span class="number">0.3705409</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9372209</span>, <span class="ident">green</span>:<span class="number">0.3649293</span>, <span class="ident">blue</span>:<span class="number">0.3685665</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9406874</span>, <span class="ident">green</span>:<span class="number">0.3712242</span>, <span class="ident">blue</span>:<span class="number">0.3667617</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9440064</span>, <span class="ident">green</span>:<span class="number">0.3776429</span>, <span class="ident">blue</span>:<span class="number">0.3651363</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9471795</span>, <span class="ident">green</span>:<span class="number">0.3841779</span>, <span class="ident">blue</span>:<span class="number">0.3637011</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9502102</span>, <span class="ident">green</span>:<span class="number">0.3908195</span>, <span class="ident">blue</span>:<span class="number">0.3624677</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9530991</span>, <span class="ident">green</span>:<span class="number">0.3975629</span>, <span class="ident">blue</span>:<span class="number">0.3614384</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9558492</span>, <span class="ident">green</span>:<span class="number">0.4044002</span>, <span class="ident">blue</span>:<span class="number">0.3606191</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9584641</span>, <span class="ident">green</span>:<span class="number">0.4113237</span>, <span class="ident">blue</span>:<span class="number">0.3600142</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9609492</span>, <span class="ident">green</span>:<span class="number">0.4183232</span>, <span class="ident">blue</span>:<span class="number">0.3596298</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9633103</span>, <span class="ident">green</span>:<span class="number">0.4253897</span>, <span class="ident">blue</span>:<span class="number">0.3594690</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9655494</span>, <span class="ident">green</span>:<span class="number">0.4325187</span>, <span class="ident">blue</span>:<span class="number">0.3595292</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9676711</span>, <span class="ident">green</span>:<span class="number">0.4397030</span>, <span class="ident">blue</span>:<span class="number">0.3598102</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9696804</span>, <span class="ident">green</span>:<span class="number">0.4469356</span>, <span class="ident">blue</span>:<span class="number">0.3603111</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9715822</span>, <span class="ident">green</span>:<span class="number">0.4542102</span>, <span class="ident">blue</span>:<span class="number">0.3610302</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9733812</span>, <span class="ident">green</span>:<span class="number">0.4615205</span>, <span class="ident">blue</span>:<span class="number">0.3619647</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9750824</span>, <span class="ident">green</span>:<span class="number">0.4688609</span>, <span class="ident">blue</span>:<span class="number">0.3631113</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9766905</span>, <span class="ident">green</span>:<span class="number">0.4762264</span>, <span class="ident">blue</span>:<span class="number">0.3644662</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9782100</span>, <span class="ident">green</span>:<span class="number">0.4836120</span>, <span class="ident">blue</span>:<span class="number">0.3660249</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9796452</span>, <span class="ident">green</span>:<span class="number">0.4910138</span>, <span class="ident">blue</span>:<span class="number">0.3677826</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9810003</span>, <span class="ident">green</span>:<span class="number">0.4984278</span>, <span class="ident">blue</span>:<span class="number">0.3697342</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9822792</span>, <span class="ident">green</span>:<span class="number">0.5058508</span>, <span class="ident">blue</span>:<span class="number">0.3718743</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9834854</span>, <span class="ident">green</span>:<span class="number">0.5132801</span>, <span class="ident">blue</span>:<span class="number">0.3741975</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9846223</span>, <span class="ident">green</span>:<span class="number">0.5207130</span>, <span class="ident">blue</span>:<span class="number">0.3766982</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9856929</span>, <span class="ident">green</span>:<span class="number">0.5281475</span>, <span class="ident">blue</span>:<span class="number">0.3793708</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9867000</span>, <span class="ident">green</span>:<span class="number">0.5355821</span>, <span class="ident">blue</span>:<span class="number">0.3822097</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9876460</span>, <span class="ident">green</span>:<span class="number">0.5430152</span>, <span class="ident">blue</span>:<span class="number">0.3852096</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9885332</span>, <span class="ident">green</span>:<span class="number">0.5504458</span>, <span class="ident">blue</span>:<span class="number">0.3883650</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9893633</span>, <span class="ident">green</span>:<span class="number">0.5578731</span>, <span class="ident">blue</span>:<span class="number">0.3916708</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9901382</span>, <span class="ident">green</span>:<span class="number">0.5652965</span>, <span class="ident">blue</span>:<span class="number">0.3951221</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9908712</span>, <span class="ident">green</span>:<span class="number">0.5727063</span>, <span class="ident">blue</span>:<span class="number">0.3987140</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9915582</span>, <span class="ident">green</span>:<span class="number">0.5801068</span>, <span class="ident">blue</span>:<span class="number">0.4024411</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9921957</span>, <span class="ident">green</span>:<span class="number">0.5875017</span>, <span class="ident">blue</span>:<span class="number">0.4062988</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9927847</span>, <span class="ident">green</span>:<span class="number">0.5948911</span>, <span class="ident">blue</span>:<span class="number">0.4102830</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9933256</span>, <span class="ident">green</span>:<span class="number">0.6022753</span>, <span class="ident">blue</span>:<span class="number">0.4143897</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9938344</span>, <span class="ident">green</span>:<span class="number">0.6096435</span>, <span class="ident">blue</span>:<span class="number">0.4186132</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9943085</span>, <span class="ident">green</span>:<span class="number">0.6169990</span>, <span class="ident">blue</span>:<span class="number">0.4229497</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9947377</span>, <span class="ident">green</span>:<span class="number">0.6243497</span>, <span class="ident">blue</span>:<span class="number">0.4273968</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9951219</span>, <span class="ident">green</span>:<span class="number">0.6316964</span>, <span class="ident">blue</span>:<span class="number">0.4319515</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9954805</span>, <span class="ident">green</span>:<span class="number">0.6390266</span>, <span class="ident">blue</span>:<span class="number">0.4366072</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9958099</span>, <span class="ident">green</span>:<span class="number">0.6463439</span>, <span class="ident">blue</span>:<span class="number">0.4413610</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9960957</span>, <span class="ident">green</span>:<span class="number">0.6536588</span>, <span class="ident">blue</span>:<span class="number">0.4462130</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9963414</span>, <span class="ident">green</span>:<span class="number">0.6609694</span>, <span class="ident">blue</span>:<span class="number">0.4511602</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9965798</span>, <span class="ident">green</span>:<span class="number">0.6682556</span>, <span class="ident">blue</span>:<span class="number">0.4561918</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9967748</span>, <span class="ident">green</span>:<span class="number">0.6755415</span>, <span class="ident">blue</span>:<span class="number">0.4613142</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9969254</span>, <span class="ident">green</span>:<span class="number">0.6828280</span>, <span class="ident">blue</span>:<span class="number">0.4665257</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9970772</span>, <span class="ident">green</span>:<span class="number">0.6900879</span>, <span class="ident">blue</span>:<span class="number">0.4718115</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9971863</span>, <span class="ident">green</span>:<span class="number">0.6973490</span>, <span class="ident">blue</span>:<span class="number">0.4771817</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9972540</span>, <span class="ident">green</span>:<span class="number">0.7046108</span>, <span class="ident">blue</span>:<span class="number">0.4826347</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9973252</span>, <span class="ident">green</span>:<span class="number">0.7118477</span>, <span class="ident">blue</span>:<span class="number">0.4881544</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9973510</span>, <span class="ident">green</span>:<span class="number">0.7190891</span>, <span class="ident">blue</span>:<span class="number">0.4937547</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9973506</span>, <span class="ident">green</span>:<span class="number">0.7263244</span>, <span class="ident">blue</span>:<span class="number">0.4994280</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9973413</span>, <span class="ident">green</span>:<span class="number">0.7335447</span>, <span class="ident">blue</span>:<span class="number">0.5051668</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9972847</span>, <span class="ident">green</span>:<span class="number">0.7407719</span>, <span class="ident">blue</span>:<span class="number">0.5109833</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9972284</span>, <span class="ident">green</span>:<span class="number">0.7479806</span>, <span class="ident">blue</span>:<span class="number">0.5168594</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9971385</span>, <span class="ident">green</span>:<span class="number">0.7551899</span>, <span class="ident">blue</span>:<span class="number">0.5228060</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9970193</span>, <span class="ident">green</span>:<span class="number">0.7623979</span>, <span class="ident">blue</span>:<span class="number">0.5288208</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9968983</span>, <span class="ident">green</span>:<span class="number">0.7695910</span>, <span class="ident">blue</span>:<span class="number">0.5348923</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9967269</span>, <span class="ident">green</span>:<span class="number">0.7767949</span>, <span class="ident">blue</span>:<span class="number">0.5410386</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9965706</span>, <span class="ident">green</span>:<span class="number">0.7839765</span>, <span class="ident">blue</span>:<span class="number">0.5472330</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9963691</span>, <span class="ident">green</span>:<span class="number">0.7911673</span>, <span class="ident">blue</span>:<span class="number">0.5534989</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9961623</span>, <span class="ident">green</span>:<span class="number">0.7983477</span>, <span class="ident">blue</span>:<span class="number">0.5598196</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9959324</span>, <span class="ident">green</span>:<span class="number">0.8055271</span>, <span class="ident">blue</span>:<span class="number">0.5662018</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9956801</span>, <span class="ident">green</span>:<span class="number">0.8127058</span>, <span class="ident">blue</span>:<span class="number">0.5726448</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9954240</span>, <span class="ident">green</span>:<span class="number">0.8198753</span>, <span class="ident">blue</span>:<span class="number">0.5791401</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9951313</span>, <span class="ident">green</span>:<span class="number">0.8270518</span>, <span class="ident">blue</span>:<span class="number">0.5857015</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9948511</span>, <span class="ident">green</span>:<span class="number">0.8342128</span>, <span class="ident">blue</span>:<span class="number">0.5923071</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9945237</span>, <span class="ident">green</span>:<span class="number">0.8413866</span>, <span class="ident">blue</span>:<span class="number">0.5989828</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9942219</span>, <span class="ident">green</span>:<span class="number">0.8485405</span>, <span class="ident">blue</span>:<span class="number">0.6056959</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9938658</span>, <span class="ident">green</span>:<span class="number">0.8557110</span>, <span class="ident">blue</span>:<span class="number">0.6124818</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9935453</span>, <span class="ident">green</span>:<span class="number">0.8628588</span>, <span class="ident">blue</span>:<span class="number">0.6192993</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9931696</span>, <span class="ident">green</span>:<span class="number">0.8700245</span>, <span class="ident">blue</span>:<span class="number">0.6261895</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9928310</span>, <span class="ident">green</span>:<span class="number">0.8771684</span>, <span class="ident">blue</span>:<span class="number">0.6331091</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9924399</span>, <span class="ident">green</span>:<span class="number">0.8843297</span>, <span class="ident">blue</span>:<span class="number">0.6400995</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9920895</span>, <span class="ident">green</span>:<span class="number">0.8914695</span>, <span class="ident">blue</span>:<span class="number">0.6471160</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9916877</span>, <span class="ident">green</span>:<span class="number">0.8986271</span>, <span class="ident">blue</span>:<span class="number">0.6542015</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9913319</span>, <span class="ident">green</span>:<span class="number">0.9057627</span>, <span class="ident">blue</span>:<span class="number">0.6613088</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9909297</span>, <span class="ident">green</span>:<span class="number">0.9129150</span>, <span class="ident">blue</span>:<span class="number">0.6684812</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9905699</span>, <span class="ident">green</span>:<span class="number">0.9200487</span>, <span class="ident">blue</span>:<span class="number">0.6756746</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9901746</span>, <span class="ident">green</span>:<span class="number">0.9271956</span>, <span class="ident">blue</span>:<span class="number">0.6829256</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9898148</span>, <span class="ident">green</span>:<span class="number">0.9343285</span>, <span class="ident">blue</span>:<span class="number">0.6901982</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9894337</span>, <span class="ident">green</span>:<span class="number">0.9414704</span>, <span class="ident">blue</span>:<span class="number">0.6975186</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9890774</span>, <span class="ident">green</span>:<span class="number">0.9486041</span>, <span class="ident">blue</span>:<span class="number">0.7048625</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9887171</span>, <span class="ident">green</span>:<span class="number">0.9557415</span>, <span class="ident">blue</span>:<span class="number">0.7122422</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9883670</span>, <span class="ident">green</span>:<span class="number">0.9628780</span>, <span class="ident">blue</span>:<span class="number">0.7196486</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9880329</span>, <span class="ident">green</span>:<span class="number">0.9700124</span>, <span class="ident">blue</span>:<span class="number">0.7270768</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9876907</span>, <span class="ident">green</span>:<span class="number">0.9771542</span>, <span class="ident">blue</span>:<span class="number">0.7345362</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9873868</span>, <span class="ident">green</span>:<span class="number">0.9842876</span>, <span class="ident">blue</span>:<span class="number">0.7420015</span>},
+    <span class="ident">Spectrum</span>{<span class="ident">red</span>:<span class="number">0.9870525</span>, <span class="ident">green</span>:<span class="number">0.9914379</span>, <span class="ident">blue</span>:<span class="number">0.7495042</span>},
+];</code></pre></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
+</body></html>

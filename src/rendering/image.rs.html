@@ -520,6 +520,133 @@
 <span id="481">481</span>
 <span id="482">482</span>
 <span id="483">483</span>
+<span id="484">484</span>
+<span id="485">485</span>
+<span id="486">486</span>
+<span id="487">487</span>
+<span id="488">488</span>
+<span id="489">489</span>
+<span id="490">490</span>
+<span id="491">491</span>
+<span id="492">492</span>
+<span id="493">493</span>
+<span id="494">494</span>
+<span id="495">495</span>
+<span id="496">496</span>
+<span id="497">497</span>
+<span id="498">498</span>
+<span id="499">499</span>
+<span id="500">500</span>
+<span id="501">501</span>
+<span id="502">502</span>
+<span id="503">503</span>
+<span id="504">504</span>
+<span id="505">505</span>
+<span id="506">506</span>
+<span id="507">507</span>
+<span id="508">508</span>
+<span id="509">509</span>
+<span id="510">510</span>
+<span id="511">511</span>
+<span id="512">512</span>
+<span id="513">513</span>
+<span id="514">514</span>
+<span id="515">515</span>
+<span id="516">516</span>
+<span id="517">517</span>
+<span id="518">518</span>
+<span id="519">519</span>
+<span id="520">520</span>
+<span id="521">521</span>
+<span id="522">522</span>
+<span id="523">523</span>
+<span id="524">524</span>
+<span id="525">525</span>
+<span id="526">526</span>
+<span id="527">527</span>
+<span id="528">528</span>
+<span id="529">529</span>
+<span id="530">530</span>
+<span id="531">531</span>
+<span id="532">532</span>
+<span id="533">533</span>
+<span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
+<span id="576">576</span>
+<span id="577">577</span>
+<span id="578">578</span>
+<span id="579">579</span>
+<span id="580">580</span>
+<span id="581">581</span>
+<span id="582">582</span>
+<span id="583">583</span>
+<span id="584">584</span>
+<span id="585">585</span>
+<span id="586">586</span>
+<span id="587">587</span>
+<span id="588">588</span>
+<span id="589">589</span>
+<span id="590">590</span>
+<span id="591">591</span>
+<span id="592">592</span>
+<span id="593">593</span>
+<span id="594">594</span>
+<span id="595">595</span>
+<span id="596">596</span>
+<span id="597">597</span>
+<span id="598">598</span>
+<span id="599">599</span>
+<span id="600">600</span>
+<span id="601">601</span>
+<span id="602">602</span>
+<span id="603">603</span>
+<span id="604">604</span>
+<span id="605">605</span>
+<span id="606">606</span>
+<span id="607">607</span>
+<span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -554,6 +681,9 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">std::path::Path</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colourmap::Colourmap</span>;
+<span class="kw">use</span> <span class="ident">jpeg_encoder</span>::{<span class="ident">Encoder</span>, <span class="ident">ColorType</span>};
+
 
 <span class="doccomment">/// Equivalent to C&#39;s `frexp` function</span>
 <span class="kw">fn</span> <span class="ident">rusty_frexp</span>(<span class="ident">s</span>: <span class="ident">Float</span>) -&gt; (<span class="ident">Float</span>, <span class="ident">i32</span>) {
@@ -600,7 +730,7 @@ SOFTWARE.
 
 <span class="kw">fn</span> <span class="ident">rgbe_to_colour</span>(<span class="ident">r</span>: <span class="ident">u8</span>, <span class="ident">g</span>: <span class="ident">u8</span>, <span class="ident">b</span>: <span class="ident">u8</span>, <span class="ident">e</span>: <span class="ident">u8</span>) -&gt; <span class="ident">Spectrum</span> {
     <span class="kw">if</span> <span class="ident">e</span> <span class="op">==</span> <span class="number">0</span> {
-        <span class="kw">return</span> <span class="ident">Spectrum::black</span>();
+        <span class="kw">return</span> <span class="ident">Spectrum::BLACK</span>;
     }
 
     <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">e</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">-</span> (<span class="number">128</span> <span class="op">+</span> <span class="number">8</span>) <span class="kw">as</span> <span class="ident">i32</span>;
@@ -649,7 +779,7 @@ SOFTWARE.
         <span class="self">Self</span> {
             <span class="ident">width</span>,
             <span class="ident">height</span>,
-            <span class="ident">pixels</span>: <span class="macro">vec!</span>[<span class="ident">Spectrum::black</span>(); <span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>],
+            <span class="ident">pixels</span>: <span class="macro">vec!</span>[<span class="ident">Spectrum::BLACK</span>; <span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>],
         }
     }
 
@@ -711,7 +841,8 @@ SOFTWARE.
             
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="number">0</span>..<span class="ident">nl</span>];            
             <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="ident">nl</span><span class="op">+</span><span class="number">1</span>..];
-            
+            <span class="kw">let</span> <span class="ident">line_str</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">line</span>).<span class="ident">unwrap</span>();
+            <span class="macro">dbg!</span>(<span class="ident">line_str</span>);
             
             <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;-Y&quot;</span>) {
                 <span class="kw">let</span> <span class="ident">errmsg</span> <span class="op">=</span> {
@@ -769,6 +900,7 @@ SOFTWARE.
         <span class="comment">// Setup</span>
         <span class="kw">let</span> <span class="ident">width</span> <span class="op">=</span> <span class="ident">width</span>.<span class="ident">unwrap</span>();
         <span class="kw">let</span> <span class="ident">height</span> <span class="op">=</span> <span class="ident">height</span>.<span class="ident">unwrap</span>();
+        
         <span class="comment">// Read body</span>
         <span class="kw">let</span> <span class="ident">pixels</span> <span class="op">=</span> <span class="ident">content</span>.<span class="ident">chunks_exact</span>(<span class="number">4</span>).<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
             <span class="kw">let</span> (<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>, <span class="ident">e</span>) <span class="op">=</span> (<span class="ident">x</span>[<span class="number">0</span>], <span class="ident">x</span>[<span class="number">1</span>], <span class="ident">x</span>[<span class="number">2</span>], <span class="ident">x</span>[<span class="number">3</span>]);
@@ -784,6 +916,115 @@ SOFTWARE.
             <span class="ident">pixels</span>,
         })
     } <span class="comment">// end of from_file()</span>
+
+
+
+
+    <span class="doccomment">/// Creates a new version of an image, but in (log10) falsecolour</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save_log_falsecolour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">min</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>, <span class="ident">max</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>, <span class="ident">scale</span>: <span class="ident">Colourmap</span>, <span class="ident">outfile</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>){
+        
+        <span class="kw">let</span> <span class="ident">log_luminance</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pixels</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">luminance</span>().<span class="ident">log10</span>()).<span class="ident">collect</span>();
+        <span class="kw">const</span> <span class="ident">MIN_MIN</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.001</span>;
+        <span class="comment">// Get min and max        </span>
+        <span class="kw">let</span> <span class="ident">log_min</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">min</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">v</span>)=&gt; { <span class="ident">v</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">max</span>(<span class="ident">MIN_MIN</span>); <span class="ident">v</span>.<span class="ident">log10</span>()},
+            <span class="prelude-val">None</span> =&gt; <span class="ident">MIN_MIN</span>.<span class="ident">log10</span>()
+        };
+        <span class="kw">let</span> <span class="ident">log_max</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">max</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">v</span>)=&gt;<span class="ident">v</span>.<span class="ident">log10</span>(),
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">MIN_MIN</span>;
+                <span class="ident">log_luminance</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">v</span> <span class="op">&gt;</span> <span class="ident">m</span> { <span class="ident">m</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">v</span> });
+                <span class="kw">if</span> <span class="ident">m</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MIN_MIN</span> {
+                    <span class="ident">m</span> <span class="op">=</span> <span class="number">2.</span><span class="kw-2">*</span><span class="ident">MIN_MIN</span>;
+                }
+                <span class="ident">m</span>
+            }
+        };
+        
+        
+        <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">scale</span> {
+            <span class="ident">Colourmap::Inferno</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::inferno::INFERNO_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Magma</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::magma::MAGMA_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Plasma</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::plasma::PLASMA_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Radiance</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::radiance::RADIANCE_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Viridis</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::viridis::VIRIDIS_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+        };
+
+        
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="self">self</span>.<span class="ident">width</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">height</span> <span class="op">*</span> <span class="number">3</span> );
+        <span class="ident">log_luminance</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::colourmap::map_linear_colour</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="ident">log_min</span>, <span class="ident">log_max</span>, <span class="ident">scale</span>);            
+            <span class="ident">data</span>.<span class="ident">push</span>((<span class="ident">s</span>.<span class="ident">red</span> <span class="op">*</span> <span class="number">256.</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">u8</span>); 
+            <span class="ident">data</span>.<span class="ident">push</span>((<span class="ident">s</span>.<span class="ident">green</span> <span class="op">*</span> <span class="number">256.</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">u8</span>); 
+            <span class="ident">data</span>.<span class="ident">push</span>((<span class="ident">s</span>.<span class="ident">blue</span> <span class="op">*</span> <span class="number">256.</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">u8</span>);
+        
+        } );
+
+        <span class="kw">let</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Encoder::new_file</span>(<span class="ident">outfile</span>, <span class="number">100</span>).<span class="ident">unwrap</span>();
+        <span class="ident">encoder</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="self">self</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u16</span>, <span class="self">self</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u16</span>, <span class="ident">ColorType::Rgb</span>).<span class="ident">unwrap</span>();
+                
+    }
+
+    <span class="doccomment">/// Creates a new version of an image, but in (linear) falsecolour</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">save_falsecolour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">min</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>, <span class="ident">max</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>, <span class="ident">scale</span>: <span class="ident">Colourmap</span>, <span class="ident">outfile</span>: <span class="kw-2">&amp;</span><span class="ident">Path</span>) {
+                
+        <span class="kw">let</span> <span class="ident">luminance</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pixels</span>.<span class="ident">iter</span>().<span class="ident">map</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> <span class="ident">x</span>.<span class="ident">luminance</span>()).<span class="ident">collect</span>();
+
+        <span class="kw">const</span> <span class="ident">MIN_MIN</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">0.000</span>;
+        <span class="comment">// Get min and max        </span>
+        <span class="kw">let</span> <span class="ident">min</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">min</span> {
+            <span class="prelude-val">Some</span>(<span class="kw-2">mut</span> <span class="ident">v</span>)=&gt; { <span class="ident">v</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">max</span>(<span class="ident">MIN_MIN</span>); <span class="ident">v</span>},
+            <span class="prelude-val">None</span> =&gt; <span class="ident">MIN_MIN</span>
+        };
+        <span class="kw">let</span> <span class="ident">max</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">max</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">v</span>)=&gt;<span class="ident">v</span>,
+            <span class="prelude-val">None</span> =&gt; {
+                <span class="comment">/* // From RADIANCE&#39;s Falsecolor.pl
+                 # Find a good scale for auto mode.
+                if ($scale =~ m/[aA].* /) {
+                    my @histo = split(/\s/, `phisto $picture`);
+                    # e.g. $ phisto tests/richmond.hdr| tail -2
+                    # 3.91267	14
+                    # 3.94282	6
+                    my $LogLmax = $histo[-4];
+                    $scale = $mult / 179 * 10**$LogLmax;
+                }
+                */</span>
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">m</span> <span class="op">=</span> <span class="ident">MIN_MIN</span>;
+                <span class="ident">luminance</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> <span class="kw">if</span> <span class="kw-2">*</span><span class="ident">v</span> <span class="op">&gt;</span> <span class="ident">m</span> { <span class="ident">m</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">v</span> });
+                <span class="kw">if</span> <span class="ident">m</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">MIN_MIN</span> {
+                    <span class="ident">m</span> <span class="op">=</span> <span class="number">2.</span><span class="kw-2">*</span><span class="ident">MIN_MIN</span>;
+                }
+                <span class="ident">m</span>
+            }
+        };
+        
+        
+        <span class="kw">let</span> <span class="ident">scale</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">scale</span> {
+            <span class="ident">Colourmap::Inferno</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::inferno::INFERNO_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Magma</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::magma::MAGMA_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Plasma</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::plasma::PLASMA_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Radiance</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::radiance::RADIANCE_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+            <span class="ident">Colourmap::Viridis</span> =&gt; <span class="ident"><span class="kw">crate</span>::colourmap::viridis::VIRIDIS_COLOURMAP</span>.<span class="ident">as_slice</span>(),
+        };
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">data</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">Vec::with_capacity</span>(<span class="self">self</span>.<span class="ident">width</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">height</span> <span class="op">*</span> <span class="number">3</span> );
+        <span class="ident">luminance</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">x</span><span class="op">|</span> {
+            <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::colourmap::map_linear_colour</span>(<span class="kw-2">*</span><span class="ident">x</span>, <span class="ident">min</span>, <span class="ident">max</span>, <span class="ident">scale</span>);            
+            <span class="ident">data</span>.<span class="ident">push</span>((<span class="ident">s</span>.<span class="ident">red</span> <span class="op">*</span> <span class="number">256.</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">u8</span>); 
+            <span class="ident">data</span>.<span class="ident">push</span>((<span class="ident">s</span>.<span class="ident">green</span> <span class="op">*</span> <span class="number">256.</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">u8</span>); 
+            <span class="ident">data</span>.<span class="ident">push</span>((<span class="ident">s</span>.<span class="ident">blue</span> <span class="op">*</span> <span class="number">256.</span>).<span class="ident">round</span>() <span class="kw">as</span> <span class="ident">u8</span>);
+        
+        } );
+
+        <span class="kw">let</span> <span class="ident">encoder</span> <span class="op">=</span> <span class="ident">Encoder::new_file</span>(<span class="ident">outfile</span>, <span class="number">100</span>).<span class="ident">unwrap</span>();
+        <span class="ident">encoder</span>.<span class="ident">encode</span>(<span class="kw-2">&amp;</span><span class="ident">data</span>, <span class="self">self</span>.<span class="ident">width</span> <span class="kw">as</span> <span class="ident">u16</span>, <span class="self">self</span>.<span class="ident">height</span> <span class="kw">as</span> <span class="ident">u16</span>, <span class="ident">ColorType::Rgb</span>).<span class="ident">unwrap</span>();
+        
+        
+
+        
+    }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
@@ -839,6 +1080,8 @@ SOFTWARE.
             }
         }
     }
+
+
 
     <span class="attribute">#[<span class="ident">test</span>]</span>    
     <span class="kw">fn</span> <span class="ident">test_colour_to_rgbe</span>() {
@@ -996,13 +1239,24 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_from_file</span>() {
-        <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">ImageBuffer::from_file</span>(<span class="ident">Path::new</span>(<span class="string">&quot;./test_data/images/cornell.hdr&quot;</span>)).<span class="ident">unwrap</span>();
+        <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">ImageBuffer::from_file</span>(<span class="ident">Path::new</span>(<span class="string">&quot;./test_data/images/rad_cornell.hdr&quot;</span>)).<span class="ident">unwrap</span>();
         <span class="macro">assert_eq!</span>(<span class="ident">buffer</span>.<span class="ident">width</span>, <span class="number">512</span>);
         <span class="macro">assert_eq!</span>(<span class="ident">buffer</span>.<span class="ident">height</span>, <span class="number">367</span>);
         <span class="comment">// assert_eq!(buffer.pixels.len(), 1024*768);</span>
         <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">Path::new</span>(<span class="string">&quot;./test_data/images/cornell_COPIED.hdr&quot;</span>))
     }
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">ignore</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_falsecolor</span>() {
+        <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">ImageBuffer::from_file</span>(<span class="ident">Path::new</span>(<span class="string">&quot;./test_data/images/rad_cornell.hdr&quot;</span>)).<span class="ident">unwrap</span>();
+        <span class="comment">// assert_eq!(buffer.width, 512);</span>
+        <span class="comment">// assert_eq!(buffer.height, 367);</span>
+        <span class="comment">// assert_eq!(buffer.pixels.len(), 1024*768);</span>
+        <span class="ident">buffer</span>.<span class="ident">save_falsecolour</span>(<span class="prelude-val">None</span>, <span class="prelude-val">Some</span>(<span class="number">100.</span>), <span class="ident">Colourmap::Radiance</span>, <span class="ident">Path::new</span>(<span class="string">&quot;./test_data/images/cornell_fc.jpeg&quot;</span>));
+        <span class="comment">// buffer.save_hdre(Path::new(&quot;./test_data/images/cornell_fc.hdr&quot;))</span>
+    }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
 </body></html>

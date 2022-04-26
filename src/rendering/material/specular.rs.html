@@ -289,6 +289,7 @@
 <span id="250">250</span>
 <span id="251">251</span>
 <span id="252">252</span>
+<span id="253">253</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -392,7 +393,8 @@ SOFTWARE.
 <span class="doccomment">/// `n2` is the index of refraction on the side opposite to the ray; `cos2` is the</span>
 <span class="doccomment">/// cosine of the angle between the surface&#39;s normal and transmitted ray</span>
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_tm</span>(<span class="ident">n1</span>: <span class="ident">Float</span>, <span class="ident">cos1</span>: <span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {
-    (<span class="ident">n2</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">-</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">cos2</span>) <span class="op">/</span> (<span class="ident">n2</span> <span class="op">*</span> <span class="ident">cos1</span> <span class="op">+</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">cos2</span>)
+    <span class="comment">// (n2 * cos1 - n1 * cos2) / (n2 * cos1 + n1 * cos2)</span>
+    (<span class="ident">n1</span><span class="op">/</span><span class="ident">cos1</span> <span class="op">-</span> <span class="ident">n2</span><span class="op">/</span><span class="ident">cos2</span>)<span class="op">/</span>(<span class="ident">n1</span><span class="op">/</span><span class="ident">cos1</span> <span class="op">+</span> <span class="ident">n2</span><span class="op">/</span><span class="ident">cos2</span>)
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>: <span class="ident">Float</span>, <span class="ident">cos1</span>: <span class="ident">Float</span>, <span class="ident">n2</span>: <span class="ident">Float</span>, <span class="ident">cos2</span>: <span class="ident">Float</span>) -&gt; <span class="ident">Float</span> {
@@ -449,7 +451,7 @@ SOFTWARE.
     <span class="macro">debug_assert!</span>((<span class="ident">vin</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="macro">debug_assert!</span>((<span class="ident">normal</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-6</span>);
     <span class="kw">let</span> <span class="ident">vin_normal</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">*</span> <span class="ident">normal</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> (<span class="number">2.</span> <span class="op">*</span> (<span class="ident">vin_normal</span>));
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">vin</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> (<span class="number">2.</span> <span class="op">*</span> <span class="ident">vin_normal</span>);
     <span class="ident">ret</span>.<span class="ident">normalize</span>();
 
     <span class="ident">ret</span>
@@ -542,5 +544,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
 </body></html>

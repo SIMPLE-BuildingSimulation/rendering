@@ -171,6 +171,8 @@
 <span id="132">132</span>
 <span id="133">133</span>
 <span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -193,9 +195,7 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::specular</span>::{<span class="ident">eval_mirror_bsdf</span>, <span class="ident">mirror_bsdf</span>};
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
 
 <span class="doccomment">/// A mirror material</span>
@@ -215,25 +215,27 @@ SOFTWARE.
         <span class="ident">normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
         <span class="ident">intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
-    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>] {
+    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Spectrum</span>)<span class="op">&gt;</span>; <span class="number">2</span>] {
         <span class="comment">// Calculate the ray direction and BSDF</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
         <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">mirror_bsdf</span>(<span class="kw-2">*</span><span class="ident">intersection_pt</span>, <span class="kw-2">&amp;mut</span> <span class="ident">ray</span>, <span class="kw-2">*</span><span class="ident">normal</span>);
-        [<span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">v</span>)), <span class="prelude-val">None</span>]
+        <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="kw-2">*</span><span class="ident">normal</span> <span class="op">*</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>).<span class="ident">abs</span>();
+        [<span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">Spectrum::ONE</span> <span class="op">*</span> <span class="ident">v</span> <span class="op">*</span> <span class="ident">cos_theta</span>)), <span class="prelude-val">None</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">_e1</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">_e2</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
-        <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
-        <span class="ident">_rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Spectrum</span>, <span class="ident">Float</span>) {
-        <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span> <span class="ident">mirror_bsdf</span>(<span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">normal</span>);
-        (<span class="self">self</span>.<span class="number">0</span> <span class="op">*</span> <span class="ident">bsdf</span>, <span class="number">1.</span>)
-    }
+    <span class="comment">// pub fn sample_bsdf(</span>
+    <span class="comment">//     &amp;self,</span>
+    <span class="comment">//     _normal: Vector3D,</span>
+    <span class="comment">//     _e1: Vector3D,</span>
+    <span class="comment">//     _e2: Vector3D,</span>
+    <span class="comment">//     _intersection_pt: Point3D,</span>
+    <span class="comment">//     _ray: &amp;mut Ray,</span>
+    <span class="comment">//     _rng: &amp;mut RandGen,</span>
+    <span class="comment">// ) -&gt; (Spectrum, Float) {</span>
+    <span class="comment">//     unreachable!();</span>
+    <span class="comment">//     // let bsdf = mirror_bsdf(intersection_pt, ray, normal);</span>
+    <span class="comment">//     // (self.0 * bsdf, 1.)</span>
+    <span class="comment">// }</span>
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -252,6 +254,8 @@ SOFTWARE.
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Ray3D</span>, <span class="ident">Vector3D</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_get_possible_paths_mirror</span>() {
@@ -288,7 +292,7 @@ SOFTWARE.
                     <span class="ident">refraction_index</span>, <span class="ident">ray</span>.<span class="ident">refraction_index</span>
                 );
                 <span class="macro">assert!</span>(
-                    <span class="ident">bsdf</span>.<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">is_nan</span>(),
+                    <span class="ident">bsdf</span>.<span class="ident">radiance</span>().<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">radiance</span>().<span class="ident">is_nan</span>(),
                     <span class="string">&quot;impossible BSDF --&gt; {}&quot;</span>,
                     <span class="ident">bsdf</span>
                 );
@@ -306,5 +310,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
 </body></html>

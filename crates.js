@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["rendering","spict"];
+window.ALL_CRATES = ["rendering","sfluxmtx","spict"];

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["map_linear_colour",""]]});
+initSidebarItems({"enum":[["Colourmap","The options of Colourmap to choose from when falsecolouring an image."]],"fn":[["map_linear_colour",""]],"mod":[["inferno",""],["magma",""],["plasma",""],["radiance",""],["viridis",""]]});

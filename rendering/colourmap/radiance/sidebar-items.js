@@ -1,0 +1,1 @@
+initSidebarItems({"constant":[["RADIANCE_COLOURMAP","Radiance’s standard falsecolour colourmap"]]});

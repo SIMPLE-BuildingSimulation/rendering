@@ -96,6 +96,25 @@
 <span id="57">57</span>
 <span id="58">58</span>
 <span id="59">59</span>
+<span id="60">60</span>
+<span id="61">61</span>
+<span id="62">62</span>
+<span id="63">63</span>
+<span id="64">64</span>
+<span id="65">65</span>
+<span id="66">66</span>
+<span id="67">67</span>
+<span id="68">68</span>
+<span id="69">69</span>
+<span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -118,6 +137,7 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident">geometry3d::intersection::IntersectionInfo</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Transform</span>, <span class="ident">Vector3D</span>};
+<span class="kw">use</span> <span class="ident">geometry3d::intersection::SurfaceSide</span>;
 
 <span class="doccomment">/// The data for a SurfaceInteraction]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>, <span class="ident">Clone</span>, <span class="ident">Copy</span>)]</span>
@@ -154,7 +174,25 @@ SOFTWARE.
             <span class="ident">geometry_shading</span>,
         }
     }
+
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">interpolate_normal</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">normals</span>: (<span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>, <span class="ident">Vector3D</span>)){
+        <span class="kw">let</span> <span class="ident">n0</span> <span class="op">=</span> <span class="ident">normals</span>.<span class="number">0</span>;
+        <span class="kw">let</span> <span class="ident">n1</span> <span class="op">=</span> <span class="ident">normals</span>.<span class="number">1</span>;
+        <span class="kw">let</span> <span class="ident">n2</span> <span class="op">=</span> <span class="ident">normals</span>.<span class="number">2</span>;
+        <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">u</span>;
+        <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">v</span>;
+
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">n</span> <span class="op">=</span>(<span class="ident">n0</span> <span class="op">*</span> <span class="ident">u</span> <span class="op">+</span> <span class="ident">n1</span> <span class="op">*</span> <span class="ident">v</span> <span class="op">+</span> <span class="ident">n2</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">u</span> <span class="op">-</span> <span class="ident">v</span>)).<span class="ident">get_normalized</span>();
+        <span class="kw">if</span> <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">side</span> <span class="op">==</span> <span class="ident">SurfaceSide::Back</span>{
+            <span class="ident">n</span> <span class="kw-2">*</span><span class="op">=</span> <span class="op">-</span><span class="number">1.</span>
+        }
+
+        <span class="self">self</span>.<span class="ident">geometry_shading</span>.<span class="ident">normal</span> <span class="op">=</span> <span class="ident">n</span>;
+    }
+
+    
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
 </body></html>

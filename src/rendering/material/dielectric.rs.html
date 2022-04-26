@@ -571,6 +571,47 @@
 <span id="532">532</span>
 <span id="533">533</span>
 <span id="534">534</span>
+<span id="535">535</span>
+<span id="536">536</span>
+<span id="537">537</span>
+<span id="538">538</span>
+<span id="539">539</span>
+<span id="540">540</span>
+<span id="541">541</span>
+<span id="542">542</span>
+<span id="543">543</span>
+<span id="544">544</span>
+<span id="545">545</span>
+<span id="546">546</span>
+<span id="547">547</span>
+<span id="548">548</span>
+<span id="549">549</span>
+<span id="550">550</span>
+<span id="551">551</span>
+<span id="552">552</span>
+<span id="553">553</span>
+<span id="554">554</span>
+<span id="555">555</span>
+<span id="556">556</span>
+<span id="557">557</span>
+<span id="558">558</span>
+<span id="559">559</span>
+<span id="560">560</span>
+<span id="561">561</span>
+<span id="562">562</span>
+<span id="563">563</span>
+<span id="564">564</span>
+<span id="565">565</span>
+<span id="566">566</span>
+<span id="567">567</span>
+<span id="568">568</span>
+<span id="569">569</span>
+<span id="570">570</span>
+<span id="571">571</span>
+<span id="572">572</span>
+<span id="573">573</span>
+<span id="574">574</span>
+<span id="575">575</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -593,7 +634,6 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::specular</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
@@ -603,6 +643,22 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">refraction_index</span>: <span class="ident">Float</span>,
 }
 
+
+<span class="comment">// /// From Radiance&#39;s Dielectric.c</span>
+<span class="comment">// /// </span>
+<span class="comment">// /// &quot;special log for extinction coefficients&quot;</span>
+<span class="comment">// fn mylog(x: Float)-&gt;Float{</span>
+<span class="comment">// 	if (x &lt; 1e-40){</span>
+<span class="comment">// 		-100.</span>
+<span class="comment">//     }else if (x &gt;= 1.){</span>
+<span class="comment">// 		0.</span>
+<span class="comment">//     }else{</span>
+<span class="comment">//         x.ln()</span>
+<span class="comment">//     }</span>
+<span class="comment">// }</span>
+
+
+
 <span class="kw">impl</span> <span class="ident">Dielectric</span> {
     <span class="doccomment">/// Gets the Reflected and Transmitted BSDF values</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">refl_trans</span>(
@@ -611,27 +667,43 @@ SOFTWARE.
         <span class="ident">cos1</span>: <span class="ident">Float</span>,
         <span class="ident">n2</span>: <span class="ident">Float</span>,
         <span class="ident">cos2</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>,
-    ) -&gt; (<span class="ident">Float</span>, <span class="ident">Float</span>) {
+    ) -&gt; (<span class="ident">Spectrum</span>, <span class="ident">Spectrum</span>) {
         <span class="macro">debug_assert!</span>(<span class="ident">cos1</span> <span class="op">&gt;</span> <span class="number">0.0</span>);
+        <span class="comment">// let mut ctrans = self.colour;</span>
+        <span class="comment">// let mut cext = self.colour;</span>
+        
+        <span class="comment">// if (1. - n1).abs() &lt; 1e-4 {</span>
+        <span class="comment">//     // If we are getting in the dielectric</span>
+        <span class="comment">//     ctrans.red = -mylog(ctrans.red);</span>
+        <span class="comment">//     ctrans.green = -mylog(ctrans.green);</span>
+        <span class="comment">//     ctrans.blue = -mylog(ctrans.blue);</span>
+        <span class="comment">// }else{</span>
+        <span class="comment">//     cext.red = -mylog(cext.red);</span>
+        <span class="comment">//     cext.green = -mylog(cext.green);</span>
+        <span class="comment">//     cext.blue = -mylog(cext.blue);</span>
+        <span class="comment">// }</span>
+    
+
+
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos2</span> {
             <span class="comment">// There is refraction</span>
             <span class="kw">let</span> <span class="ident">refl</span> <span class="op">=</span> <span class="ident">fresnel_reflectance</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
-            <span class="kw">let</span> <span class="ident">refl_comp</span> <span class="op">=</span> <span class="ident">refl</span> <span class="op">/</span> <span class="ident">cos1</span>;
+            <span class="kw">let</span> <span class="ident">refl_comp</span> <span class="op">=</span> <span class="ident">refl</span>;
             <span class="comment">// This is one source of non-symmetrical BSDF</span>
             <span class="comment">// (check Eric Veach&#39;s thesis, chapter 5 )</span>
             <span class="comment">/* IF RADIANCE */</span>
             <span class="kw">let</span> <span class="ident">ratio</span> <span class="op">=</span> <span class="ident">n2</span> <span class="op">/</span> <span class="ident">n1</span>;
             <span class="kw">let</span> <span class="ident">n_ratio2</span> <span class="op">=</span> <span class="ident">ratio</span> <span class="op">*</span> <span class="ident">ratio</span>;
-            <span class="kw">let</span> <span class="ident">t_comp</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">refl</span>) <span class="op">*</span> <span class="ident">n_ratio2</span> <span class="op">/</span> <span class="ident">cos1</span>;
+            <span class="kw">let</span> <span class="ident">t_comp</span> <span class="op">=</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">refl</span>) <span class="op">*</span> <span class="ident">n_ratio2</span>;
             <span class="comment">/* IF IMPORTANCE */</span>
             <span class="comment">// let t_comp = (1. - refl) / cos1;</span>
 
             <span class="comment">// return</span>
-            (<span class="ident">refl_comp</span>, <span class="ident">t_comp</span>)
+            (<span class="ident">Spectrum::ONE</span><span class="kw-2">*</span><span class="ident">refl_comp</span><span class="op">/</span><span class="ident">cos1</span>, <span class="self">self</span>.<span class="ident">colour</span><span class="kw-2">*</span><span class="ident">t_comp</span><span class="op">/</span><span class="ident">cos2</span>)
         } <span class="kw">else</span> {
             <span class="comment">// pure reflection</span>
             <span class="comment">// (1. / cos1, 0.)</span>
-            (<span class="number">1.</span> <span class="op">/</span> <span class="ident">cos1</span>, <span class="number">0.</span>)
+            (<span class="ident">Spectrum::ONE</span> <span class="op">/</span> <span class="ident">cos1</span>, <span class="ident">Spectrum::BLACK</span>)
         }
     }
 }
@@ -650,7 +722,11 @@ SOFTWARE.
         <span class="ident">normal</span>: <span class="kw-2">&amp;</span><span class="ident">Vector3D</span>,
         <span class="ident">intersection_pt</span>: <span class="kw-2">&amp;</span><span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
-    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Float</span>)<span class="op">&gt;</span>; <span class="number">2</span>] {
+    ) -&gt; [<span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Ray</span>, <span class="ident">Spectrum</span>)<span class="op">&gt;</span>; <span class="number">2</span>] {
+
+        
+        
+
         <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">normal</span>;
         <span class="kw">let</span> <span class="ident">intersection_pt</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">intersection_pt</span>;
 
@@ -668,85 +744,90 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray1</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
         <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
         <span class="ident">ray1</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
-        <span class="kw">let</span> <span class="ident">pair1</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ray1</span>, <span class="ident">refl</span>));
+        <span class="kw">let</span> <span class="ident">pair1</span> <span class="op">=</span> <span class="prelude-val">Some</span>((<span class="ident">ray1</span>, <span class="ident">refl</span><span class="kw-2">*</span><span class="ident">cos1</span>));
 
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
         <span class="comment">// process transmission</span>
-        <span class="kw">let</span> <span class="ident">pair2</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">trans</span> <span class="op">&gt;</span> <span class="number">0.0</span> <span class="op">&amp;&amp;</span> <span class="ident">ray_dir</span> <span class="op">*</span> <span class="ident">normal</span> <span class="op">&lt;</span> <span class="number">0.0</span> {
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
-            <span class="ident">ray</span>.<span class="ident">refraction_index</span> <span class="op">=</span> <span class="ident">n2</span>;
-            <span class="kw">let</span> <span class="ident">trans_dir</span> <span class="op">=</span> <span class="ident">fresnel_transmission_dir</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>, <span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>.<span class="ident">unwrap</span>());
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>;
-            <span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">trans</span>))
-        } <span class="kw">else</span> {
-            <span class="prelude-val">None</span>
+        <span class="comment">// let pair2 = if trans.radiance() &gt; 0.0 &amp;&amp; ray_dir * normal &lt; 0.0 {</span>
+        <span class="kw">let</span> <span class="ident">pair2</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">cos2</span> {
+            <span class="prelude-val">Some</span>(<span class="ident">cos2</span>)=&gt;{
+
+                <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
+                <span class="ident">ray</span>.<span class="ident">refraction_index</span> <span class="op">=</span> <span class="ident">n2</span>;
+                <span class="kw">let</span> <span class="ident">trans_dir</span> <span class="op">=</span> <span class="ident">fresnel_transmission_dir</span>(<span class="ident">ray_dir</span>, <span class="ident">normal</span>, <span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
+                <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>;
+                <span class="ident">ray</span>.<span class="ident">colour</span> <span class="kw-2">*</span><span class="op">=</span> <span class="self">self</span>.<span class="ident">colour</span>;
+                <span class="prelude-val">Some</span>((<span class="ident">ray</span>, <span class="ident">trans</span><span class="kw-2">*</span><span class="ident">cos2</span>))
+            },
+            <span class="prelude-val">None</span> =&gt; <span class="prelude-val">None</span>
         };
 
         [<span class="ident">pair1</span>, <span class="ident">pair2</span>]
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">sample_bsdf</span>(
-        <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
-        <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
-        <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
-        <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Spectrum</span>, <span class="ident">Float</span>) {
-        <span class="macro">debug_assert!</span>(
-            (<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>() <span class="op">-</span> <span class="number">1.</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-            <span class="string">&quot;Length was {}&quot;</span>,
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>.<span class="ident">length</span>()
-        );
-        <span class="macro">debug_assert!</span>((<span class="ident">e1</span> <span class="op">*</span> <span class="ident">e2</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>, <span class="string">&quot;e1*e2= {} &quot;</span>, (<span class="ident">e1</span> <span class="op">*</span> <span class="ident">e2</span>).<span class="ident">abs</span>());
-        <span class="macro">debug_assert!</span>(
-            (<span class="ident">e1</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-            <span class="string">&quot;e1*normal = {}&quot;</span>,
-            <span class="ident">e1</span> <span class="op">*</span> <span class="ident">normal</span>.<span class="ident">abs</span>()
-        );
+    <span class="comment">// pub fn sample_bsdf(</span>
+    <span class="comment">//     &amp;self,</span>
+    <span class="comment">//     normal: Vector3D,</span>
+    <span class="comment">//     e1: Vector3D,</span>
+    <span class="comment">//     e2: Vector3D,</span>
+    <span class="comment">//     intersection_pt: Point3D,</span>
+    <span class="comment">//     ray: &amp;mut Ray,</span>
+    <span class="comment">//     rng: &amp;mut RandGen,</span>
+    <span class="comment">// ) -&gt; (Spectrum, Float) {</span>
+        
+    <span class="comment">//     debug_assert!(</span>
+    <span class="comment">//         (ray.geometry.direction.length() - 1.).abs() &lt; 1e-5,</span>
+    <span class="comment">//         &quot;Length was {}&quot;,</span>
+    <span class="comment">//         ray.geometry.direction.length()</span>
+    <span class="comment">//     );</span>
+    <span class="comment">//     debug_assert!((e1 * e2).abs() &lt; 1e-5, &quot;e1*e2= {} &quot;, (e1 * e2).abs());</span>
+    <span class="comment">//     debug_assert!(</span>
+    <span class="comment">//         (e1 * normal).abs() &lt; 1e-5,</span>
+    <span class="comment">//         &quot;e1*normal = {}&quot;,</span>
+    <span class="comment">//         e1 * normal.abs()</span>
+    <span class="comment">//     );</span>
 
-        <span class="macro">debug_assert!</span>(
-            (<span class="ident">e2</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-            <span class="string">&quot;e2*normal = {}&quot;</span>,
-            (<span class="ident">e2</span> <span class="op">*</span> <span class="ident">normal</span>).<span class="ident">abs</span>()
-        );
+    <span class="comment">//     debug_assert!(</span>
+    <span class="comment">//         (e2 * normal).abs() &lt; 1e-5,</span>
+    <span class="comment">//         &quot;e2*normal = {}&quot;,</span>
+    <span class="comment">//         (e2 * normal).abs()</span>
+    <span class="comment">//     );</span>
 
-        <span class="kw">let</span> (<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>) <span class="op">=</span> <span class="ident">cos_and_n</span>(<span class="ident">ray</span>, <span class="ident">normal</span>, <span class="self">self</span>.<span class="ident">refraction_index</span>);
-        <span class="kw">let</span> (<span class="ident">refl</span>, <span class="ident">trans</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">refl_trans</span>(<span class="ident">n1</span>, <span class="ident">cos1</span>, <span class="ident">n2</span>, <span class="ident">cos2</span>);
-        <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>, <span class="ident">normal</span>);
-        <span class="macro">debug_assert!</span>(
-            (<span class="number">1.</span> <span class="op">-</span> <span class="ident">mirror_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-            <span class="string">&quot;length is {}&quot;</span>,
-            <span class="ident">mirror_dir</span>.<span class="ident">length</span>()
-        );
+    <span class="comment">//     let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);</span>
+    <span class="comment">//     let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);</span>
+    <span class="comment">//     let mirror_dir = mirror_direction(ray.geometry.direction, normal);</span>
+    <span class="comment">//     debug_assert!(</span>
+    <span class="comment">//         (1. - mirror_dir.length()).abs() &lt; 1e-5,</span>
+    <span class="comment">//         &quot;length is {}&quot;,</span>
+    <span class="comment">//         mirror_dir.length()</span>
+    <span class="comment">//     );</span>
 
-        <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
-        <span class="kw">if</span> <span class="ident">r</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">refl</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>) {
-            <span class="comment">// Reflection</span>
-            <span class="comment">// avoid self shading</span>
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">+</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
+    <span class="comment">//     let r: Float = rng.gen();</span>
+    <span class="comment">//     if r &lt;= refl / (refl + trans) {</span>
+    <span class="comment">//         // Reflection</span>
+    <span class="comment">//         // avoid self shading</span>
+    <span class="comment">//         ray.geometry.origin = intersection_pt + normal * 0.00001;</span>
 
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">mirror_dir</span>;
-            (<span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">refl</span>, <span class="ident">refl</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>))
-        } <span class="kw">else</span> {
-            <span class="comment">// Transmission</span>
-            <span class="comment">// avoid self shading</span>
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">origin</span> <span class="op">=</span> <span class="ident">intersection_pt</span> <span class="op">-</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.00001</span>;
+    <span class="comment">//         ray.geometry.direction = mirror_dir;</span>
+    <span class="comment">//         (self.colour * refl, refl / (refl + trans))</span>
+    <span class="comment">//     } else {</span>
+    <span class="comment">//         // Transmission</span>
+    <span class="comment">//         // avoid self shading</span>
+    <span class="comment">//         ray.geometry.origin = intersection_pt - normal * 0.00001;</span>
 
-            <span class="ident">ray</span>.<span class="ident">refraction_index</span> <span class="op">=</span> <span class="ident">n2</span>;
-            <span class="kw">let</span> <span class="ident">trans_dir</span> <span class="op">=</span> <span class="ident">fresnel_transmission_dir</span>(
-                <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>,
-                <span class="ident">normal</span>,
-                <span class="ident">n1</span>,
-                <span class="ident">cos1</span>,
-                <span class="ident">n2</span>,
-                <span class="ident">cos2</span>.<span class="ident">unwrap</span>(),
-            );
-            <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>;
-            (<span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">trans</span>, <span class="ident">trans</span> <span class="op">/</span> (<span class="ident">refl</span> <span class="op">+</span> <span class="ident">trans</span>))
-        }
-    }
+    <span class="comment">//         ray.refraction_index = n2;</span>
+    <span class="comment">//         let trans_dir = fresnel_transmission_dir(</span>
+    <span class="comment">//             ray.geometry.direction,</span>
+    <span class="comment">//             normal,</span>
+    <span class="comment">//             n1,</span>
+    <span class="comment">//             cos1,</span>
+    <span class="comment">//             n2,</span>
+    <span class="comment">//             cos2.unwrap(),</span>
+    <span class="comment">//         );</span>
+    <span class="comment">//         ray.geometry.direction = trans_dir;</span>
+    <span class="comment">//         (self.colour * trans, trans / (refl + trans))</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">eval_bsdf</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
@@ -787,13 +868,14 @@ SOFTWARE.
         }
 
         <span class="comment">// Neither...</span>
-        <span class="ident">Spectrum::black</span>()
+        <span class="ident">Spectrum::BLACK</span>
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
 
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::ray::Ray</span>;
     <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Ray3D</span>};
@@ -941,103 +1023,103 @@ SOFTWARE.
         );
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_bsdf</span>() {
-        <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="number">1.52</span>;
-        <span class="kw">let</span> <span class="ident">mat</span> <span class="op">=</span> <span class="ident">Dielectric</span> {
-            <span class="ident">colour</span>: <span class="ident">Spectrum::gray</span>(<span class="number">0.23</span>), <span class="comment">//irrelevant for this test</span>
-            <span class="ident">refraction_index</span>: <span class="ident">n</span>,
-        };
+    <span class="comment">// #[test]</span>
+    <span class="comment">// fn test_bsdf() {</span>
+    <span class="comment">//     let n = 1.52;</span>
+    <span class="comment">//     let mat = Dielectric {</span>
+    <span class="comment">//         colour: Spectrum::gray(0.23), //irrelevant for this test</span>
+    <span class="comment">//         refraction_index: n,</span>
+    <span class="comment">//     };</span>
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">rng</span> <span class="op">=</span> <span class="ident">get_rng</span>();
-        <span class="kw">let</span> <span class="ident">normal</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
-        <span class="kw">let</span> <span class="ident">e1</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
-        <span class="kw">let</span> <span class="ident">e2</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>);
+    <span class="comment">//     let mut rng = get_rng();</span>
+    <span class="comment">//     let normal = Vector3D::new(0., 0., 1.);</span>
+    <span class="comment">//     let e1 = Vector3D::new(1., 0., 0.);</span>
+    <span class="comment">//     let e2 = Vector3D::new(0., 1., 0.);</span>
 
-        <span class="kw">let</span> <span class="ident">dir_zero</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="op">-</span><span class="number">2.</span>).<span class="ident">get_normalized</span>(); <span class="comment">// going down</span>
+    <span class="comment">//     let dir_zero = Vector3D::new(0., 1., -2.).get_normalized(); // going down</span>
 
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray</span> {
-            <span class="ident">geometry</span>: <span class="ident">Ray3D</span> {
-                <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>),
-                <span class="ident">direction</span>: <span class="ident">dir_zero</span>,
-            },
-            <span class="ident">refraction_index</span>: <span class="number">1.</span>,
-            ..<span class="ident">Ray::default</span>()
-        };
-        <span class="macro">println!</span>(<span class="string">&quot;Before entering: {}&quot;</span>, <span class="ident">dir_zero</span>);
-        <span class="kw">let</span> <span class="ident">mirror_dir</span> <span class="op">=</span> <span class="ident">mirror_direction</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>, <span class="ident">normal</span>);
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">trans_dir</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Vector3D</span><span class="op">&gt;</span> <span class="op">=</span> <span class="prelude-val">None</span>;
-        <span class="comment">// Get INTO the material</span>
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">30</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_ray</span> <span class="op">=</span> <span class="ident">ray</span>;
-            <span class="kw">let</span> (<span class="ident">_bsdf</span>, <span class="ident">_pdf</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">sample_bsdf</span>(
-                <span class="ident">normal</span>,
-                <span class="ident">e1</span>,
-                <span class="ident">e2</span>,
-                <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>),
-                <span class="kw-2">&amp;mut</span> <span class="ident">new_ray</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>,
-            );
-            <span class="macro">println!</span>(<span class="string">&quot;A -- PDF = {}&quot;</span>, <span class="ident">_pdf</span>);
+    <span class="comment">//     let mut ray = Ray {</span>
+    <span class="comment">//         geometry: Ray3D {</span>
+    <span class="comment">//             origin: Point3D::new(0., 0., 0.),</span>
+    <span class="comment">//             direction: dir_zero,</span>
+    <span class="comment">//         },</span>
+    <span class="comment">//         refraction_index: 1.,</span>
+    <span class="comment">//         ..Ray::default()</span>
+    <span class="comment">//     };</span>
+    <span class="comment">//     println!(&quot;Before entering: {}&quot;, dir_zero);</span>
+    <span class="comment">//     let mirror_dir = mirror_direction(ray.geometry.direction, normal);</span>
+    <span class="comment">//     let mut trans_dir: Option&lt;Vector3D&gt; = None;</span>
+    <span class="comment">//     // Get INTO the material</span>
+    <span class="comment">//     for _ in 0..30 {</span>
+    <span class="comment">//         let mut new_ray = ray;</span>
+    <span class="comment">//         let (_bsdf, _pdf) = mat.sample_bsdf(</span>
+    <span class="comment">//             normal,</span>
+    <span class="comment">//             e1,</span>
+    <span class="comment">//             e2,</span>
+    <span class="comment">//             Point3D::new(0., 0., 0.),</span>
+    <span class="comment">//             &amp;mut new_ray,</span>
+    <span class="comment">//             &amp;mut rng,</span>
+    <span class="comment">//         );</span>
+    <span class="comment">//         println!(&quot;A -- PDF = {}&quot;, _pdf);</span>
 
-            <span class="kw">let</span> <span class="ident">new_dir</span> <span class="op">=</span> <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
-            <span class="kw">if</span> <span class="ident">new_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span> {
-                <span class="comment">// We are still moving down... thus, refraction</span>
-                <span class="macro">assert!</span>(
-                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span> <span class="op">==</span> <span class="ident">n</span>,
-                    <span class="string">&quot;Expeting n={}, found n={}&quot;</span>,
-                    <span class="ident">n</span>,
-                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span>
-                );
-                <span class="ident">trans_dir</span> <span class="op">=</span> <span class="prelude-val">Some</span>(<span class="ident">new_dir</span>);
-            } <span class="kw">else</span> {
-                <span class="comment">// reflection</span>
-                <span class="macro">assert!</span>( (<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_dir</span> <span class="op">*</span> <span class="ident">mirror_dir</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span> );
-                <span class="macro">assert!</span>(
-                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span> <span class="op">==</span> <span class="number">1.0</span>,
-                    <span class="string">&quot;Expeting n={}, found n={}&quot;</span>,
-                    <span class="number">1.</span>,
-                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span>
-                );
-            }
-        }
+    <span class="comment">//         let new_dir = new_ray.geometry.direction;</span>
+    <span class="comment">//         if new_dir.z &lt; 0. {</span>
+    <span class="comment">//             // We are still moving down... thus, refraction</span>
+    <span class="comment">//             assert!(</span>
+    <span class="comment">//                 new_ray.refraction_index == n,</span>
+    <span class="comment">//                 &quot;Expeting n={}, found n={}&quot;,</span>
+    <span class="comment">//                 n,</span>
+    <span class="comment">//                 new_ray.refraction_index</span>
+    <span class="comment">//             );</span>
+    <span class="comment">//             trans_dir = Some(new_dir);</span>
+    <span class="comment">//         } else {</span>
+    <span class="comment">//             // reflection</span>
+    <span class="comment">//             assert!( (1. - new_dir * mirror_dir).abs() &lt; 1e-5 );</span>
+    <span class="comment">//             assert!(</span>
+    <span class="comment">//                 new_ray.refraction_index == 1.0,</span>
+    <span class="comment">//                 &quot;Expeting n={}, found n={}&quot;,</span>
+    <span class="comment">//                 1.,</span>
+    <span class="comment">//                 new_ray.refraction_index</span>
+    <span class="comment">//             );</span>
+    <span class="comment">//         }</span>
+    <span class="comment">//     }</span>
 
-        <span class="macro">println!</span>(<span class="string">&quot;Inside: {:?}&quot;</span>, <span class="ident">trans_dir</span>);
+    <span class="comment">//     println!(&quot;Inside: {:?}&quot;, trans_dir);</span>
 
-        <span class="comment">// Get OUT OF the material</span>
-        <span class="ident">ray</span>.<span class="ident">refraction_index</span> <span class="op">=</span> <span class="ident">n</span>;
-        <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">trans_dir</span>.<span class="ident">unwrap</span>();
-        <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="number">30</span> {
-            <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_ray</span> <span class="op">=</span> <span class="ident">ray</span>;
-            <span class="kw">let</span> (<span class="ident">_bsdf</span>, <span class="ident">_pdf</span>) <span class="op">=</span> <span class="ident">mat</span>.<span class="ident">sample_bsdf</span>(
-                <span class="ident">normal</span>,
-                <span class="ident">e1</span>,
-                <span class="ident">e2</span>,
-                <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>),
-                <span class="kw-2">&amp;mut</span> <span class="ident">new_ray</span>,
-                <span class="kw-2">&amp;mut</span> <span class="ident">rng</span>,
-            );
-            <span class="macro">println!</span>(<span class="string">&quot;B -- PDF = {}&quot;</span>, <span class="ident">_pdf</span>);
-            <span class="kw">let</span> <span class="ident">new_dir</span> <span class="op">=</span> <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
-            <span class="kw">if</span> <span class="ident">new_dir</span>.<span class="ident">z</span> <span class="op">&lt;</span> <span class="number">0.</span> {
-                <span class="comment">// We are still moving down... thus, refraction</span>
-                <span class="macro">assert!</span>(
-                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span> <span class="op">==</span> <span class="number">1.</span>,
-                    <span class="string">&quot;Expeting n={}, found n={}&quot;</span>,
-                    <span class="number">1</span>,
-                    <span class="ident">new_ray</span>.<span class="ident">refraction_index</span>
-                );                
-                <span class="macro">assert!</span>(
-                    (<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_dir</span> <span class="op">*</span> <span class="ident">dir_zero</span>).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-5</span>,
-                    <span class="string">&quot;ray_dir = {} | new_dir = {} | dir_zero = {}&quot;</span>,
-                    <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>,
-                    <span class="ident">new_dir</span>,
-                    <span class="ident">dir_zero</span>
-                );
-                <span class="macro">println!</span>(<span class="string">&quot;After leaving : {}&quot;</span>, <span class="ident">new_dir</span>);
-            }
-        }
-    }
+    <span class="comment">//     // Get OUT OF the material</span>
+    <span class="comment">//     ray.refraction_index = n;</span>
+    <span class="comment">//     ray.geometry.direction = trans_dir.unwrap();</span>
+    <span class="comment">//     for _ in 0..30 {</span>
+    <span class="comment">//         let mut new_ray = ray;</span>
+    <span class="comment">//         let (_bsdf, _pdf) = mat.sample_bsdf(</span>
+    <span class="comment">//             normal,</span>
+    <span class="comment">//             e1,</span>
+    <span class="comment">//             e2,</span>
+    <span class="comment">//             Point3D::new(0., 0., 0.),</span>
+    <span class="comment">//             &amp;mut new_ray,</span>
+    <span class="comment">//             &amp;mut rng,</span>
+    <span class="comment">//         );</span>
+    <span class="comment">//         println!(&quot;B -- PDF = {}&quot;, _pdf);</span>
+    <span class="comment">//         let new_dir = new_ray.geometry.direction;</span>
+    <span class="comment">//         if new_dir.z &lt; 0. {</span>
+    <span class="comment">//             // We are still moving down... thus, refraction</span>
+    <span class="comment">//             assert!(</span>
+    <span class="comment">//                 new_ray.refraction_index == 1.,</span>
+    <span class="comment">//                 &quot;Expeting n={}, found n={}&quot;,</span>
+    <span class="comment">//                 1,</span>
+    <span class="comment">//                 new_ray.refraction_index</span>
+    <span class="comment">//             );                </span>
+    <span class="comment">//             assert!(</span>
+    <span class="comment">//                 (1. - new_dir * dir_zero).abs() &lt; 1e-5,</span>
+    <span class="comment">//                 &quot;ray_dir = {} | new_dir = {} | dir_zero = {}&quot;,</span>
+    <span class="comment">//                 new_ray.geometry.direction,</span>
+    <span class="comment">//                 new_dir,</span>
+    <span class="comment">//                 dir_zero</span>
+    <span class="comment">//             );</span>
+    <span class="comment">//             println!(&quot;After leaving : {}&quot;, new_dir);</span>
+    <span class="comment">//         }</span>
+    <span class="comment">//     }</span>
+    <span class="comment">// }</span>
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_get_possible_paths_dielectric</span>() {
@@ -1073,7 +1155,7 @@ SOFTWARE.
                     <span class="ident">refraction_index</span>, <span class="ident">ray</span>.<span class="ident">refraction_index</span>
                 );
                 <span class="macro">assert!</span>(
-                    <span class="ident">bsdf</span>.<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">is_nan</span>(),
+                    <span class="ident">bsdf</span>.<span class="ident">radiance</span>().<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">radiance</span>().<span class="ident">is_nan</span>(),
                     <span class="string">&quot;impossible BSDF --&gt; {}&quot;</span>,
                     <span class="ident">bsdf</span>
                 );
@@ -1091,7 +1173,7 @@ SOFTWARE.
                     <span class="ident">refraction_index</span>, <span class="ident">ray</span>.<span class="ident">refraction_index</span>
                 );
                 <span class="macro">assert!</span>(
-                    <span class="ident">bsdf</span>.<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">is_nan</span>(),
+                    <span class="ident">bsdf</span>.<span class="ident">radiance</span>().<span class="ident">is_finite</span>() <span class="op">&amp;&amp;</span> <span class="op">!</span><span class="ident">bsdf</span>.<span class="ident">radiance</span>().<span class="ident">is_nan</span>(),
                     <span class="string">&quot;impossible BSDF --&gt; {}&quot;</span>,
                     <span class="ident">bsdf</span>
                 );
@@ -1106,5 +1188,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (de1bc0008 2022-04-21)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
 </body></html>
