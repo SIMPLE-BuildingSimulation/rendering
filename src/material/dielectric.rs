@@ -130,7 +130,7 @@ impl Dielectric {
         let mut ray1 = *ray;
         ray1.geometry.direction = mirror_dir;
         ray1.geometry.origin = intersection_pt + normal * 0.00001;
-        let pair1 = Some((ray1, refl*cos1));
+        let pair1 = Some((ray1,  refl*cos1));
 
         let mut ray = *ray;
         // process transmission

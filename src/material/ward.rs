@@ -121,7 +121,7 @@ pub fn sample_ward_anisotropic(
             local_dir.z,
         );
 
-        ray.geometry.direction = Vector3D::new(x, y, z);
+        ray.geometry.direction = Vector3D::new(x, y, z).get_normalized();
         (0.0, diffuse, 1. / PI)
     }
 }

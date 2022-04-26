@@ -87,8 +87,8 @@ fn main() {
 
     let mf = 1;
     let factory = DCFactory {
-        max_depth: 4,
-        n_ambient_samples: 2700,
+        max_depth: 2,
+        n_ambient_samples: 50000,
         reinhart: ReinhartSky::new(mf),
         ..DCFactory::default()
     };

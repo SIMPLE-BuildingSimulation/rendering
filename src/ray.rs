@@ -22,6 +22,8 @@ use crate::interaction::Interaction;
 use crate::Float;
 use geometry3d::{Point3D, Ray3D, Transform, Vector3D};
 use crate::colour::Spectrum;
+use crate::rand::*;
+
 /// Represents a ray (of light?) beyond pure geometry. It
 /// includes also the current index of refraction and, potentially,
 /// time (for blurry images)
@@ -85,7 +87,7 @@ impl Ray {
 
 
     /// Get 
-    pub fn get_n_ambient_samples(&self,  max_ambient_samples: usize, max_depth: usize, limit_weight: Float)->usize{
+    pub fn get_n_ambient_samples(&mut self,  max_ambient_samples: usize, max_depth: usize, limit_weight: Float, rng: &mut RandGen)->usize{
         
         if max_depth == 0 || max_ambient_samples <= 0 {
             0 // No ambient samples required
@@ -117,6 +119,13 @@ impl Ray {
                 n = i;
             */
             let mut wt = self.value;//self.colour.radiance();
+            
+            // russian roullete            
+            let r : Float = rng.gen();
+            if r > wt/limit_weight {
+                self.value = limit_weight;
+                return 0; // kill it!
+            }
 
             let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);        
             if wt > d {

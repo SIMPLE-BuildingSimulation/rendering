@@ -22,7 +22,7 @@ skyglow source skydome
 4 0 0 1 180
 
 # Use this to calculate a DC matrix by doing:
-# rfluxmtx -I+ -y 3 -lw 0.0001 -ab 4 -ad 100000 -n 4 - ./white_sky.rad -i octree.oct < sensors.pts | rmtxop  -c 47.44 119.93 11.64 - > full_dc.mtx
+# rfluxmtx -I+ -y 3 -lw 0.0001 -ab 0 -ad 100000 -n 4 - ./white_sky.rad -i octree.oct < sensors.pts | rmtxop  -c 47.44 119.93 11.64 - > full_dc.mtx
 #
 # Then check the values only by doing:
 # rmtxop  -c 47.44	119.93	11.64 full_dc.mtx > dc_collapsed.mtx

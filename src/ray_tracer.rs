@@ -149,7 +149,7 @@ impl RayTracer {
                 return (specular_li, 0.0);
             }
 
-            let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight);
+            let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight, rng);
 
             // Calculate the number of direct samples
 
@@ -338,15 +338,9 @@ impl RayTracer {
             ray.depth += 1;
             let cos_theta = (normal * new_ray_dir).abs();
             // let new_value = bsdf_value.radiance() * wt * cos_theta / pdf;
-            ray.value = bsdf_value.radiance() * ray.value * cos_theta * pdf;
+            ray.value *= bsdf_value.radiance() * cos_theta * pdf;
 
-            // russian roulette
-            // if self.limit_weight > 0. && new_value < self.limit_weight {
-            //     let q: Float = rng.gen();
-            //     if q > new_value / self.limit_weight {
-            //         continue;
-            //     }
-            // }
+           
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, /*new_depth, new_value,*/ aux);
 

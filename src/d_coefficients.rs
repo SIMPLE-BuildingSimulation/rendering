@@ -216,12 +216,13 @@ impl DCFactory {
                 if material.specular_only() {
                     
                     let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
-                    for (new_ray, _bsdf_value) in paths.iter().flatten() {
+                    for (new_ray, bsdf_value) in paths.iter().flatten() {
                         let mut new_ray = *new_ray;
 
-                        // let new_ray_dir = new_ray.geometry.direction;
-                        // let cos_theta = (normal * new_ray_dir).abs();
-                        // new_ray.value *= bsdf_value * cos_theta * 1.5  ;
+                        let new_ray_dir = new_ray.geometry.direction;
+                        let cos_theta = (normal * new_ray_dir).abs();
+                        // new_ray.colour *= bsdf_value * cos_theta * pdf;
+                        new_ray.value *= bsdf_value.radiance() * cos_theta * 1.5  ;
 
                         // avoid infinite interior bouncing
                         let q: Float = rng.gen();
@@ -237,7 +238,7 @@ impl DCFactory {
                 }
 
                 
-                let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight);
+                let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight, rng);
 
                 // Spawn more rays
                 let depth = ray.depth;
@@ -251,9 +252,11 @@ impl DCFactory {
 
                     // increase depth
                     let cos_theta = (normal * new_ray_dir).abs();
-                    dbg!(pdf);
-                    ray.colour *= bsdf_value * cos_theta * 1.5; // / pdf;
+                    // dbg!(pdf);
+                    ray.colour *= bsdf_value * cos_theta * pdf;// * cos_theta * 1.5; // / pdf;
+                    // ray.value *= bsdf_value.radiance() * cos_theta * pdf;
                     ray.depth += 1;
+                    // ray.colour *= material.colour() * cos_theta * _bsdf_value * 1.5 / n_ambient_samples as Float ;
 
                                     
                     
@@ -264,14 +267,14 @@ impl DCFactory {
         } else {
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
 
-            let li = Spectrum::gray(3.);//*self.reinhart.bin_solid_angle(bin_n);
+            let li = Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);
             let old_value = contribution.get(0, bin_n).unwrap();
 
             contribution
                 .set(
                     0,
                     bin_n,
-                    old_value + li * ray.colour / accum_denom_samples as Float,
+                    old_value + li * ray.value/self.n_ambient_samples as Float // / accum_denom_samples as Float,
                 )
                 .unwrap();
         }
