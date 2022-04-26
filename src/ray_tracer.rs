@@ -42,7 +42,7 @@ impl std::default::Default for RayTracerHelper {
     fn default() -> Self {
         Self {
             // rays: Vec::with_capacity(10),
-            rays: vec![Ray::default(); 10], //Vec::with_capacity(10),
+            rays: vec![Ray::default(); 15], //Vec::with_capacity(10),
             nodes: Vec::with_capacity(64),
         }
     }
@@ -62,7 +62,7 @@ impl Default for RayTracer {
         Self {
             max_depth: 2,
             n_shadow_samples: 10,
-            n_ambient_samples: 10,
+            n_ambient_samples: 70,
 
             limit_weight: 1e-3,
             count_specular_bounce: 0.3,
@@ -328,7 +328,7 @@ impl RayTracer {
             let (bsdf_value, pdf) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
             let new_ray_dir = ray.geometry.direction;
             debug_assert!(
-                (1. - new_ray_dir.length()).abs() < 1e-5,
+                (1. - new_ray_dir.length()).abs() < 1e-2,
                 "Length is {}",
                 new_ray_dir.length()
             );
