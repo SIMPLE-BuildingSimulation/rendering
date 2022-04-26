@@ -159,7 +159,7 @@ pub fn mirror_direction(vin: Vector3D, normal: Vector3D) -> Vector3D {
     debug_assert!((vin.length() - 1.).abs() < 1e-6);
     debug_assert!((normal.length() - 1.).abs() < 1e-6);
     let vin_normal = vin * normal;
-    let mut ret = vin - normal * (2. * (vin_normal));
+    let mut ret = vin - normal * (2. * vin_normal);
     ret.normalize();
 
     ret

@@ -732,7 +732,7 @@ mod tests {
         let mut scene = Scene::new();
 
         let plastic = Plastic {
-            colour: Spectrum::gray(2.),
+            colour: Spectrum::from(2.),
             specularity: 1.,
             roughness: 0.,
         };
@@ -753,7 +753,7 @@ mod tests {
         let mut scene = Scene::new();
 
         let plastic = Plastic {
-            colour: Spectrum::gray(2.),
+            colour: Spectrum::from(2.),
             specularity: 1.,
             roughness: 0.,
         };

@@ -119,7 +119,7 @@ impl DCFactory {
                                 direction: new_ray_dir,
                                 origin,
                             },
-                            colour: Spectrum::gray(1.),
+                            colour: Spectrum::ONE,
                             .. Ray::default()
                         };
 

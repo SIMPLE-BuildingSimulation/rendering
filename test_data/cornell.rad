@@ -76,11 +76,11 @@ lamp sphere thelamp
 0
 4 3 3 4.4 0.1
 
-
 solid_glass sphere glassed
 0
 0
 4   4.5 3 1 1
+
 
 mymirror sphere mirrored_ball
 0

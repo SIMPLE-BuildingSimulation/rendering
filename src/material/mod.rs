@@ -129,9 +129,9 @@ impl Material {
             Self::Plastic(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
             Self::Metal(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
             Self::Light(m) => panic!("Material '{}' has no BSDF", m.id()),
-            Self::Mirror(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            Self::Dielectric(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
-            Self::Glass(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
+            Self::Mirror(_m) =>panic!("Trying to sample the BSDF of a Mirror"),
+            Self::Dielectric(_m) => panic!("Trying to sample the BSDF of a Dielectric"),
+            Self::Glass(_m) => panic!("Trying to sample the BSDF of a Glass"),
         }
     }
 
@@ -232,26 +232,5 @@ mod tests {
         test_material(metal)
     }
 
-    #[test]
-    fn test_sample_mirror() {
-        let mirror = Material::Mirror(Mirror(Spectrum {
-            red: 0.5,
-            green: 0.2,
-            blue: 0.9,
-        }));
-        test_material(mirror)
-    }
-
-    #[test]
-    fn test_sample_dielectric() {
-        let dielectric = Material::Dielectric(Dielectric {
-            colour: Spectrum {
-                red: 0.5,
-                green: 0.2,
-                blue: 0.9,
-            },
-            refraction_index: 1.,
-        });
-        test_material(dielectric)
-    }
+    
 }

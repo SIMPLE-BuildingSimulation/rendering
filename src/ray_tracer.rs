@@ -129,25 +129,22 @@ impl RayTracer {
                 let mut specular_li = Spectrum::BLACK;
 
                 let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
+            
+
                 for (new_ray, bsdf_value) in paths.iter().flatten() {
                     let mut new_ray = *new_ray;
-
-                    let new_ray_dir = new_ray.geometry.direction;
-                    let cos_theta = (normal * new_ray_dir).abs();
-                    ray.value *= bsdf_value.radiance() * cos_theta;                    
+                    
+                    ray.value *= bsdf_value.radiance();// * cos_theta;                    
 
                     let q: Float = rng.gen();
                     if q < self.count_specular_bounce {
                         new_ray.depth += 1;
                     } 
                     
-
-                    let (li, _light_pdf) =
-                        self.trace_ray(rng, scene, &mut new_ray, /*new_depth, new_value,*/ aux);
-
-                    let color = material.colour();
-                    specular_li += (li * cos_theta * *bsdf_value) * (color);
+                    let (li, _light_pdf) = self.trace_ray(rng, scene, &mut new_ray, aux);
+                    specular_li += li  * *bsdf_value
                 }
+                
                 ray.colour *= specular_li;
                 return (specular_li, 0.0);
             }

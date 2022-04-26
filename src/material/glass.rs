@@ -20,7 +20,6 @@ SOFTWARE.
 
 use crate::colour::Spectrum;
 use crate::material::specular::*;
-use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
@@ -51,10 +50,9 @@ pub struct Glass {
 impl Glass {
     pub fn refl_trans(
         &self,
-        n1: Float,
-        cos1: Float,
-        n2: Float,
-        cos2: Option<Float>,
+        normal: Vector3D,
+        direction: Vector3D,        
+        cos1: Float,        
     ) -> (Spectrum, Spectrum) {
         debug_assert!(cos1 > 0.0);
 
@@ -62,39 +60,50 @@ impl Glass {
         let mut colour = self.colour;
         let any_transmission = any_transmission(&mut colour);
 
+
+
         // Now calculate components
-        if let Some(cos2) = cos2 {
-            // There is refraction
-            let ct = self.colour/cos2;
-            let ct2 = ct.powi(2);
+        // if let Some(cos2) = cos2 {            
+            let pdot = (normal * direction).abs();
+            let cos2 = ( 
+                (1.- 1./self.refraction_index.powi(2)) +
+                (pdot/self.refraction_index).powi(2)
+            ).sqrt();
 
-            let fte = fresnel_te(n1, cos1, n2, cos2).powi(2);
-            let fte2 = fte.powi(2);
-            let ftm = fresnel_tm(n1, cos1, n2, cos2).powi(2);
-            let ftm2 = ftm.powi(2);
+            let rindex = self.refraction_index;
+            let mut fte2 = (pdot - rindex*cos2) / (pdot + rindex*cos2);
+            fte2 *= fte2;
+            let mut ftm2 = (1.0/pdot - rindex/cos2) / (1.0/pdot + rindex/cos2);
+            ftm2 *= ftm2;
 
+            
+            let d = if any_transmission {
+                self.colour.powf(1./cos2)
+            }else{
+                self.colour
+            };
+            
+            
             // Process transmission
             
             let t_comp = if any_transmission {
-                ct * 0.5
-                    * ((1. - fte).powi(2) / (1. -  ct2*fte2)
-                        + (1. - ftm).powi(2) / (1. - ct2*ftm2))
+                d * 0.5
+                * ((1. - fte2).powi(2) / (1. -  (d*fte2).powi(2))
+                + (1. - ftm2).powi(2) / (1. - (d*ftm2).powi(2)))
             } else {
+                // Spectrum{red: 1., green: 0., blue: 0.}
                 Spectrum::BLACK
             };
-
+            
             // Process reflection
+            let ct = d.powi(2);
             let refl_comp = 
-                0.5*((1. + ct2 * (1. - 2. * fte)) * fte  / (1. -  ct2*fte2)
-                    +  (1. + (1. - 2. * ftm) * ct2) * ftm / (1. - ct2*ftm2)) ;
+                0.5*((1. + ct * (1. - 2. * fte2)) * fte2  / (1. -  ct*fte2)
+                    +  (1. + (1. - 2. * ftm2) * ct) * ftm2 / (1. - ct*ftm2)) ;
 
             // return
-            (refl_comp/cos1, t_comp/cos2)
-        } else {
-            // (0., 0.)
-            // panic!("Glass should never reach critical angle");
-            (Spectrum::ONE / cos1, Spectrum::BLACK)
-        }
+            (refl_comp, t_comp)
+            
     }
 }
 
@@ -126,9 +135,14 @@ impl Glass {
             "length is {}",
             mirror_dir.length()
         );
-        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
+        let (_n1, cos1, ..) = cos_and_n(ray, normal, self.refraction_index);
         let intersection_pt = *intersection_pt;
-        let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
+        let (refl, trans) = self.refl_trans(normal, ray.geometry.direction, cos1);
+        
+        // let total = refl.radiance() + trans.radiance();
+        // let refl_fraction = refl.radiance()/total;
+        // let trans_fraction = trans.radiance()/total;
+        // dbg!(total, refl_fraction, trans_fraction);
 
         // Process reflection...
         let mut ray1 = *ray;
@@ -140,8 +154,10 @@ impl Glass {
         let mut ray = *ray;
         let pair2 = if trans.radiance() > 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;
-            ray.colour *= self.colour() * trans;
-            Some((ray, trans ))
+            
+            
+            // ray.colour *= self.colour() * trans;
+            Some((ray, trans))
         } else {
             None
         };
@@ -149,50 +165,50 @@ impl Glass {
         [pair1, pair2]
     }
 
-    pub fn sample_bsdf(
-        &self,
-        _normal: Vector3D,
-        _e1: Vector3D,
-        _e2: Vector3D,
-        _intersection_pt: Point3D,
-        _ray: &mut Ray,
-        _rng: &mut RandGen,
-    ) -> (Spectrum, Float) {
-        unreachable!();
-        // debug_assert!(
-        //     (ray.geometry.direction.length() - 1.).abs() < 1e-5,
-        //     "Length was {}",
-        //     ray.geometry.direction.length()
-        // );
-        // debug_assert!((e1 * e2).abs() < 1e-8);
-        // debug_assert!((e1 * normal).abs() < 1e-8);
-        // debug_assert!((e2 * normal).abs() < 1e-8);
+    // pub fn sample_bsdf(
+    //     &self,
+    //     _normal: Vector3D,
+    //     _e1: Vector3D,
+    //     _e2: Vector3D,
+    //     _intersection_pt: Point3D,
+    //     _ray: &mut Ray,
+    //     _rng: &mut RandGen,
+    // ) -> (Spectrum, Float) {
+        
+    //     debug_assert!(
+    //         (ray.geometry.direction.length() - 1.).abs() < 1e-5,
+    //         "Length was {}",
+    //         ray.geometry.direction.length()
+    //     );
+    //     debug_assert!((e1 * e2).abs() < 1e-8);
+    //     debug_assert!((e1 * normal).abs() < 1e-8);
+    //     debug_assert!((e2 * normal).abs() < 1e-8);
 
-        // let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
-        // let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
-        // let ray_dir = ray.geometry.direction;
-        // let mirror_dir = mirror_direction(ray_dir, normal);
-        // debug_assert!(
-        //     (1. - mirror_dir.length()).abs() < 1e-5,
-        //     "length is {}",
-        //     mirror_dir.length()
-        // );
+    //     let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
+    //     let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
+    //     let ray_dir = ray.geometry.direction;
+    //     let mirror_dir = mirror_direction(ray_dir, normal);
+    //     debug_assert!(
+    //         (1. - mirror_dir.length()).abs() < 1e-5,
+    //         "length is {}",
+    //         mirror_dir.length()
+    //     );
 
-        // let r: Float = rng.gen();
-        // if r <= refl / (refl + trans) {
-        //     // Reflection
-        //     // avoid self shading
-        //     ray.geometry.origin = intersection_pt + normal * 0.00001;
+    //     let r: Float = rng.gen();
+    //     if r <= refl / (refl + trans) {
+    //         // Reflection
+    //         // avoid self shading
+    //         ray.geometry.origin = intersection_pt + normal * 0.00001;
 
-        //     ray.geometry.direction = mirror_dir;
-        //     (Spectrum::gray(1.) * refl, refl / (refl + trans))
-        // } else {
-        //     // Transmission... keep same direction, dont change refraction
-        //     // avoid self shading
-        //     ray.geometry.origin = intersection_pt - normal * 0.00001;
-        //     (self.colour * trans, trans / (refl + trans))
-        // }
-    }
+    //         ray.geometry.direction = mirror_dir;
+    //         (Spectrum::ONE * refl, refl / (refl + trans))
+    //     } else {
+    //         // Transmission... keep same direction, dont change refraction
+    //         // avoid self shading
+    //         ray.geometry.origin = intersection_pt - normal * 0.00001;
+    //         (self.colour * trans, trans / (refl + trans))
+    //     }
+    // }
 
     pub fn eval_bsdf(
         &self,
@@ -202,8 +218,8 @@ impl Glass {
         ray: &Ray,
         vout: Vector3D,
     ) -> Spectrum {
-        let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
-        let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
+        let (_n1, cos1, _n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
+        let (refl, trans) = self.refl_trans(normal, ray.geometry.direction,  cos1);
         let vin = ray.geometry.direction;
         let mirror_dir = mirror_direction(vin, normal);
         debug_assert!(
@@ -229,13 +245,14 @@ impl Glass {
             }
         }
         // panic!("Glass should never reach critical angle");
-        Spectrum::gray(1.) / cos1
+        Spectrum::ONE / cos1
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rand::*;
     use geometry3d::{Ray3D, Vector3D};
 
     #[test]

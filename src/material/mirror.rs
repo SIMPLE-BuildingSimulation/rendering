@@ -20,9 +20,7 @@ SOFTWARE.
 
 use crate::colour::Spectrum;
 use crate::material::specular::{eval_mirror_bsdf, mirror_bsdf};
-use crate::rand::*;
 use crate::ray::Ray;
-use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
 /// A mirror material
@@ -46,22 +44,23 @@ impl Mirror {
         // Calculate the ray direction and BSDF
         let mut ray = *ray;
         let v = mirror_bsdf(*intersection_pt, &mut ray, *normal);
-        [Some((ray, Spectrum::gray(1.0)*v)), None]
+        let cos_theta = (*normal * ray.geometry.direction).abs();
+        [Some((ray, Spectrum::ONE * v * cos_theta)), None]
     }
 
-    pub fn sample_bsdf(
-        &self,
-        _normal: Vector3D,
-        _e1: Vector3D,
-        _e2: Vector3D,
-        _intersection_pt: Point3D,
-        _ray: &mut Ray,
-        _rng: &mut RandGen,
-    ) -> (Spectrum, Float) {
-        unreachable!();
-        // let bsdf = mirror_bsdf(intersection_pt, ray, normal);
-        // (self.0 * bsdf, 1.)
-    }
+    // pub fn sample_bsdf(
+    //     &self,
+    //     _normal: Vector3D,
+    //     _e1: Vector3D,
+    //     _e2: Vector3D,
+    //     _intersection_pt: Point3D,
+    //     _ray: &mut Ray,
+    //     _rng: &mut RandGen,
+    // ) -> (Spectrum, Float) {
+    //     unreachable!();
+    //     // let bsdf = mirror_bsdf(intersection_pt, ray, normal);
+    //     // (self.0 * bsdf, 1.)
+    // }
 
     pub fn eval_bsdf(
         &self,
@@ -80,6 +79,8 @@ impl Mirror {
 mod tests {
     use super::*;
     use geometry3d::{Ray3D, Vector3D};
+    use crate::rand::*;
+    use crate::Float;
 
     #[test]
     fn test_get_possible_paths_mirror() {

@@ -20,7 +20,6 @@ SOFTWARE.
 
 use crate::colour::Spectrum;
 use crate::material::specular::*;
-use crate::rand::*;
 use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
@@ -29,6 +28,22 @@ pub struct Dielectric {
     pub colour: Spectrum,
     pub refraction_index: Float,
 }
+
+
+// /// From Radiance's Dielectric.c
+// /// 
+// /// "special log for extinction coefficients"
+// fn mylog(x: Float)->Float{
+// 	if (x < 1e-40){
+// 		-100.
+//     }else if (x >= 1.){
+// 		0.
+//     }else{
+//         x.ln()
+//     }
+// }
+
+
 
 impl Dielectric {
     /// Gets the Reflected and Transmitted BSDF values
@@ -40,6 +55,22 @@ impl Dielectric {
         cos2: Option<Float>,
     ) -> (Spectrum, Spectrum) {
         debug_assert!(cos1 > 0.0);
+        // let mut ctrans = self.colour;
+        // let mut cext = self.colour;
+        
+        // if (1. - n1).abs() < 1e-4 {
+        //     // If we are getting in the dielectric
+        //     ctrans.red = -mylog(ctrans.red);
+        //     ctrans.green = -mylog(ctrans.green);
+        //     ctrans.blue = -mylog(ctrans.blue);
+        // }else{
+        //     cext.red = -mylog(cext.red);
+        //     cext.green = -mylog(cext.green);
+        //     cext.blue = -mylog(cext.blue);
+        // }
+    
+
+
         if let Some(cos2) = cos2 {
             // There is refraction
             let refl = fresnel_reflectance(n1, cos1, n2, cos2);
@@ -54,11 +85,11 @@ impl Dielectric {
             // let t_comp = (1. - refl) / cos1;
 
             // return
-            (Spectrum::gray(1.)*refl_comp/cos1, self.colour*t_comp/cos2)
+            (Spectrum::ONE*refl_comp/cos1, self.colour*t_comp/cos2)
         } else {
             // pure reflection
             // (1. / cos1, 0.)
-            (Spectrum::gray(1.) / cos1, Spectrum::BLACK)
+            (Spectrum::ONE / cos1, Spectrum::BLACK)
         }
     }
 }
@@ -78,6 +109,10 @@ impl Dielectric {
         intersection_pt: &Point3D,
         ray: &Ray,
     ) -> [Option<(Ray, Spectrum)>; 2] {
+
+        
+        
+
         let normal = *normal;
         let intersection_pt = *intersection_pt;
 
@@ -95,87 +130,90 @@ impl Dielectric {
         let mut ray1 = *ray;
         ray1.geometry.direction = mirror_dir;
         ray1.geometry.origin = intersection_pt + normal * 0.00001;
-        let pair1 = Some((ray1, refl));
+        let pair1 = Some((ray1, refl*cos1));
 
         let mut ray = *ray;
         // process transmission
-        let pair2 = if trans.radiance() > 0.0 && ray_dir * normal < 0.0 {
-            ray.geometry.origin = intersection_pt - normal * 0.00001;
-            ray.refraction_index = n2;
-            let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2.unwrap());
-            ray.geometry.direction = trans_dir;
-            ray.colour *= self.colour;
-            Some((ray, trans))
-        } else {
-            None
+        // let pair2 = if trans.radiance() > 0.0 && ray_dir * normal < 0.0 {
+        let pair2 = match cos2 {
+            Some(cos2)=>{
+
+                ray.geometry.origin = intersection_pt - normal * 0.00001;
+                ray.refraction_index = n2;
+                let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2);
+                ray.geometry.direction = trans_dir;
+                ray.colour *= self.colour;
+                Some((ray, trans*cos2))
+            },
+            None => None
         };
 
         [pair1, pair2]
     }
 
-    pub fn sample_bsdf(
-        &self,
-        _normal: Vector3D,
-        _e1: Vector3D,
-        _e2: Vector3D,
-        _intersection_pt: Point3D,
-        _ray: &mut Ray,
-        _rng: &mut RandGen,
-    ) -> (Spectrum, Float) {
-        unreachable!();
-        // debug_assert!(
-        //     (ray.geometry.direction.length() - 1.).abs() < 1e-5,
-        //     "Length was {}",
-        //     ray.geometry.direction.length()
-        // );
-        // debug_assert!((e1 * e2).abs() < 1e-5, "e1*e2= {} ", (e1 * e2).abs());
-        // debug_assert!(
-        //     (e1 * normal).abs() < 1e-5,
-        //     "e1*normal = {}",
-        //     e1 * normal.abs()
-        // );
+    // pub fn sample_bsdf(
+    //     &self,
+    //     normal: Vector3D,
+    //     e1: Vector3D,
+    //     e2: Vector3D,
+    //     intersection_pt: Point3D,
+    //     ray: &mut Ray,
+    //     rng: &mut RandGen,
+    // ) -> (Spectrum, Float) {
+        
+    //     debug_assert!(
+    //         (ray.geometry.direction.length() - 1.).abs() < 1e-5,
+    //         "Length was {}",
+    //         ray.geometry.direction.length()
+    //     );
+    //     debug_assert!((e1 * e2).abs() < 1e-5, "e1*e2= {} ", (e1 * e2).abs());
+    //     debug_assert!(
+    //         (e1 * normal).abs() < 1e-5,
+    //         "e1*normal = {}",
+    //         e1 * normal.abs()
+    //     );
 
-        // debug_assert!(
-        //     (e2 * normal).abs() < 1e-5,
-        //     "e2*normal = {}",
-        //     (e2 * normal).abs()
-        // );
+    //     debug_assert!(
+    //         (e2 * normal).abs() < 1e-5,
+    //         "e2*normal = {}",
+    //         (e2 * normal).abs()
+    //     );
 
-        // let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
-        // let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
-        // let mirror_dir = mirror_direction(ray.geometry.direction, normal);
-        // debug_assert!(
-        //     (1. - mirror_dir.length()).abs() < 1e-5,
-        //     "length is {}",
-        //     mirror_dir.length()
-        // );
+    //     let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
+    //     let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
+    //     let mirror_dir = mirror_direction(ray.geometry.direction, normal);
+    //     debug_assert!(
+    //         (1. - mirror_dir.length()).abs() < 1e-5,
+    //         "length is {}",
+    //         mirror_dir.length()
+    //     );
 
-        // let r: Float = rng.gen();
-        // if r <= refl / (refl + trans) {
-        //     // Reflection
-        //     // avoid self shading
-        //     ray.geometry.origin = intersection_pt + normal * 0.00001;
+    //     let r: Float = rng.gen();
+    //     if r <= refl / (refl + trans) {
+    //         // Reflection
+    //         // avoid self shading
+    //         ray.geometry.origin = intersection_pt + normal * 0.00001;
 
-        //     ray.geometry.direction = mirror_dir;
-        //     (self.colour * refl, refl / (refl + trans))
-        // } else {
-        //     // Transmission
-        //     // avoid self shading
-        //     ray.geometry.origin = intersection_pt - normal * 0.00001;
+    //         ray.geometry.direction = mirror_dir;
+    //         (self.colour * refl, refl / (refl + trans))
+    //     } else {
+    //         // Transmission
+    //         // avoid self shading
+    //         ray.geometry.origin = intersection_pt - normal * 0.00001;
 
-        //     ray.refraction_index = n2;
-        //     let trans_dir = fresnel_transmission_dir(
-        //         ray.geometry.direction,
-        //         normal,
-        //         n1,
-        //         cos1,
-        //         n2,
-        //         cos2.unwrap(),
-        //     );
-        //     ray.geometry.direction = trans_dir;
-        //     (self.colour * trans, trans / (refl + trans))
-        // }
-    }
+    //         ray.refraction_index = n2;
+    //         let trans_dir = fresnel_transmission_dir(
+    //             ray.geometry.direction,
+    //             normal,
+    //             n1,
+    //             cos1,
+    //             n2,
+    //             cos2.unwrap(),
+    //         );
+    //         ray.geometry.direction = trans_dir;
+    //         (self.colour * trans, trans / (refl + trans))
+    //     }
+    // }
 
     pub fn eval_bsdf(
         &self,
@@ -223,6 +261,7 @@ impl Dielectric {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::rand::*;
 
     use crate::ray::Ray;
     use geometry3d::{Point3D, Ray3D};
@@ -370,103 +409,103 @@ mod tests {
         );
     }
 
-    #[test]
-    fn test_bsdf() {
-        let n = 1.52;
-        let mat = Dielectric {
-            colour: Spectrum::gray(0.23), //irrelevant for this test
-            refraction_index: n,
-        };
+    // #[test]
+    // fn test_bsdf() {
+    //     let n = 1.52;
+    //     let mat = Dielectric {
+    //         colour: Spectrum::gray(0.23), //irrelevant for this test
+    //         refraction_index: n,
+    //     };
 
-        let mut rng = get_rng();
-        let normal = Vector3D::new(0., 0., 1.);
-        let e1 = Vector3D::new(1., 0., 0.);
-        let e2 = Vector3D::new(0., 1., 0.);
+    //     let mut rng = get_rng();
+    //     let normal = Vector3D::new(0., 0., 1.);
+    //     let e1 = Vector3D::new(1., 0., 0.);
+    //     let e2 = Vector3D::new(0., 1., 0.);
 
-        let dir_zero = Vector3D::new(0., 1., -2.).get_normalized(); // going down
+    //     let dir_zero = Vector3D::new(0., 1., -2.).get_normalized(); // going down
 
-        let mut ray = Ray {
-            geometry: Ray3D {
-                origin: Point3D::new(0., 0., 0.),
-                direction: dir_zero,
-            },
-            refraction_index: 1.,
-            ..Ray::default()
-        };
-        println!("Before entering: {}", dir_zero);
-        let mirror_dir = mirror_direction(ray.geometry.direction, normal);
-        let mut trans_dir: Option<Vector3D> = None;
-        // Get INTO the material
-        for _ in 0..30 {
-            let mut new_ray = ray;
-            let (_bsdf, _pdf) = mat.sample_bsdf(
-                normal,
-                e1,
-                e2,
-                Point3D::new(0., 0., 0.),
-                &mut new_ray,
-                &mut rng,
-            );
-            println!("A -- PDF = {}", _pdf);
+    //     let mut ray = Ray {
+    //         geometry: Ray3D {
+    //             origin: Point3D::new(0., 0., 0.),
+    //             direction: dir_zero,
+    //         },
+    //         refraction_index: 1.,
+    //         ..Ray::default()
+    //     };
+    //     println!("Before entering: {}", dir_zero);
+    //     let mirror_dir = mirror_direction(ray.geometry.direction, normal);
+    //     let mut trans_dir: Option<Vector3D> = None;
+    //     // Get INTO the material
+    //     for _ in 0..30 {
+    //         let mut new_ray = ray;
+    //         let (_bsdf, _pdf) = mat.sample_bsdf(
+    //             normal,
+    //             e1,
+    //             e2,
+    //             Point3D::new(0., 0., 0.),
+    //             &mut new_ray,
+    //             &mut rng,
+    //         );
+    //         println!("A -- PDF = {}", _pdf);
 
-            let new_dir = new_ray.geometry.direction;
-            if new_dir.z < 0. {
-                // We are still moving down... thus, refraction
-                assert!(
-                    new_ray.refraction_index == n,
-                    "Expeting n={}, found n={}",
-                    n,
-                    new_ray.refraction_index
-                );
-                trans_dir = Some(new_dir);
-            } else {
-                // reflection
-                assert!( (1. - new_dir * mirror_dir).abs() < 1e-5 );
-                assert!(
-                    new_ray.refraction_index == 1.0,
-                    "Expeting n={}, found n={}",
-                    1.,
-                    new_ray.refraction_index
-                );
-            }
-        }
+    //         let new_dir = new_ray.geometry.direction;
+    //         if new_dir.z < 0. {
+    //             // We are still moving down... thus, refraction
+    //             assert!(
+    //                 new_ray.refraction_index == n,
+    //                 "Expeting n={}, found n={}",
+    //                 n,
+    //                 new_ray.refraction_index
+    //             );
+    //             trans_dir = Some(new_dir);
+    //         } else {
+    //             // reflection
+    //             assert!( (1. - new_dir * mirror_dir).abs() < 1e-5 );
+    //             assert!(
+    //                 new_ray.refraction_index == 1.0,
+    //                 "Expeting n={}, found n={}",
+    //                 1.,
+    //                 new_ray.refraction_index
+    //             );
+    //         }
+    //     }
 
-        println!("Inside: {:?}", trans_dir);
+    //     println!("Inside: {:?}", trans_dir);
 
-        // Get OUT OF the material
-        ray.refraction_index = n;
-        ray.geometry.direction = trans_dir.unwrap();
-        for _ in 0..30 {
-            let mut new_ray = ray;
-            let (_bsdf, _pdf) = mat.sample_bsdf(
-                normal,
-                e1,
-                e2,
-                Point3D::new(0., 0., 0.),
-                &mut new_ray,
-                &mut rng,
-            );
-            println!("B -- PDF = {}", _pdf);
-            let new_dir = new_ray.geometry.direction;
-            if new_dir.z < 0. {
-                // We are still moving down... thus, refraction
-                assert!(
-                    new_ray.refraction_index == 1.,
-                    "Expeting n={}, found n={}",
-                    1,
-                    new_ray.refraction_index
-                );                
-                assert!(
-                    (1. - new_dir * dir_zero).abs() < 1e-5,
-                    "ray_dir = {} | new_dir = {} | dir_zero = {}",
-                    new_ray.geometry.direction,
-                    new_dir,
-                    dir_zero
-                );
-                println!("After leaving : {}", new_dir);
-            }
-        }
-    }
+    //     // Get OUT OF the material
+    //     ray.refraction_index = n;
+    //     ray.geometry.direction = trans_dir.unwrap();
+    //     for _ in 0..30 {
+    //         let mut new_ray = ray;
+    //         let (_bsdf, _pdf) = mat.sample_bsdf(
+    //             normal,
+    //             e1,
+    //             e2,
+    //             Point3D::new(0., 0., 0.),
+    //             &mut new_ray,
+    //             &mut rng,
+    //         );
+    //         println!("B -- PDF = {}", _pdf);
+    //         let new_dir = new_ray.geometry.direction;
+    //         if new_dir.z < 0. {
+    //             // We are still moving down... thus, refraction
+    //             assert!(
+    //                 new_ray.refraction_index == 1.,
+    //                 "Expeting n={}, found n={}",
+    //                 1,
+    //                 new_ray.refraction_index
+    //             );                
+    //             assert!(
+    //                 (1. - new_dir * dir_zero).abs() < 1e-5,
+    //                 "ray_dir = {} | new_dir = {} | dir_zero = {}",
+    //                 new_ray.geometry.direction,
+    //                 new_dir,
+    //                 dir_zero
+    //             );
+    //             println!("After leaving : {}", new_dir);
+    //         }
+    //     }
+    // }
 
     #[test]
     fn test_get_possible_paths_dielectric() {

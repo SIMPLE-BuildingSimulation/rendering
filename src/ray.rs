@@ -54,7 +54,7 @@ impl std::default::Default for Ray {
             interaction: Interaction::default(),
             depth: 0,
             value: 1.,
-            colour: Spectrum::gray(1.),
+            colour: Spectrum::ONE,
         }
     }
 }
