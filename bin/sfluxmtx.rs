@@ -17,83 +17,140 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-use rendering::scene::Scene;
+use clap::Parser;
+use rendering::{scene::Scene, colour_matrix::save_colour_matrix};
 use solar::ReinhartSky;
 // use rendering::from_radiance::from
-use clap::{Arg, Command};
+use rendering::Float;
 use geometry3d::{Point3D, Ray3D, Vector3D};
 use rendering::d_coefficients::DCFactory;
 
+/// Calculates the Daylight Coefficients
+#[derive(Parser)]
+struct Inputs {
+    #[clap(short, long)]
+    /// The file to load the model from
+    pub input: String,
+
+    #[clap(short, long)]
+    /// The file where the matrix will be stored
+    pub output: String,
+
+    #[clap(short='m', long="sky_subdivision",default_value_t=1)]
+    pub mf: usize,
+
+    /// The number of bounces before a ray is terminated (-ab in Radiance lingo)
+    #[clap(short='b', long="max_depth",default_value_t=2)]
+    pub max_depth: usize,
+
+    /// The number of secondary rays sent from the first interaction.
+    /// From the second interaction and on, this number is reduced
+    #[clap(short='a', long="ambient_samples", default_value_t=1700)]
+    pub n_ambient_samples: usize,
+
+    /// A lower value makes the Russian roulette less deadly
+    #[clap(short='w', long="limit_weight", default_value_t=1e-3)]    
+    pub limit_weight: Float,
+    
+    /// The probability of counting purely specular bounces as an actual bounce.
+    /// (Specular bounces seldom count because that allows achieving caustics better...
+    /// and they are cheap)
+    #[clap(short='c', long="count_specular", default_value_t=0.3)]
+    pub count_specular_bounce: Float,
+
+
+    /// The number of sensors to receive in the standard input
+    #[clap(short='n', long, default_value_t=64)]
+    pub n_sensors: usize,
+
+}
+
+
 fn main() {
-    let matches = Command::new("SIMPLE Solar Simulation")
-        .version("0.1 (but it is still awesome!)")
-        .author("(c) German Molina")
-        .about("A Climate Based Daylight Simulation tool")
-        .arg(
-            Arg::new("input")
-                .short('i')
-                .long("input")
-                .value_name("SIMPLE or Radiance file")
-                .help("This is the SIMPLE Model or a Radiance file")
-                .takes_value(true)
-                .required(true),                
-        )
-        .arg(
-            Arg::new("weather")
-                .short('w')
-                .long("weather_file")
-                .value_name("EPW File")
-                .help("This is an EPW weather file")
-                .takes_value(true)
-                .required(true),                
-        )
-        .get_matches();
+    
+    let inputs = Inputs::parse();
 
-    let input_file = matches.value_of("input").unwrap();
-    let _weather_file = "asd"; //matches.value_of("weather").unwrap();
-
-    let mut scene = if input_file.ends_with(".rad") {
-        Scene::from_radiance(input_file.to_string())
-    } else if input_file.ends_with(".simple") || input_file.ends_with(".spl") {
-        panic!("Reading SIMPLE models is still not suppoerted")
-    } else {
-        eprintln!(
-            "Don't know how to read file '{}'... only .rad is supported for now",
-            input_file
-        );
-        std::process::exit(1);
+    let input_file = inputs.input;
+    let mut scene = if input_file.ends_with(".rad"){
+        Scene::from_radiance(input_file)
+    }else if input_file.ends_with(".spl"){
+        let (model, _header) = simple_model::SimpleModel::from_file(input_file).unwrap();
+        Scene::from_simple_model(&model, rendering::scene::Wavelengths::Visible)
+    }
+    // else if input.ends_with(".obj"){
+    //     Scene::from_simple_model(input)
+    // }
+    else{
+        panic!("Unkwown format in file {}", input_file);
     };
 
     scene.build_accelerator();
 
+    
+
+    
+
     // Setup sensors
-    let up = Vector3D::new(0., 0., 1.);
-    let rays = vec![
-        Ray3D {
-            origin: Point3D::new(2., 0.5, 0.8),
-            direction: up,
-        },
-        Ray3D {
-            origin: Point3D::new(2., 2.5, 0.8),
-            direction: up,
-        },
-        Ray3D {
-            origin: Point3D::new(2., 5.5, 0.8),
-            direction: up,
-        },
-    ];
+    let mut rays : Vec<Ray3D> = Vec::with_capacity(inputs.n_sensors); 
+    let mut buffer = String::new();
+    let mut ln = 0;
+    while let Ok(n) = std::io::stdin().read_line(&mut buffer){
+        if n == 0 {
+            break; // Reached EOF
+        }
+        ln += 1;
+        {
 
-    eprintln!("Ready to calc!... # Surface = {}", scene.triangles.len());
+            let st : Vec<&str> = buffer.trim().split(" ").collect();
+            // let st : Vec<&str> = buffer.split_ascii_whitespace().collect();
+            
+            if st.len() != 6 {
+                eprintln!("Expecting six values—e.g., '1. 2. 3. 4. 5. 6.'—... line {} contains '{:?}'", ln, st);
+                std::process::exit(1); 
+            }
+            let ox = match st[0].parse::<Float>(){
+                Ok(v)=>v,
+                Err(_)=>{eprintln!( "Expecting value 1 in sensor line to be a number... found '{}'", st[0] ); std::process::exit(1); }
+            };
+            let oy = match st[1].parse::<Float>(){
+                Ok(v)=>v,
+                Err(_)=>{eprintln!( "Expecting value 2 in sensor line to be a number... found '{}'", st[1] ); std::process::exit(1); }
+            };
+            let oz = match st[2].parse::<Float>(){
+                Ok(v)=>v,
+                Err(_)=>{eprintln!( "Expecting value 3 in sensor line to be a number... found '{}'", st[2] ); std::process::exit(1); }
+            };
+            let dx = match st[3].parse::<Float>(){
+                Ok(v)=>v,
+                Err(_)=>{eprintln!( "Expecting value 4 in sensor line to be a number... found '{}'", st[3] ); std::process::exit(1); }
+            };
+            let dy = match st[4].parse::<Float>(){
+                Ok(v)=>v,
+                Err(_)=>{eprintln!( "Expecting value 5 in sensor line to be a number... found '{}'", st[4] ); std::process::exit(1); }
+            };
+            let dz = match st[5].parse::<Float>(){
+                Ok(v)=>v,
+                Err(_)=>{eprintln!( "Expecting value 6 in sensor line to be a number... found '{}'", st[5] ); std::process::exit(1); }
+            };
+            rays.push(Ray3D { origin: Point3D::new(ox, oy, oz), direction: Vector3D::new(dx, dy, dz).get_normalized() })
+        }
+        buffer.truncate(0);
 
-    let mf = 1;
+    }
+    
+    
+
+    
     let factory = DCFactory {
-        max_depth: 2,
-        n_ambient_samples: 50000,
-        reinhart: ReinhartSky::new(mf),
-        ..DCFactory::default()
+        max_depth: inputs.max_depth,
+        n_ambient_samples: inputs.n_ambient_samples,
+        reinhart: ReinhartSky::new(inputs.mf),
+        limit_weight: inputs.limit_weight,
+        count_specular_bounce: inputs.count_specular_bounce,        
     };
 
     let dc_matrix = factory.calc_dc(&rays, &scene);
-    let dc_matrix = rendering::colour_matrix::colour_matrix_to_luminance(&dc_matrix);
-    println!("Matrix = {}", dc_matrix);
+    save_colour_matrix(&dc_matrix, &std::path::Path::new(&inputs.output)).unwrap()
+    // let dc_matrix = rendering::colour_matrix::colour_matrix_to_luminance(&dc_matrix);
+    // rendering::colour_matrix::save_matrix(&dc_matrix, &std::path::Path::new(&inputs.output)).unwrap()
 }

@@ -124,6 +124,9 @@ impl std::ops::Index<(usize, usize)> for ImageBuffer {
     }
 }
 
+
+
+
 impl ImageBuffer {
     /// Creates a new empty [`ImageBuffer`]
     pub fn new(width: usize, height: usize) -> Self {
@@ -132,6 +135,20 @@ impl ImageBuffer {
             height,
             pixels: vec![Spectrum::BLACK; width * height],
         }
+    }
+
+    /// Gets the absolute difference between two `ImageBuffer`
+    pub fn diff(&self, other: &Self)->Result<Self, String>{
+
+        if (self.width, self.height) != (other.width, other.height){
+            return Err(format!("Size mismatch: comparing image of size '{}x{}' with another one of size '{}x{}'", self.height, self.width, other.height, other.width))
+        }
+    
+        let pixels = self.pixels.iter().zip(other.pixels.iter()).map(|(a, b)|{
+            Spectrum::gray( (a.radiance() - b.radiance()).abs() )
+        }).collect();
+
+        Ok(Self::from_pixels(self.width, self.height, pixels))
     }
 
     /// Creates a new empty [`ImageBuffer`]
@@ -192,8 +209,7 @@ impl ImageBuffer {
             
             let line = &content[0..nl];            
             content = &content[nl+1..];
-            let line_str = std::str::from_utf8(line).unwrap();
-            dbg!(line_str);
+            
             
             if line.starts_with(b"-Y") {
                 let errmsg = {

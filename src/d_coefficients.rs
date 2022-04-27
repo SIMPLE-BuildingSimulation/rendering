@@ -64,6 +64,9 @@ impl DCFactory {
         // Initialize matrix
         let n_bins = self.reinhart.n_bins;
 
+        let counter = std::sync::Arc::new(std::sync::Mutex::new(0));
+        let last_progress = std::sync::Arc::new(std::sync::Mutex::new(0.0));
+        
         // Process... This can be in parallel, or not.
         #[cfg(not(feature = "parallel"))]
         let aux_iter = rays.iter();
@@ -119,7 +122,7 @@ impl DCFactory {
                                 direction: new_ray_dir,
                                 origin,
                             },
-                            colour: Spectrum::ONE,
+                            colour: Spectrum::gray(crate::PI),
                             .. Ray::default()
                         };
 
@@ -134,11 +137,15 @@ impl DCFactory {
                             &mut aux,
                         );
 
-                        // let mut c = counter.lock().unwrap();
-                        // *c += 1;
-                        // let nrays = rays.len() * factory.n_ambient_samples;
-                        // let perc = (100. *  *c as Float/ nrays  as Float).round() as usize;
-                        // eprintln!("Ray {} of {} ({}%) done...", c, nrays, perc);
+                        let mut c = counter.lock().unwrap();
+                        *c += 1;
+                        let nrays = rays.len() * self.n_ambient_samples;
+                        let mut lp = last_progress.lock().unwrap();
+                        let progress = (100. * *c as Float / nrays as Float).round() as Float;
+                        if (*lp - progress.floor()) < 0.1 && (progress - *lp).abs() > 1. {
+                            *lp = progress;
+                            println!("... Done {:.0}%", progress);
+                        }
 
                         this_ret
                     })
@@ -239,21 +246,21 @@ impl DCFactory {
 
                 
                 let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight, rng);
-
+                
                 // Spawn more rays
                 let depth = ray.depth;
                 aux.rays[depth] = *ray;
                 let (_pt, normal, e1, e2, ..) = ray.get_triad();
                 (0..n_ambient_samples).for_each(|_| {
                                                 
-                    let (bsdf_value, pdf) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);                    
+                    let (bsdf_value, _pdf) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);                    
                     let new_ray_dir = ray.geometry.direction;
                     debug_assert!((1. as Float-new_ray_dir.length()).abs() < 1e-5, "Length is {}", new_ray_dir.length());
 
                     // increase depth
                     let cos_theta = (normal * new_ray_dir).abs();
                     // dbg!(pdf);
-                    ray.colour *= bsdf_value * cos_theta * pdf;// * cos_theta * 1.5; // / pdf;
+                    ray.colour *= bsdf_value * cos_theta * crate::PI * 2.; // (crate::PI * 2.);// * cos_theta * 1.5; // / pdf;
                     // ray.value *= bsdf_value.radiance() * cos_theta * pdf;
                     ray.depth += 1;
                     // ray.colour *= material.colour() * cos_theta * _bsdf_value * 1.5 / n_ambient_samples as Float ;
@@ -267,14 +274,14 @@ impl DCFactory {
         } else {
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
 
-            let li = Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);
+            let li = Spectrum::ONE;//Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);
             let old_value = contribution.get(0, bin_n).unwrap();
 
             contribution
                 .set(
                     0,
                     bin_n,
-                    old_value + li * ray.value/self.n_ambient_samples as Float // / accum_denom_samples as Float,
+                    old_value + li * ray.colour/self.n_ambient_samples as Float // accum_denom_samples as Float,
                 )
                 .unwrap();
         }

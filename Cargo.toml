@@ -27,6 +27,15 @@ path = "bin/spict.rs"
 name = "sfluxmtx"
 path = "bin/sfluxmtx.rs"
 
+
+[[bin]]
+name = "sfalsecolor"
+path = "bin/sfalsecolor.rs"
+
+[[bin]]
+name = "scompare"
+path = "bin/scompare.rs"
+
 [dev-dependencies]
 criterion = "0.3"
 

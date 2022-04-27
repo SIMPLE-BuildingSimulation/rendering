@@ -372,8 +372,8 @@ fn cornell() {
 
     // Create camera
     let film = Film {
-        resolution: (512, 367),
-        // resolution: (1024, 768),
+        // resolution: (512, 367),
+        resolution: (1024, 768),
         // resolution: (512, 512),
     };
 
@@ -390,9 +390,9 @@ fn cornell() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_ambient_samples: 80,
-        n_shadow_samples: 3,
-        max_depth: 2,
+        n_ambient_samples: 280,
+        n_shadow_samples: 10,
+        max_depth: 3,
         // count_specular_bounce: 0.1,
         ..RayTracer::default()
     };

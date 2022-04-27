@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-use clap::{Parser};
+use clap::Parser;
 use rendering::scene::Scene;
 
 use geometry3d::{Point3D, Vector3D};
@@ -38,9 +38,9 @@ impl std::fmt::Display for Triplet{
 impl std::str::FromStr for Triplet{
     type Err = String;
     fn from_str(s: &str)->Result<Self, Self::Err>{
-        let st : Vec<&str> = s.split(" ").collect();
+        let st : Vec<&str> = s.trim().split(" ").collect();
         if st.len() != 3 {
-            return Err(format!("Expecting three values—e.g., '1. 2. 3'—... found {}", s))
+            return Err(format!("Expecting three values—e.g., '1. 2. 3'—... found '{}'", s))
         }
         let a = match st[0].parse::<Float>(){
             Ok(v)=>v,
@@ -66,7 +66,7 @@ impl std::str::FromStr for Triplet{
 struct Inputs {
 
     #[clap(short, long)]
-    /// The input file to load and render
+    /// The file to load the model from
     pub input: String,
 
     #[clap(short, long)]
