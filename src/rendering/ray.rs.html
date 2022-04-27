@@ -173,6 +173,15 @@
 <span id="134">134</span>
 <span id="135">135</span>
 <span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -197,6 +206,8 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Ray3D</span>, <span class="ident">Transform</span>, <span class="ident">Vector3D</span>};
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::rand</span>::<span class="kw-2">*</span>;
+
 <span class="doccomment">/// Represents a ray (of light?) beyond pure geometry. It</span>
 <span class="doccomment">/// includes also the current index of refraction and, potentially,</span>
 <span class="doccomment">/// time (for blurry images)</span>
@@ -260,7 +271,7 @@ SOFTWARE.
 
 
     <span class="doccomment">/// Get </span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_n_ambient_samples</span>(<span class="kw-2">&amp;</span><span class="self">self</span>,  <span class="ident">max_ambient_samples</span>: <span class="ident">usize</span>, <span class="ident">max_depth</span>: <span class="ident">usize</span>, <span class="ident">limit_weight</span>: <span class="ident">Float</span>)-&gt;<span class="ident">usize</span>{
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_n_ambient_samples</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>,  <span class="ident">max_ambient_samples</span>: <span class="ident">usize</span>, <span class="ident">max_depth</span>: <span class="ident">usize</span>, <span class="ident">limit_weight</span>: <span class="ident">Float</span>, <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>)-&gt;<span class="ident">usize</span>{
         
         <span class="kw">if</span> <span class="ident">max_depth</span> <span class="op">==</span> <span class="number">0</span> <span class="op">|</span><span class="op">|</span> <span class="ident">max_ambient_samples</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">0</span> {
             <span class="number">0</span> <span class="comment">// No ambient samples required</span>
@@ -292,6 +303,13 @@ SOFTWARE.
                 n = i;
             */</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">wt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">value</span>;<span class="comment">//self.colour.radiance();</span>
+            
+            <span class="comment">// russian roullete            </span>
+            <span class="kw">let</span> <span class="ident">r</span> : <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
+            <span class="kw">if</span> <span class="ident">r</span> <span class="op">&gt;</span> <span class="ident">wt</span><span class="op">/</span><span class="ident">limit_weight</span> {
+                <span class="self">self</span>.<span class="ident">value</span> <span class="op">=</span> <span class="ident">limit_weight</span>;
+                <span class="kw">return</span> <span class="number">0</span>; <span class="comment">// kill it!</span>
+            }
 
             <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="number">0.8</span> <span class="op">*</span> <span class="ident">wt</span> <span class="op">*</span> <span class="self">self</span>.<span class="ident">colour</span>.<span class="ident">max</span>() <span class="op">/</span> (<span class="ident">max_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">limit_weight</span>);        
             <span class="kw">if</span> <span class="ident">wt</span> <span class="op">&gt;</span> <span class="ident">d</span> {
@@ -310,5 +328,5 @@ SOFTWARE.
     
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>

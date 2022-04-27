@@ -338,7 +338,7 @@ SOFTWARE.
             <span class="ident">local_dir</span>.<span class="ident">z</span>,
         );
 
-        <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>);
+        <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>).<span class="ident">get_normalized</span>();
         (<span class="number">0.0</span>, <span class="ident">diffuse</span>, <span class="number">1.</span> <span class="op">/</span> <span class="ident">PI</span>)
     }
 }
@@ -394,5 +394,5 @@ SOFTWARE.
     (<span class="ident">spec</span>, (<span class="number">1.</span> <span class="op">-</span> <span class="ident">specularity</span>) <span class="op">/</span> <span class="ident">PI</span>)
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>

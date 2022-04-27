@@ -1,0 +1,1 @@
+initSidebarItems({"enum":[["ArgColourMap",""]],"fn":[["main",""]],"struct":[["Inputs",""]]});

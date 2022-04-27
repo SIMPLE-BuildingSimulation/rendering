@@ -1,1 +1,1 @@
-window.ALL_CRATES = ["rendering","sfluxmtx","spict"];
+window.ALL_CRATES = ["rendering","scompare","sfalsecolor","sfluxmtx","spict"];

@@ -647,6 +647,22 @@
 <span id="608">608</span>
 <span id="609">609</span>
 <span id="610">610</span>
+<span id="611">611</span>
+<span id="612">612</span>
+<span id="613">613</span>
+<span id="614">614</span>
+<span id="615">615</span>
+<span id="616">616</span>
+<span id="617">617</span>
+<span id="618">618</span>
+<span id="619">619</span>
+<span id="620">620</span>
+<span id="621">621</span>
+<span id="622">622</span>
+<span id="623">623</span>
+<span id="624">624</span>
+<span id="625">625</span>
+<span id="626">626</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -773,6 +789,9 @@ SOFTWARE.
     }
 }
 
+
+
+
 <span class="kw">impl</span> <span class="ident">ImageBuffer</span> {
     <span class="doccomment">/// Creates a new empty [`ImageBuffer`]</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">width</span>: <span class="ident">usize</span>, <span class="ident">height</span>: <span class="ident">usize</span>) -&gt; <span class="self">Self</span> {
@@ -781,6 +800,20 @@ SOFTWARE.
             <span class="ident">height</span>,
             <span class="ident">pixels</span>: <span class="macro">vec!</span>[<span class="ident">Spectrum::BLACK</span>; <span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>],
         }
+    }
+
+    <span class="doccomment">/// Gets the absolute difference between two `ImageBuffer`</span>
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">diff</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">other</span>: <span class="kw-2">&amp;</span><span class="self">Self</span>)-&gt;<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident">String</span><span class="op">&gt;</span>{
+
+        <span class="kw">if</span> (<span class="self">self</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">height</span>) <span class="op">!</span><span class="op">=</span> (<span class="ident">other</span>.<span class="ident">width</span>, <span class="ident">other</span>.<span class="ident">height</span>){
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Size mismatch: comparing image of size &#39;{}x{}&#39; with another one of size &#39;{}x{}&#39;&quot;</span>, <span class="self">self</span>.<span class="ident">height</span>, <span class="self">self</span>.<span class="ident">width</span>, <span class="ident">other</span>.<span class="ident">height</span>, <span class="ident">other</span>.<span class="ident">width</span>))
+        }
+    
+        <span class="kw">let</span> <span class="ident">pixels</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">pixels</span>.<span class="ident">iter</span>().<span class="ident">zip</span>(<span class="ident">other</span>.<span class="ident">pixels</span>.<span class="ident">iter</span>()).<span class="ident">map</span>(<span class="op">|</span>(<span class="ident">a</span>, <span class="ident">b</span>)<span class="op">|</span>{
+            <span class="ident">Spectrum::gray</span>( (<span class="ident">a</span>.<span class="ident">radiance</span>() <span class="op">-</span> <span class="ident">b</span>.<span class="ident">radiance</span>()).<span class="ident">abs</span>() )
+        }).<span class="ident">collect</span>();
+
+        <span class="prelude-val">Ok</span>(<span class="ident"><span class="self">Self</span>::from_pixels</span>(<span class="self">self</span>.<span class="ident">width</span>, <span class="self">self</span>.<span class="ident">height</span>, <span class="ident">pixels</span>))
     }
 
     <span class="doccomment">/// Creates a new empty [`ImageBuffer`]</span>
@@ -841,8 +874,7 @@ SOFTWARE.
             
             <span class="kw">let</span> <span class="ident">line</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="number">0</span>..<span class="ident">nl</span>];            
             <span class="ident">content</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">content</span>[<span class="ident">nl</span><span class="op">+</span><span class="number">1</span>..];
-            <span class="kw">let</span> <span class="ident">line_str</span> <span class="op">=</span> <span class="ident">std::str::from_utf8</span>(<span class="ident">line</span>).<span class="ident">unwrap</span>();
-            <span class="macro">dbg!</span>(<span class="ident">line_str</span>);
+            
             
             <span class="kw">if</span> <span class="ident">line</span>.<span class="ident">starts_with</span>(<span class="string">b&quot;-Y&quot;</span>) {
                 <span class="kw">let</span> <span class="ident">errmsg</span> <span class="op">=</span> {
@@ -1258,5 +1290,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (055bf4ccd 2022-04-25)" ></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (082e4ca49 2022-04-26)" ></div>
 </body></html>
