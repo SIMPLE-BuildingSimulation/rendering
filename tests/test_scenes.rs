@@ -334,7 +334,7 @@ fn sponza() {
 
     // Create film
     let film = Film {
-        resolution: (512, 512),
+        resolution: (1024, 1024),
     };
 
     // Create view
@@ -351,7 +351,7 @@ fn sponza() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_ambient_samples: 80,
+        n_ambient_samples: 180,
         n_shadow_samples: 1,
         max_depth: 2,
         ..RayTracer::default()
@@ -390,9 +390,9 @@ fn cornell() {
     let camera = Pinhole::new(view, film);
 
     let integrator = RayTracer {
-        n_ambient_samples: 280,
+        n_ambient_samples: 120,
         n_shadow_samples: 10,
-        max_depth: 3,
+        max_depth: 2,
         // count_specular_bounce: 0.1,
         ..RayTracer::default()
     };

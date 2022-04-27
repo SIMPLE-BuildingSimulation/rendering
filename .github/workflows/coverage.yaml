@@ -10,7 +10,7 @@ jobs:
       image: xd009642/tarpaulin
       options: --security-opt seccomp=unconfined
     steps:
-      - uses: actions/checkout@v2   
+      - uses: actions/checkout@v3   
       - name: Set Toolchain
         run: rustup default nightly    
       - name: Generate code coverage

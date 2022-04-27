@@ -10,47 +10,96 @@
 This is a library that intends to help developing Physically Based rendering engines **that can be used for daylight simulation**. The results seem to be OK when comparing
 against [Radiance](https://www.radiance-online.org), but it is still slower than it.
 
-
-
-## Documentation
-
-Check the Rust documentation [HERE](https://simple-buildingsimulation.github.io/rendering/)
-
-## Some examples
-
 ![Cornell](./readme_img/cornell_mirror.png "Cornell Box")
 
 ![Vs Rad](./readme_img/vsRad.png "Vs Radiance")
 
-### `sfalsecolor` program
+# Why this library?
 
-Run 
+I have been working in Building Simulation Tool space for a number of years now. During this time, I have tried to find ways to combine simulation tools and methods, and also to make simulation more accessible to people. For example, my masters focused on the integration of Radiance and EnergyPlus. It was then when I started developing [Groundhog](www.groundhoglighting.com), which intended to put Radiance in everyone’s hands. Developing Groundhog I realized that Radiance could use some sort of wrapper to make it a bit friendlier. This motivated Emp,  a project that has died already. 
 
+During this time I have learned about an enormous amount of undeniable virtues that Radiance offer to us: it has been extensively validated, it is open source, and so on. Unfortunately, I have also seen many drawbacks. Radiance confesses one of them  quite clearly:
+
+> “These routines are designed to aid the programmer who wishes to call Radiance as a library.  Unfortunately, the system was not originally intended to be run this way, and there are some awkward limitations to contend with…” (Radiance’s raycalls.c)
+
+This is a big issue, as I want this library to become the core of the lighting and solar calculations in [SIMPLE Sim Tools](https://www.simplesim.tools).
+
+Also, during the past decade, we have witnessed the gaming and animation industry invest millions in improving rendering techniques. Unfortunately, implementing these techniques into Radiance might be too big of an intervention, fundamentally changing how Radiance works.
+
+Don’t be mistaken, though, I am not proposing to reinvent the wheel. The wheel—i.e., the knowledge of physics and rendering and computer sciences—is all available… what we need to do is to build a wheel with new materials and methods.
+
+
+
+## Contribute!
+
+
+Check the Rust documentation [HERE](https://simple-buildingsimulation.github.io/rendering/)
+
+
+
+## What is included
+
+
+### Rendering
+
+`spict` calls a basic Ray-tracer. It attempts to 
+emulate Radiance's `rpict` behaviour with `-aa 0` (i.e., there is no irradiance caching). 
+
+This is, of course, quite naive when compared to Radiance. Contributions to make it faster are welcome.
 
 ```bash
-spict -p 3 -5 2.25 -d 0 1 0 -b 3 -a 280 -s 10 -i ./test_data/cornell.rad -o ./test_data/images/cornell.hdf
+# Create a render
+
+spict -p 3 -5 2.25 -d 0 1 0 -b 3 -a 280 -s 10 -i ./cornell.rad -o ./cornell.hdr
 ```
 
+> Note that `spict`—as the rest of this library—creates acceleration structres on the fly (i.e., we don't have an `oconv` program). Is this a good decision? let me know. In my experience, creating octrees is rarely a time-consuming process.
 
-Run 
 
-in order to create this image
 
 ![Cornell](./readme_img/cornell_small.png "Cornell Box")
 
-Then run 
+### "Falsecoloring"
+
+`sfalsecolor` is a program that can create falsecolor versions of HDRE images.
+
+> Note that, for now, it can only handle [uncompressed HDRE images](https://discourse.radiance-online.org/t/missing-pixels-in-hdre-image/5906/4).
 
 ```bash
-sfalsecolor -i ./test_data/images/cornell.hdr -o ./test_data/images/cornell.jpeg -s 100
+# Create a falsecolour version of the previous image.
+sfalsecolor -i ./cornell.hdr -o ./cornell_fc.jpeg -s 100
 ```
 
-To get the following falsecolor
 
 ![Cornell](./readme_img/cornell_small_fc.jpeg "Cornell Box FC")
+
+### Comparing images
+
+`scompare` allows you to compare the absolute difference betwee two images.
+
+```bash
+# Compare the image we produced with one that only estimates direct lighting, producing a Black and White HDRE image
+
+scompare -a ./rad_cornell.hdr -b ./cornell.hdr -o ./diff.hdr
+
+```
+![Cornell](./readme_img/diff.png "Cornell Box FC")
+
+```bash
+# Do the same, but produce a falsecolour JPEG
+
+scompare -a ./rad_cornell.hdr -b ./cornell.hdr -o ./diff.hdr
+
+```
+![Cornell](./readme_img/diff_fc.jpeg "Cornell Box FC")
 
 ## Building and testing
 
 At present, some bits are using [`std::simd::Simd`](https://doc.rust-lang.org/nightly/std/simd/struct.Simd.html), so you need to setup the `nightly` toolchain for this.
+
+
+
+
 
 ```bash
 # Just for this project
