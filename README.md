@@ -10,8 +10,6 @@
 This is a library that intends to help developing Physically Based rendering engines **that can be used for daylight simulation**. The results seem to be OK when comparing
 against [Radiance](https://www.radiance-online.org), but it is still slower than it.
 
-![Cornell](./readme_img/cornell_mirror.png "Cornell Box")
-
 ![Vs Rad](./readme_img/vsRad.png "Vs Radiance")
 
 # Why this library?
