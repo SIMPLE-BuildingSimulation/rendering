@@ -46,12 +46,12 @@ impl SimpleModelReader {
             let polygon = &s.vertices;
             let construction = &s.construction;
             // Should not be empty, and should have been check before this
-            assert!(!construction.materials.is_empty());
+            assert!(!construction.materials.is_empty(), "Found an empty construction, called {}", construction.name());
 
             let front_substance = &construction.materials[0].substance;
-            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength);
+            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength).expect(&format!("Front material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
-            let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength);
+            let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength).expect(&format!("Back material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
 
             // Add all the triangles necessary
             let triangles = Triangulation3D::from_polygon(polygon)
@@ -67,12 +67,12 @@ impl SimpleModelReader {
             let polygon = &s.vertices;
             let construction = &s.construction;
             // Should not be empty, and should have been check before this
-            assert!(!construction.materials.is_empty());
+            assert!(!construction.materials.is_empty(), "Found an empty construction, called {}", construction.name());
 
             let front_substance = &construction.materials[0].substance;
-            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength);
+            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength).expect(&format!("Front material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
-            let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength);
+            let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength).expect(&format!("Back material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
 
             // Add all the triangles necessary
             let triangles = Triangulation3D::from_polygon(polygon)
@@ -96,14 +96,14 @@ impl SimpleModelReader {
         scene: &mut Scene,
         substance: &Substance,
         wavelength: &Wavelengths,
-    ) -> usize {
+    ) -> Option<usize> {
         let substance_name = substance.name().to_string();
         match self.get_modifier_index(&substance_name) {
-            Some(i) => i,
+            Some(i) => Some(i),
             None => {
                 // Material is not there... add, then.
-                let front_mat = Self::substance_to_material(substance, wavelength);
-                scene.push_material(front_mat)
+                let front_mat = Self::substance_to_material(substance, wavelength)?;
+                Some(scene.push_material(front_mat))
             }
         }
     }
@@ -118,7 +118,7 @@ impl SimpleModelReader {
     }
 
     /// Transformsa a SimpleModel Substance into a Material
-    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Material {
+    fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Option<Material> {
         if matches!(wavelength, Wavelengths::Visible) {
             unimplemented!();
         }
@@ -135,15 +135,16 @@ impl SimpleModelReader {
                 };
                 // return solar reflection
                 1. - alpha
-            }
+            },
+            Substance::Gas(_)=>{return None}
         };
 
         // return
-        Material::Plastic(Plastic {
+        Some(Material::Plastic(Plastic {
             colour: Spectrum::gray(color),
             specularity: 0.0,
             roughness: 0.0,
-        })
+        }))
     }
 }
 
