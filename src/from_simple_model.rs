@@ -119,24 +119,42 @@ impl SimpleModelReader {
 
     /// Transformsa a SimpleModel Substance into a Material
     fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Option<Material> {
-        if matches!(wavelength, Wavelengths::Visible) {
-            unimplemented!();
-        }
-
-        let color = match substance {
-            Substance::Normal(s) => {
-                let alpha = match s.solar_absorbtance() {
-                    Ok(v) => *v,
-                    Err(_) => {
-                        let v = 0.7;
-                        eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
-                        v
-                    }
-                };
-                // return solar reflection
-                1. - alpha
+        
+        let color = match wavelength{
+            &Wavelengths::Solar => {
+                match substance {
+                    Substance::Normal(s) => {
+                        let alpha = match s.front_solar_absorbtance() {
+                            Ok(v) => *v,
+                            Err(_) => {
+                                let v = 0.7;
+                                eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
+                                v
+                            }
+                        };
+                        // return solar reflection
+                        1. - alpha
+                    },
+                    Substance::Gas(_)=>{return None}
+                }
             },
-            Substance::Gas(_)=>{return None}
+            &Wavelengths::Visible => {
+                match substance {
+                    Substance::Normal(s) => {
+                        let alpha = match s.front_visible_reflectance() {
+                            Ok(v) => *v,
+                            Err(_) => {
+                                let v = 0.7;
+                                eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
+                                v
+                            }
+                        };
+                        // return solar reflection
+                        1. - alpha
+                    },
+                    Substance::Gas(_)=>{return None}
+                }
+            }
         };
 
         // return

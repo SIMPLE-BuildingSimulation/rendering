@@ -322,9 +322,9 @@ impl ImageBuffer {
         let mut data : Vec<u8> = Vec::with_capacity(self.width * self.height * 3 );
         log_luminance.iter().for_each(|x| {
             let s = crate::colourmap::map_linear_colour(*x, log_min, log_max, scale);            
-            data.push((s.red * 256.).round() as u8); 
-            data.push((s.green * 256.).round() as u8); 
-            data.push((s.blue * 256.).round() as u8);
+            data.push((s[0] * 256.).round() as u8); 
+            data.push((s[1] * 256.).round() as u8); 
+            data.push((s[2] * 256.).round() as u8);
         
         } );
 
@@ -379,9 +379,9 @@ impl ImageBuffer {
         let mut data : Vec<u8> = Vec::with_capacity(self.width * self.height * 3 );
         luminance.iter().for_each(|x| {
             let s = crate::colourmap::map_linear_colour(*x, min, max, scale);            
-            data.push((s.red * 256.).round() as u8); 
-            data.push((s.green * 256.).round() as u8); 
-            data.push((s.blue * 256.).round() as u8);
+            data.push((s[0] * 256.).round() as u8); 
+            data.push((s[1] * 256.).round() as u8); 
+            data.push((s[2] * 256.).round() as u8);
         
         } );
 

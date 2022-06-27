@@ -118,7 +118,7 @@ impl Ray {
             if (n < i)			/* use minimum number of samples? */
                 n = i;
             */
-            let mut wt = self.value;//self.colour.radiance();
+            let wt = self.value;//self.colour.radiance();
             
             // russian roullete            
             let r : Float = rng.gen();
@@ -126,18 +126,19 @@ impl Ray {
                 self.value = limit_weight;
                 return 0; // kill it!
             }
+            1 // Stephen, this is on you.
 
-            let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);        
-            if wt > d {
-                wt = d;
-            }
-            let n = ((max_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
-            const MIN_AMBS: usize = 1;
-            if n < MIN_AMBS {
-                MIN_AMBS
-            } else {
-                n
-            }
+            // let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);        
+            // if wt > d {
+            //     wt = d;
+            // }
+            // let n = ((max_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
+            // const MIN_AMBS: usize = 1;
+            // if n < MIN_AMBS {
+            //     MIN_AMBS
+            // } else {
+            //     n
+            // }
         }
     }
         

@@ -365,6 +365,7 @@ fn sponza() {
 #[ignore]
 fn cornell() {
     // cargo test --features parallel --release --package rendering --test test_scenes -- --ignored cornell --exact --nocapture
+    // RUSTFLAGS="-C target-cpu=native -C target-feature=+neon" cargo test --features parallel --release --package rendering --test test_scenes -- --ignored cornell --exact --nocapture
 
     let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
 

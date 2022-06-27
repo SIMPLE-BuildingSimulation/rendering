@@ -390,7 +390,7 @@ impl RayTracer {
                 let (mut ray, weight) = camera.gen_ray(&CameraSample { p_film: (x, y) });
                 ray.value = weight;
 
-                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, /*0, weight, */&mut aux);
+                let (v, _) = self.trace_ray(&mut rng, scene, &mut ray, &mut aux);
                 *pixel = v;
 
                 // report

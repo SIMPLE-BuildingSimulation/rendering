@@ -50,7 +50,32 @@ pub enum Colourmap {
     Viridis
 }
 
-pub fn map_linear_colour(x: Float, min: Float, max: Float, map: &[Spectrum]) -> Spectrum {
+/// Maps a linear RGB colour
+pub fn map_linear_colour(x: Float, min: Float, max: Float, map: &[[crate::Float;3]]) -> [crate::Float;3] {
+    if x <= min {
+        return map[0];
+    } else if x >= max {
+        return *map.last().expect("Given an empty colour map");
+    }
+
+    let delta = (max - min) / (map.len() - 1) as Float;
+    for i in 1..map.len() {
+        let bin_start = min + (i-1) as Float * delta;
+        let bin_end = bin_start + delta;
+        if x <= bin_end {
+            let lam = (x - bin_start) / delta;
+
+            let r = map[i-1][0] + (map[i][0] - map[i-1][0])*lam;
+            let g = map[i-1][1] + (map[i][1] - map[i-1][1])*lam;
+            let b = map[i-1][2] + (map[i][2] - map[i-1][2])*lam;
+            return [r, g, b]
+        }
+    }
+    unreachable!()
+}
+
+/// Maps a Spectrum
+pub fn map_linear_spectrum(x: Float, min: Float, max: Float, map: &[Spectrum]) -> Spectrum {
     if x <= min {
         return map[0];
     } else if x >= max {
