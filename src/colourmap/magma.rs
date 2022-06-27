@@ -20,7 +20,6 @@ SOFTWARE.
 
 // From https://github.com/bids/colormap
 
-
 pub const MAGMA_COLOURMAP: [[crate::Float; 3]; 256] = [
     [1.46159096e-03, 4.66127766e-04, 1.38655200e-02],
     [2.25764007e-03, 1.29495431e-03, 1.83311461e-02],

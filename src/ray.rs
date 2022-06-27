@@ -18,11 +18,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+use crate::colour::Spectrum;
 use crate::interaction::Interaction;
+use crate::rand::*;
 use crate::Float;
 use geometry3d::{Point3D, Ray3D, Transform, Vector3D};
-use crate::colour::Spectrum;
-use crate::rand::*;
 
 /// Represents a ray (of light?) beyond pure geometry. It
 /// includes also the current index of refraction and, potentially,
@@ -42,7 +42,7 @@ pub struct Ray {
 
     pub value: Float,
 
-    pub colour: Spectrum,
+    pub colour: Spectrum<{ crate::N_CHANELS }>,
 }
 
 impl std::default::Default for Ray {
@@ -56,7 +56,7 @@ impl std::default::Default for Ray {
             interaction: Interaction::default(),
             depth: 0,
             value: 1.,
-            colour: Spectrum::ONE,
+            colour: Spectrum::<{ crate::N_CHANELS }>::ONE,
         }
     }
 }
@@ -71,13 +71,12 @@ impl Ray {
         self.geometry.direction
     }
 
-    
     pub fn origin(&self) -> Point3D {
         self.geometry.origin
     }
 
     /// Returns the Intersection point, Normal, e1, e2
-    pub fn get_triad(&self)->(Point3D, Vector3D, Vector3D, Vector3D){
+    pub fn get_triad(&self) -> (Point3D, Vector3D, Vector3D, Vector3D) {
         let intersection_pt = self.interaction.point;
         let normal = self.interaction.geometry_shading.normal;
         let e1 = self.interaction.geometry_shading.dpdu;
@@ -85,21 +84,23 @@ impl Ray {
         (intersection_pt, normal, e1, e2)
     }
 
-
-    /// Get 
-    pub fn get_n_ambient_samples(&mut self,  max_ambient_samples: usize, max_depth: usize, limit_weight: Float, rng: &mut RandGen)->usize{
-        
+    /// Get
+    pub fn get_n_ambient_samples(
+        &mut self,
+        max_ambient_samples: usize,
+        max_depth: usize,
+        limit_weight: Float,
+        rng: &mut RandGen,
+    ) -> usize {
         if max_depth == 0 || max_ambient_samples <= 0 {
             0 // No ambient samples required
         } else if self.depth == 0 {
             max_ambient_samples
         } else {
-
-
             /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
-            /* 
-            
-            
+            /*
+
+
             if (ambacc <= FTINY && wt > (d = 0.8*intens(rcol)*r->rweight/(ambdiv*minweight)))
                 wt = d;			/* avoid ray termination */
             n = sqrt(ambdiv * wt) + 0.5;
@@ -108,7 +109,7 @@ impl Ray {
                 n = i;
 
             // Improve readability, assuming that ambacc == 0.0, always (we don't have ambient cache here)
-            
+
             d = 0.8*intens(rcol)*r->rweight/(ambdiv*minweight)
             if ( wt > d){
                 wt = d;			/* avoid ray termination */
@@ -118,17 +119,17 @@ impl Ray {
             if (n < i)			/* use minimum number of samples? */
                 n = i;
             */
-            let wt = self.value;//self.colour.radiance();
-            
-            // russian roullete            
-            let r : Float = rng.gen();
-            if r > wt/limit_weight {
+            let wt = self.value; //self.colour.radiance();
+
+            // russian roullete
+            let r: Float = rng.gen();
+            if r > wt / limit_weight {
                 self.value = limit_weight;
                 return 0; // kill it!
             }
             1 // Stephen, this is on you.
 
-            // let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);        
+            // let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);
             // if wt > d {
             //     wt = d;
             // }
@@ -141,6 +142,4 @@ impl Ray {
             // }
         }
     }
-        
-    
 }

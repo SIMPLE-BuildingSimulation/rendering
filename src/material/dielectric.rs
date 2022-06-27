@@ -25,13 +25,12 @@ use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
 pub struct Dielectric {
-    pub colour: Spectrum,
+    pub colour: Spectrum<{ crate::N_CHANELS }>,
     pub refraction_index: Float,
 }
 
-
 // /// From Radiance's Dielectric.c
-// /// 
+// ///
 // /// "special log for extinction coefficients"
 // fn mylog(x: Float)->Float{
 // 	if (x < 1e-40){
@@ -43,8 +42,6 @@ pub struct Dielectric {
 //     }
 // }
 
-
-
 impl Dielectric {
     /// Gets the Reflected and Transmitted BSDF values
     pub fn refl_trans(
@@ -53,11 +50,14 @@ impl Dielectric {
         cos1: Float,
         n2: Float,
         cos2: Option<Float>,
-    ) -> (Spectrum, Spectrum) {
+    ) -> (
+        Spectrum<{ crate::N_CHANELS }>,
+        Spectrum<{ crate::N_CHANELS }>,
+    ) {
         debug_assert!(cos1 > 0.0);
         // let mut ctrans = self.colour;
         // let mut cext = self.colour;
-        
+
         // if (1. - n1).abs() < 1e-4 {
         //     // If we are getting in the dielectric
         //     ctrans.red = -mylog(ctrans.red);
@@ -68,8 +68,6 @@ impl Dielectric {
         //     cext.green = -mylog(cext.green);
         //     cext.blue = -mylog(cext.blue);
         // }
-    
-
 
         if let Some(cos2) = cos2 {
             // There is refraction
@@ -85,11 +83,17 @@ impl Dielectric {
             // let t_comp = (1. - refl) / cos1;
 
             // return
-            (Spectrum::ONE*refl_comp/cos1, self.colour*t_comp/cos2)
+            (
+                Spectrum::<{ crate::N_CHANELS }>::ONE * refl_comp / cos1,
+                self.colour * t_comp / cos2,
+            )
         } else {
             // pure reflection
             // (1. / cos1, 0.)
-            (Spectrum::ONE / cos1, Spectrum::BLACK)
+            (
+                Spectrum::<{ crate::N_CHANELS }>::ONE / cos1,
+                Spectrum::<{ crate::N_CHANELS }>::BLACK,
+            )
         }
     }
 }
@@ -99,7 +103,7 @@ impl Dielectric {
         "Dielectric"
     }
 
-    pub fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
         self.colour
     }
 
@@ -108,11 +112,7 @@ impl Dielectric {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Spectrum)>; 2] {
-
-        
-        
-
+    ) -> [Option<(Ray, Spectrum<{ crate::N_CHANELS }>)>; 2] {
         let normal = *normal;
         let intersection_pt = *intersection_pt;
 
@@ -130,22 +130,21 @@ impl Dielectric {
         let mut ray1 = *ray;
         ray1.geometry.direction = mirror_dir;
         ray1.geometry.origin = intersection_pt + normal * 0.00001;
-        let pair1 = Some((ray1,  refl*cos1));
+        let pair1 = Some((ray1, refl * cos1));
 
         let mut ray = *ray;
         // process transmission
         // let pair2 = if trans.radiance() > 0.0 && ray_dir * normal < 0.0 {
         let pair2 = match cos2 {
-            Some(cos2)=>{
-
+            Some(cos2) => {
                 ray.geometry.origin = intersection_pt - normal * 0.00001;
                 ray.refraction_index = n2;
                 let trans_dir = fresnel_transmission_dir(ray_dir, normal, n1, cos1, n2, cos2);
                 ray.geometry.direction = trans_dir;
                 ray.colour *= self.colour;
-                Some((ray, trans*cos2))
-            },
-            None => None
+                Some((ray, trans * cos2))
+            }
+            None => None,
         };
 
         [pair1, pair2]
@@ -160,7 +159,7 @@ impl Dielectric {
     //     ray: &mut Ray,
     //     rng: &mut RandGen,
     // ) -> (Spectrum, Float) {
-        
+
     //     debug_assert!(
     //         (ray.geometry.direction.length() - 1.).abs() < 1e-5,
     //         "Length was {}",
@@ -222,7 +221,7 @@ impl Dielectric {
         _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum {
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         let (n1, cos1, n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(n1, cos1, n2, cos2);
         let vin = ray.geometry.direction;
@@ -254,7 +253,7 @@ impl Dielectric {
         }
 
         // Neither...
-        Spectrum::BLACK
+        Spectrum::<{ crate::N_CHANELS }>::BLACK
     }
 }
 
@@ -274,7 +273,7 @@ mod tests {
         let normal = Vector3D::new(0., 0., 1.);
 
         let mat = Dielectric {
-            colour: Spectrum::gray(0.1), //irrelevant for this test
+            colour: Spectrum::<{ crate::N_CHANELS }>::gray(0.1), //irrelevant for this test
             refraction_index: n2,
         };
 
@@ -306,7 +305,7 @@ mod tests {
         let normal = Vector3D::new(0., 0., 1.);
 
         let mat = Dielectric {
-            colour: Spectrum::gray(0.1), //irrelevant for this test
+            colour: Spectrum::<{ crate::N_CHANELS }>::gray(0.1), //irrelevant for this test
             refraction_index: n2,
         };
 
@@ -378,7 +377,7 @@ mod tests {
     fn test_sin_cos_n() {
         let n = 1.52;
         let mat = Dielectric {
-            colour: Spectrum::gray(0.23), //irrelevant for this test
+            colour: Spectrum::<{ crate::N_CHANELS }>::gray(0.23), //irrelevant for this test
             refraction_index: n,
         };
 
@@ -494,7 +493,7 @@ mod tests {
     //                 "Expeting n={}, found n={}",
     //                 1,
     //                 new_ray.refraction_index
-    //             );                
+    //             );
     //             assert!(
     //                 (1. - new_dir * dir_zero).abs() < 1e-5,
     //                 "ray_dir = {} | new_dir = {} | dir_zero = {}",
@@ -510,7 +509,7 @@ mod tests {
     #[test]
     fn test_get_possible_paths_dielectric() {
         let dielectric = Dielectric {
-            colour: Spectrum::gray(0.23), //irrelevant for this test
+            colour: Spectrum::<{ crate::N_CHANELS }>::gray(0.23), //irrelevant for this test
             refraction_index: 1.52,
         };
 

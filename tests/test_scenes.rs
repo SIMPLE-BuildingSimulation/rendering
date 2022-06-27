@@ -10,7 +10,7 @@ use rendering::scene::Scene;
 use rendering::{Float, PI};
 
 #[test]
-// #[ignore]
+#[ignore]
 fn laptop() {
     // cargo test --features parallel --release --package rendering --test test_scenes -- laptop --exact --nocapture
     let mut scene = Scene::new();
@@ -25,11 +25,7 @@ fn laptop() {
 
     // Add light
     let glow = scene.push_material(Material::Light(Light(
-        Spectrum {
-            red: 1.,
-            green: 1.,
-            blue: 1.,
-        } * 500.,
+        Spectrum ([1., 1., 1.]) * 500.,
     )));
 
     let s = Sphere3D::new(0.1, Point3D::new(0., 0., 5.));
@@ -37,31 +33,19 @@ fn laptop() {
 
     // Materials
     let plastic = Material::Plastic(Plastic {
-        colour: Spectrum {
-            red: 0.5,
-            green: 0.8,
-            blue: 0.5,
-        },
+        colour: Spectrum ([0.5,0.8,0.5,]),             
         specularity: 0.0,
         roughness: 0.0,
     });
     let plastic = scene.push_material(plastic);
 
     let screen = Material::Light(Light(
-        Spectrum {
-            red: 145.,
-            green: 7.,
-            blue: 205.,
-        } * 0.03,
+        Spectrum([145.,7.,205.]) * 0.03,
     ));
     let screen = scene.push_material(screen);
 
     let ground = Material::Plastic(Plastic {
-        colour: Spectrum {
-            red: 0.2,
-            green: 0.2,
-            blue: 0.2,
-        },
+        colour: Spectrum([0.2,0.2,0.2]),
         specularity: 0.0,
         roughness: 0.01,
     });
@@ -406,7 +390,7 @@ fn cornell() {
 #[ignore]
 fn room() {
     // 60 seconds
-    // cargo test --features parallel --release --package rendering --test test_scenes -- room --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- room --exact --nocapture --ignored
     // oconv ../room.rad ../white_sky.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
     let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
@@ -453,7 +437,7 @@ fn room() {
 #[test]
 #[ignore]
 fn dining() {
-    // cargo test --features parallel --release --package rendering --test test_scenes -- dining --exact --nocapture
+    // cargo test --features parallel  --release --package rendering --test test_scenes -- dining --exact --nocapture --ignored
 
     let mut scene = Scene::default();
     let gray = scene.push_material(Material::Plastic(Plastic {

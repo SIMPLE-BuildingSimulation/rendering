@@ -1,9 +1,8 @@
-use clap::{Parser, ArgEnum};
+use clap::{ArgEnum, Parser};
 use rendering::colourmap::Colourmap;
 
-use rendering::Float;
 use rendering::image::ImageBuffer;
-
+use rendering::Float;
 
 #[derive(ArgEnum, Clone)]
 enum ArgColourMap {
@@ -11,10 +10,8 @@ enum ArgColourMap {
     Inferno,
     Magma,
     Plasma,
-    Viridis
+    Viridis,
 }
-
-
 
 #[derive(Parser)]
 struct Inputs {
@@ -27,7 +24,7 @@ struct Inputs {
     pub output: String,
 
     /// The maximum value in the scale
-    #[clap(short='s', long)]
+    #[clap(short = 's', long)]
     pub max: Option<Float>,
 
     /// The minimum value in the scale
@@ -35,28 +32,27 @@ struct Inputs {
     pub min: Option<Float>,
 
     /// Use a log10 scale
-    #[clap(short, long)]    
-    pub log: bool,    
+    #[clap(short, long)]
+    pub log: bool,
 
     /// The colour scale to use
-    #[clap(arg_enum, short, long, default_value_t=ArgColourMap::Viridis)]    
+    #[clap(arg_enum, short, long, default_value_t=ArgColourMap::Viridis)]
     map: ArgColourMap,
 }
 
-
-fn main(){
+fn main() {
     let inputs = Inputs::parse();
 
     let input = inputs.input;
 
-    let image = match ImageBuffer::from_file(std::path::Path::new(&input)){
-        Ok(v)=>v,
-        Err(e)=>{
+    let image = match ImageBuffer::from_file(std::path::Path::new(&input)) {
+        Ok(v) => v,
+        Err(e) => {
             eprintln!("{}", e);
             std::process::exit(1);
         }
     };
-    
+
     let scale = match inputs.map {
         ArgColourMap::Radiance => Colourmap::Radiance,
         ArgColourMap::Inferno => Colourmap::Inferno,
@@ -66,9 +62,18 @@ fn main(){
     };
 
     if inputs.log {
-        image.save_log_falsecolour(inputs.min, inputs.max, scale, std::path::Path::new(&inputs.output))
-    }else{
-        image.save_falsecolour(inputs.min, inputs.max, scale, std::path::Path::new(&inputs.output))
+        image.save_log_falsecolour(
+            inputs.min,
+            inputs.max,
+            scale,
+            std::path::Path::new(&inputs.output),
+        )
+    } else {
+        image.save_falsecolour(
+            inputs.min,
+            inputs.max,
+            scale,
+            std::path::Path::new(&inputs.output),
+        )
     }
-    
 }

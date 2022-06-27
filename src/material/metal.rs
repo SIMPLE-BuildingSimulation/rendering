@@ -26,7 +26,7 @@ use geometry3d::{Point3D, Vector3D};
 
 /// Information required for modelling Radiance's Metal and Metal
 pub struct Metal {
-    pub colour: Spectrum,
+    pub colour: Spectrum<{ crate::N_CHANELS }>,
     pub specularity: Float,
     pub roughness: Float,
 }
@@ -36,7 +36,7 @@ impl Metal {
         "Metal"
     }
 
-    pub fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
         self.colour
     }
 
@@ -48,7 +48,7 @@ impl Metal {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Spectrum, Float) {
+    ) -> (Spectrum<{ crate::N_CHANELS }>, Float) {
         let (direct, diffuse, weight) = crate::material::ward::sample_ward_anisotropic(
             normal,
             e1,
@@ -74,7 +74,7 @@ impl Metal {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum {
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         let vout = vout * -1.;
         let (direct, diffuse) = crate::material::ward::evaluate_ward_anisotropic(
             normal,

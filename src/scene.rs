@@ -71,7 +71,7 @@ pub struct Scene {
     pub accelerator: Option<BoundingVolumeTree>,
 
     /// The colour of the sky, normalized
-    pub sky_colour: Option<Spectrum>,
+    pub sky_colour: Option<Spectrum<{ crate::N_CHANELS }>>,
 
     /// A function returning the diffuse Sky brightness (i.e., without the sun)
     /// The sun should be added separately.
@@ -171,9 +171,12 @@ impl Scene {
             let dir_illum = direct_normal_irrad
                 * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
 
-            let sun_brightness = dir_illum / omega / Spectrum::WHITE_EFFICACY; //
+            let sun_brightness =
+                dir_illum / omega / crate::colour::WHITE_EFFICACY; 
             let sun_mat =
-                self.push_material(Material::Light(Light(Spectrum::gray(sun_brightness))));
+                self.push_material(Material::Light(Light(
+                    Spectrum::<{ crate::N_CHANELS }>::gray(sun_brightness),
+                )));
 
             self.push_object(
                 sun_mat,

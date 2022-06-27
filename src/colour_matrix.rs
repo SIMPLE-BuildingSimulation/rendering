@@ -17,20 +17,20 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
+use crate::colour::Spectrum;
 use crate::Float;
 use matrix::{GenericMatrix, Matrix};
-use crate::colour::Spectrum;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-pub type ColourMatrix = GenericMatrix<Spectrum>;
+pub type ColourMatrix = GenericMatrix<Spectrum<{ crate::N_CHANELS }>>;
 
 pub fn average_matrix(dc: &Matrix) -> Matrix {
     let (nrows, _ncols) = dc.size();
     let average_operator = Matrix::new(1. / nrows as Float, 1, nrows);
     // return
-    &average_operator * dc    
+    &average_operator * dc
 }
 
 pub fn colour_matrix_to_radiance(cm: &ColourMatrix) -> Matrix {
@@ -205,7 +205,7 @@ pub fn read_colour_matrix(filename: &Path) -> Result<ColourMatrix, String> {
     }
     let nrows = nrows.unwrap();
     let ncols = ncols.unwrap();
-    let mut matrix = ColourMatrix::new(Spectrum::BLACK, nrows, ncols);
+    let mut matrix = ColourMatrix::new(Spectrum::<{ crate::N_CHANELS }>::BLACK, nrows, ncols);
 
     // Read content.
     for (nrow, line) in content.lines().skip(header_lines).enumerate() {
@@ -250,7 +250,11 @@ pub fn read_colour_matrix(filename: &Path) -> Result<ColourMatrix, String> {
             };
 
             matrix
-                .set(nrow, ncol, Spectrum { red, green, blue })
+                .set(
+                    nrow,
+                    ncol,
+                    Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
+                )
                 .unwrap();
 
             ncol += 1;

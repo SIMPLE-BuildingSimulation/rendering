@@ -20,22 +20,20 @@ SOFTWARE.
 
 use crate::Float;
 
-pub type Spectrum = RGBSpectrum;
-
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct RGBSpectrum {
-    pub red: Float,
-    pub green: Float,
-    pub blue: Float,
-}
+pub struct Spectrum<const N: usize>(pub [Float; N]);
+const RADIANCE_COEFFICIENTS : [Float; crate::N_CHANELS] = [0.265, 0.67, 0.065];
+/// The standard Luminious Efficacy of equal white light energy
+/// as defined in Radiance
+pub const WHITE_EFFICACY: Float = 179.;
 
-impl std::default::Default for RGBSpectrum {
+impl<const N: usize> std::default::Default for Spectrum<N> {
     fn default() -> Self {
         Self::BLACK
     }
 }
 
-impl matrix::OneZero for RGBSpectrum {
+impl<const N: usize> matrix::OneZero for Spectrum<N> {
     fn one() -> Self {
         Self::ONE
     }
@@ -45,43 +43,40 @@ impl matrix::OneZero for RGBSpectrum {
     }
 }
 
-
-
-
-impl RGBSpectrum {
-
-    pub const ONE: Self = Self{red:1., green: 1., blue: 1.};
-    pub const BLACK: Self = Self{red:0., green: 0., blue: 0.};
-
-    
+impl<const N: usize> Spectrum<N> {
+    pub const ONE: Self = Self([1.0; N]);
+    pub const BLACK: Self = Self([0.0; N]);
 
     /// Creates a new Spectrum full of equal values `v`
     pub fn gray(v: Float) -> Self {
-        Self {
-            red: v,
-            green: v,
-            blue: v,
-        }
+        Self([v; N])
     }
 
-    pub fn powi(&self, n: i32)->Self{
-        Self{
-            red: self.red.powi(n),
-            green: self.green.powi(n),
-            blue: self.blue.powi(n),
-        }
+    pub fn powi(&self, n: i32) -> Self {
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this.powi(n));
+        Self(data)
     }
-    pub fn powf(&self, n: Float)->Self{
-        Self{
-            red: self.red.powf(n),
-            green: self.green.powf(n),
-            blue: self.blue.powf(n),
-        }
+    pub fn powf(&self, n: Float) -> Self {
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this.powf(n));
+        Self(data)
     }
 
     /// Checks whether `Spectrum::BLACK == self`
     pub fn is_black(&self) -> bool {
-        self.red < 1e-24 && self.green < 1e-24 && self.blue < 1e-24
+        for v in self.0 {
+            if v >= 1e-24{
+                return true
+            }
+        }
+        return false        
     }
 
     /// Scales the chanels in order to make the
@@ -93,226 +88,215 @@ impl RGBSpectrum {
     /// Calculates a weighted average of RGB colours, returning
     /// a single value representing Radiance
     pub fn radiance(&self) -> Float {
-        // self.red*47.9 + self.green*119.9 + self.blue*11.6
-        self.red * 0.265 + self.green * 0.670 + self.blue * 0.065
+        // self.0[0]*47.9 + self.0[1]*119.9 + self.0[2]*11.6
+        self.0.iter().zip(RADIANCE_COEFFICIENTS.iter()).map(|(a,b)| a*b).sum()
     }
 
     /// Calculates a weighted average of RGB colours, returning
     /// a single value representing Radiance
     pub fn luminance(&self) -> Float {
-        self.radiance() * Self::WHITE_EFFICACY
+        self.radiance() * WHITE_EFFICACY
     }
 
-    /// The standard Luminious Efficacy of equal white light energy
-    /// as defined in Radiance
-    pub const WHITE_EFFICACY: Float = 179.;
+    
 
     /// Gets the maximum of the R, G, and B values
     pub fn max(&self) -> Float {
-        let mut v = self.red;
-        if self.green > v {
-            v = self.green;
+        let mut max = self.0[0];
+        for v in self.0.iter().skip(1){
+            if *v > max {
+                max = *v
+            }
         }
-        if self.blue > v {
-            v = self.blue;
-        }
-        v
+        
+        max
     }
 }
 
-impl std::fmt::Display for RGBSpectrum {
+impl<const N: usize> std::fmt::Display for Spectrum<N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:.5} {:.5} {:.5}", self.red, self.green, self.blue)
+        write!(f, "{:.5} {:.5} {:.5}", self.0[0], self.0[1], self.0[2])
     }
 }
 
-impl std::ops::Add for RGBSpectrum {
+impl<const N: usize> std::ops::Add for Spectrum<N> {
     type Output = Self;
 
     fn add(self, other: Self) -> Self {
-        Self {
-            red: self.red + other.red,
-            green: self.green + other.green,
-            blue: self.blue + other.blue,
-        }
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .zip(other.0.iter())
+            .for_each(|((i, this), other)| data[i] = this + other);
+        Self(data)
     }
 }
-impl std::ops::Sub for RGBSpectrum {
+impl<const N: usize> std::ops::Sub for Spectrum<N> {
     type Output = Self;
 
     fn sub(self, other: Self) -> Self {
-        Self {
-            red: self.red - other.red,
-            green: self.green - other.green,
-            blue: self.blue - other.blue,
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .zip(other.0.iter())
+            .for_each(|((i, this), other)| data[i] = this - other);
+        Self(data)
+    }
+}
+
+impl<const N: usize> std::ops::AddAssign for Spectrum<N> {
+    fn add_assign(&mut self, other: Self) {
+        for (i, v) in self.0.iter_mut().enumerate() {
+            *v += other.0[i]
         }
     }
 }
 
-impl std::ops::AddAssign for RGBSpectrum {
-    fn add_assign(&mut self, other: Self) {
-        self.red += other.red;
-        self.green += other.green;
-        self.blue += other.blue;
-    }
-}
-
-impl std::ops::SubAssign for RGBSpectrum {
+impl<const N: usize> std::ops::SubAssign for Spectrum<N> {
     fn sub_assign(&mut self, other: Self) {
-        self.red -= other.red;
-        self.green -= other.green;
-        self.blue -= other.blue;
+        for (i, v) in self.0.iter_mut().enumerate() {
+            *v -= other.0[i]
+        }
     }
 }
 
-impl std::ops::Mul for RGBSpectrum {
+impl<const N: usize> std::ops::Mul for Spectrum<N> {
     type Output = Self;
 
     fn mul(self, other: Self) -> Self {
-        Self {
-            red: self.red * other.red,
-            green: self.green * other.green,
-            blue: self.blue * other.blue,
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .zip(other.0.iter())
+            .for_each(|((i, this), other)| data[i] = this * other);
+        Self(data)
+    }
+}
+
+impl<const N: usize> std::ops::MulAssign for Spectrum<N> {
+    fn mul_assign(&mut self, other: Self) {
+        for (i, v) in self.0.iter_mut().enumerate() {
+            *v *= other.0[i]
         }
     }
 }
 
-impl std::ops::MulAssign for RGBSpectrum {
-    fn mul_assign(&mut self, other: Self) {
-        self.red *= other.red;
-        self.green *= other.green;
-        self.blue *= other.blue;
-    }
-}
-
-impl std::ops::Mul<Float> for RGBSpectrum {
+impl<const N: usize> std::ops::Mul<Float> for Spectrum<N> {
     type Output = Self;
 
     fn mul(self, other: Float) -> Self {
-        Self {
-            red: self.red * other,
-            green: self.green * other,
-            blue: self.blue * other,
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this * other);
+        Self(data)
+    }
+}
+
+impl<const N: usize> std::ops::MulAssign<Float> for Spectrum<N> {
+    fn mul_assign(&mut self, other: Float) {
+        for  v in self.0.iter_mut() {
+            *v *= other
         }
     }
 }
 
-impl std::ops::MulAssign<Float> for RGBSpectrum {
-    fn mul_assign(&mut self, other: Float) {
-        self.red *= other;
-        self.green *= other;
-        self.blue *= other;
-    }
-}
-
-impl std::ops::Div<Float> for RGBSpectrum {
+impl<const N: usize> std::ops::Div<Float> for Spectrum<N> {
     type Output = Self;
 
     fn div(self, other: Float) -> Self {
-        Self {
-            red: self.red / other,
-            green: self.green / other,
-            blue: self.blue / other,
-        }
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this / other);
+        Self(data)
     }
 }
 
-impl std::ops::Div for RGBSpectrum {
+impl<const N: usize> std::ops::Div for Spectrum<N> {
     type Output = Self;
 
     fn div(self, other: Self) -> Self {
-        Self {
-            red: self.red / other.red,
-            green: self.green / other.green,
-            blue: self.blue / other.blue,
-        }
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .zip(other.0.iter())
+            .for_each(|((i, this), other)| data[i] = this / other);
+        Self(data)
     }
 }
 
-impl std::ops::DivAssign<Float> for RGBSpectrum {
+impl<const N: usize> std::ops::DivAssign<Float> for Spectrum<N> {
     fn div_assign(&mut self, other: Float) {
-        self.red /= other;
-        self.green /= other;
-        self.blue /= other;
+        for v in self.0.iter_mut() {
+            *v /= other
+        }
     }
 }
 
-impl std::ops::DivAssign for RGBSpectrum {
+impl<const N: usize> std::ops::DivAssign for Spectrum<N> {
     fn div_assign(&mut self, other: Self) {
-        self.red *= other.red;
-        self.green *= other.green;
-        self.blue *= other.blue;
-    }
-}
-
-
-
-impl std::ops::Add<RGBSpectrum> for Float {
-    type Output = Spectrum;
-    fn add(self, c: RGBSpectrum)->RGBSpectrum{
-        RGBSpectrum{
-            red: self + c.red,
-            green: self + c.green,
-            blue: self + c.blue,
+        for (i, v) in self.0.iter_mut().enumerate() {
+            *v /= other.0[i]
         }
     }
 }
 
-impl std::ops::Sub<RGBSpectrum> for Float {
-    type Output = RGBSpectrum;
-    fn sub(self, c: RGBSpectrum)->RGBSpectrum{
-        RGBSpectrum{
-            red: self - c.red,
-            green: self - c.green,
-            blue: self - c.blue,
-        }
+impl<const N: usize> std::ops::Add<Spectrum<N>> for Float {
+    type Output = Spectrum<N>;
+    fn add(self, c: Spectrum<N>) -> Spectrum<N> {
+        let mut data = [0.0; N];
+        c.0.iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this + self);
+        Spectrum(data)
     }
 }
 
-
-impl std::ops::Mul<RGBSpectrum> for Float {
-    type Output = Spectrum;
-    fn mul(self, c: RGBSpectrum)->RGBSpectrum{
-        RGBSpectrum{
-            red: self * c.red,
-            green: self * c.green,
-            blue: self * c.blue,
-        }
+impl<const N: usize> std::ops::Sub<Spectrum<N>> for Float {
+    type Output = Spectrum<N>;
+    fn sub(self, c: Spectrum<N>) -> Spectrum<N> {
+        let mut data = [0.0; N];
+        c.0.iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this - self);
+        Spectrum(data)
     }
 }
 
-impl std::ops::Div<RGBSpectrum> for Float {
-    type Output = RGBSpectrum;
-    fn div(self, c: RGBSpectrum)->RGBSpectrum{
-        RGBSpectrum{
-            red: self / c.red,
-            green: self / c.green,
-            blue: self / c.blue,
-        }
+impl<const N: usize> std::ops::Mul<Spectrum<N>> for Float {
+    type Output = Spectrum<N>;
+    fn mul(self, c: Spectrum<N>) -> Spectrum<N> {
+        let mut data = [0.0; N];
+        c.0.iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this * self);
+        Spectrum(data)
     }
 }
 
-
-// impl std::convert::Into<RGBSpectrum> for Float {
-//     fn into(self)->RGBSpectrum{
-//         RGBSpectrum{
-//             red: self, 
-//             green: self, 
-//             blue: self
-//         }
-//     }
-// }
-
-impl std::convert::From<Float> for Spectrum {
-    fn from(f: Float)->Self{
-        RGBSpectrum{
-            red: f,
-            green:f,
-            blue:f,
-        }
+impl<const N: usize> std::ops::Div<Spectrum<N>> for Float {
+    type Output = Spectrum<N>;
+    fn div(self, c: Spectrum<N>) -> Spectrum<N> {
+        let mut data = [0.0; N];
+        c.0.iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = self / this);
+        Spectrum(data)
     }
 }
 
+impl<const N: usize> std::convert::From<Float> for Spectrum<N> {
+    fn from(f: Float) -> Self {
+        Spectrum([f; N])
+    }
+}
 
 #[cfg(test)]
 mod tests {
@@ -320,84 +304,52 @@ mod tests {
 
     #[test]
     fn test_add() {
-        let c1 = RGBSpectrum {
-            red: 1.23,
-            green: 5.321,
-            blue: 9.9719,
-        };
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
 
-        let c2 = RGBSpectrum {
-            red: 21.23,
-            green: 95.321,
-            blue: 0.9719,
-        };
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
 
         let c3 = c1 + c2;
-        assert_eq!(c3.red, c1.red + c2.red);
-        assert_eq!(c3.green, c1.green + c2.green);
-        assert_eq!(c3.blue, c1.blue + c2.blue);
+        assert_eq!(c3.0[0], c1.0[0] + c2.0[0]);
+        assert_eq!(c3.0[1], c1.0[1] + c2.0[1]);
+        assert_eq!(c3.0[2], c1.0[2] + c2.0[2]);
     }
     #[test]
     fn test_mul() {
-        let c1 = RGBSpectrum {
-            red: 1.23,
-            green: 5.321,
-            blue: 9.9719,
-        };
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
 
-        let c2 = RGBSpectrum {
-            red: 21.23,
-            green: 95.321,
-            blue: 0.9719,
-        };
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
 
         let c3 = c1 * c2;
-        assert_eq!(c3.red, c1.red * c2.red);
-        assert_eq!(c3.green, c1.green * c2.green);
-        assert_eq!(c3.blue, c1.blue * c2.blue);
+        assert_eq!(c3.0[0], c1.0[0] * c2.0[0]);
+        assert_eq!(c3.0[1], c1.0[1] * c2.0[1]);
+        assert_eq!(c3.0[2], c1.0[2] * c2.0[2]);
     }
 
     #[test]
     fn test_add_assign() {
-        let c1 = RGBSpectrum {
-            red: 1.23,
-            green: 5.321,
-            blue: 9.9719,
-        };
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
 
-        let c2 = RGBSpectrum {
-            red: 21.23,
-            green: 95.321,
-            blue: 0.9719,
-        };
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
 
         let mut c3 = c1;
         c3 += c2;
 
-        assert_eq!(c3.red, c1.red + c2.red);
-        assert_eq!(c3.green, c1.green + c2.green);
-        assert_eq!(c3.blue, c1.blue + c2.blue);
+        assert_eq!(c3.0[0], c1.0[0] + c2.0[0]);
+        assert_eq!(c3.0[1], c1.0[1] + c2.0[1]);
+        assert_eq!(c3.0[2], c1.0[2] + c2.0[2]);
     }
 
     #[test]
     fn test_mul_assign() {
-        let c1 = RGBSpectrum {
-            red: 1.23,
-            green: 5.321,
-            blue: 9.9719,
-        };
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
 
-        let c2 = RGBSpectrum {
-            red: 21.23,
-            green: 95.321,
-            blue: 0.9719,
-        };
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
 
         let mut c3 = c1;
         c3 *= c2;
 
-        assert_eq!(c3.red, c1.red * c2.red);
-        assert_eq!(c3.green, c1.green * c2.green);
-        assert_eq!(c3.blue, c1.blue * c2.blue);
+        assert_eq!(c3.0[0], c1.0[0] * c2.0[0]);
+        assert_eq!(c3.0[1], c1.0[1] * c2.0[1]);
+        assert_eq!(c3.0[2], c1.0[2] * c2.0[2]);
     }
 }

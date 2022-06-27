@@ -70,7 +70,7 @@ pub fn sample_ward_anisotropic(
 
             d = if xi2 < 1e-9 {
                 1.
-            } else {                
+            } else {
                 (-xi2.ln() / ((cosp / alpha).powi(2) + (sinp / beta).powi(2))).sqrt()
             };
 
@@ -100,7 +100,7 @@ pub fn sample_ward_anisotropic(
                 }
                 ray.geometry.direction = v; // update ray
                 let weight = 2. / (1. + v_n / l_n); // Eq. 15
-                return (spec, diffuse,  weight);
+                return (spec, diffuse, weight);
             }
             // return (0.0, 0., 1.);
         } // end of loop. If we did not return, try again.

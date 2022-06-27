@@ -186,7 +186,7 @@ impl RadianceReader {
         self.modifiers.push(name.to_string());
 
         let metal = Material::Metal(Metal {
-            colour: Spectrum { red, green, blue },
+            colour: Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
             specularity,
             roughness,
         });
@@ -210,7 +210,7 @@ impl RadianceReader {
         self.modifiers.push(name.to_string());
 
         let plastic = Material::Plastic(Plastic {
-            colour: Spectrum { red, green, blue },
+            colour: Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
             specularity,
             roughness,
         });
@@ -231,7 +231,7 @@ impl RadianceReader {
 
         self.modifiers.push(name.to_string());
 
-        let light = Material::Light(Light(Spectrum { red, green, blue }));
+        let light = Material::Light(Light(Spectrum::<{ crate::N_CHANELS }>([red, green, blue])));
         scene.push_material(light);
     }
 
@@ -249,7 +249,7 @@ impl RadianceReader {
 
         self.modifiers.push(name.to_string());
 
-        let mirror = Material::Mirror(Mirror(Spectrum { red, green, blue }));
+        let mirror = Material::Mirror(Mirror(Spectrum::<{ crate::N_CHANELS }>([red, green, blue])));
         scene.push_material(mirror);
     }
 
@@ -276,7 +276,7 @@ impl RadianceReader {
         self.modifiers.push(name.to_string());
 
         let dielectric = Material::Dielectric(Dielectric {
-            colour: Spectrum { red, green, blue },
+            colour: Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
             refraction_index,
         });
         scene.push_material(dielectric);
@@ -295,7 +295,7 @@ impl RadianceReader {
                 let green = self.consume_token(source).parse::<Float>().unwrap();
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = self.consume_token(source).parse::<Float>().unwrap();
-                let colour = Spectrum { red, green, blue };
+                let colour = Spectrum::<{ crate::N_CHANELS }>([red, green, blue]);
                 Material::Glass(Glass {
                     colour,
                     refraction_index,
@@ -306,7 +306,7 @@ impl RadianceReader {
                 let green = self.consume_token(source).parse::<Float>().unwrap();
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = 1.52;
-                let colour = Spectrum { red, green, blue };
+                let colour = Spectrum::<{ crate::N_CHANELS }>([red, green, blue]);
                 Material::Glass(Glass {
                     colour,
                     refraction_index,

@@ -231,7 +231,7 @@ f 1 2 3
         ";
         let mut scene = Scene::default();
         let gray = scene.push_material(Material::Plastic(Plastic {
-            colour: Spectrum::gray(0.3),
+            colour: Spectrum::<{ crate::N_CHANELS }>::gray(0.3),
             specularity: 0.,
             roughness: 0.,
         }));

@@ -26,7 +26,7 @@ use geometry3d::{Point3D, Vector3D};
 
 /// Information required for modelling Radiance's Plastic and Plastic
 pub struct Plastic {
-    pub colour: Spectrum,
+    pub colour: Spectrum<{ crate::N_CHANELS }>,
     pub specularity: Float,
     pub roughness: Float,
 }
@@ -36,7 +36,7 @@ impl Plastic {
         "Plastic"
     }
 
-    pub fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
         self.colour
     }
 
@@ -48,7 +48,7 @@ impl Plastic {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Spectrum, Float) {
+    ) -> (Spectrum<{ crate::N_CHANELS }>, Float) {
         let (direct, diffuse, weight) = crate::material::ward::sample_ward_anisotropic(
             normal,
             e1,
@@ -61,9 +61,9 @@ impl Plastic {
             rng,
         );
 
-        let bsdf = Spectrum::gray(direct) + self.colour * diffuse;        
+        let bsdf = Spectrum::<{ crate::N_CHANELS }>::gray(direct) + self.colour * diffuse;
 
-        (bsdf,  weight)
+        (bsdf, weight)
     }
 
     pub fn eval_bsdf(
@@ -73,7 +73,7 @@ impl Plastic {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum {
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         let vout = vout * -1.;
         let (direct, diffuse) = crate::material::ward::evaluate_ward_anisotropic(
             normal,
@@ -86,7 +86,7 @@ impl Plastic {
             vout,
         );
 
-        Spectrum::gray(direct) + self.colour * diffuse
+        Spectrum::<{ crate::N_CHANELS }>::gray(direct) + self.colour * diffuse
     }
 }
 
@@ -94,16 +94,13 @@ impl Plastic {
 mod tests {
 
     use super::*;
+    use crate::colour::Spectrum;
     use geometry3d::Ray3D;
 
     #[test]
     fn test_specular_plastic() {
         let plastic = Plastic {
-            colour: Spectrum {
-                red: 0.2,
-                green: 0.2,
-                blue: 0.2,
-            },
+            colour: Spectrum::<{ crate::N_CHANELS }>([0.2, 0.2, 0.2]),
             specularity: 0.1,
             roughness: 0.1,
         };

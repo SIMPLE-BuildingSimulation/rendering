@@ -16,33 +16,21 @@ fn render_ball(mat: Material, filename: &str) {
     const HALF_ROOM_SIZE: Float = 2.5;
 
     let gray = Material::Plastic(Plastic {
-        colour: Spectrum {
-            red: 0.2,
-            green: 0.2,
-            blue: 0.2,
-        },
+        colour: Spectrum::gray(0.2),
         specularity: 0.0,
         roughness: 0.0,
     });
     let gray = scene.push_material(gray);
 
     let red = Material::Plastic(Plastic {
-        colour: Spectrum {
-            red: 0.9,
-            green: 0.36,
-            blue: 0.36,
-        },
+        colour: Spectrum([0.9, 0.36, 0.36]),
         specularity: 0.0,
         roughness: 0.0,
     });
     let red = scene.push_material(red);
 
     let blue = Material::Plastic(Plastic {
-        colour: Spectrum {
-            red: 0.36,
-            green: 0.36,
-            blue: 0.9,
-        },
+        colour: Spectrum([0.36, 0.36, 0.9]),        
         specularity: 0.0,
         roughness: 0.0,
     });
@@ -137,11 +125,7 @@ fn render_ball(mat: Material, filename: &str) {
     // Add light
     let glow = scene.push_material(Material::Light(Light(
         //145, 7, 205
-        Spectrum {
-            red: 1.,
-            green: 1.,
-            blue: 1.,
-        } * 10000.,
+        Spectrum::ONE * 10000.,
     )));
 
     let s = Sphere3D::new(0.1, Point3D::new(4., -15., 5.));
@@ -178,15 +162,12 @@ fn render_ball(mat: Material, filename: &str) {
 }
 
 #[test]
+#[ignore]
 fn test_render_specular_plastic() {
     // cargo test --package rendering --test render_materials -- test_render_specular_plastic --exact --nocapture
 
     let plastic = Material::Plastic(Plastic {
-        colour: Spectrum {
-            red: 0.8,
-            green: 0.5,
-            blue: 0.5,
-        },
+        colour:  Spectrum([0.9, 0.5, 0.5]),        
         specularity: 0.09,
         roughness: 0.05,
     });
@@ -195,16 +176,12 @@ fn test_render_specular_plastic() {
 }
 
 #[test]
-
+#[ignore]
 fn test_render_specular_metal() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_specular_metal --ignored --exact --nocapture
 
     let metal = Material::Metal(Metal {
-        colour: Spectrum {
-            red: 0.0,
-            green: 0.5,
-            blue: 0.5,
-        },
+        colour: Spectrum([0.0, 0.5, 0.5]),        
         specularity: 0.28,
         roughness: 0.05,
     });
@@ -213,15 +190,11 @@ fn test_render_specular_metal() {
 }
 
 #[test]
-
+#[ignore]
 fn test_render_glass() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_glass --ignored --exact --nocapture
     let metal = Material::Glass(Glass {
-        colour: Spectrum {
-            red: 0.9,
-            green: 0.9,
-            blue: 0.9,
-        },
+        colour: Spectrum([0.9, 0.9, 0.9]),        
         refraction_index: 1.52,
     });
 
@@ -229,30 +202,22 @@ fn test_render_glass() {
 }
 
 #[test]
-
+#[ignore]
 fn test_render_mirror() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_mirror --ignored --exact --nocapture
 
-    let plastic = Material::Mirror(Mirror(Spectrum {
-        red: 0.5,
-        green: 0.5,
-        blue: 0.5,
-    }));
+    let plastic = Material::Mirror(Mirror(Spectrum::gray(0.5)));
 
     render_ball(plastic, "./test_data/images/mirror.hdr")
 }
 
 #[test]
-
+#[ignore]
 fn test_render_dielectric() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_dielectric --exact --nocapture
 
     let dielectric = Material::Dielectric(Dielectric {
-        colour: Spectrum {
-            red: 0.95,
-            green: 0.95,
-            blue: 0.95,
-        },
+        colour: Spectrum::gray(0.95),
         refraction_index: 1.6,
     });
 

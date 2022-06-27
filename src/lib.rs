@@ -33,6 +33,8 @@ pub type Float = f64;
 #[cfg(not(feature = "float"))]
 pub const PI: Float = std::f64::consts::PI;
 
+pub const N_CHANELS: usize = 3;
+
 // #[cfg(feature = "parallel")]
 // type RefCount<T> = std::sync::Arc<T>;
 // #[cfg(not(feature = "parallel"))]
@@ -59,8 +61,8 @@ pub mod scene;
 pub mod triangle;
 
 // Climate Based Daylight Model
-pub mod d_coefficients;
 pub mod colour_matrix;
+pub mod d_coefficients;
 // Readers
 pub mod from_obj;
 pub mod from_radiance;

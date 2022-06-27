@@ -18,32 +18,29 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
+
 use crate::colour::Spectrum;
 use crate::material::specular::*;
 use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
-fn any_transmission(colour: &mut Spectrum) -> bool {
+fn any_transmission(colour: &mut Spectrum<{ crate::N_CHANELS }>) -> bool {
     const MIN_COLOUR: Float = 1e-15;
     if colour.max() < MIN_COLOUR {
         false
     } else {
-        if colour.red < MIN_COLOUR {
-            colour.red = MIN_COLOUR;
-        }
-        if colour.green < MIN_COLOUR {
-            colour.green = MIN_COLOUR;
-        }
-        if colour.blue < MIN_COLOUR {
-            colour.blue = MIN_COLOUR;
+        for v in colour.0.iter_mut() {
+            if *v < MIN_COLOUR {
+                *v = MIN_COLOUR;
+            }
         }
         true
     }
 }
 
 pub struct Glass {
-    pub colour: Spectrum,
+    pub colour: Spectrum<{ crate::N_CHANELS }>,
     pub refraction_index: Float,
 }
 
@@ -51,59 +48,56 @@ impl Glass {
     pub fn refl_trans(
         &self,
         normal: Vector3D,
-        direction: Vector3D,        
-        cos1: Float,        
-    ) -> (Spectrum, Spectrum) {
+        direction: Vector3D,
+        cos1: Float,
+    ) -> (
+        Spectrum<{ crate::N_CHANELS }>,
+        Spectrum<{ crate::N_CHANELS }>,
+    ) {
         debug_assert!(cos1 > 0.0);
 
         // Check if there is any transmission
         let mut colour = self.colour;
         let any_transmission = any_transmission(&mut colour);
 
-
-
         // Now calculate components
-        // if let Some(cos2) = cos2 {            
-            let pdot = (normal * direction).abs();
-            let cos2 = ( 
-                (1.- 1./self.refraction_index.powi(2)) +
-                (pdot/self.refraction_index).powi(2)
-            ).sqrt();
+        // if let Some(cos2) = cos2 {
+        let pdot = (normal * direction).abs();
+        let cos2 = ((1. - 1. / self.refraction_index.powi(2))
+            + (pdot / self.refraction_index).powi(2))
+        .sqrt();
 
-            let rindex = self.refraction_index;
-            let mut fte2 = (pdot - rindex*cos2) / (pdot + rindex*cos2);
-            fte2 *= fte2;
-            let mut ftm2 = (1.0/pdot - rindex/cos2) / (1.0/pdot + rindex/cos2);
-            ftm2 *= ftm2;
+        let rindex = self.refraction_index;
+        let mut fte2 = (pdot - rindex * cos2) / (pdot + rindex * cos2);
+        fte2 *= fte2;
+        let mut ftm2 = (1.0 / pdot - rindex / cos2) / (1.0 / pdot + rindex / cos2);
+        ftm2 *= ftm2;
 
-            
-            let d = if any_transmission {
-                self.colour.powf(1./cos2)
-            }else{
-                self.colour
-            };
-            
-            
-            // Process transmission
-            
-            let t_comp = if any_transmission {
-                d * 0.5
-                * ((1. - fte2).powi(2) / (1. -  (d*fte2).powi(2))
-                + (1. - ftm2).powi(2) / (1. - (d*ftm2).powi(2)))
-            } else {
-                // Spectrum{red: 1., green: 0., blue: 0.}
-                Spectrum::BLACK
-            };
-            
-            // Process reflection
-            let ct = d.powi(2);
-            let refl_comp = 
-                0.5*((1. + ct * (1. - 2. * fte2)) * fte2  / (1. -  ct*fte2)
-                    +  (1. + (1. - 2. * ftm2) * ct) * ftm2 / (1. - ct*ftm2)) ;
+        let d = if any_transmission {
+            self.colour.powf(1. / cos2)
+        } else {
+            self.colour
+        };
 
-            // return
-            (refl_comp, t_comp)
-            
+        // Process transmission
+
+        let t_comp = if any_transmission {
+            d * 0.5
+                * ((1. - fte2).powi(2) / (1. - (d * fte2).powi(2))
+                    + (1. - ftm2).powi(2) / (1. - (d * ftm2).powi(2)))
+        } else {
+            // Spectrum{red: 1., green: 0., blue: 0.}
+            Spectrum::<{ crate::N_CHANELS }>::BLACK
+        };
+
+        // Process reflection
+        let ct = d.powi(2);
+        let refl_comp = 0.5
+            * ((1. + ct * (1. - 2. * fte2)) * fte2 / (1. - ct * fte2)
+                + (1. + (1. - 2. * ftm2) * ct) * ftm2 / (1. - ct * ftm2));
+
+        // return
+        (refl_comp, t_comp)
     }
 }
 
@@ -112,7 +106,7 @@ impl Glass {
         "Glass"
     }
 
-    pub fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
         let mut c = self.colour;
         _ = any_transmission(&mut c);
         c
@@ -123,7 +117,7 @@ impl Glass {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Spectrum)>; 2] {
+    ) -> [Option<(Ray, Spectrum<{ crate::N_CHANELS }>)>; 2] {
         let normal = *normal;
         // Only two possible direction:
 
@@ -138,7 +132,7 @@ impl Glass {
         let (_n1, cos1, ..) = cos_and_n(ray, normal, self.refraction_index);
         let intersection_pt = *intersection_pt;
         let (refl, trans) = self.refl_trans(normal, ray.geometry.direction, cos1);
-        
+
         // let total = refl.radiance() + trans.radiance();
         // let refl_fraction = refl.radiance()/total;
         // let trans_fraction = trans.radiance()/total;
@@ -154,8 +148,7 @@ impl Glass {
         let mut ray = *ray;
         let pair2 = if trans.radiance() > 0.0 {
             ray.geometry.origin = intersection_pt - normal * 0.00001;
-            
-            
+
             // ray.colour *= self.colour() * trans;
             Some((ray, trans))
         } else {
@@ -174,7 +167,7 @@ impl Glass {
     //     _ray: &mut Ray,
     //     _rng: &mut RandGen,
     // ) -> (Spectrum, Float) {
-        
+
     //     debug_assert!(
     //         (ray.geometry.direction.length() - 1.).abs() < 1e-5,
     //         "Length was {}",
@@ -217,9 +210,9 @@ impl Glass {
         _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum {
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         let (_n1, cos1, _n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
-        let (refl, trans) = self.refl_trans(normal, ray.geometry.direction,  cos1);
+        let (refl, trans) = self.refl_trans(normal, ray.geometry.direction, cos1);
         let vin = ray.geometry.direction;
         let mirror_dir = mirror_direction(vin, normal);
         debug_assert!(
@@ -236,7 +229,7 @@ impl Glass {
         let mut colour = self.colour;
         if any_transmission(&mut colour) {
             // it is not refraction either
-            return Spectrum::BLACK;
+            return Spectrum::<{ crate::N_CHANELS }>::BLACK;
         }
         // Check transmission
         if let Some(_cos2) = cos2 {
@@ -245,7 +238,7 @@ impl Glass {
             }
         }
         // panic!("Glass should never reach critical angle");
-        Spectrum::ONE / cos1
+        Spectrum::<{ crate::N_CHANELS }>::ONE / cos1
     }
 }
 
@@ -258,11 +251,8 @@ mod tests {
     #[test]
     fn test_get_possible_paths_glass() {
         let glass = Glass {
-            colour: Spectrum {
-                red: 0.1,
-                green: 0.2,
-                blue: 0.3,
-            },
+            colour: Spectrum::<{ crate::N_CHANELS }>([0.1, 0.2, 0.3]),
+
             refraction_index: 1.52,
         };
         let mut rng = get_rng();

@@ -29,12 +29,11 @@ SOFTWARE.
  based on code written by Greg Ward
 */
 use crate::colour::Spectrum;
+use crate::colourmap::Colourmap;
 use crate::Float;
+use jpeg_encoder::{ColorType, Encoder};
 use std::io::Write;
 use std::path::Path;
-use crate::colourmap::Colourmap;
-use jpeg_encoder::{Encoder, ColorType};
-
 
 /// Equivalent to C's `frexp` function
 fn rusty_frexp(s: Float) -> (Float, i32) {
@@ -79,9 +78,9 @@ fn colour_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
     }
 }
 
-fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8) -> Spectrum {
+fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8) -> Spectrum<{ crate::N_CHANELS }> {
     if e == 0 {
-        return Spectrum::BLACK;
+        return Spectrum::<{ crate::N_CHANELS }>::BLACK;
     }
 
     let n = e as i32 - (128 + 8) as i32;
@@ -90,7 +89,7 @@ fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8) -> Spectrum {
     let green = g as Float * f;
     let blue = b as Float * f;
 
-    Spectrum { red, green, blue }
+    Spectrum::<{ crate::N_CHANELS }>([red, green, blue])
 }
 
 /// A buffer with all the physical values in the image
@@ -103,7 +102,7 @@ pub struct ImageBuffer {
     pub height: usize,
     /// All the pixels, iterating from top
     /// to bottom, left to right
-    pub pixels: Vec<Spectrum>,
+    pub pixels: Vec<Spectrum<{ crate::N_CHANELS }>>,
 }
 
 impl std::ops::IndexMut<(usize, usize)> for ImageBuffer {
@@ -115,7 +114,7 @@ impl std::ops::IndexMut<(usize, usize)> for ImageBuffer {
 }
 
 impl std::ops::Index<(usize, usize)> for ImageBuffer {
-    type Output = Spectrum;
+    type Output = Spectrum<{ crate::N_CHANELS }>;
 
     fn index(&self, pixel: (usize, usize)) -> &Self::Output {
         let (x, y) = pixel;
@@ -124,35 +123,43 @@ impl std::ops::Index<(usize, usize)> for ImageBuffer {
     }
 }
 
-
-
-
 impl ImageBuffer {
     /// Creates a new empty [`ImageBuffer`]
     pub fn new(width: usize, height: usize) -> Self {
         Self {
             width,
             height,
-            pixels: vec![Spectrum::BLACK; width * height],
+            pixels: vec![Spectrum::<{ crate::N_CHANELS }>::BLACK; width * height],
         }
     }
 
     /// Gets the absolute difference between two `ImageBuffer`
-    pub fn diff(&self, other: &Self)->Result<Self, String>{
-
-        if (self.width, self.height) != (other.width, other.height){
-            return Err(format!("Size mismatch: comparing image of size '{}x{}' with another one of size '{}x{}'", self.height, self.width, other.height, other.width))
+    pub fn diff(&self, other: &Self) -> Result<Self, String> {
+        if (self.width, self.height) != (other.width, other.height) {
+            return Err(format!(
+                "Size mismatch: comparing image of size '{}x{}' with another one of size '{}x{}'",
+                self.height, self.width, other.height, other.width
+            ));
         }
-    
-        let pixels = self.pixels.iter().zip(other.pixels.iter()).map(|(a, b)|{
-            Spectrum::gray( (a.radiance() - b.radiance()).abs() )
-        }).collect();
+
+        let pixels = self
+            .pixels
+            .iter()
+            .zip(other.pixels.iter())
+            .map(|(a, b)| {
+                Spectrum::<{ crate::N_CHANELS }>::gray((a.radiance() - b.radiance()).abs())
+            })
+            .collect();
 
         Ok(Self::from_pixels(self.width, self.height, pixels))
     }
 
     /// Creates a new empty [`ImageBuffer`]
-    pub fn from_pixels(width: usize, height: usize, pixels: Vec<Spectrum>) -> Self {
+    pub fn from_pixels(
+        width: usize,
+        height: usize,
+        pixels: Vec<Spectrum<{ crate::N_CHANELS }>>,
+    ) -> Self {
         if pixels.len() != width * height {
             panic!("Width ({}) and Height ({}) does not match the number of pixels (n_pixels is {}... expecting width*height={})", width, height, pixels.len(), width*height)
         }
@@ -178,7 +185,7 @@ impl ImageBuffer {
             .unwrap();
 
         for pixel in self.pixels.iter() {
-            file.write_all(&colour_to_rgbe(pixel.red, pixel.green, pixel.blue))
+            file.write_all(&colour_to_rgbe(pixel.0[0], pixel.0[1], pixel.0[2]))
                 .unwrap();
         }
     }
@@ -197,20 +204,18 @@ impl ImageBuffer {
         let mut content = content.as_slice();
         let filename = filename.to_str().unwrap();
 
-        
-        // READ HEADER               
+        // READ HEADER
         let height: Option<usize>;
-        let width: Option<usize>;        
+        let width: Option<usize>;
         loop {
-            let nl = match &content.iter().position(|u| *u as char == '\n' ){
-                None => {return Err(format!("Apparentyly incorrectly formatted file"))},
-                Some(i) => *i
+            let nl = match &content.iter().position(|u| *u as char == '\n') {
+                None => return Err(format!("Apparentyly incorrectly formatted file")),
+                Some(i) => *i,
             };
-            
-            let line = &content[0..nl];            
-            content = &content[nl+1..];
-            
-            
+
+            let line = &content[0..nl];
+            content = &content[nl + 1..];
+
             if line.starts_with(b"-Y") {
                 let errmsg = {
                     let l = std::str::from_utf8(line).unwrap();
@@ -238,7 +243,7 @@ impl ImageBuffer {
                     Err(_) => {
                         return errmsg;
                     }
-                };                
+                };
                 break; // Done with header
             }
 
@@ -263,18 +268,19 @@ impl ImageBuffer {
                 };
                 continue;
             }
-        }        
+        }
         // Setup
         let width = width.unwrap();
         let height = height.unwrap();
-        
-        // Read body
-        let pixels = content.chunks_exact(4).map(|x| {
-            let (r, g, b, e) = (x[0], x[1], x[2], x[3]);
-            rgbe_to_colour(r, g, b, e)
-        }).collect();
 
-        
+        // Read body
+        let pixels = content
+            .chunks_exact(4)
+            .map(|x| {
+                let (r, g, b, e) = (x[0], x[1], x[2], x[3]);
+                rgbe_to_colour(r, g, b, e)
+            })
+            .collect();
 
         // return
         Ok(Self {
@@ -284,32 +290,40 @@ impl ImageBuffer {
         })
     } // end of from_file()
 
-
-
-
     /// Creates a new version of an image, but in (log10) falsecolour
-    pub fn save_log_falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap, outfile: &Path){
-        
-        let log_luminance : Vec<Float> = self.pixels.iter().map(|x| x.luminance().log10()).collect();
+    pub fn save_log_falsecolour(
+        &self,
+        min: Option<Float>,
+        max: Option<Float>,
+        scale: Colourmap,
+        outfile: &Path,
+    ) {
+        let log_luminance: Vec<Float> = self.pixels.iter().map(|x| x.luminance().log10()).collect();
         const MIN_MIN: Float = 0.001;
-        // Get min and max        
+        // Get min and max
         let log_min = match min {
-            Some(mut v)=> { v = v.max(MIN_MIN); v.log10()},
-            None => MIN_MIN.log10()
+            Some(mut v) => {
+                v = v.max(MIN_MIN);
+                v.log10()
+            }
+            None => MIN_MIN.log10(),
         };
         let log_max = match max {
-            Some(v)=>v.log10(),
+            Some(v) => v.log10(),
             None => {
                 let mut m = MIN_MIN;
-                log_luminance.iter().for_each(|v| if *v > m { m = *v });
+                log_luminance.iter().for_each(|v| {
+                    if *v > m {
+                        m = *v
+                    }
+                });
                 if m <= MIN_MIN {
-                    m = 2.*MIN_MIN;
+                    m = 2. * MIN_MIN;
                 }
                 m
             }
         };
-        
-        
+
         let scale = match scale {
             Colourmap::Inferno => crate::colourmap::inferno::INFERNO_COLOURMAP.as_slice(),
             Colourmap::Magma => crate::colourmap::magma::MAGMA_COLOURMAP.as_slice(),
@@ -318,34 +332,41 @@ impl ImageBuffer {
             Colourmap::Viridis => crate::colourmap::viridis::VIRIDIS_COLOURMAP.as_slice(),
         };
 
-        
-        let mut data : Vec<u8> = Vec::with_capacity(self.width * self.height * 3 );
+        let mut data: Vec<u8> = Vec::with_capacity(self.width * self.height * 3);
         log_luminance.iter().for_each(|x| {
-            let s = crate::colourmap::map_linear_colour(*x, log_min, log_max, scale);            
-            data.push((s[0] * 256.).round() as u8); 
-            data.push((s[1] * 256.).round() as u8); 
+            let s = crate::colourmap::map_linear_colour(*x, log_min, log_max, scale);
+            data.push((s[0] * 256.).round() as u8);
+            data.push((s[1] * 256.).round() as u8);
             data.push((s[2] * 256.).round() as u8);
-        
-        } );
+        });
 
         let encoder = Encoder::new_file(outfile, 100).unwrap();
-        encoder.encode(&data, self.width as u16, self.height as u16, ColorType::Rgb).unwrap();
-                
+        encoder
+            .encode(&data, self.width as u16, self.height as u16, ColorType::Rgb)
+            .unwrap();
     }
 
     /// Creates a new version of an image, but in (linear) falsecolour
-    pub fn save_falsecolour(&self, min: Option<Float>, max: Option<Float>, scale: Colourmap, outfile: &Path) {
-                
-        let luminance : Vec<Float> = self.pixels.iter().map(|x| x.luminance()).collect();
+    pub fn save_falsecolour(
+        &self,
+        min: Option<Float>,
+        max: Option<Float>,
+        scale: Colourmap,
+        outfile: &Path,
+    ) {
+        let luminance: Vec<Float> = self.pixels.iter().map(|x| x.luminance()).collect();
 
         const MIN_MIN: Float = 0.000;
-        // Get min and max        
+        // Get min and max
         let min = match min {
-            Some(mut v)=> { v = v.max(MIN_MIN); v},
-            None => MIN_MIN
+            Some(mut v) => {
+                v = v.max(MIN_MIN);
+                v
+            }
+            None => MIN_MIN,
         };
         let max = match max {
-            Some(v)=>v,
+            Some(v) => v,
             None => {
                 /* // From RADIANCE's Falsecolor.pl
                  # Find a good scale for auto mode.
@@ -359,15 +380,18 @@ impl ImageBuffer {
                 }
                 */
                 let mut m = MIN_MIN;
-                luminance.iter().for_each(|v| if *v > m { m = *v });
+                luminance.iter().for_each(|v| {
+                    if *v > m {
+                        m = *v
+                    }
+                });
                 if m <= MIN_MIN {
-                    m = 2.*MIN_MIN;
+                    m = 2. * MIN_MIN;
                 }
                 m
             }
         };
-        
-        
+
         let scale = match scale {
             Colourmap::Inferno => crate::colourmap::inferno::INFERNO_COLOURMAP.as_slice(),
             Colourmap::Magma => crate::colourmap::magma::MAGMA_COLOURMAP.as_slice(),
@@ -376,21 +400,18 @@ impl ImageBuffer {
             Colourmap::Viridis => crate::colourmap::viridis::VIRIDIS_COLOURMAP.as_slice(),
         };
 
-        let mut data : Vec<u8> = Vec::with_capacity(self.width * self.height * 3 );
+        let mut data: Vec<u8> = Vec::with_capacity(self.width * self.height * 3);
         luminance.iter().for_each(|x| {
-            let s = crate::colourmap::map_linear_colour(*x, min, max, scale);            
-            data.push((s[0] * 256.).round() as u8); 
-            data.push((s[1] * 256.).round() as u8); 
+            let s = crate::colourmap::map_linear_colour(*x, min, max, scale);
+            data.push((s[0] * 256.).round() as u8);
+            data.push((s[1] * 256.).round() as u8);
             data.push((s[2] * 256.).round() as u8);
-        
-        } );
+        });
 
         let encoder = Encoder::new_file(outfile, 100).unwrap();
-        encoder.encode(&data, self.width as u16, self.height as u16, ColorType::Rgb).unwrap();
-        
-        
-
-        
+        encoder
+            .encode(&data, self.width as u16, self.height as u16, ColorType::Rgb)
+            .unwrap();
     }
 }
 
@@ -401,13 +422,10 @@ mod tests {
     use std::os::raw::c_double;
     use std::os::raw::c_int;
 
-    
     extern "C" {
         fn frexp(x: c_double, exp: *mut c_int) -> c_double;
         fn ldexp(x: c_double, ex: c_int) -> c_double;
     }
-
-    
 
     fn c_frexp(x: Float) -> (Float, i32) {
         let mut exp: c_int = 0;
@@ -416,7 +434,7 @@ mod tests {
     }
 
     fn c_ldexp(x: Float, n: i32) -> Float {
-        (unsafe { ldexp(x.into() , n) }) as Float
+        (unsafe { ldexp(x.into(), n) }) as Float
     }
 
     #[test]
@@ -443,14 +461,18 @@ mod tests {
                 let c = c_ldexp(*x, *i);
                 let r = rusty_ldexp(*x, *i);
                 println!("{}*2^{} = {} in C and {} in Rust", x, i, c, r);
-                assert!( (c - r).abs() < 1e-5, "c = {}, r = {} | diff is {}", c, r, (c - r).abs());
+                assert!(
+                    (c - r).abs() < 1e-5,
+                    "c = {}, r = {} | diff is {}",
+                    c,
+                    r,
+                    (c - r).abs()
+                );
             }
         }
     }
 
-
-
-    #[test]    
+    #[test]
     fn test_colour_to_rgbe() {
         // Produced automatically
         assert_eq!(colour_to_rgbe(807., 249., 73.), [201, 62, 18, 138]);
@@ -494,22 +516,24 @@ mod tests {
 
     #[test]
     fn test_rgbe_to_colour() {
-        let check = |a: Spectrum, b: Spectrum| -> Result<(), String> {
+        let check = |a: Spectrum<{ crate::N_CHANELS }>,
+                     b: Spectrum<{ crate::N_CHANELS }>|
+         -> Result<(), String> {
             let a_r = a.radiance();
             let b_r = b.radiance();
             let percent_error = (b_r - a_r).abs() / b_r;
             if percent_error > 0.015 {
                 return Err(format!("Radiance Error {} is to high ", percent_error));
             }
-            let ared_ratio = a.red / a.blue;
-            let bred_ratio = b.red / b.blue;
+            let ared_ratio = a.0[0] / a.0[2];
+            let bred_ratio = b.0[0] / b.0[2];
             let percent_error = (bred_ratio - ared_ratio).abs() / bred_ratio;
             if percent_error > 0.05 {
                 return Err(format!("Red Ratio Error {} is to high ", percent_error));
             }
 
-            let agreen_ratio = a.red / a.blue;
-            let bgreen_ratio = b.red / b.blue;
+            let agreen_ratio = a.0[0] / a.0[2];
+            let bgreen_ratio = b.0[0] / b.0[2];
             let percent_error = (agreen_ratio - bgreen_ratio).abs() / bgreen_ratio;
             if percent_error > 0.05 {
                 return Err(format!("Green Ratio Error {} is to high ", percent_error));
@@ -521,84 +545,48 @@ mod tests {
         // Produced automatically
         check(
             rgbe_to_colour(201, 62, 18, 138),
-            Spectrum {
-                red: 807.,
-                green: 249.,
-                blue: 73.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([807., 249., 73.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(117, 136, 56, 159),
-            Spectrum {
-                red: 984943658.,
-                green: 1144108930.,
-                blue: 470211272.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([984943658., 1144108930., 470211272.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(12, 173, 173, 159),
-            Spectrum {
-                red: 101027544.,
-                green: 1457850878.,
-                blue: 1458777923.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([101027544., 1457850878., 1458777923.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(239, 98, 132, 159),
-            Spectrum {
-                red: 2007237709.,
-                green: 823564440.,
-                blue: 1115438165.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([2007237709., 823564440., 1115438165.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(212, 8, 13, 159),
-            Spectrum {
-                red: 1784484492.,
-                green: 74243042.,
-                blue: 114807987.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([1784484492., 74243042., 114807987.]),
         )
         .unwrap();
 
         check(
             rgbe_to_colour(196, 34, 213, 158),
-            Spectrum {
-                red: 823378840.,
-                green: 143542612.,
-                blue: 896544303.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([823378840., 143542612., 896544303.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(175, 150, 238, 159),
-            Spectrum {
-                red: 1474833169.,
-                green: 1264817709.,
-                blue: 1998097157.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([1474833169., 1264817709., 1998097157.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(216, 134, 23, 159),
-            Spectrum {
-                red: 1817129560.,
-                green: 1131570933.,
-                blue: 197493099.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([1817129560., 1131570933., 197493099.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(167, 106, 179, 159),
-            Spectrum {
-                red: 1404280278.,
-                green: 893351816.,
-                blue: 1505795335.,
-            },
+            Spectrum::<{ crate::N_CHANELS }>([1404280278., 893351816., 1505795335.]),
         )
         .unwrap();
     }
@@ -606,7 +594,8 @@ mod tests {
     #[test]
     #[ignore]
     fn test_from_file() {
-        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
+        let buffer =
+            ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
         assert_eq!(buffer.width, 512);
         assert_eq!(buffer.height, 367);
         // assert_eq!(buffer.pixels.len(), 1024*768);
@@ -616,11 +605,17 @@ mod tests {
     #[test]
     #[ignore]
     fn test_falsecolor() {
-        let buffer = ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
+        let buffer =
+            ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
         // assert_eq!(buffer.width, 512);
         // assert_eq!(buffer.height, 367);
         // assert_eq!(buffer.pixels.len(), 1024*768);
-        buffer.save_falsecolour(None, Some(100.), Colourmap::Radiance, Path::new("./test_data/images/cornell_fc.jpeg"));
+        buffer.save_falsecolour(
+            None,
+            Some(100.),
+            Colourmap::Radiance,
+            Path::new("./test_data/images/cornell_fc.jpeg"),
+        );
         // buffer.save_hdre(Path::new("./test_data/images/cornell_fc.hdr"))
     }
 }

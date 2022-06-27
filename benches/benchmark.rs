@@ -50,11 +50,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // TRIANGLES
     let mut triangles = black_box(rendering::scene::Scene::new());
     let plastic = rendering::material::Material::Plastic(rendering::material::Plastic {
-        colour: rendering::colour::Spectrum {
-            red: 0.5,
-            green: 0.5,
-            blue: 0.5,
-        },
+        colour: rendering::colour::Spectrum::gray(0.5),
         specularity: 0.05,
         roughness: 0.1,
     });

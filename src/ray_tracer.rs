@@ -80,21 +80,17 @@ impl RayTracer {
         // current_depth: usize,
         // current_value: Float,
         aux: &mut RayTracerHelper,
-    ) -> (Spectrum, Float) {
-        
-
+    ) -> (Spectrum<{ crate::N_CHANELS }>, Float) {
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
             let material = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => {
                     &scene.materials[scene.front_material_indexes[triangle_index]]
                 }
-                SurfaceSide::Back => {
-                    &scene.materials[scene.back_material_indexes[triangle_index]]
-                },
+                SurfaceSide::Back => &scene.materials[scene.back_material_indexes[triangle_index]],
                 SurfaceSide::NonApplicable => {
                     // Hit parallel to the surface...
                     // ray.colour = Spectrum::BLACK; // We won't use this, I think
-                    return (Spectrum::BLACK, 0.0);
+                    return (Spectrum::<{ crate::N_CHANELS }>::BLACK, 0.0);
                 }
             };
 
@@ -115,41 +111,44 @@ impl RayTracer {
 
             // Limit bounces
             if ray.depth > self.max_depth {
-                return (Spectrum::BLACK, 0.0);
+                return (Spectrum::<{ crate::N_CHANELS }>::BLACK, 0.0);
             }
-            
-            ray.interaction.interpolate_normal(scene.normals[triangle_index]);
-            
-            
+
+            ray.interaction
+                .interpolate_normal(scene.normals[triangle_index]);
 
             // let mut wt = ray.value;
 
             // Handle specular materials... we have 1 or 2 rays... spawn those.
             if material.specular_only() {
-                let mut specular_li = Spectrum::BLACK;
+                let mut specular_li = Spectrum::<{ crate::N_CHANELS }>::BLACK;
 
                 let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
-            
 
                 for (new_ray, bsdf_value) in paths.iter().flatten() {
                     let mut new_ray = *new_ray;
-                    
-                    ray.value *= bsdf_value.radiance();// * cos_theta;                    
+
+                    ray.value *= bsdf_value.radiance(); // * cos_theta;
 
                     let q: Float = rng.gen();
                     if q < self.count_specular_bounce {
                         new_ray.depth += 1;
-                    } 
-                    
+                    }
+
                     let (li, _light_pdf) = self.trace_ray(rng, scene, &mut new_ray, aux);
-                    specular_li += li  * *bsdf_value
+                    specular_li += li * *bsdf_value
                 }
-                
+
                 ray.colour *= specular_li;
                 return (specular_li, 0.0);
             }
 
-            let n_ambient_samples = ray.get_n_ambient_samples(self.n_ambient_samples, self.max_depth, self.limit_weight, rng);
+            let n_ambient_samples = ray.get_n_ambient_samples(
+                self.n_ambient_samples,
+                self.max_depth,
+                self.limit_weight,
+                rng,
+            );
 
             // Calculate the number of direct samples
 
@@ -175,7 +174,7 @@ impl RayTracer {
             let global = self.get_global_illumination(
                 scene,
                 n_ambient_samples,
-                n_shadow_samples,                
+                n_shadow_samples,
                 material,
                 ray,
                 rng,
@@ -192,16 +191,17 @@ impl RayTracer {
             // Did not hit... so, let's check the sky
             if let Some(sky) = &scene.sky {
                 let sky_brightness = sky(ray.geometry.direction);
-                let colour = scene.sky_colour.unwrap_or_else(|| Spectrum::gray(1.0));
+                let colour = scene
+                    .sky_colour
+                    .unwrap_or_else(|| Spectrum::<{ crate::N_CHANELS }>::gray(1.0));
                 ray.colour *= colour * sky_brightness;
                 (colour * sky_brightness, 1. / 2. / crate::PI)
             } else {
-                (Spectrum::BLACK, 0.0)
+                (Spectrum::<{ crate::N_CHANELS }>::BLACK, 0.0)
             }
         }
     }
 
-    
     fn sample_light_array(
         &self,
         scene: &Scene,
@@ -212,10 +212,10 @@ impl RayTracer {
         n_shadow_samples: usize,
         lights: &[Object],
         node_aux: &mut Vec<usize>,
-    ) -> Spectrum {
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         let (mut intersection_pt, normal, e1, e2) = ray.get_triad();
         intersection_pt += normal * 0.001; // prevent self-shading
-        let mut local_illum = Spectrum::BLACK;
+        let mut local_illum = Spectrum::<{ crate::N_CHANELS }>::BLACK;
         for light in lights.iter() {
             // let this_origin = this_origin + normal * 0.001;
             let mut i = 0;
@@ -279,12 +279,11 @@ impl RayTracer {
         n_ambient_samples: usize,
         n_shadow_samples: usize,
         node_aux: &mut Vec<usize>,
-    ) -> Spectrum {
-        
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         let close = self.sample_light_array(
             scene,
             material,
-            ray,        
+            ray,
             rng,
             n_ambient_samples,
             n_shadow_samples,
@@ -306,7 +305,6 @@ impl RayTracer {
         close + distant
     }
 
-    
     fn get_global_illumination(
         &self,
         scene: &Scene,
@@ -316,9 +314,9 @@ impl RayTracer {
         ray: &mut Ray,
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
-    ) -> Spectrum {
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         let (intersection_pt, normal, e1, e2) = ray.get_triad();
-        let mut global = Spectrum::BLACK;
+        let mut global = Spectrum::<{ crate::N_CHANELS }>::BLACK;
         // let depth = current_depth; //ray.depth;
         let depth = ray.depth;
         aux.rays[depth] = *ray;
@@ -340,9 +338,8 @@ impl RayTracer {
             // let new_value = bsdf_value.radiance() * wt * cos_theta / pdf;
             ray.value *= bsdf_value.radiance() * cos_theta * pdf;
 
-           
-
-            let (li, light_pdf) = self.trace_ray(rng, scene, ray, /*new_depth, new_value,*/ aux);
+            let (li, light_pdf) =
+                self.trace_ray(rng, scene, ray, /*new_depth, new_value,*/ aux);
 
             let fx = (li * cos_theta) * bsdf_value;
             let denominator = bsdf_value.radiance() * n_ambient_samples as Float
@@ -353,7 +350,7 @@ impl RayTracer {
             // restore ray, because it was modified by trace_ray executions
             *ray = aux.rays[depth];
         }
-        // return        
+        // return
         global
     }
 
@@ -362,11 +359,10 @@ impl RayTracer {
         let (width, height) = camera.film_resolution();
 
         let total_pixels = width * height;
-        let mut pixels = vec![Spectrum::BLACK; total_pixels];
+        let mut pixels = vec![Spectrum::<{ crate::N_CHANELS }>::BLACK; total_pixels];
 
-        
         let chunk_len = 128;
-        let i: Vec<&mut [Spectrum]> = pixels.chunks_mut(chunk_len).collect();
+        let i: Vec<&mut [Spectrum<{ crate::N_CHANELS }>]> = pixels.chunks_mut(chunk_len).collect();
 
         #[cfg(not(feature = "parallel"))]
         let i = i.into_iter();
@@ -424,7 +420,7 @@ pub fn sample_light(
     light: &Object,
     shadow_ray: &Ray3D,
     node_aux: &mut Vec<usize>,
-) -> Option<(Spectrum, Float)> {
+) -> Option<(Spectrum<{ crate::N_CHANELS }>, Float)> {
     let light_direction = shadow_ray.direction;
     let origin = shadow_ray.origin;
 
@@ -438,7 +434,7 @@ pub fn sample_light(
     // If the light is not visible (this should not consider
     // transparent surfaces, yet.)
     if !scene.unobstructed_distance(shadow_ray, light_distance_squared, node_aux) {
-        return Some((Spectrum::BLACK, 0.0));
+        return Some((Spectrum::<{ crate::N_CHANELS }>::BLACK, 0.0));
     }
 
     let light_material = match info.side {
@@ -446,7 +442,7 @@ pub fn sample_light(
         SurfaceSide::Back => &scene.materials[light.back_material_index],
         SurfaceSide::NonApplicable => {
             // Hit parallel to the surface
-            return Some((Spectrum::BLACK, 0.0));
+            return Some((Spectrum::<{ crate::N_CHANELS }>::BLACK, 0.0));
         }
     };
     // let light_material = &scene.materials[light.front_material_index];

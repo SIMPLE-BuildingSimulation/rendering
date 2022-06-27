@@ -732,7 +732,7 @@ mod tests {
         let mut scene = Scene::new();
 
         let plastic = Plastic {
-            colour: Spectrum::from(2.),
+            colour: Spectrum::<{ crate::N_CHANELS }>::from(2.),
             specularity: 1.,
             roughness: 0.,
         };
@@ -753,7 +753,7 @@ mod tests {
         let mut scene = Scene::new();
 
         let plastic = Plastic {
-            colour: Spectrum::from(2.),
+            colour: Spectrum::<{ crate::N_CHANELS }>::from(2.),
             specularity: 1.,
             roughness: 0.,
         };
@@ -827,7 +827,11 @@ mod tests {
             .intersect(&scene.triangles, &mut ray, &mut aux)
             .is_some());
 
-        assert!((ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-5, "diff is {}", (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() );
+        assert!(
+            (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length() < 1e-5,
+            "diff is {}",
+            (ray.interaction.point - Point3D::new(-1., -0.5, 0.)).length()
+        );
 
         let mut ray = Ray {
             geometry: Ray3D {

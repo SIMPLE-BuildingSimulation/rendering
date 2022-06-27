@@ -71,7 +71,7 @@ impl Material {
     /// Retrieves the Colour of the material. This will usually
     /// represent the values that will multiply the different
     /// elements of the [`Spectrum`]. E.g., the reflectance values.
-    pub fn colour(&self) -> Spectrum {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
         match self {
             Self::Plastic(m) => m.colour(),
             Self::Metal(m) => m.colour(),
@@ -105,7 +105,7 @@ impl Material {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Spectrum)>; 2] {
+    ) -> [Option<(Ray, Spectrum<{ crate::N_CHANELS }>)>; 2] {
         match self {
             Self::Mirror(m) => m.get_possible_paths(normal, intersection_pt, ray),
             Self::Dielectric(m) => m.get_possible_paths(normal, intersection_pt, ray),
@@ -124,12 +124,12 @@ impl Material {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Spectrum, Float) {
+    ) -> (Spectrum<{ crate::N_CHANELS }>, Float) {
         match self {
             Self::Plastic(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
             Self::Metal(m) => m.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng),
             Self::Light(m) => panic!("Material '{}' has no BSDF", m.id()),
-            Self::Mirror(_m) =>panic!("Trying to sample the BSDF of a Mirror"),
+            Self::Mirror(_m) => panic!("Trying to sample the BSDF of a Mirror"),
             Self::Dielectric(_m) => panic!("Trying to sample the BSDF of a Dielectric"),
             Self::Glass(_m) => panic!("Trying to sample the BSDF of a Glass"),
         }
@@ -143,7 +143,7 @@ impl Material {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum {
+    ) -> Spectrum<{ crate::N_CHANELS }> {
         match self {
             Self::Plastic(m) => m.eval_bsdf(normal, e1, e2, ray, vout),
             Self::Metal(m) => m.eval_bsdf(normal, e1, e2, ray, vout),
@@ -204,11 +204,7 @@ mod tests {
     #[test]
     fn test_sample_plastic() {
         let plastic = Material::Plastic(Plastic {
-            colour: Spectrum {
-                red: 0.5,
-                green: 0.2,
-                blue: 0.9,
-            },
+            colour: Spectrum::<{ crate::N_CHANELS }>([0.5, 0.2, 0.9]),
             specularity: 0.0,
             roughness: 0.0,
         });
@@ -220,17 +216,11 @@ mod tests {
     #[test]
     fn test_sample_metal() {
         let metal = Material::Metal(Metal {
-            colour: Spectrum {
-                red: 0.5,
-                green: 0.2,
-                blue: 0.9,
-            },
+            colour: Spectrum::<{ crate::N_CHANELS }>([0.5, 0.2, 0.9]),
             specularity: 0.0,
             roughness: 0.0,
         });
 
         test_material(metal)
     }
-
-    
 }

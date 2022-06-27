@@ -46,12 +46,26 @@ impl SimpleModelReader {
             let polygon = &s.vertices;
             let construction = &s.construction;
             // Should not be empty, and should have been check before this
-            assert!(!construction.materials.is_empty(), "Found an empty construction, called {}", construction.name());
+            assert!(
+                !construction.materials.is_empty(),
+                "Found an empty construction, called {}",
+                construction.name()
+            );
 
             let front_substance = &construction.materials[0].substance;
-            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength).expect(&format!("Front material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
+            let front_mat_index = self
+                .push_substance(&mut scene, front_substance, wavelength)
+                .expect(&format!(
+                    "Front material of  Construction '{}' seems to be a gas. This is not supported",
+                    construction.name()
+                ));
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
-            let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength).expect(&format!("Back material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
+            let back_mat_index = self
+                .push_substance(&mut scene, back_substance, wavelength)
+                .expect(&format!(
+                    "Back material of  Construction '{}' seems to be a gas. This is not supported",
+                    construction.name()
+                ));
 
             // Add all the triangles necessary
             let triangles = Triangulation3D::from_polygon(polygon)
@@ -67,12 +81,26 @@ impl SimpleModelReader {
             let polygon = &s.vertices;
             let construction = &s.construction;
             // Should not be empty, and should have been check before this
-            assert!(!construction.materials.is_empty(), "Found an empty construction, called {}", construction.name());
+            assert!(
+                !construction.materials.is_empty(),
+                "Found an empty construction, called {}",
+                construction.name()
+            );
 
             let front_substance = &construction.materials[0].substance;
-            let front_mat_index = self.push_substance(&mut scene, front_substance, wavelength).expect(&format!("Front material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
+            let front_mat_index = self
+                .push_substance(&mut scene, front_substance, wavelength)
+                .expect(&format!(
+                    "Front material of  Construction '{}' seems to be a gas. This is not supported",
+                    construction.name()
+                ));
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
-            let back_mat_index = self.push_substance(&mut scene, back_substance, wavelength).expect(&format!("Back material of  Construction '{}' seems to be a gas. This is not supported", construction.name()));
+            let back_mat_index = self
+                .push_substance(&mut scene, back_substance, wavelength)
+                .expect(&format!(
+                    "Back material of  Construction '{}' seems to be a gas. This is not supported",
+                    construction.name()
+                ));
 
             // Add all the triangles necessary
             let triangles = Triangulation3D::from_polygon(polygon)
@@ -119,8 +147,7 @@ impl SimpleModelReader {
 
     /// Transformsa a SimpleModel Substance into a Material
     fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Option<Material> {
-        
-        let color = match wavelength{
+        let color = match wavelength {
             &Wavelengths::Solar => {
                 match substance {
                     Substance::Normal(s) => {
@@ -134,10 +161,10 @@ impl SimpleModelReader {
                         };
                         // return solar reflection
                         1. - alpha
-                    },
-                    Substance::Gas(_)=>{return None}
+                    }
+                    Substance::Gas(_) => return None,
                 }
-            },
+            }
             &Wavelengths::Visible => {
                 match substance {
                     Substance::Normal(s) => {
@@ -151,15 +178,15 @@ impl SimpleModelReader {
                         };
                         // return solar reflection
                         1. - alpha
-                    },
-                    Substance::Gas(_)=>{return None}
+                    }
+                    Substance::Gas(_) => return None,
                 }
             }
         };
 
         // return
         Some(Material::Plastic(Plastic {
-            colour: Spectrum::gray(color),
+            colour: Spectrum::<{ crate::N_CHANELS }>::gray(color),
             specularity: 0.0,
             roughness: 0.0,
         }))
@@ -185,7 +212,9 @@ mod tests {
         let mut reader = SimpleModelReader::default();
         let mut scene = reader.build_scene(&model, &Wavelengths::Solar);
 
-        let light_index = scene.push_material(Material::Light(Light(Spectrum::gray(10000.))));
+        let light_index = scene.push_material(Material::Light(Light(Spectrum::<
+            { crate::N_CHANELS },
+        >::gray(10000.))));
         scene.push_object(
             light_index,
             light_index,

@@ -268,10 +268,7 @@ fn baricentric_coorinates(
 
 /// Intersects a `Ray3D` and a [`Triangle`], returning the [`IntersectionInfo`]
 /// (or `None` if they don't intersect)
-pub fn triangle_intersect(
-    t: &Triangle,
-    ray: &geometry3d::Ray3D,
-) -> Option<IntersectionInfo> {
+pub fn triangle_intersect(t: &Triangle, ray: &geometry3d::Ray3D) -> Option<IntersectionInfo> {
     let ax = t[0];
     let ay = t[1];
     let az = t[2];
@@ -286,8 +283,6 @@ pub fn triangle_intersect(
 
     let (p, u, v) = baricentric_coorinates(ray, ax, ay, az, bx, by, bz, cx, cy, cz)?;
     Some(new_info(t, p, u, v, ray.direction))
-
-    
 }
 
 /// Intersects a `Ray3D` and a [`Triangle`], returning the `Point3D` of
@@ -320,8 +315,7 @@ pub fn triangle_intersect_pack(
 ) -> Option<(usize, IntersectionInfo)> {
     let (tri_index, p, u, v) = triangle_pack_baricentric_coorinates(t, ray)?;
     let triangle = &t[tri_index];
-    Some((tri_index,new_info(triangle, p, u, v, ray.direction)))
-    
+    Some((tri_index, new_info(triangle, p, u, v, ray.direction)))
 }
 
 /// Intersects a `Ray3D` and a pack (i.e., `&[]`) of [`Triangle`], returning the
@@ -335,11 +329,9 @@ pub fn simple_triangle_intersect_pack(
     Some((tri_index, pt))
 }
 
-
-
 pub struct Intersection {
     pub e1: Vector3D,
-    pub e2:Vector3D,
+    pub e2: Vector3D,
     pub normal: Vector3D,
     pub point: Point3D,
     // pub tri_index: usize,
@@ -348,9 +340,13 @@ pub struct Intersection {
     pub v: Float,
 }
 
-
-
-pub fn new_info(triangle: &Triangle, point: Point3D, u: Float, v: Float, ray_dir: Vector3D)->IntersectionInfo{
+pub fn new_info(
+    triangle: &Triangle,
+    point: Point3D,
+    u: Float,
+    v: Float,
+    ray_dir: Vector3D,
+) -> IntersectionInfo {
     let ax = triangle[0];
     let ay = triangle[1];
     let az = triangle[2];
@@ -374,21 +370,18 @@ pub fn new_info(triangle: &Triangle, point: Point3D, u: Float, v: Float, ray_dir
     debug_assert!((1.0 - normal.length()).abs() < 1e-5);
     debug_assert!((1.0 - e1.length()).abs() < 1e-5);
     debug_assert!((1.0 - e2.length()).abs() < 1e-5);
-    IntersectionInfo{
+    IntersectionInfo {
         normal,
-        dpdu:e1,
-        dpdv:e2,
-        p:point,side, u, v,
+        dpdu: e1,
+        dpdv: e2,
+        p: point,
+        side,
+        u,
+        v,
         dndu: Vector3D::new(0., 0., 0.),
         dndv: Vector3D::new(0., 0., 0.),
     }
 }
-
-
-
-
-
-
 
 /// Transforms a `Triangle3D` and transforms it into a `Vec<Triangle>` and their
 /// respective normals
