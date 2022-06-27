@@ -135,7 +135,7 @@ fn render_ball(mat: Material, filename: &str) {
 
     // Create film
     let film = Film {
-        resolution: (32, 32),
+        resolution: (320, 320),
     };
 
     // Create view
@@ -164,7 +164,7 @@ fn render_ball(mat: Material, filename: &str) {
 #[test]
 #[ignore]
 fn test_render_specular_plastic() {
-    // cargo test --package rendering --test render_materials -- test_render_specular_plastic --exact --nocapture
+    // cargo test --package rendering --test render_materials -- test_render_specular_plastic --exact --nocapture --ignored
 
     let plastic = Material::Plastic(Plastic {
         colour:  Spectrum([0.9, 0.5, 0.5]),        
@@ -214,7 +214,7 @@ fn test_render_mirror() {
 #[test]
 #[ignore]
 fn test_render_dielectric() {
-    // cargo test --features parallel --release --package rendering --test render_materials -- test_render_dielectric --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test render_materials -- test_render_dielectric --exact --nocapture --ignored
 
     let dielectric = Material::Dielectric(Dielectric {
         colour: Spectrum::gray(0.95),

@@ -12,7 +12,7 @@ use rendering::{Float, PI};
 #[test]
 #[ignore]
 fn laptop() {
-    // cargo test --features parallel --release --package rendering --test test_scenes -- laptop --exact --nocapture
+    // cargo test --features parallel --release --package rendering --test test_scenes -- laptop --exact --nocapture --ignored
     let mut scene = Scene::new();
 
     const BASE_THICKNESS: Float = 0.01;

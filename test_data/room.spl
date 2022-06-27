@@ -1,17 +1,17 @@
 
 Substance::Normal {
     name: "floor_mat",
-    solar_absorbtance: 0.9
+    front_solar_absorbtance: 0.9
 }
 
 Substance::Normal {
     name: "ceiling_mat",
-    solar_absorbtance: 0.2
+    front_solar_absorbtance: 0.2
 }
 
 Substance::Normal {
     name: "wall_mat",
-    solar_absorbtance: 0.5
+    front_solar_absorbtance: 0.5
 }
 
 Material {

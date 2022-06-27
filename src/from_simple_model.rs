@@ -205,6 +205,7 @@ mod tests {
     use std::time::Instant;
 
     #[test]
+    #[ignore]
     fn test_scene_from_model() {
         // BUILD SCENE
         let (model, _state_header) =
@@ -212,9 +213,7 @@ mod tests {
         let mut reader = SimpleModelReader::default();
         let mut scene = reader.build_scene(&model, &Wavelengths::Solar);
 
-        let light_index = scene.push_material(Material::Light(Light(Spectrum::<
-            { crate::N_CHANELS },
-        >::gray(10000.))));
+        let light_index = scene.push_material(Material::Light(Light(Spectrum::<{ crate::N_CHANELS },>::gray(10000.))));
         scene.push_object(
             light_index,
             light_index,

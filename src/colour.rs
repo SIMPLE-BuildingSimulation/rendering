@@ -73,16 +73,10 @@ impl<const N: usize> Spectrum<N> {
     pub fn is_black(&self) -> bool {
         for v in self.0 {
             if v >= 1e-24{
-                return true
+                return false
             }
         }
-        return false        
-    }
-
-    /// Scales the chanels in order to make the
-    /// radiance equals to 1
-    pub fn normalize(&self) -> Self {
-        *self / self.radiance()
+        true
     }
 
     /// Calculates a weighted average of RGB colours, returning
@@ -90,6 +84,12 @@ impl<const N: usize> Spectrum<N> {
     pub fn radiance(&self) -> Float {
         // self.0[0]*47.9 + self.0[1]*119.9 + self.0[2]*11.6
         self.0.iter().zip(RADIANCE_COEFFICIENTS.iter()).map(|(a,b)| a*b).sum()
+    }
+
+    /// Scales the chanels in order to make the
+    /// radiance equals to 1
+    pub fn normalize(&self) -> Self {
+        *self / self.radiance()
     }
 
     /// Calculates a weighted average of RGB colours, returning
@@ -146,6 +146,32 @@ impl<const N: usize> std::ops::Sub for Spectrum<N> {
     }
 }
 
+impl<const N: usize> std::ops::Sub<Float> for Spectrum<N> {
+    type Output = Self;
+
+    fn sub(self, other: Float) -> Self {
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()            
+            .for_each(|(i, this)| data[i] = this - other);
+        Self(data)
+    }
+}
+
+impl<const N: usize> std::ops::Add<Float> for Spectrum<N> {
+    type Output = Self;
+
+    fn add(self, other: Float) -> Self {
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()            
+            .for_each(|(i, this)| data[i] = this + other);
+        Self(data)
+    }
+}
+
 impl<const N: usize> std::ops::AddAssign for Spectrum<N> {
     fn add_assign(&mut self, other: Self) {
         for (i, v) in self.0.iter_mut().enumerate() {
@@ -184,6 +210,30 @@ impl<const N: usize> std::ops::MulAssign for Spectrum<N> {
     }
 }
 
+impl<const N: usize> std::ops::Div for Spectrum<N> {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self {
+        let mut data = [0.0; N];
+        self.0
+            .iter()
+            .enumerate()
+            .zip(other.0.iter())
+            .for_each(|((i, this), other)| data[i] = this / other);
+        Self(data)
+    }
+}
+
+
+impl<const N: usize> std::ops::DivAssign for Spectrum<N> {
+    fn div_assign(&mut self, other: Self) {
+        for (i, v) in self.0.iter_mut().enumerate() {
+            *v /= other.0[i]
+        }
+    }
+}
+
+
 impl<const N: usize> std::ops::Mul<Float> for Spectrum<N> {
     type Output = Self;
 
@@ -205,6 +255,7 @@ impl<const N: usize> std::ops::MulAssign<Float> for Spectrum<N> {
     }
 }
 
+
 impl<const N: usize> std::ops::Div<Float> for Spectrum<N> {
     type Output = Self;
 
@@ -218,19 +269,7 @@ impl<const N: usize> std::ops::Div<Float> for Spectrum<N> {
     }
 }
 
-impl<const N: usize> std::ops::Div for Spectrum<N> {
-    type Output = Self;
 
-    fn div(self, other: Self) -> Self {
-        let mut data = [0.0; N];
-        self.0
-            .iter()
-            .enumerate()
-            .zip(other.0.iter())
-            .for_each(|((i, this), other)| data[i] = this / other);
-        Self(data)
-    }
-}
 
 impl<const N: usize> std::ops::DivAssign<Float> for Spectrum<N> {
     fn div_assign(&mut self, other: Float) {
@@ -240,13 +279,21 @@ impl<const N: usize> std::ops::DivAssign<Float> for Spectrum<N> {
     }
 }
 
-impl<const N: usize> std::ops::DivAssign for Spectrum<N> {
-    fn div_assign(&mut self, other: Self) {
-        for (i, v) in self.0.iter_mut().enumerate() {
-            *v /= other.0[i]
-        }
+
+
+
+impl<const N: usize> std::ops::Mul<Spectrum<N>> for Float {
+    type Output = Spectrum<N>;
+    fn mul(self, c: Spectrum<N>) -> Spectrum<N> {
+        let mut data = [0.0; N];
+        c.0.iter()
+            .enumerate()
+            .for_each(|(i, this)| data[i] = this * self);
+        Spectrum(data)
     }
 }
+
+
 
 impl<const N: usize> std::ops::Add<Spectrum<N>> for Float {
     type Output = Spectrum<N>;
@@ -259,6 +306,9 @@ impl<const N: usize> std::ops::Add<Spectrum<N>> for Float {
     }
 }
 
+
+
+
 impl<const N: usize> std::ops::Sub<Spectrum<N>> for Float {
     type Output = Spectrum<N>;
     fn sub(self, c: Spectrum<N>) -> Spectrum<N> {
@@ -270,16 +320,7 @@ impl<const N: usize> std::ops::Sub<Spectrum<N>> for Float {
     }
 }
 
-impl<const N: usize> std::ops::Mul<Spectrum<N>> for Float {
-    type Output = Spectrum<N>;
-    fn mul(self, c: Spectrum<N>) -> Spectrum<N> {
-        let mut data = [0.0; N];
-        c.0.iter()
-            .enumerate()
-            .for_each(|(i, this)| data[i] = this * self);
-        Spectrum(data)
-    }
-}
+
 
 impl<const N: usize> std::ops::Div<Spectrum<N>> for Float {
     type Output = Spectrum<N>;
@@ -302,27 +343,165 @@ impl<const N: usize> std::convert::From<Float> for Spectrum<N> {
 mod tests {
     use super::*;
 
-    #[test]
-    fn test_add() {
-        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+    const TEST_CHANNELS:usize=3;    
+    use matrix::OneZero;
+    use validate::assert_close;
 
+    #[test]
+    fn test_one(){
+        let c1 = Spectrum::<TEST_CHANNELS>::ONE;
+        for v in c1.0{
+            assert_close!(v, 1., 1e-9);
+        }
+        let one = Spectrum::<TEST_CHANNELS>::one();
+        assert_eq!(c1, one);
+    }
+    
+    #[test]
+    fn test_zero(){
+        
+        let c2 = Spectrum::<TEST_CHANNELS>::BLACK;
+        for v in c2.0{
+            assert_close!(v, 0., 1e-9);
+        }
+        let zero = Spectrum::<TEST_CHANNELS>::zero();
+        assert_eq!(c2, zero);
+    }
+
+    #[test]
+    fn test_gray(){
+        let exp = 1.123123;
+        let c2 = Spectrum::<TEST_CHANNELS>::gray(exp);
+        for v in c2.0{            
+            assert_close!(v, exp, 1e-9);
+        }        
+    }
+
+    #[test]
+    fn test_powi(){
+        let (r, g, b) = (1.23, 321., -5.12);
+        let exp = 5;
+        let c = Spectrum([r, g, b]);
+        let c2 = c.powi(exp);
+
+        assert_close!(c.0[0].powi(exp), c2.0[0], 1e-9);
+        assert_close!(c.0[1].powi(exp), c2.0[1], 1e-9);
+        assert_close!(c.0[2].powi(exp), c2.0[2], 1e-9);
+    }
+
+    #[test]
+    fn test_powf(){
+        let (r, g, b) = (1.23, 321., -5.12);
+        let exp = -5.131241;
+        let c = Spectrum([r, g, b]);
+        let c2 = c.powf(exp);
+
+        assert_close!(c.0[0].powf(exp), c2.0[0], 1e-9);
+        assert_close!(c.0[1].powf(exp), c2.0[1], 1e-9);
+        assert_close!(c.0[2].powf(exp), c2.0[2], 1e-9);
+    }
+    
+    #[test]
+    fn test_is_black(){
+        let c = Spectrum([0., 0., 0.]);
+        assert!(c.is_black());
+
+        let c = Spectrum([0., 0., 1.]);
+        assert!(!c.is_black());
+
+        let c = Spectrum([0., 1., 0.]);
+        assert!(!c.is_black());
+        
+        let c = Spectrum([1., 0., 0.]);
+        assert!(!c.is_black());        
+    }
+
+    #[test]
+    fn test_radiance(){
+        let c = Spectrum([1., 0., 0.]);
+        let rad = c.radiance();
+        assert_close!(rad, RADIANCE_COEFFICIENTS[0]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+        let c = Spectrum([0., 1., 0.]);
+        let rad = c.radiance();
+        assert_close!(rad, RADIANCE_COEFFICIENTS[1]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+        let c = Spectrum([0., 0., 1.]);
+        let rad = c.radiance();
+        assert_close!(rad, RADIANCE_COEFFICIENTS[2]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+
+
+        let c = Spectrum([1., 1., 0.]);
+        let rad = c.radiance();
+        assert_close!(rad, RADIANCE_COEFFICIENTS[0] + RADIANCE_COEFFICIENTS[1]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+        let c = Spectrum([0., 1., 1.]);
+        let rad = c.radiance();
+        assert_close!(rad, RADIANCE_COEFFICIENTS[1] + RADIANCE_COEFFICIENTS[2]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+        let c = Spectrum([1., 0., 1.]);
+        let rad = c.radiance();
+        assert_close!(rad, RADIANCE_COEFFICIENTS[0] + RADIANCE_COEFFICIENTS[2]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+
+
+        let c = Spectrum([1., 1., 1.]);
+        let rad = c.radiance();
+        assert_close!(rad, RADIANCE_COEFFICIENTS[0] + RADIANCE_COEFFICIENTS[1] + RADIANCE_COEFFICIENTS[2]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+        let c = Spectrum([2., 3., 6.]);
+        let rad = c.radiance();
+        assert_close!(rad, 2.*RADIANCE_COEFFICIENTS[0] + 3.*RADIANCE_COEFFICIENTS[1] + 6.*RADIANCE_COEFFICIENTS[2]);
+        assert_close!(rad * WHITE_EFFICACY, c.luminance());
+
+        
+    }
+
+    #[test]
+    fn test_normalize(){
+        let c = Spectrum([2., 3., 6.]);        
+        let c = c.normalize();
+        assert_close!(c.radiance(), 1.0);
+        assert_close!(c.luminance(), WHITE_EFFICACY);        
+    }
+
+    #[test]
+    fn test_max(){
+        let c = Spectrum([2., 3., 6.]);        
+        assert_close!(c.max(), 6.);
+
+        let c = Spectrum([2., 3., -6.]);        
+        assert_close!(c.max(), 3.);
+    }
+
+    #[test]
+    fn test_add() {        
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
         let c2 = Spectrum([21.23, 95.321, 0.9719]);
 
         let c3 = c1 + c2;
-        assert_eq!(c3.0[0], c1.0[0] + c2.0[0]);
-        assert_eq!(c3.0[1], c1.0[1] + c2.0[1]);
-        assert_eq!(c3.0[2], c1.0[2] + c2.0[2]);
+        assert_close!(c3.0[0], c1.0[0] + c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] + c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] + c2.0[2]);
     }
-    #[test]
-    fn test_mul() {
-        let c1 = Spectrum([1.23, 5.321, 9.9719]);
 
+    #[test]
+    fn test_sub() {        
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
         let c2 = Spectrum([21.23, 95.321, 0.9719]);
 
-        let c3 = c1 * c2;
-        assert_eq!(c3.0[0], c1.0[0] * c2.0[0]);
-        assert_eq!(c3.0[1], c1.0[1] * c2.0[1]);
-        assert_eq!(c3.0[2], c1.0[2] * c2.0[2]);
+        let c3 = c1 - c2;
+        assert_close!(c3.0[0], c1.0[0] - c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] - c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] - c2.0[2]);
     }
 
     #[test]
@@ -334,10 +513,50 @@ mod tests {
         let mut c3 = c1;
         c3 += c2;
 
-        assert_eq!(c3.0[0], c1.0[0] + c2.0[0]);
-        assert_eq!(c3.0[1], c1.0[1] + c2.0[1]);
-        assert_eq!(c3.0[2], c1.0[2] + c2.0[2]);
+        assert_close!(c3.0[0], c1.0[0] + c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] + c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] + c2.0[2]);
     }
+
+    #[test]
+    fn test_sub_assign() {
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
+
+        let mut c3 = c1;
+        c3 -= c2;
+
+        assert_close!(c3.0[0], c1.0[0] - c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] - c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] - c2.0[2]);
+    }
+
+
+    #[test]
+    fn test_mul() {
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
+
+        let c3 = c1 * c2;
+        assert_close!(c3.0[0], c1.0[0] * c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] * c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] * c2.0[2]);
+    }
+
+    #[test]
+    fn test_div() {
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
+
+        let c3 = c1 / c2;
+        assert_close!(c3.0[0], c1.0[0] / c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] / c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] / c2.0[2]);
+    }
+
 
     #[test]
     fn test_mul_assign() {
@@ -348,8 +567,175 @@ mod tests {
         let mut c3 = c1;
         c3 *= c2;
 
-        assert_eq!(c3.0[0], c1.0[0] * c2.0[0]);
-        assert_eq!(c3.0[1], c1.0[1] * c2.0[1]);
-        assert_eq!(c3.0[2], c1.0[2] * c2.0[2]);
+        assert_close!(c3.0[0], c1.0[0] * c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] * c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] * c2.0[2]);
     }
+
+    #[test]
+    fn test_div_assign() {
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = Spectrum([21.23, 95.321, 0.9719]);
+
+        let mut c3 = c1;
+        c3 /= c2;
+
+        assert_close!(c3.0[0], c1.0[0] / c2.0[0]);
+        assert_close!(c3.0[1], c1.0[1] / c2.0[1]);
+        assert_close!(c3.0[2], c1.0[2] / c2.0[2]);
+    }
+
+
+    #[test]
+    fn test_scale(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 = c1 * c2;        
+        assert_close!(c3.0[0], c1.0[0] * c2);
+        assert_close!(c3.0[1], c1.0[1] * c2);
+        assert_close!(c3.0[2], c1.0[2] * c2);
+    }
+
+
+    
+
+    
+
+    #[test]
+    fn test_scale_assign(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+        let c2 = -5.123;
+        let mut c3 = c1;
+        c3 *= c2;
+
+        assert_close!(c3.0[0], c1.0[0] * c2);
+        assert_close!(c3.0[1], c1.0[1] * c2);
+        assert_close!(c3.0[2], c1.0[2] * c2);
+    }
+
+    #[test]
+    fn test_scale_div(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 = c1 / c2;        
+        assert_close!(c3.0[0], c1.0[0] / c2);
+        assert_close!(c3.0[1], c1.0[1] / c2);
+        assert_close!(c3.0[2], c1.0[2] / c2);
+    }
+
+    #[test]
+    fn test_scale_assign_div(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+        let c2 = -5.123;
+        let mut c3 = c1;
+        c3 /= c2;
+
+        assert_close!(c3.0[0], c1.0[0] / c2);
+        assert_close!(c3.0[1], c1.0[1] / c2);
+        assert_close!(c3.0[2], c1.0[2] / c2);
+    }
+
+
+    #[test]
+    fn test_scale_float(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 = c2 * c1;        
+        assert_close!(c3.0[0], c1.0[0] * c2);
+        assert_close!(c3.0[1], c1.0[1] * c2);
+        assert_close!(c3.0[2], c1.0[2] * c2);
+    }
+
+    #[test]
+    fn test_add_float(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 =  c1 + c2;        
+        assert_close!(c3.0[0], c1.0[0] + c2);
+        assert_close!(c3.0[1], c1.0[1] + c2);
+        assert_close!(c3.0[2], c1.0[2] + c2);
+    }
+
+    #[test]
+    fn test_add_float_2(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 =  c2 + c1;        
+        assert_close!(c3.0[0], c1.0[0] + c2);
+        assert_close!(c3.0[1], c1.0[1] + c2);
+        assert_close!(c3.0[2], c1.0[2] + c2);
+    }
+
+
+    #[test]
+    fn test_sub_float(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 =  c1 - c2;        
+        assert_close!(c3.0[0], c1.0[0] - c2);
+        assert_close!(c3.0[1], c1.0[1] - c2);
+        assert_close!(c3.0[2], c1.0[2] - c2);
+    }
+
+    #[test]
+    fn test_sub_float_2(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 =  c2 - c1;        
+        assert_close!(c3.0[0], c1.0[0] - c2);
+        assert_close!(c3.0[1], c1.0[1] - c2);
+        assert_close!(c3.0[2], c1.0[2] - c2);
+    }
+
+
+
+    #[test]
+    fn test_div_float(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 =  c1 / c2;        
+        assert_close!(c3.0[0], c1.0[0] / c2);
+        assert_close!(c3.0[1], c1.0[1] / c2);
+        assert_close!(c3.0[2], c1.0[2] / c2);
+    }
+
+    #[test]
+    fn test_div_float_2(){
+        let c1 = Spectrum([1.23, 5.321, 9.9719]);
+
+        let c2 = -5.123;
+
+        let c3 =  c2 / c1;        
+        assert_close!(c3.0[0], c2/c1.0[0] );
+        assert_close!(c3.0[1], c2/c1.0[1] );
+        assert_close!(c3.0[2], c2/c1.0[2] );
+    }
+
+    #[test]
+    fn test_from(){
+        let exp = 4.12312;
+        let c = Spectrum::<TEST_CHANNELS>::from(exp);
+        for v in c.0{
+            assert_close!(v, exp);
+        }
+    }
+
+
 }

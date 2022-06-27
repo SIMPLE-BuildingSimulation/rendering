@@ -38,6 +38,7 @@ path = "bin/scompare.rs"
 
 [dev-dependencies]
 criterion = "0.3"
+validate = {git="https://github.com/SIMPLE-BuildingSimulation/validate.git"}
 
 [[bench]]
 name = "benchmark"
