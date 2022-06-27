@@ -294,7 +294,6 @@
 <span id="254">254</span>
 <span id="255">255</span>
 <span id="256">256</span>
-<span id="257">257</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -502,6 +501,7 @@ SOFTWARE.
     <span class="kw">use</span> <span class="ident">std::time::Instant</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="attribute">#[<span class="ident">ignore</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_scene_from_model</span>() {
         <span class="comment">// BUILD SCENE</span>
         <span class="kw">let</span> (<span class="ident">model</span>, <span class="ident">_state_header</span>) <span class="op">=</span>
@@ -509,9 +509,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">reader</span> <span class="op">=</span> <span class="ident">SimpleModelReader::default</span>();
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">reader</span>.<span class="ident">build_scene</span>(<span class="kw-2">&amp;</span><span class="ident">model</span>, <span class="kw-2">&amp;</span><span class="ident">Wavelengths::Solar</span>);
 
-        <span class="kw">let</span> <span class="ident">light_index</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Light</span>(<span class="ident">Light</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>
-            { <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> },
-        <span class="op">&gt;</span><span class="ident">::gray</span>(<span class="number">10000.</span>))));
+        <span class="kw">let</span> <span class="ident">light_index</span> <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">push_material</span>(<span class="ident">Material::Light</span>(<span class="ident">Light</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> },<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="number">10000.</span>))));
         <span class="ident">scene</span>.<span class="ident">push_object</span>(
             <span class="ident">light_index</span>,
             <span class="ident">light_index</span>,
