@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/colourmap/inferno.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inferno.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/colourmap/inferno.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>inferno.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -37,7 +36,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../rendering/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rendering/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rendering/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -317,1031 +318,6 @@
 <span id="278">278</span>
 <span id="279">279</span>
 <span id="280">280</span>
-<span id="281">281</span>
-<span id="282">282</span>
-<span id="283">283</span>
-<span id="284">284</span>
-<span id="285">285</span>
-<span id="286">286</span>
-<span id="287">287</span>
-<span id="288">288</span>
-<span id="289">289</span>
-<span id="290">290</span>
-<span id="291">291</span>
-<span id="292">292</span>
-<span id="293">293</span>
-<span id="294">294</span>
-<span id="295">295</span>
-<span id="296">296</span>
-<span id="297">297</span>
-<span id="298">298</span>
-<span id="299">299</span>
-<span id="300">300</span>
-<span id="301">301</span>
-<span id="302">302</span>
-<span id="303">303</span>
-<span id="304">304</span>
-<span id="305">305</span>
-<span id="306">306</span>
-<span id="307">307</span>
-<span id="308">308</span>
-<span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
-<span id="355">355</span>
-<span id="356">356</span>
-<span id="357">357</span>
-<span id="358">358</span>
-<span id="359">359</span>
-<span id="360">360</span>
-<span id="361">361</span>
-<span id="362">362</span>
-<span id="363">363</span>
-<span id="364">364</span>
-<span id="365">365</span>
-<span id="366">366</span>
-<span id="367">367</span>
-<span id="368">368</span>
-<span id="369">369</span>
-<span id="370">370</span>
-<span id="371">371</span>
-<span id="372">372</span>
-<span id="373">373</span>
-<span id="374">374</span>
-<span id="375">375</span>
-<span id="376">376</span>
-<span id="377">377</span>
-<span id="378">378</span>
-<span id="379">379</span>
-<span id="380">380</span>
-<span id="381">381</span>
-<span id="382">382</span>
-<span id="383">383</span>
-<span id="384">384</span>
-<span id="385">385</span>
-<span id="386">386</span>
-<span id="387">387</span>
-<span id="388">388</span>
-<span id="389">389</span>
-<span id="390">390</span>
-<span id="391">391</span>
-<span id="392">392</span>
-<span id="393">393</span>
-<span id="394">394</span>
-<span id="395">395</span>
-<span id="396">396</span>
-<span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
-<span id="401">401</span>
-<span id="402">402</span>
-<span id="403">403</span>
-<span id="404">404</span>
-<span id="405">405</span>
-<span id="406">406</span>
-<span id="407">407</span>
-<span id="408">408</span>
-<span id="409">409</span>
-<span id="410">410</span>
-<span id="411">411</span>
-<span id="412">412</span>
-<span id="413">413</span>
-<span id="414">414</span>
-<span id="415">415</span>
-<span id="416">416</span>
-<span id="417">417</span>
-<span id="418">418</span>
-<span id="419">419</span>
-<span id="420">420</span>
-<span id="421">421</span>
-<span id="422">422</span>
-<span id="423">423</span>
-<span id="424">424</span>
-<span id="425">425</span>
-<span id="426">426</span>
-<span id="427">427</span>
-<span id="428">428</span>
-<span id="429">429</span>
-<span id="430">430</span>
-<span id="431">431</span>
-<span id="432">432</span>
-<span id="433">433</span>
-<span id="434">434</span>
-<span id="435">435</span>
-<span id="436">436</span>
-<span id="437">437</span>
-<span id="438">438</span>
-<span id="439">439</span>
-<span id="440">440</span>
-<span id="441">441</span>
-<span id="442">442</span>
-<span id="443">443</span>
-<span id="444">444</span>
-<span id="445">445</span>
-<span id="446">446</span>
-<span id="447">447</span>
-<span id="448">448</span>
-<span id="449">449</span>
-<span id="450">450</span>
-<span id="451">451</span>
-<span id="452">452</span>
-<span id="453">453</span>
-<span id="454">454</span>
-<span id="455">455</span>
-<span id="456">456</span>
-<span id="457">457</span>
-<span id="458">458</span>
-<span id="459">459</span>
-<span id="460">460</span>
-<span id="461">461</span>
-<span id="462">462</span>
-<span id="463">463</span>
-<span id="464">464</span>
-<span id="465">465</span>
-<span id="466">466</span>
-<span id="467">467</span>
-<span id="468">468</span>
-<span id="469">469</span>
-<span id="470">470</span>
-<span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
-<span id="484">484</span>
-<span id="485">485</span>
-<span id="486">486</span>
-<span id="487">487</span>
-<span id="488">488</span>
-<span id="489">489</span>
-<span id="490">490</span>
-<span id="491">491</span>
-<span id="492">492</span>
-<span id="493">493</span>
-<span id="494">494</span>
-<span id="495">495</span>
-<span id="496">496</span>
-<span id="497">497</span>
-<span id="498">498</span>
-<span id="499">499</span>
-<span id="500">500</span>
-<span id="501">501</span>
-<span id="502">502</span>
-<span id="503">503</span>
-<span id="504">504</span>
-<span id="505">505</span>
-<span id="506">506</span>
-<span id="507">507</span>
-<span id="508">508</span>
-<span id="509">509</span>
-<span id="510">510</span>
-<span id="511">511</span>
-<span id="512">512</span>
-<span id="513">513</span>
-<span id="514">514</span>
-<span id="515">515</span>
-<span id="516">516</span>
-<span id="517">517</span>
-<span id="518">518</span>
-<span id="519">519</span>
-<span id="520">520</span>
-<span id="521">521</span>
-<span id="522">522</span>
-<span id="523">523</span>
-<span id="524">524</span>
-<span id="525">525</span>
-<span id="526">526</span>
-<span id="527">527</span>
-<span id="528">528</span>
-<span id="529">529</span>
-<span id="530">530</span>
-<span id="531">531</span>
-<span id="532">532</span>
-<span id="533">533</span>
-<span id="534">534</span>
-<span id="535">535</span>
-<span id="536">536</span>
-<span id="537">537</span>
-<span id="538">538</span>
-<span id="539">539</span>
-<span id="540">540</span>
-<span id="541">541</span>
-<span id="542">542</span>
-<span id="543">543</span>
-<span id="544">544</span>
-<span id="545">545</span>
-<span id="546">546</span>
-<span id="547">547</span>
-<span id="548">548</span>
-<span id="549">549</span>
-<span id="550">550</span>
-<span id="551">551</span>
-<span id="552">552</span>
-<span id="553">553</span>
-<span id="554">554</span>
-<span id="555">555</span>
-<span id="556">556</span>
-<span id="557">557</span>
-<span id="558">558</span>
-<span id="559">559</span>
-<span id="560">560</span>
-<span id="561">561</span>
-<span id="562">562</span>
-<span id="563">563</span>
-<span id="564">564</span>
-<span id="565">565</span>
-<span id="566">566</span>
-<span id="567">567</span>
-<span id="568">568</span>
-<span id="569">569</span>
-<span id="570">570</span>
-<span id="571">571</span>
-<span id="572">572</span>
-<span id="573">573</span>
-<span id="574">574</span>
-<span id="575">575</span>
-<span id="576">576</span>
-<span id="577">577</span>
-<span id="578">578</span>
-<span id="579">579</span>
-<span id="580">580</span>
-<span id="581">581</span>
-<span id="582">582</span>
-<span id="583">583</span>
-<span id="584">584</span>
-<span id="585">585</span>
-<span id="586">586</span>
-<span id="587">587</span>
-<span id="588">588</span>
-<span id="589">589</span>
-<span id="590">590</span>
-<span id="591">591</span>
-<span id="592">592</span>
-<span id="593">593</span>
-<span id="594">594</span>
-<span id="595">595</span>
-<span id="596">596</span>
-<span id="597">597</span>
-<span id="598">598</span>
-<span id="599">599</span>
-<span id="600">600</span>
-<span id="601">601</span>
-<span id="602">602</span>
-<span id="603">603</span>
-<span id="604">604</span>
-<span id="605">605</span>
-<span id="606">606</span>
-<span id="607">607</span>
-<span id="608">608</span>
-<span id="609">609</span>
-<span id="610">610</span>
-<span id="611">611</span>
-<span id="612">612</span>
-<span id="613">613</span>
-<span id="614">614</span>
-<span id="615">615</span>
-<span id="616">616</span>
-<span id="617">617</span>
-<span id="618">618</span>
-<span id="619">619</span>
-<span id="620">620</span>
-<span id="621">621</span>
-<span id="622">622</span>
-<span id="623">623</span>
-<span id="624">624</span>
-<span id="625">625</span>
-<span id="626">626</span>
-<span id="627">627</span>
-<span id="628">628</span>
-<span id="629">629</span>
-<span id="630">630</span>
-<span id="631">631</span>
-<span id="632">632</span>
-<span id="633">633</span>
-<span id="634">634</span>
-<span id="635">635</span>
-<span id="636">636</span>
-<span id="637">637</span>
-<span id="638">638</span>
-<span id="639">639</span>
-<span id="640">640</span>
-<span id="641">641</span>
-<span id="642">642</span>
-<span id="643">643</span>
-<span id="644">644</span>
-<span id="645">645</span>
-<span id="646">646</span>
-<span id="647">647</span>
-<span id="648">648</span>
-<span id="649">649</span>
-<span id="650">650</span>
-<span id="651">651</span>
-<span id="652">652</span>
-<span id="653">653</span>
-<span id="654">654</span>
-<span id="655">655</span>
-<span id="656">656</span>
-<span id="657">657</span>
-<span id="658">658</span>
-<span id="659">659</span>
-<span id="660">660</span>
-<span id="661">661</span>
-<span id="662">662</span>
-<span id="663">663</span>
-<span id="664">664</span>
-<span id="665">665</span>
-<span id="666">666</span>
-<span id="667">667</span>
-<span id="668">668</span>
-<span id="669">669</span>
-<span id="670">670</span>
-<span id="671">671</span>
-<span id="672">672</span>
-<span id="673">673</span>
-<span id="674">674</span>
-<span id="675">675</span>
-<span id="676">676</span>
-<span id="677">677</span>
-<span id="678">678</span>
-<span id="679">679</span>
-<span id="680">680</span>
-<span id="681">681</span>
-<span id="682">682</span>
-<span id="683">683</span>
-<span id="684">684</span>
-<span id="685">685</span>
-<span id="686">686</span>
-<span id="687">687</span>
-<span id="688">688</span>
-<span id="689">689</span>
-<span id="690">690</span>
-<span id="691">691</span>
-<span id="692">692</span>
-<span id="693">693</span>
-<span id="694">694</span>
-<span id="695">695</span>
-<span id="696">696</span>
-<span id="697">697</span>
-<span id="698">698</span>
-<span id="699">699</span>
-<span id="700">700</span>
-<span id="701">701</span>
-<span id="702">702</span>
-<span id="703">703</span>
-<span id="704">704</span>
-<span id="705">705</span>
-<span id="706">706</span>
-<span id="707">707</span>
-<span id="708">708</span>
-<span id="709">709</span>
-<span id="710">710</span>
-<span id="711">711</span>
-<span id="712">712</span>
-<span id="713">713</span>
-<span id="714">714</span>
-<span id="715">715</span>
-<span id="716">716</span>
-<span id="717">717</span>
-<span id="718">718</span>
-<span id="719">719</span>
-<span id="720">720</span>
-<span id="721">721</span>
-<span id="722">722</span>
-<span id="723">723</span>
-<span id="724">724</span>
-<span id="725">725</span>
-<span id="726">726</span>
-<span id="727">727</span>
-<span id="728">728</span>
-<span id="729">729</span>
-<span id="730">730</span>
-<span id="731">731</span>
-<span id="732">732</span>
-<span id="733">733</span>
-<span id="734">734</span>
-<span id="735">735</span>
-<span id="736">736</span>
-<span id="737">737</span>
-<span id="738">738</span>
-<span id="739">739</span>
-<span id="740">740</span>
-<span id="741">741</span>
-<span id="742">742</span>
-<span id="743">743</span>
-<span id="744">744</span>
-<span id="745">745</span>
-<span id="746">746</span>
-<span id="747">747</span>
-<span id="748">748</span>
-<span id="749">749</span>
-<span id="750">750</span>
-<span id="751">751</span>
-<span id="752">752</span>
-<span id="753">753</span>
-<span id="754">754</span>
-<span id="755">755</span>
-<span id="756">756</span>
-<span id="757">757</span>
-<span id="758">758</span>
-<span id="759">759</span>
-<span id="760">760</span>
-<span id="761">761</span>
-<span id="762">762</span>
-<span id="763">763</span>
-<span id="764">764</span>
-<span id="765">765</span>
-<span id="766">766</span>
-<span id="767">767</span>
-<span id="768">768</span>
-<span id="769">769</span>
-<span id="770">770</span>
-<span id="771">771</span>
-<span id="772">772</span>
-<span id="773">773</span>
-<span id="774">774</span>
-<span id="775">775</span>
-<span id="776">776</span>
-<span id="777">777</span>
-<span id="778">778</span>
-<span id="779">779</span>
-<span id="780">780</span>
-<span id="781">781</span>
-<span id="782">782</span>
-<span id="783">783</span>
-<span id="784">784</span>
-<span id="785">785</span>
-<span id="786">786</span>
-<span id="787">787</span>
-<span id="788">788</span>
-<span id="789">789</span>
-<span id="790">790</span>
-<span id="791">791</span>
-<span id="792">792</span>
-<span id="793">793</span>
-<span id="794">794</span>
-<span id="795">795</span>
-<span id="796">796</span>
-<span id="797">797</span>
-<span id="798">798</span>
-<span id="799">799</span>
-<span id="800">800</span>
-<span id="801">801</span>
-<span id="802">802</span>
-<span id="803">803</span>
-<span id="804">804</span>
-<span id="805">805</span>
-<span id="806">806</span>
-<span id="807">807</span>
-<span id="808">808</span>
-<span id="809">809</span>
-<span id="810">810</span>
-<span id="811">811</span>
-<span id="812">812</span>
-<span id="813">813</span>
-<span id="814">814</span>
-<span id="815">815</span>
-<span id="816">816</span>
-<span id="817">817</span>
-<span id="818">818</span>
-<span id="819">819</span>
-<span id="820">820</span>
-<span id="821">821</span>
-<span id="822">822</span>
-<span id="823">823</span>
-<span id="824">824</span>
-<span id="825">825</span>
-<span id="826">826</span>
-<span id="827">827</span>
-<span id="828">828</span>
-<span id="829">829</span>
-<span id="830">830</span>
-<span id="831">831</span>
-<span id="832">832</span>
-<span id="833">833</span>
-<span id="834">834</span>
-<span id="835">835</span>
-<span id="836">836</span>
-<span id="837">837</span>
-<span id="838">838</span>
-<span id="839">839</span>
-<span id="840">840</span>
-<span id="841">841</span>
-<span id="842">842</span>
-<span id="843">843</span>
-<span id="844">844</span>
-<span id="845">845</span>
-<span id="846">846</span>
-<span id="847">847</span>
-<span id="848">848</span>
-<span id="849">849</span>
-<span id="850">850</span>
-<span id="851">851</span>
-<span id="852">852</span>
-<span id="853">853</span>
-<span id="854">854</span>
-<span id="855">855</span>
-<span id="856">856</span>
-<span id="857">857</span>
-<span id="858">858</span>
-<span id="859">859</span>
-<span id="860">860</span>
-<span id="861">861</span>
-<span id="862">862</span>
-<span id="863">863</span>
-<span id="864">864</span>
-<span id="865">865</span>
-<span id="866">866</span>
-<span id="867">867</span>
-<span id="868">868</span>
-<span id="869">869</span>
-<span id="870">870</span>
-<span id="871">871</span>
-<span id="872">872</span>
-<span id="873">873</span>
-<span id="874">874</span>
-<span id="875">875</span>
-<span id="876">876</span>
-<span id="877">877</span>
-<span id="878">878</span>
-<span id="879">879</span>
-<span id="880">880</span>
-<span id="881">881</span>
-<span id="882">882</span>
-<span id="883">883</span>
-<span id="884">884</span>
-<span id="885">885</span>
-<span id="886">886</span>
-<span id="887">887</span>
-<span id="888">888</span>
-<span id="889">889</span>
-<span id="890">890</span>
-<span id="891">891</span>
-<span id="892">892</span>
-<span id="893">893</span>
-<span id="894">894</span>
-<span id="895">895</span>
-<span id="896">896</span>
-<span id="897">897</span>
-<span id="898">898</span>
-<span id="899">899</span>
-<span id="900">900</span>
-<span id="901">901</span>
-<span id="902">902</span>
-<span id="903">903</span>
-<span id="904">904</span>
-<span id="905">905</span>
-<span id="906">906</span>
-<span id="907">907</span>
-<span id="908">908</span>
-<span id="909">909</span>
-<span id="910">910</span>
-<span id="911">911</span>
-<span id="912">912</span>
-<span id="913">913</span>
-<span id="914">914</span>
-<span id="915">915</span>
-<span id="916">916</span>
-<span id="917">917</span>
-<span id="918">918</span>
-<span id="919">919</span>
-<span id="920">920</span>
-<span id="921">921</span>
-<span id="922">922</span>
-<span id="923">923</span>
-<span id="924">924</span>
-<span id="925">925</span>
-<span id="926">926</span>
-<span id="927">927</span>
-<span id="928">928</span>
-<span id="929">929</span>
-<span id="930">930</span>
-<span id="931">931</span>
-<span id="932">932</span>
-<span id="933">933</span>
-<span id="934">934</span>
-<span id="935">935</span>
-<span id="936">936</span>
-<span id="937">937</span>
-<span id="938">938</span>
-<span id="939">939</span>
-<span id="940">940</span>
-<span id="941">941</span>
-<span id="942">942</span>
-<span id="943">943</span>
-<span id="944">944</span>
-<span id="945">945</span>
-<span id="946">946</span>
-<span id="947">947</span>
-<span id="948">948</span>
-<span id="949">949</span>
-<span id="950">950</span>
-<span id="951">951</span>
-<span id="952">952</span>
-<span id="953">953</span>
-<span id="954">954</span>
-<span id="955">955</span>
-<span id="956">956</span>
-<span id="957">957</span>
-<span id="958">958</span>
-<span id="959">959</span>
-<span id="960">960</span>
-<span id="961">961</span>
-<span id="962">962</span>
-<span id="963">963</span>
-<span id="964">964</span>
-<span id="965">965</span>
-<span id="966">966</span>
-<span id="967">967</span>
-<span id="968">968</span>
-<span id="969">969</span>
-<span id="970">970</span>
-<span id="971">971</span>
-<span id="972">972</span>
-<span id="973">973</span>
-<span id="974">974</span>
-<span id="975">975</span>
-<span id="976">976</span>
-<span id="977">977</span>
-<span id="978">978</span>
-<span id="979">979</span>
-<span id="980">980</span>
-<span id="981">981</span>
-<span id="982">982</span>
-<span id="983">983</span>
-<span id="984">984</span>
-<span id="985">985</span>
-<span id="986">986</span>
-<span id="987">987</span>
-<span id="988">988</span>
-<span id="989">989</span>
-<span id="990">990</span>
-<span id="991">991</span>
-<span id="992">992</span>
-<span id="993">993</span>
-<span id="994">994</span>
-<span id="995">995</span>
-<span id="996">996</span>
-<span id="997">997</span>
-<span id="998">998</span>
-<span id="999">999</span>
-<span id="1000">1000</span>
-<span id="1001">1001</span>
-<span id="1002">1002</span>
-<span id="1003">1003</span>
-<span id="1004">1004</span>
-<span id="1005">1005</span>
-<span id="1006">1006</span>
-<span id="1007">1007</span>
-<span id="1008">1008</span>
-<span id="1009">1009</span>
-<span id="1010">1010</span>
-<span id="1011">1011</span>
-<span id="1012">1012</span>
-<span id="1013">1013</span>
-<span id="1014">1014</span>
-<span id="1015">1015</span>
-<span id="1016">1016</span>
-<span id="1017">1017</span>
-<span id="1018">1018</span>
-<span id="1019">1019</span>
-<span id="1020">1020</span>
-<span id="1021">1021</span>
-<span id="1022">1022</span>
-<span id="1023">1023</span>
-<span id="1024">1024</span>
-<span id="1025">1025</span>
-<span id="1026">1026</span>
-<span id="1027">1027</span>
-<span id="1028">1028</span>
-<span id="1029">1029</span>
-<span id="1030">1030</span>
-<span id="1031">1031</span>
-<span id="1032">1032</span>
-<span id="1033">1033</span>
-<span id="1034">1034</span>
-<span id="1035">1035</span>
-<span id="1036">1036</span>
-<span id="1037">1037</span>
-<span id="1038">1038</span>
-<span id="1039">1039</span>
-<span id="1040">1040</span>
-<span id="1041">1041</span>
-<span id="1042">1042</span>
-<span id="1043">1043</span>
-<span id="1044">1044</span>
-<span id="1045">1045</span>
-<span id="1046">1046</span>
-<span id="1047">1047</span>
-<span id="1048">1048</span>
-<span id="1049">1049</span>
-<span id="1050">1050</span>
-<span id="1051">1051</span>
-<span id="1052">1052</span>
-<span id="1053">1053</span>
-<span id="1054">1054</span>
-<span id="1055">1055</span>
-<span id="1056">1056</span>
-<span id="1057">1057</span>
-<span id="1058">1058</span>
-<span id="1059">1059</span>
-<span id="1060">1060</span>
-<span id="1061">1061</span>
-<span id="1062">1062</span>
-<span id="1063">1063</span>
-<span id="1064">1064</span>
-<span id="1065">1065</span>
-<span id="1066">1066</span>
-<span id="1067">1067</span>
-<span id="1068">1068</span>
-<span id="1069">1069</span>
-<span id="1070">1070</span>
-<span id="1071">1071</span>
-<span id="1072">1072</span>
-<span id="1073">1073</span>
-<span id="1074">1074</span>
-<span id="1075">1075</span>
-<span id="1076">1076</span>
-<span id="1077">1077</span>
-<span id="1078">1078</span>
-<span id="1079">1079</span>
-<span id="1080">1080</span>
-<span id="1081">1081</span>
-<span id="1082">1082</span>
-<span id="1083">1083</span>
-<span id="1084">1084</span>
-<span id="1085">1085</span>
-<span id="1086">1086</span>
-<span id="1087">1087</span>
-<span id="1088">1088</span>
-<span id="1089">1089</span>
-<span id="1090">1090</span>
-<span id="1091">1091</span>
-<span id="1092">1092</span>
-<span id="1093">1093</span>
-<span id="1094">1094</span>
-<span id="1095">1095</span>
-<span id="1096">1096</span>
-<span id="1097">1097</span>
-<span id="1098">1098</span>
-<span id="1099">1099</span>
-<span id="1100">1100</span>
-<span id="1101">1101</span>
-<span id="1102">1102</span>
-<span id="1103">1103</span>
-<span id="1104">1104</span>
-<span id="1105">1105</span>
-<span id="1106">1106</span>
-<span id="1107">1107</span>
-<span id="1108">1108</span>
-<span id="1109">1109</span>
-<span id="1110">1110</span>
-<span id="1111">1111</span>
-<span id="1112">1112</span>
-<span id="1113">1113</span>
-<span id="1114">1114</span>
-<span id="1115">1115</span>
-<span id="1116">1116</span>
-<span id="1117">1117</span>
-<span id="1118">1118</span>
-<span id="1119">1119</span>
-<span id="1120">1120</span>
-<span id="1121">1121</span>
-<span id="1122">1122</span>
-<span id="1123">1123</span>
-<span id="1124">1124</span>
-<span id="1125">1125</span>
-<span id="1126">1126</span>
-<span id="1127">1127</span>
-<span id="1128">1128</span>
-<span id="1129">1129</span>
-<span id="1130">1130</span>
-<span id="1131">1131</span>
-<span id="1132">1132</span>
-<span id="1133">1133</span>
-<span id="1134">1134</span>
-<span id="1135">1135</span>
-<span id="1136">1136</span>
-<span id="1137">1137</span>
-<span id="1138">1138</span>
-<span id="1139">1139</span>
-<span id="1140">1140</span>
-<span id="1141">1141</span>
-<span id="1142">1142</span>
-<span id="1143">1143</span>
-<span id="1144">1144</span>
-<span id="1145">1145</span>
-<span id="1146">1146</span>
-<span id="1147">1147</span>
-<span id="1148">1148</span>
-<span id="1149">1149</span>
-<span id="1150">1150</span>
-<span id="1151">1151</span>
-<span id="1152">1152</span>
-<span id="1153">1153</span>
-<span id="1154">1154</span>
-<span id="1155">1155</span>
-<span id="1156">1156</span>
-<span id="1157">1157</span>
-<span id="1158">1158</span>
-<span id="1159">1159</span>
-<span id="1160">1160</span>
-<span id="1161">1161</span>
-<span id="1162">1162</span>
-<span id="1163">1163</span>
-<span id="1164">1164</span>
-<span id="1165">1165</span>
-<span id="1166">1166</span>
-<span id="1167">1167</span>
-<span id="1168">1168</span>
-<span id="1169">1169</span>
-<span id="1170">1170</span>
-<span id="1171">1171</span>
-<span id="1172">1172</span>
-<span id="1173">1173</span>
-<span id="1174">1174</span>
-<span id="1175">1175</span>
-<span id="1176">1176</span>
-<span id="1177">1177</span>
-<span id="1178">1178</span>
-<span id="1179">1179</span>
-<span id="1180">1180</span>
-<span id="1181">1181</span>
-<span id="1182">1182</span>
-<span id="1183">1183</span>
-<span id="1184">1184</span>
-<span id="1185">1185</span>
-<span id="1186">1186</span>
-<span id="1187">1187</span>
-<span id="1188">1188</span>
-<span id="1189">1189</span>
-<span id="1190">1190</span>
-<span id="1191">1191</span>
-<span id="1192">1192</span>
-<span id="1193">1193</span>
-<span id="1194">1194</span>
-<span id="1195">1195</span>
-<span id="1196">1196</span>
-<span id="1197">1197</span>
-<span id="1198">1198</span>
-<span id="1199">1199</span>
-<span id="1200">1200</span>
-<span id="1201">1201</span>
-<span id="1202">1202</span>
-<span id="1203">1203</span>
-<span id="1204">1204</span>
-<span id="1205">1205</span>
-<span id="1206">1206</span>
-<span id="1207">1207</span>
-<span id="1208">1208</span>
-<span id="1209">1209</span>
-<span id="1210">1210</span>
-<span id="1211">1211</span>
-<span id="1212">1212</span>
-<span id="1213">1213</span>
-<span id="1214">1214</span>
-<span id="1215">1215</span>
-<span id="1216">1216</span>
-<span id="1217">1217</span>
-<span id="1218">1218</span>
-<span id="1219">1219</span>
-<span id="1220">1220</span>
-<span id="1221">1221</span>
-<span id="1222">1222</span>
-<span id="1223">1223</span>
-<span id="1224">1224</span>
-<span id="1225">1225</span>
-<span id="1226">1226</span>
-<span id="1227">1227</span>
-<span id="1228">1228</span>
-<span id="1229">1229</span>
-<span id="1230">1230</span>
-<span id="1231">1231</span>
-<span id="1232">1232</span>
-<span id="1233">1233</span>
-<span id="1234">1234</span>
-<span id="1235">1235</span>
-<span id="1236">1236</span>
-<span id="1237">1237</span>
-<span id="1238">1238</span>
-<span id="1239">1239</span>
-<span id="1240">1240</span>
-<span id="1241">1241</span>
-<span id="1242">1242</span>
-<span id="1243">1243</span>
-<span id="1244">1244</span>
-<span id="1245">1245</span>
-<span id="1246">1246</span>
-<span id="1247">1247</span>
-<span id="1248">1248</span>
-<span id="1249">1249</span>
-<span id="1250">1250</span>
-<span id="1251">1251</span>
-<span id="1252">1252</span>
-<span id="1253">1253</span>
-<span id="1254">1254</span>
-<span id="1255">1255</span>
-<span id="1256">1256</span>
-<span id="1257">1257</span>
-<span id="1258">1258</span>
-<span id="1259">1259</span>
-<span id="1260">1260</span>
-<span id="1261">1261</span>
-<span id="1262">1262</span>
-<span id="1263">1263</span>
-<span id="1264">1264</span>
-<span id="1265">1265</span>
-<span id="1266">1266</span>
-<span id="1267">1267</span>
-<span id="1268">1268</span>
-<span id="1269">1269</span>
-<span id="1270">1270</span>
-<span id="1271">1271</span>
-<span id="1272">1272</span>
-<span id="1273">1273</span>
-<span id="1274">1274</span>
-<span id="1275">1275</span>
-<span id="1276">1276</span>
-<span id="1277">1277</span>
-<span id="1278">1278</span>
-<span id="1279">1279</span>
-<span id="1280">1280</span>
-<span id="1281">1281</span>
-<span id="1282">1282</span>
-<span id="1283">1283</span>
-<span id="1284">1284</span>
-<span id="1285">1285</span>
-<span id="1286">1286</span>
-<span id="1287">1287</span>
-<span id="1288">1288</span>
-<span id="1289">1289</span>
-<span id="1290">1290</span>
-<span id="1291">1291</span>
-<span id="1292">1292</span>
-<span id="1293">1293</span>
-<span id="1294">1294</span>
-<span id="1295">1295</span>
-<span id="1296">1296</span>
-<span id="1297">1297</span>
-<span id="1298">1298</span>
-<span id="1299">1299</span>
-<span id="1300">1300</span>
-<span id="1301">1301</span>
-<span id="1302">1302</span>
-<span id="1303">1303</span>
-<span id="1304">1304</span>
-<span id="1305">1305</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -1363,1290 +339,265 @@ SOFTWARE.
 */</span>
 
 <span class="comment">// From https://github.com/bids/colormap</span>
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">INFERNO_COLOURMAP</span>: [<span class="ident">Spectrum</span>; <span class="number">256</span>] <span class="op">=</span> [
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0014616</span>,
-        <span class="ident">green</span>: <span class="number">0.0004661</span>,
-        <span class="ident">blue</span>: <span class="number">0.0138655</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0022673</span>,
-        <span class="ident">green</span>: <span class="number">0.0012699</span>,
-        <span class="ident">blue</span>: <span class="number">0.0185704</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0032990</span>,
-        <span class="ident">green</span>: <span class="number">0.0022493</span>,
-        <span class="ident">blue</span>: <span class="number">0.0242391</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0045469</span>,
-        <span class="ident">green</span>: <span class="number">0.0033918</span>,
-        <span class="ident">blue</span>: <span class="number">0.0309092</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0060055</span>,
-        <span class="ident">green</span>: <span class="number">0.0046919</span>,
-        <span class="ident">blue</span>: <span class="number">0.0385579</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0076758</span>,
-        <span class="ident">green</span>: <span class="number">0.0061361</span>,
-        <span class="ident">blue</span>: <span class="number">0.0468360</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0095605</span>,
-        <span class="ident">green</span>: <span class="number">0.0077134</span>,
-        <span class="ident">blue</span>: <span class="number">0.0551431</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0116635</span>,
-        <span class="ident">green</span>: <span class="number">0.0094168</span>,
-        <span class="ident">blue</span>: <span class="number">0.0634598</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0139950</span>,
-        <span class="ident">green</span>: <span class="number">0.0112247</span>,
-        <span class="ident">blue</span>: <span class="number">0.0718617</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0165606</span>,
-        <span class="ident">green</span>: <span class="number">0.0131362</span>,
-        <span class="ident">blue</span>: <span class="number">0.0802818</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0193732</span>,
-        <span class="ident">green</span>: <span class="number">0.0151326</span>,
-        <span class="ident">blue</span>: <span class="number">0.0887668</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0224469</span>,
-        <span class="ident">green</span>: <span class="number">0.0171991</span>,
-        <span class="ident">blue</span>: <span class="number">0.0973274</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0257927</span>,
-        <span class="ident">green</span>: <span class="number">0.0193306</span>,
-        <span class="ident">blue</span>: <span class="number">0.1059298</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0294324</span>,
-        <span class="ident">green</span>: <span class="number">0.0215031</span>,
-        <span class="ident">blue</span>: <span class="number">0.1146213</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0333852</span>,
-        <span class="ident">green</span>: <span class="number">0.0237024</span>,
-        <span class="ident">blue</span>: <span class="number">0.1233973</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0376684</span>,
-        <span class="ident">green</span>: <span class="number">0.0259208</span>,
-        <span class="ident">blue</span>: <span class="number">0.1322321</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0422526</span>,
-        <span class="ident">green</span>: <span class="number">0.0281385</span>,
-        <span class="ident">blue</span>: <span class="number">0.1411405</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0469146</span>,
-        <span class="ident">green</span>: <span class="number">0.0303236</span>,
-        <span class="ident">blue</span>: <span class="number">0.1501639</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0516438</span>,
-        <span class="ident">green</span>: <span class="number">0.0324736</span>,
-        <span class="ident">blue</span>: <span class="number">0.1592543</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0564491</span>,
-        <span class="ident">green</span>: <span class="number">0.0345692</span>,
-        <span class="ident">blue</span>: <span class="number">0.1684135</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0613397</span>,
-        <span class="ident">green</span>: <span class="number">0.0365900</span>,
-        <span class="ident">blue</span>: <span class="number">0.1776422</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0663313</span>,
-        <span class="ident">green</span>: <span class="number">0.0385036</span>,
-        <span class="ident">blue</span>: <span class="number">0.1869616</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0714289</span>,
-        <span class="ident">green</span>: <span class="number">0.0402939</span>,
-        <span class="ident">blue</span>: <span class="number">0.1963536</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0766368</span>,
-        <span class="ident">green</span>: <span class="number">0.0419053</span>,
-        <span class="ident">blue</span>: <span class="number">0.2057988</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0819621</span>,
-        <span class="ident">green</span>: <span class="number">0.0433279</span>,
-        <span class="ident">blue</span>: <span class="number">0.2152891</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0874114</span>,
-        <span class="ident">green</span>: <span class="number">0.0445562</span>,
-        <span class="ident">blue</span>: <span class="number">0.2248135</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0929902</span>,
-        <span class="ident">green</span>: <span class="number">0.0455830</span>,
-        <span class="ident">blue</span>: <span class="number">0.2343576</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.0987025</span>,
-        <span class="ident">green</span>: <span class="number">0.0464019</span>,
-        <span class="ident">blue</span>: <span class="number">0.2439037</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1045509</span>,
-        <span class="ident">green</span>: <span class="number">0.0470081</span>,
-        <span class="ident">blue</span>: <span class="number">0.2534303</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1105361</span>,
-        <span class="ident">green</span>: <span class="number">0.0473987</span>,
-        <span class="ident">blue</span>: <span class="number">0.2629122</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1166564</span>,
-        <span class="ident">green</span>: <span class="number">0.0475736</span>,
-        <span class="ident">blue</span>: <span class="number">0.2723208</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1229081</span>,
-        <span class="ident">green</span>: <span class="number">0.0475360</span>,
-        <span class="ident">blue</span>: <span class="number">0.2816242</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1292850</span>,
-        <span class="ident">green</span>: <span class="number">0.0472931</span>,
-        <span class="ident">blue</span>: <span class="number">0.2907880</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1357785</span>,
-        <span class="ident">green</span>: <span class="number">0.0468564</span>,
-        <span class="ident">blue</span>: <span class="number">0.2997764</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1423778</span>,
-        <span class="ident">green</span>: <span class="number">0.0462423</span>,
-        <span class="ident">blue</span>: <span class="number">0.3085529</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1490730</span>,
-        <span class="ident">green</span>: <span class="number">0.0454676</span>,
-        <span class="ident">blue</span>: <span class="number">0.3170851</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1558497</span>,
-        <span class="ident">green</span>: <span class="number">0.0445588</span>,
-        <span class="ident">blue</span>: <span class="number">0.3253384</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1626889</span>,
-        <span class="ident">green</span>: <span class="number">0.0435543</span>,
-        <span class="ident">blue</span>: <span class="number">0.3332767</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1695751</span>,
-        <span class="ident">green</span>: <span class="number">0.0424893</span>,
-        <span class="ident">blue</span>: <span class="number">0.3408742</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1764932</span>,
-        <span class="ident">green</span>: <span class="number">0.0414017</span>,
-        <span class="ident">blue</span>: <span class="number">0.3481106</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1834288</span>,
-        <span class="ident">green</span>: <span class="number">0.0403289</span>,
-        <span class="ident">blue</span>: <span class="number">0.3549714</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1903675</span>,
-        <span class="ident">green</span>: <span class="number">0.0393089</span>,
-        <span class="ident">blue</span>: <span class="number">0.3614469</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.1972974</span>,
-        <span class="ident">green</span>: <span class="number">0.0384002</span>,
-        <span class="ident">blue</span>: <span class="number">0.3675346</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2042093</span>,
-        <span class="ident">green</span>: <span class="number">0.0376323</span>,
-        <span class="ident">blue</span>: <span class="number">0.3732376</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2110955</span>,
-        <span class="ident">green</span>: <span class="number">0.0370296</span>,
-        <span class="ident">blue</span>: <span class="number">0.3785633</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2179486</span>,
-        <span class="ident">green</span>: <span class="number">0.0366146</span>,
-        <span class="ident">blue</span>: <span class="number">0.3835224</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2247629</span>,
-        <span class="ident">green</span>: <span class="number">0.0364050</span>,
-        <span class="ident">blue</span>: <span class="number">0.3881289</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2315381</span>,
-        <span class="ident">green</span>: <span class="number">0.0364053</span>,
-        <span class="ident">blue</span>: <span class="number">0.3924002</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2382730</span>,
-        <span class="ident">green</span>: <span class="number">0.0366210</span>,
-        <span class="ident">blue</span>: <span class="number">0.3963534</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2449669</span>,
-        <span class="ident">green</span>: <span class="number">0.0370545</span>,
-        <span class="ident">blue</span>: <span class="number">0.4000066</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2516204</span>,
-        <span class="ident">green</span>: <span class="number">0.0377053</span>,
-        <span class="ident">blue</span>: <span class="number">0.4033779</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2582343</span>,
-        <span class="ident">green</span>: <span class="number">0.0385706</span>,
-        <span class="ident">blue</span>: <span class="number">0.4064850</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2648096</span>,
-        <span class="ident">green</span>: <span class="number">0.0396469</span>,
-        <span class="ident">blue</span>: <span class="number">0.4093454</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2713467</span>,
-        <span class="ident">green</span>: <span class="number">0.0409216</span>,
-        <span class="ident">blue</span>: <span class="number">0.4119761</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2778498</span>,
-        <span class="ident">green</span>: <span class="number">0.0423529</span>,
-        <span class="ident">blue</span>: <span class="number">0.4143921</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2843213</span>,
-        <span class="ident">green</span>: <span class="number">0.0439326</span>,
-        <span class="ident">blue</span>: <span class="number">0.4166079</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2907634</span>,
-        <span class="ident">green</span>: <span class="number">0.0456438</span>,
-        <span class="ident">blue</span>: <span class="number">0.4186368</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.2971783</span>,
-        <span class="ident">green</span>: <span class="number">0.0474700</span>,
-        <span class="ident">blue</span>: <span class="number">0.4204912</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3035682</span>,
-        <span class="ident">green</span>: <span class="number">0.0493959</span>,
-        <span class="ident">blue</span>: <span class="number">0.4221824</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3099353</span>,
-        <span class="ident">green</span>: <span class="number">0.0514070</span>,
-        <span class="ident">blue</span>: <span class="number">0.4237210</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3162818</span>,
-        <span class="ident">green</span>: <span class="number">0.0534901</span>,
-        <span class="ident">blue</span>: <span class="number">0.4251163</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3226097</span>,
-        <span class="ident">green</span>: <span class="number">0.0556335</span>,
-        <span class="ident">blue</span>: <span class="number">0.4263769</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3289208</span>,
-        <span class="ident">green</span>: <span class="number">0.0578266</span>,
-        <span class="ident">blue</span>: <span class="number">0.4275105</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3352169</span>,
-        <span class="ident">green</span>: <span class="number">0.0600599</span>,
-        <span class="ident">blue</span>: <span class="number">0.4285243</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3414998</span>,
-        <span class="ident">green</span>: <span class="number">0.0623253</span>,
-        <span class="ident">blue</span>: <span class="number">0.4294245</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3477711</span>,
-        <span class="ident">green</span>: <span class="number">0.0646156</span>,
-        <span class="ident">blue</span>: <span class="number">0.4302168</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3540322</span>,
-        <span class="ident">green</span>: <span class="number">0.0669247</span>,
-        <span class="ident">blue</span>: <span class="number">0.4309062</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3602844</span>,
-        <span class="ident">green</span>: <span class="number">0.0692472</span>,
-        <span class="ident">blue</span>: <span class="number">0.4314973</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3665292</span>,
-        <span class="ident">green</span>: <span class="number">0.0715785</span>,
-        <span class="ident">blue</span>: <span class="number">0.4319942</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3727676</span>,
-        <span class="ident">green</span>: <span class="number">0.0739149</span>,
-        <span class="ident">blue</span>: <span class="number">0.4324004</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3790007</span>,
-        <span class="ident">green</span>: <span class="number">0.0762531</span>,
-        <span class="ident">blue</span>: <span class="number">0.4327192</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3852284</span>,
-        <span class="ident">green</span>: <span class="number">0.0785915</span>,
-        <span class="ident">blue</span>: <span class="number">0.4329550</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3914527</span>,
-        <span class="ident">green</span>: <span class="number">0.0809267</span>,
-        <span class="ident">blue</span>: <span class="number">0.4331088</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.3976744</span>,
-        <span class="ident">green</span>: <span class="number">0.0832568</span>,
-        <span class="ident">blue</span>: <span class="number">0.4331826</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4038943</span>,
-        <span class="ident">green</span>: <span class="number">0.0855803</span>,
-        <span class="ident">blue</span>: <span class="number">0.4331785</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4101130</span>,
-        <span class="ident">green</span>: <span class="number">0.0878962</span>,
-        <span class="ident">blue</span>: <span class="number">0.4330981</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4163312</span>,
-        <span class="ident">green</span>: <span class="number">0.0902034</span>,
-        <span class="ident">blue</span>: <span class="number">0.4329427</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4225492</span>,
-        <span class="ident">green</span>: <span class="number">0.0925015</span>,
-        <span class="ident">blue</span>: <span class="number">0.4327136</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4287677</span>,
-        <span class="ident">green</span>: <span class="number">0.0947899</span>,
-        <span class="ident">blue</span>: <span class="number">0.4324120</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4349869</span>,
-        <span class="ident">green</span>: <span class="number">0.0970686</span>,
-        <span class="ident">blue</span>: <span class="number">0.4320387</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4412071</span>,
-        <span class="ident">green</span>: <span class="number">0.0993376</span>,
-        <span class="ident">blue</span>: <span class="number">0.4315944</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4474284</span>,
-        <span class="ident">green</span>: <span class="number">0.1015971</span>,
-        <span class="ident">blue</span>: <span class="number">0.4310805</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4536506</span>,
-        <span class="ident">green</span>: <span class="number">0.1038477</span>,
-        <span class="ident">blue</span>: <span class="number">0.4304979</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4598746</span>,
-        <span class="ident">green</span>: <span class="number">0.1060892</span>,
-        <span class="ident">blue</span>: <span class="number">0.4298458</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4661005</span>,
-        <span class="ident">green</span>: <span class="number">0.1083219</span>,
-        <span class="ident">blue</span>: <span class="number">0.4291245</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4723283</span>,
-        <span class="ident">green</span>: <span class="number">0.1105466</span>,
-        <span class="ident">blue</span>: <span class="number">0.4283343</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4785579</span>,
-        <span class="ident">green</span>: <span class="number">0.1127638</span>,
-        <span class="ident">blue</span>: <span class="number">0.4274754</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4847893</span>,
-        <span class="ident">green</span>: <span class="number">0.1149744</span>,
-        <span class="ident">blue</span>: <span class="number">0.4265480</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4910224</span>,
-        <span class="ident">green</span>: <span class="number">0.1171792</span>,
-        <span class="ident">blue</span>: <span class="number">0.4255521</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.4972571</span>,
-        <span class="ident">green</span>: <span class="number">0.1193791</span>,
-        <span class="ident">blue</span>: <span class="number">0.4244879</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5034927</span>,
-        <span class="ident">green</span>: <span class="number">0.1215754</span>,
-        <span class="ident">blue</span>: <span class="number">0.4233561</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5097295</span>,
-        <span class="ident">green</span>: <span class="number">0.1237687</span>,
-        <span class="ident">blue</span>: <span class="number">0.4221557</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5159673</span>,
-        <span class="ident">green</span>: <span class="number">0.1259599</span>,
-        <span class="ident">blue</span>: <span class="number">0.4208866</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5222056</span>,
-        <span class="ident">green</span>: <span class="number">0.1281504</span>,
-        <span class="ident">blue</span>: <span class="number">0.4195488</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5284442</span>,
-        <span class="ident">green</span>: <span class="number">0.1303413</span>,
-        <span class="ident">blue</span>: <span class="number">0.4181424</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5346825</span>,
-        <span class="ident">green</span>: <span class="number">0.1325338</span>,
-        <span class="ident">blue</span>: <span class="number">0.4166673</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5409202</span>,
-        <span class="ident">green</span>: <span class="number">0.1347293</span>,
-        <span class="ident">blue</span>: <span class="number">0.4151234</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5471567</span>,
-        <span class="ident">green</span>: <span class="number">0.1369290</span>,
-        <span class="ident">blue</span>: <span class="number">0.4135107</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5533916</span>,
-        <span class="ident">green</span>: <span class="number">0.1391341</span>,
-        <span class="ident">blue</span>: <span class="number">0.4118289</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5596244</span>,
-        <span class="ident">green</span>: <span class="number">0.1413463</span>,
-        <span class="ident">blue</span>: <span class="number">0.4100780</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5658545</span>,
-        <span class="ident">green</span>: <span class="number">0.1435668</span>,
-        <span class="ident">blue</span>: <span class="number">0.4082581</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5720811</span>,
-        <span class="ident">green</span>: <span class="number">0.1457972</span>,
-        <span class="ident">blue</span>: <span class="number">0.4063692</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5783037</span>,
-        <span class="ident">green</span>: <span class="number">0.1480389</span>,
-        <span class="ident">blue</span>: <span class="number">0.4044114</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5845214</span>,
-        <span class="ident">green</span>: <span class="number">0.1502937</span>,
-        <span class="ident">blue</span>: <span class="number">0.4023848</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5907336</span>,
-        <span class="ident">green</span>: <span class="number">0.1525630</span>,
-        <span class="ident">blue</span>: <span class="number">0.4002895</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.5969398</span>,
-        <span class="ident">green</span>: <span class="number">0.1548482</span>,
-        <span class="ident">blue</span>: <span class="number">0.3981249</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6031389</span>,
-        <span class="ident">green</span>: <span class="number">0.1571512</span>,
-        <span class="ident">blue</span>: <span class="number">0.3958913</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6093302</span>,
-        <span class="ident">green</span>: <span class="number">0.1594735</span>,
-        <span class="ident">blue</span>: <span class="number">0.3935893</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6155126</span>,
-        <span class="ident">green</span>: <span class="number">0.1618171</span>,
-        <span class="ident">blue</span>: <span class="number">0.3912193</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6216853</span>,
-        <span class="ident">green</span>: <span class="number">0.1641836</span>,
-        <span class="ident">blue</span>: <span class="number">0.3887815</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6278474</span>,
-        <span class="ident">green</span>: <span class="number">0.1665747</span>,
-        <span class="ident">blue</span>: <span class="number">0.3862762</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6339977</span>,
-        <span class="ident">green</span>: <span class="number">0.1689923</span>,
-        <span class="ident">blue</span>: <span class="number">0.3837039</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6401354</span>,
-        <span class="ident">green</span>: <span class="number">0.1714382</span>,
-        <span class="ident">blue</span>: <span class="number">0.3810649</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6462596</span>,
-        <span class="ident">green</span>: <span class="number">0.1739139</span>,
-        <span class="ident">blue</span>: <span class="number">0.3783590</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6523693</span>,
-        <span class="ident">green</span>: <span class="number">0.1764213</span>,
-        <span class="ident">blue</span>: <span class="number">0.3755862</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6584632</span>,
-        <span class="ident">green</span>: <span class="number">0.1789624</span>,
-        <span class="ident">blue</span>: <span class="number">0.3727482</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6645400</span>,
-        <span class="ident">green</span>: <span class="number">0.1815391</span>,
-        <span class="ident">blue</span>: <span class="number">0.3698456</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6705986</span>,
-        <span class="ident">green</span>: <span class="number">0.1841533</span>,
-        <span class="ident">blue</span>: <span class="number">0.3668790</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6766378</span>,
-        <span class="ident">green</span>: <span class="number">0.1868067</span>,
-        <span class="ident">blue</span>: <span class="number">0.3638492</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6826564</span>,
-        <span class="ident">green</span>: <span class="number">0.1895014</span>,
-        <span class="ident">blue</span>: <span class="number">0.3607569</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6886532</span>,
-        <span class="ident">green</span>: <span class="number">0.1922390</span>,
-        <span class="ident">blue</span>: <span class="number">0.3576028</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.6946268</span>,
-        <span class="ident">green</span>: <span class="number">0.1950215</span>,
-        <span class="ident">blue</span>: <span class="number">0.3543879</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7005759</span>,
-        <span class="ident">green</span>: <span class="number">0.1978507</span>,
-        <span class="ident">blue</span>: <span class="number">0.3511129</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7064997</span>,
-        <span class="ident">green</span>: <span class="number">0.2007282</span>,
-        <span class="ident">blue</span>: <span class="number">0.3477769</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7123963</span>,
-        <span class="ident">green</span>: <span class="number">0.2036560</span>,
-        <span class="ident">blue</span>: <span class="number">0.3443826</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7182644</span>,
-        <span class="ident">green</span>: <span class="number">0.2066360</span>,
-        <span class="ident">blue</span>: <span class="number">0.3409312</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7241026</span>,
-        <span class="ident">green</span>: <span class="number">0.2096698</span>,
-        <span class="ident">blue</span>: <span class="number">0.3374238</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7299094</span>,
-        <span class="ident">green</span>: <span class="number">0.2127593</span>,
-        <span class="ident">blue</span>: <span class="number">0.3338614</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7356834</span>,
-        <span class="ident">green</span>: <span class="number">0.2159060</span>,
-        <span class="ident">blue</span>: <span class="number">0.3302451</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7414232</span>,
-        <span class="ident">green</span>: <span class="number">0.2191116</span>,
-        <span class="ident">blue</span>: <span class="number">0.3265763</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7471272</span>,
-        <span class="ident">green</span>: <span class="number">0.2223777</span>,
-        <span class="ident">blue</span>: <span class="number">0.3228560</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7527940</span>,
-        <span class="ident">green</span>: <span class="number">0.2257058</span>,
-        <span class="ident">blue</span>: <span class="number">0.3190854</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7584221</span>,
-        <span class="ident">green</span>: <span class="number">0.2290975</span>,
-        <span class="ident">blue</span>: <span class="number">0.3152659</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7640099</span>,
-        <span class="ident">green</span>: <span class="number">0.2325541</span>,
-        <span class="ident">blue</span>: <span class="number">0.3113987</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7695560</span>,
-        <span class="ident">green</span>: <span class="number">0.2360770</span>,
-        <span class="ident">blue</span>: <span class="number">0.3074852</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7750589</span>,
-        <span class="ident">green</span>: <span class="number">0.2396674</span>,
-        <span class="ident">blue</span>: <span class="number">0.3035263</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7805170</span>,
-        <span class="ident">green</span>: <span class="number">0.2433267</span>,
-        <span class="ident">blue</span>: <span class="number">0.2995227</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7859288</span>,
-        <span class="ident">green</span>: <span class="number">0.2470560</span>,
-        <span class="ident">blue</span>: <span class="number">0.2954768</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7912927</span>,
-        <span class="ident">green</span>: <span class="number">0.2508562</span>,
-        <span class="ident">blue</span>: <span class="number">0.2913899</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.7966071</span>,
-        <span class="ident">green</span>: <span class="number">0.2547285</span>,
-        <span class="ident">blue</span>: <span class="number">0.2872636</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8018707</span>,
-        <span class="ident">green</span>: <span class="number">0.2586736</span>,
-        <span class="ident">blue</span>: <span class="number">0.2830990</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8070818</span>,
-        <span class="ident">green</span>: <span class="number">0.2626924</span>,
-        <span class="ident">blue</span>: <span class="number">0.2788976</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8122390</span>,
-        <span class="ident">green</span>: <span class="number">0.2667856</span>,
-        <span class="ident">blue</span>: <span class="number">0.2746607</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8173408</span>,
-        <span class="ident">green</span>: <span class="number">0.2709537</span>,
-        <span class="ident">blue</span>: <span class="number">0.2703895</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8223858</span>,
-        <span class="ident">green</span>: <span class="number">0.2751973</span>,
-        <span class="ident">blue</span>: <span class="number">0.2660854</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8273725</span>,
-        <span class="ident">green</span>: <span class="number">0.2795168</span>,
-        <span class="ident">blue</span>: <span class="number">0.2617496</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8322995</span>,
-        <span class="ident">green</span>: <span class="number">0.2839125</span>,
-        <span class="ident">blue</span>: <span class="number">0.2573833</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8371654</span>,
-        <span class="ident">green</span>: <span class="number">0.2883846</span>,
-        <span class="ident">blue</span>: <span class="number">0.2529877</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8419690</span>,
-        <span class="ident">green</span>: <span class="number">0.2929333</span>,
-        <span class="ident">blue</span>: <span class="number">0.2485638</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8467088</span>,
-        <span class="ident">green</span>: <span class="number">0.2975585</span>,
-        <span class="ident">blue</span>: <span class="number">0.2441128</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8513836</span>,
-        <span class="ident">green</span>: <span class="number">0.3022602</span>,
-        <span class="ident">blue</span>: <span class="number">0.2396355</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8559921</span>,
-        <span class="ident">green</span>: <span class="number">0.3070382</span>,
-        <span class="ident">blue</span>: <span class="number">0.2351330</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8605332</span>,
-        <span class="ident">green</span>: <span class="number">0.3118922</span>,
-        <span class="ident">blue</span>: <span class="number">0.2306060</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8650057</span>,
-        <span class="ident">green</span>: <span class="number">0.3168218</span>,
-        <span class="ident">blue</span>: <span class="number">0.2260554</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8694085</span>,
-        <span class="ident">green</span>: <span class="number">0.3218267</span>,
-        <span class="ident">blue</span>: <span class="number">0.2214817</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8737405</span>,
-        <span class="ident">green</span>: <span class="number">0.3269062</span>,
-        <span class="ident">blue</span>: <span class="number">0.2168857</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8780007</span>,
-        <span class="ident">green</span>: <span class="number">0.3320598</span>,
-        <span class="ident">blue</span>: <span class="number">0.2122678</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8821881</span>,
-        <span class="ident">green</span>: <span class="number">0.3372867</span>,
-        <span class="ident">blue</span>: <span class="number">0.2076283</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8863018</span>,
-        <span class="ident">green</span>: <span class="number">0.3425861</span>,
-        <span class="ident">blue</span>: <span class="number">0.2029677</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8903409</span>,
-        <span class="ident">green</span>: <span class="number">0.3479573</span>,
-        <span class="ident">blue</span>: <span class="number">0.1982861</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8943046</span>,
-        <span class="ident">green</span>: <span class="number">0.3533994</span>,
-        <span class="ident">blue</span>: <span class="number">0.1935836</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.8981920</span>,
-        <span class="ident">green</span>: <span class="number">0.3589112</span>,
-        <span class="ident">blue</span>: <span class="number">0.1888602</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9020025</span>,
-        <span class="ident">green</span>: <span class="number">0.3644919</span>,
-        <span class="ident">blue</span>: <span class="number">0.1841159</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9057354</span>,
-        <span class="ident">green</span>: <span class="number">0.3701404</span>,
-        <span class="ident">blue</span>: <span class="number">0.1793504</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9093901</span>,
-        <span class="ident">green</span>: <span class="number">0.3758555</span>,
-        <span class="ident">blue</span>: <span class="number">0.1745635</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9129659</span>,
-        <span class="ident">green</span>: <span class="number">0.3816361</span>,
-        <span class="ident">blue</span>: <span class="number">0.1697548</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9164623</span>,
-        <span class="ident">green</span>: <span class="number">0.3874810</span>,
-        <span class="ident">blue</span>: <span class="number">0.1649238</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9198787</span>,
-        <span class="ident">green</span>: <span class="number">0.3933890</span>,
-        <span class="ident">blue</span>: <span class="number">0.1600702</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9232148</span>,
-        <span class="ident">green</span>: <span class="number">0.3993589</span>,
-        <span class="ident">blue</span>: <span class="number">0.1551932</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9264700</span>,
-        <span class="ident">green</span>: <span class="number">0.4053893</span>,
-        <span class="ident">blue</span>: <span class="number">0.1502923</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9296441</span>,
-        <span class="ident">green</span>: <span class="number">0.4114790</span>,
-        <span class="ident">blue</span>: <span class="number">0.1453670</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9327366</span>,
-        <span class="ident">green</span>: <span class="number">0.4176268</span>,
-        <span class="ident">blue</span>: <span class="number">0.1404165</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9357471</span>,
-        <span class="ident">green</span>: <span class="number">0.4238312</span>,
-        <span class="ident">blue</span>: <span class="number">0.1354404</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9386755</span>,
-        <span class="ident">green</span>: <span class="number">0.4300912</span>,
-        <span class="ident">blue</span>: <span class="number">0.1304382</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9415214</span>,
-        <span class="ident">green</span>: <span class="number">0.4364052</span>,
-        <span class="ident">blue</span>: <span class="number">0.1254094</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9442845</span>,
-        <span class="ident">green</span>: <span class="number">0.4427722</span>,
-        <span class="ident">blue</span>: <span class="number">0.1203540</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9469647</span>,
-        <span class="ident">green</span>: <span class="number">0.4491908</span>,
-        <span class="ident">blue</span>: <span class="number">0.1152721</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9495618</span>,
-        <span class="ident">green</span>: <span class="number">0.4556597</span>,
-        <span class="ident">blue</span>: <span class="number">0.1101639</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9520754</span>,
-        <span class="ident">green</span>: <span class="number">0.4621777</span>,
-        <span class="ident">blue</span>: <span class="number">0.1050306</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9545055</span>,
-        <span class="ident">green</span>: <span class="number">0.4687435</span>,
-        <span class="ident">blue</span>: <span class="number">0.0998736</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9568519</span>,
-        <span class="ident">green</span>: <span class="number">0.4753560</span>,
-        <span class="ident">blue</span>: <span class="number">0.0946952</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9591144</span>,
-        <span class="ident">green</span>: <span class="number">0.4820140</span>,
-        <span class="ident">blue</span>: <span class="number">0.0894989</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9612929</span>,
-        <span class="ident">green</span>: <span class="number">0.4887163</span>,
-        <span class="ident">blue</span>: <span class="number">0.0842894</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9633871</span>,
-        <span class="ident">green</span>: <span class="number">0.4954618</span>,
-        <span class="ident">blue</span>: <span class="number">0.0790732</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9653970</span>,
-        <span class="ident">green</span>: <span class="number">0.5022493</span>,
-        <span class="ident">blue</span>: <span class="number">0.0738591</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9673225</span>,
-        <span class="ident">green</span>: <span class="number">0.5090778</span>,
-        <span class="ident">blue</span>: <span class="number">0.0686589</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9691633</span>,
-        <span class="ident">green</span>: <span class="number">0.5159461</span>,
-        <span class="ident">blue</span>: <span class="number">0.0634882</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9709193</span>,
-        <span class="ident">green</span>: <span class="number">0.5228533</span>,
-        <span class="ident">blue</span>: <span class="number">0.0583675</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9725904</span>,
-        <span class="ident">green</span>: <span class="number">0.5297982</span>,
-        <span class="ident">blue</span>: <span class="number">0.0533237</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9741763</span>,
-        <span class="ident">green</span>: <span class="number">0.5367801</span>,
-        <span class="ident">blue</span>: <span class="number">0.0483920</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9756770</span>,
-        <span class="ident">green</span>: <span class="number">0.5437977</span>,
-        <span class="ident">blue</span>: <span class="number">0.0436178</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9770923</span>,
-        <span class="ident">green</span>: <span class="number">0.5508503</span>,
-        <span class="ident">blue</span>: <span class="number">0.0390500</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9784220</span>,
-        <span class="ident">green</span>: <span class="number">0.5579369</span>,
-        <span class="ident">blue</span>: <span class="number">0.0349306</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9796658</span>,
-        <span class="ident">green</span>: <span class="number">0.5650566</span>,
-        <span class="ident">blue</span>: <span class="number">0.0314092</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9808237</span>,
-        <span class="ident">green</span>: <span class="number">0.5722085</span>,
-        <span class="ident">blue</span>: <span class="number">0.0285076</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9818953</span>,
-        <span class="ident">green</span>: <span class="number">0.5793918</span>,
-        <span class="ident">blue</span>: <span class="number">0.0262497</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9828805</span>,
-        <span class="ident">green</span>: <span class="number">0.5866056</span>,
-        <span class="ident">blue</span>: <span class="number">0.0246613</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9837791</span>,
-        <span class="ident">green</span>: <span class="number">0.5938492</span>,
-        <span class="ident">blue</span>: <span class="number">0.0237702</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9845908</span>,
-        <span class="ident">green</span>: <span class="number">0.6011216</span>,
-        <span class="ident">blue</span>: <span class="number">0.0236064</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9853153</span>,
-        <span class="ident">green</span>: <span class="number">0.6084222</span>,
-        <span class="ident">blue</span>: <span class="number">0.0242021</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9859525</span>,
-        <span class="ident">green</span>: <span class="number">0.6157501</span>,
-        <span class="ident">blue</span>: <span class="number">0.0255922</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9865020</span>,
-        <span class="ident">green</span>: <span class="number">0.6231047</span>,
-        <span class="ident">blue</span>: <span class="number">0.0278139</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9869637</span>,
-        <span class="ident">green</span>: <span class="number">0.6304850</span>,
-        <span class="ident">blue</span>: <span class="number">0.0309075</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9873372</span>,
-        <span class="ident">green</span>: <span class="number">0.6378904</span>,
-        <span class="ident">blue</span>: <span class="number">0.0349161</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9876223</span>,
-        <span class="ident">green</span>: <span class="number">0.6453202</span>,
-        <span class="ident">blue</span>: <span class="number">0.0398857</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9878188</span>,
-        <span class="ident">green</span>: <span class="number">0.6527734</span>,
-        <span class="ident">blue</span>: <span class="number">0.0455808</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9879263</span>,
-        <span class="ident">green</span>: <span class="number">0.6602495</span>,
-        <span class="ident">blue</span>: <span class="number">0.0517504</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9879448</span>,
-        <span class="ident">green</span>: <span class="number">0.6677476</span>,
-        <span class="ident">blue</span>: <span class="number">0.0583287</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9878739</span>,
-        <span class="ident">green</span>: <span class="number">0.6752670</span>,
-        <span class="ident">blue</span>: <span class="number">0.0652570</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9877135</span>,
-        <span class="ident">green</span>: <span class="number">0.6828068</span>,
-        <span class="ident">blue</span>: <span class="number">0.0724892</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9874635</span>,
-        <span class="ident">green</span>: <span class="number">0.6903662</span>,
-        <span class="ident">blue</span>: <span class="number">0.0799897</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9871238</span>,
-        <span class="ident">green</span>: <span class="number">0.6979444</span>,
-        <span class="ident">blue</span>: <span class="number">0.0877314</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9866942</span>,
-        <span class="ident">green</span>: <span class="number">0.7055404</span>,
-        <span class="ident">blue</span>: <span class="number">0.0956942</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9861750</span>,
-        <span class="ident">green</span>: <span class="number">0.7131534</span>,
-        <span class="ident">blue</span>: <span class="number">0.1038633</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9855657</span>,
-        <span class="ident">green</span>: <span class="number">0.7207825</span>,
-        <span class="ident">blue</span>: <span class="number">0.1122288</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9848652</span>,
-        <span class="ident">green</span>: <span class="number">0.7284275</span>,
-        <span class="ident">blue</span>: <span class="number">0.1207847</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9840751</span>,
-        <span class="ident">green</span>: <span class="number">0.7360865</span>,
-        <span class="ident">blue</span>: <span class="number">0.1295266</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9831960</span>,
-        <span class="ident">green</span>: <span class="number">0.7437583</span>,
-        <span class="ident">blue</span>: <span class="number">0.1384531</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9822285</span>,
-        <span class="ident">green</span>: <span class="number">0.7514416</span>,
-        <span class="ident">blue</span>: <span class="number">0.1475646</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9811735</span>,
-        <span class="ident">green</span>: <span class="number">0.7591349</span>,
-        <span class="ident">blue</span>: <span class="number">0.1568632</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9800322</span>,
-        <span class="ident">green</span>: <span class="number">0.7668366</span>,
-        <span class="ident">blue</span>: <span class="number">0.1663525</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9788062</span>,
-        <span class="ident">green</span>: <span class="number">0.7745450</span>,
-        <span class="ident">blue</span>: <span class="number">0.1760373</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9774975</span>,
-        <span class="ident">green</span>: <span class="number">0.7822581</span>,
-        <span class="ident">blue</span>: <span class="number">0.1859234</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9761085</span>,
-        <span class="ident">green</span>: <span class="number">0.7899738</span>,
-        <span class="ident">blue</span>: <span class="number">0.1960176</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9746378</span>,
-        <span class="ident">green</span>: <span class="number">0.7976916</span>,
-        <span class="ident">blue</span>: <span class="number">0.2063319</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9730879</span>,
-        <span class="ident">green</span>: <span class="number">0.8054093</span>,
-        <span class="ident">blue</span>: <span class="number">0.2168768</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9714678</span>,
-        <span class="ident">green</span>: <span class="number">0.8131217</span>,
-        <span class="ident">blue</span>: <span class="number">0.2276580</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9697831</span>,
-        <span class="ident">green</span>: <span class="number">0.8208251</span>,
-        <span class="ident">blue</span>: <span class="number">0.2386859</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9680408</span>,
-        <span class="ident">green</span>: <span class="number">0.8285155</span>,
-        <span class="ident">blue</span>: <span class="number">0.2499716</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9662426</span>,
-        <span class="ident">green</span>: <span class="number">0.8361910</span>,
-        <span class="ident">blue</span>: <span class="number">0.2615339</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9643939</span>,
-        <span class="ident">green</span>: <span class="number">0.8438481</span>,
-        <span class="ident">blue</span>: <span class="number">0.2733911</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9625167</span>,
-        <span class="ident">green</span>: <span class="number">0.8514763</span>,
-        <span class="ident">blue</span>: <span class="number">0.2855457</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9606255</span>,
-        <span class="ident">green</span>: <span class="number">0.8590687</span>,
-        <span class="ident">blue</span>: <span class="number">0.2980102</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9587201</span>,
-        <span class="ident">green</span>: <span class="number">0.8666244</span>,
-        <span class="ident">blue</span>: <span class="number">0.3108205</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9568341</span>,
-        <span class="ident">green</span>: <span class="number">0.8741286</span>,
-        <span class="ident">blue</span>: <span class="number">0.3239739</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9549972</span>,
-        <span class="ident">green</span>: <span class="number">0.8815689</span>,
-        <span class="ident">blue</span>: <span class="number">0.3374755</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9532151</span>,
-        <span class="ident">green</span>: <span class="number">0.8889423</span>,
-        <span class="ident">blue</span>: <span class="number">0.3513687</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9515462</span>,
-        <span class="ident">green</span>: <span class="number">0.8962259</span>,
-        <span class="ident">blue</span>: <span class="number">0.3656270</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9500185</span>,
-        <span class="ident">green</span>: <span class="number">0.9034091</span>,
-        <span class="ident">blue</span>: <span class="number">0.3802712</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9486834</span>,
-        <span class="ident">green</span>: <span class="number">0.9104730</span>,
-        <span class="ident">blue</span>: <span class="number">0.3952892</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9475944</span>,
-        <span class="ident">green</span>: <span class="number">0.9173991</span>,
-        <span class="ident">blue</span>: <span class="number">0.4106652</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9468092</span>,
-        <span class="ident">green</span>: <span class="number">0.9241682</span>,
-        <span class="ident">blue</span>: <span class="number">0.4263732</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9463915</span>,
-        <span class="ident">green</span>: <span class="number">0.9307608</span>,
-        <span class="ident">blue</span>: <span class="number">0.4423675</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9464030</span>,
-        <span class="ident">green</span>: <span class="number">0.9371590</span>,
-        <span class="ident">blue</span>: <span class="number">0.4585915</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9469026</span>,
-        <span class="ident">green</span>: <span class="number">0.9433478</span>,
-        <span class="ident">blue</span>: <span class="number">0.4749698</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9479368</span>,
-        <span class="ident">green</span>: <span class="number">0.9493175</span>,
-        <span class="ident">blue</span>: <span class="number">0.4914261</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9495448</span>,
-        <span class="ident">green</span>: <span class="number">0.9550629</span>,
-        <span class="ident">blue</span>: <span class="number">0.5078596</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9517403</span>,
-        <span class="ident">green</span>: <span class="number">0.9605867</span>,
-        <span class="ident">blue</span>: <span class="number">0.5242030</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9545293</span>,
-        <span class="ident">green</span>: <span class="number">0.9658959</span>,
-        <span class="ident">blue</span>: <span class="number">0.5403608</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9578961</span>,
-        <span class="ident">green</span>: <span class="number">0.9710033</span>,
-        <span class="ident">blue</span>: <span class="number">0.5562751</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9618120</span>,
-        <span class="ident">green</span>: <span class="number">0.9759242</span>,
-        <span class="ident">blue</span>: <span class="number">0.5719254</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9662488</span>,
-        <span class="ident">green</span>: <span class="number">0.9806782</span>,
-        <span class="ident">blue</span>: <span class="number">0.5872058</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9711616</span>,
-        <span class="ident">green</span>: <span class="number">0.9852822</span>,
-        <span class="ident">blue</span>: <span class="number">0.6021543</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9765110</span>,
-        <span class="ident">green</span>: <span class="number">0.9897534</span>,
-        <span class="ident">blue</span>: <span class="number">0.6167604</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9822573</span>,
-        <span class="ident">green</span>: <span class="number">0.9941088</span>,
-        <span class="ident">blue</span>: <span class="number">0.6310170</span>,
-    },
-    <span class="ident">Spectrum</span> {
-        <span class="ident">red</span>: <span class="number">0.9883621</span>,
-        <span class="ident">green</span>: <span class="number">0.9983641</span>,
-        <span class="ident">blue</span>: <span class="number">0.6449240</span>,
-    },
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">INFERNO_COLOURMAP</span>: [[<span class="ident"><span class="kw">crate</span>::Float</span>; <span class="number">3</span>]; <span class="number">256</span>] <span class="op">=</span> [
+    [<span class="number">1.46159096e-03</span>, <span class="number">4.66127766e-04</span>, <span class="number">1.38655200e-02</span>],
+    [<span class="number">2.26726368e-03</span>, <span class="number">1.26992553e-03</span>, <span class="number">1.85703520e-02</span>],
+    [<span class="number">3.29899092e-03</span>, <span class="number">2.24934863e-03</span>, <span class="number">2.42390508e-02</span>],
+    [<span class="number">4.54690615e-03</span>, <span class="number">3.39180156e-03</span>, <span class="number">3.09092475e-02</span>],
+    [<span class="number">6.00552565e-03</span>, <span class="number">4.69194561e-03</span>, <span class="number">3.85578980e-02</span>],
+    [<span class="number">7.67578856e-03</span>, <span class="number">6.13611626e-03</span>, <span class="number">4.68360336e-02</span>],
+    [<span class="number">9.56051094e-03</span>, <span class="number">7.71344131e-03</span>, <span class="number">5.51430756e-02</span>],
+    [<span class="number">1.16634769e-02</span>, <span class="number">9.41675403e-03</span>, <span class="number">6.34598080e-02</span>],
+    [<span class="number">1.39950388e-02</span>, <span class="number">1.12247138e-02</span>, <span class="number">7.18616890e-02</span>],
+    [<span class="number">1.65605595e-02</span>, <span class="number">1.31362262e-02</span>, <span class="number">8.02817951e-02</span>],
+    [<span class="number">1.93732295e-02</span>, <span class="number">1.51325789e-02</span>, <span class="number">8.87668094e-02</span>],
+    [<span class="number">2.24468865e-02</span>, <span class="number">1.71991484e-02</span>, <span class="number">9.73274383e-02</span>],
+    [<span class="number">2.57927373e-02</span>, <span class="number">1.93306298e-02</span>, <span class="number">1.05929835e-01</span>],
+    [<span class="number">2.94324251e-02</span>, <span class="number">2.15030771e-02</span>, <span class="number">1.14621328e-01</span>],
+    [<span class="number">3.33852235e-02</span>, <span class="number">2.37024271e-02</span>, <span class="number">1.23397286e-01</span>],
+    [<span class="number">3.76684211e-02</span>, <span class="number">2.59207864e-02</span>, <span class="number">1.32232108e-01</span>],
+    [<span class="number">4.22525554e-02</span>, <span class="number">2.81385015e-02</span>, <span class="number">1.41140519e-01</span>],
+    [<span class="number">4.69146287e-02</span>, <span class="number">3.03236129e-02</span>, <span class="number">1.50163867e-01</span>],
+    [<span class="number">5.16437624e-02</span>, <span class="number">3.24736172e-02</span>, <span class="number">1.59254277e-01</span>],
+    [<span class="number">5.64491009e-02</span>, <span class="number">3.45691867e-02</span>, <span class="number">1.68413539e-01</span>],
+    [<span class="number">6.13397200e-02</span>, <span class="number">3.65900213e-02</span>, <span class="number">1.77642172e-01</span>],
+    [<span class="number">6.63312620e-02</span>, <span class="number">3.85036268e-02</span>, <span class="number">1.86961588e-01</span>],
+    [<span class="number">7.14289181e-02</span>, <span class="number">4.02939095e-02</span>, <span class="number">1.96353558e-01</span>],
+    [<span class="number">7.66367560e-02</span>, <span class="number">4.19053329e-02</span>, <span class="number">2.05798788e-01</span>],
+    [<span class="number">8.19620773e-02</span>, <span class="number">4.33278666e-02</span>, <span class="number">2.15289113e-01</span>],
+    [<span class="number">8.74113897e-02</span>, <span class="number">4.45561662e-02</span>, <span class="number">2.24813479e-01</span>],
+    [<span class="number">9.29901526e-02</span>, <span class="number">4.55829503e-02</span>, <span class="number">2.34357604e-01</span>],
+    [<span class="number">9.87024972e-02</span>, <span class="number">4.64018731e-02</span>, <span class="number">2.43903700e-01</span>],
+    [<span class="number">1.04550936e-01</span>, <span class="number">4.70080541e-02</span>, <span class="number">2.53430300e-01</span>],
+    [<span class="number">1.10536084e-01</span>, <span class="number">4.73986708e-02</span>, <span class="number">2.62912235e-01</span>],
+    [<span class="number">1.16656423e-01</span>, <span class="number">4.75735920e-02</span>, <span class="number">2.72320803e-01</span>],
+    [<span class="number">1.22908126e-01</span>, <span class="number">4.75360183e-02</span>, <span class="number">2.81624170e-01</span>],
+    [<span class="number">1.29284984e-01</span>, <span class="number">4.72930838e-02</span>, <span class="number">2.90788012e-01</span>],
+    [<span class="number">1.35778450e-01</span>, <span class="number">4.68563678e-02</span>, <span class="number">2.99776404e-01</span>],
+    [<span class="number">1.42377819e-01</span>, <span class="number">4.62422566e-02</span>, <span class="number">3.08552910e-01</span>],
+    [<span class="number">1.49072957e-01</span>, <span class="number">4.54676444e-02</span>, <span class="number">3.17085139e-01</span>],
+    [<span class="number">1.55849711e-01</span>, <span class="number">4.45588056e-02</span>, <span class="number">3.25338414e-01</span>],
+    [<span class="number">1.62688939e-01</span>, <span class="number">4.35542881e-02</span>, <span class="number">3.33276678e-01</span>],
+    [<span class="number">1.69575148e-01</span>, <span class="number">4.24893149e-02</span>, <span class="number">3.40874188e-01</span>],
+    [<span class="number">1.76493202e-01</span>, <span class="number">4.14017089e-02</span>, <span class="number">3.48110606e-01</span>],
+    [<span class="number">1.83428775e-01</span>, <span class="number">4.03288858e-02</span>, <span class="number">3.54971391e-01</span>],
+    [<span class="number">1.90367453e-01</span>, <span class="number">3.93088888e-02</span>, <span class="number">3.61446945e-01</span>],
+    [<span class="number">1.97297425e-01</span>, <span class="number">3.84001825e-02</span>, <span class="number">3.67534629e-01</span>],
+    [<span class="number">2.04209298e-01</span>, <span class="number">3.76322609e-02</span>, <span class="number">3.73237557e-01</span>],
+    [<span class="number">2.11095463e-01</span>, <span class="number">3.70296488e-02</span>, <span class="number">3.78563264e-01</span>],
+    [<span class="number">2.17948648e-01</span>, <span class="number">3.66146049e-02</span>, <span class="number">3.83522415e-01</span>],
+    [<span class="number">2.24762908e-01</span>, <span class="number">3.64049901e-02</span>, <span class="number">3.88128944e-01</span>],
+    [<span class="number">2.31538148e-01</span>, <span class="number">3.64052511e-02</span>, <span class="number">3.92400150e-01</span>],
+    [<span class="number">2.38272961e-01</span>, <span class="number">3.66209949e-02</span>, <span class="number">3.96353388e-01</span>],
+    [<span class="number">2.44966911e-01</span>, <span class="number">3.70545017e-02</span>, <span class="number">4.00006615e-01</span>],
+    [<span class="number">2.51620354e-01</span>, <span class="number">3.77052832e-02</span>, <span class="number">4.03377897e-01</span>],
+    [<span class="number">2.58234265e-01</span>, <span class="number">3.85706153e-02</span>, <span class="number">4.06485031e-01</span>],
+    [<span class="number">2.64809649e-01</span>, <span class="number">3.96468666e-02</span>, <span class="number">4.09345373e-01</span>],
+    [<span class="number">2.71346664e-01</span>, <span class="number">4.09215821e-02</span>, <span class="number">4.11976086e-01</span>],
+    [<span class="number">2.77849829e-01</span>, <span class="number">4.23528741e-02</span>, <span class="number">4.14392106e-01</span>],
+    [<span class="number">2.84321318e-01</span>, <span class="number">4.39325787e-02</span>, <span class="number">4.16607861e-01</span>],
+    [<span class="number">2.90763373e-01</span>, <span class="number">4.56437598e-02</span>, <span class="number">4.18636756e-01</span>],
+    [<span class="number">2.97178251e-01</span>, <span class="number">4.74700293e-02</span>, <span class="number">4.20491164e-01</span>],
+    [<span class="number">3.03568182e-01</span>, <span class="number">4.93958927e-02</span>, <span class="number">4.22182449e-01</span>],
+    [<span class="number">3.09935342e-01</span>, <span class="number">5.14069729e-02</span>, <span class="number">4.23720999e-01</span>],
+    [<span class="number">3.16281835e-01</span>, <span class="number">5.34901321e-02</span>, <span class="number">4.25116277e-01</span>],
+    [<span class="number">3.22609671e-01</span>, <span class="number">5.56335178e-02</span>, <span class="number">4.26376869e-01</span>],
+    [<span class="number">3.28920763e-01</span>, <span class="number">5.78265505e-02</span>, <span class="number">4.27510546e-01</span>],
+    [<span class="number">3.35216916e-01</span>, <span class="number">6.00598734e-02</span>, <span class="number">4.28524320e-01</span>],
+    [<span class="number">3.41499828e-01</span>, <span class="number">6.23252772e-02</span>, <span class="number">4.29424503e-01</span>],
+    [<span class="number">3.47771086e-01</span>, <span class="number">6.46156100e-02</span>, <span class="number">4.30216765e-01</span>],
+    [<span class="number">3.54032169e-01</span>, <span class="number">6.69246832e-02</span>, <span class="number">4.30906186e-01</span>],
+    [<span class="number">3.60284449e-01</span>, <span class="number">6.92471753e-02</span>, <span class="number">4.31497309e-01</span>],
+    [<span class="number">3.66529195e-01</span>, <span class="number">7.15785403e-02</span>, <span class="number">4.31994185e-01</span>],
+    [<span class="number">3.72767575e-01</span>, <span class="number">7.39149211e-02</span>, <span class="number">4.32400419e-01</span>],
+    [<span class="number">3.79000659e-01</span>, <span class="number">7.62530701e-02</span>, <span class="number">4.32719214e-01</span>],
+    [<span class="number">3.85228383e-01</span>, <span class="number">7.85914864e-02</span>, <span class="number">4.32954973e-01</span>],
+    [<span class="number">3.91452659e-01</span>, <span class="number">8.09267058e-02</span>, <span class="number">4.33108763e-01</span>],
+    [<span class="number">3.97674379e-01</span>, <span class="number">8.32568129e-02</span>, <span class="number">4.33182647e-01</span>],
+    [<span class="number">4.03894278e-01</span>, <span class="number">8.55803445e-02</span>, <span class="number">4.33178526e-01</span>],
+    [<span class="number">4.10113015e-01</span>, <span class="number">8.78961593e-02</span>, <span class="number">4.33098056e-01</span>],
+    [<span class="number">4.16331169e-01</span>, <span class="number">9.02033992e-02</span>, <span class="number">4.32942678e-01</span>],
+    [<span class="number">4.22549249e-01</span>, <span class="number">9.25014543e-02</span>, <span class="number">4.32713635e-01</span>],
+    [<span class="number">4.28767696e-01</span>, <span class="number">9.47899342e-02</span>, <span class="number">4.32411996e-01</span>],
+    [<span class="number">4.34986885e-01</span>, <span class="number">9.70686417e-02</span>, <span class="number">4.32038673e-01</span>],
+    [<span class="number">4.41207124e-01</span>, <span class="number">9.93375510e-02</span>, <span class="number">4.31594438e-01</span>],
+    [<span class="number">4.47428382e-01</span>, <span class="number">1.01597079e-01</span>, <span class="number">4.31080497e-01</span>],
+    [<span class="number">4.53650614e-01</span>, <span class="number">1.03847716e-01</span>, <span class="number">4.30497898e-01</span>],
+    [<span class="number">4.59874623e-01</span>, <span class="number">1.06089165e-01</span>, <span class="number">4.29845789e-01</span>],
+    [<span class="number">4.66100494e-01</span>, <span class="number">1.08321923e-01</span>, <span class="number">4.29124507e-01</span>],
+    [<span class="number">4.72328255e-01</span>, <span class="number">1.10546584e-01</span>, <span class="number">4.28334320e-01</span>],
+    [<span class="number">4.78557889e-01</span>, <span class="number">1.12763831e-01</span>, <span class="number">4.27475431e-01</span>],
+    [<span class="number">4.84789325e-01</span>, <span class="number">1.14974430e-01</span>, <span class="number">4.26547991e-01</span>],
+    [<span class="number">4.91022448e-01</span>, <span class="number">1.17179219e-01</span>, <span class="number">4.25552106e-01</span>],
+    [<span class="number">4.97257069e-01</span>, <span class="number">1.19379132e-01</span>, <span class="number">4.24487908e-01</span>],
+    [<span class="number">5.03492698e-01</span>, <span class="number">1.21575414e-01</span>, <span class="number">4.23356110e-01</span>],
+    [<span class="number">5.09729541e-01</span>, <span class="number">1.23768654e-01</span>, <span class="number">4.22155676e-01</span>],
+    [<span class="number">5.15967304e-01</span>, <span class="number">1.25959947e-01</span>, <span class="number">4.20886594e-01</span>],
+    [<span class="number">5.22205646e-01</span>, <span class="number">1.28150439e-01</span>, <span class="number">4.19548848e-01</span>],
+    [<span class="number">5.28444192e-01</span>, <span class="number">1.30341324e-01</span>, <span class="number">4.18142411e-01</span>],
+    [<span class="number">5.34682523e-01</span>, <span class="number">1.32533845e-01</span>, <span class="number">4.16667258e-01</span>],
+    [<span class="number">5.40920186e-01</span>, <span class="number">1.34729286e-01</span>, <span class="number">4.15123366e-01</span>],
+    [<span class="number">5.47156706e-01</span>, <span class="number">1.36928959e-01</span>, <span class="number">4.13510662e-01</span>],
+    [<span class="number">5.53391649e-01</span>, <span class="number">1.39134147e-01</span>, <span class="number">4.11828882e-01</span>],
+    [<span class="number">5.59624442e-01</span>, <span class="number">1.41346265e-01</span>, <span class="number">4.10078028e-01</span>],
+    [<span class="number">5.65854477e-01</span>, <span class="number">1.43566769e-01</span>, <span class="number">4.08258132e-01</span>],
+    [<span class="number">5.72081108e-01</span>, <span class="number">1.45797150e-01</span>, <span class="number">4.06369246e-01</span>],
+    [<span class="number">5.78303656e-01</span>, <span class="number">1.48038934e-01</span>, <span class="number">4.04411444e-01</span>],
+    [<span class="number">5.84521407e-01</span>, <span class="number">1.50293679e-01</span>, <span class="number">4.02384829e-01</span>],
+    [<span class="number">5.90733615e-01</span>, <span class="number">1.52562977e-01</span>, <span class="number">4.00289528e-01</span>],
+    [<span class="number">5.96939751e-01</span>, <span class="number">1.54848232e-01</span>, <span class="number">3.98124897e-01</span>],
+    [<span class="number">6.03138930e-01</span>, <span class="number">1.57151161e-01</span>, <span class="number">3.95891308e-01</span>],
+    [<span class="number">6.09330184e-01</span>, <span class="number">1.59473549e-01</span>, <span class="number">3.93589349e-01</span>],
+    [<span class="number">6.15512627e-01</span>, <span class="number">1.61817111e-01</span>, <span class="number">3.91219295e-01</span>],
+    [<span class="number">6.21685340e-01</span>, <span class="number">1.64183582e-01</span>, <span class="number">3.88781456e-01</span>],
+    [<span class="number">6.27847374e-01</span>, <span class="number">1.66574724e-01</span>, <span class="number">3.86276180e-01</span>],
+    [<span class="number">6.33997746e-01</span>, <span class="number">1.68992314e-01</span>, <span class="number">3.83703854e-01</span>],
+    [<span class="number">6.40135447e-01</span>, <span class="number">1.71438150e-01</span>, <span class="number">3.81064906e-01</span>],
+    [<span class="number">6.46259648e-01</span>, <span class="number">1.73913876e-01</span>, <span class="number">3.78358969e-01</span>],
+    [<span class="number">6.52369348e-01</span>, <span class="number">1.76421271e-01</span>, <span class="number">3.75586209e-01</span>],
+    [<span class="number">6.58463166e-01</span>, <span class="number">1.78962399e-01</span>, <span class="number">3.72748214e-01</span>],
+    [<span class="number">6.64539964e-01</span>, <span class="number">1.81539111e-01</span>, <span class="number">3.69845599e-01</span>],
+    [<span class="number">6.70598572e-01</span>, <span class="number">1.84153268e-01</span>, <span class="number">3.66879025e-01</span>],
+    [<span class="number">6.76637795e-01</span>, <span class="number">1.86806728e-01</span>, <span class="number">3.63849195e-01</span>],
+    [<span class="number">6.82656407e-01</span>, <span class="number">1.89501352e-01</span>, <span class="number">3.60756856e-01</span>],
+    [<span class="number">6.88653158e-01</span>, <span class="number">1.92238994e-01</span>, <span class="number">3.57602797e-01</span>],
+    [<span class="number">6.94626769e-01</span>, <span class="number">1.95021500e-01</span>, <span class="number">3.54387853e-01</span>],
+    [<span class="number">7.00575937e-01</span>, <span class="number">1.97850703e-01</span>, <span class="number">3.51112900e-01</span>],
+    [<span class="number">7.06499709e-01</span>, <span class="number">2.00728196e-01</span>, <span class="number">3.47776863e-01</span>],
+    [<span class="number">7.12396345e-01</span>, <span class="number">2.03656029e-01</span>, <span class="number">3.44382594e-01</span>],
+    [<span class="number">7.18264447e-01</span>, <span class="number">2.06635993e-01</span>, <span class="number">3.40931208e-01</span>],
+    [<span class="number">7.24102613e-01</span>, <span class="number">2.09669834e-01</span>, <span class="number">3.37423766e-01</span>],
+    [<span class="number">7.29909422e-01</span>, <span class="number">2.12759270e-01</span>, <span class="number">3.33861367e-01</span>],
+    [<span class="number">7.35683432e-01</span>, <span class="number">2.15905976e-01</span>, <span class="number">3.30245147e-01</span>],
+    [<span class="number">7.41423185e-01</span>, <span class="number">2.19111589e-01</span>, <span class="number">3.26576275e-01</span>],
+    [<span class="number">7.47127207e-01</span>, <span class="number">2.22377697e-01</span>, <span class="number">3.22855952e-01</span>],
+    [<span class="number">7.52794009e-01</span>, <span class="number">2.25705837e-01</span>, <span class="number">3.19085410e-01</span>],
+    [<span class="number">7.58422090e-01</span>, <span class="number">2.29097492e-01</span>, <span class="number">3.15265910e-01</span>],
+    [<span class="number">7.64009940e-01</span>, <span class="number">2.32554083e-01</span>, <span class="number">3.11398734e-01</span>],
+    [<span class="number">7.69556038e-01</span>, <span class="number">2.36076967e-01</span>, <span class="number">3.07485188e-01</span>],
+    [<span class="number">7.75058888e-01</span>, <span class="number">2.39667435e-01</span>, <span class="number">3.03526312e-01</span>],
+    [<span class="number">7.80517023e-01</span>, <span class="number">2.43326720e-01</span>, <span class="number">2.99522665e-01</span>],
+    [<span class="number">7.85928794e-01</span>, <span class="number">2.47055968e-01</span>, <span class="number">2.95476756e-01</span>],
+    [<span class="number">7.91292674e-01</span>, <span class="number">2.50856232e-01</span>, <span class="number">2.91389943e-01</span>],
+    [<span class="number">7.96607144e-01</span>, <span class="number">2.54728485e-01</span>, <span class="number">2.87263585e-01</span>],
+    [<span class="number">8.01870689e-01</span>, <span class="number">2.58673610e-01</span>, <span class="number">2.83099033e-01</span>],
+    [<span class="number">8.07081807e-01</span>, <span class="number">2.62692401e-01</span>, <span class="number">2.78897629e-01</span>],
+    [<span class="number">8.12239008e-01</span>, <span class="number">2.66785558e-01</span>, <span class="number">2.74660698e-01</span>],
+    [<span class="number">8.17340818e-01</span>, <span class="number">2.70953688e-01</span>, <span class="number">2.70389545e-01</span>],
+    [<span class="number">8.22385784e-01</span>, <span class="number">2.75197300e-01</span>, <span class="number">2.66085445e-01</span>],
+    [<span class="number">8.27372474e-01</span>, <span class="number">2.79516805e-01</span>, <span class="number">2.61749643e-01</span>],
+    [<span class="number">8.32299481e-01</span>, <span class="number">2.83912516e-01</span>, <span class="number">2.57383341e-01</span>],
+    [<span class="number">8.37165425e-01</span>, <span class="number">2.88384647e-01</span>, <span class="number">2.52987700e-01</span>],
+    [<span class="number">8.41968959e-01</span>, <span class="number">2.92933312e-01</span>, <span class="number">2.48563825e-01</span>],
+    [<span class="number">8.46708768e-01</span>, <span class="number">2.97558528e-01</span>, <span class="number">2.44112767e-01</span>],
+    [<span class="number">8.51383572e-01</span>, <span class="number">3.02260213e-01</span>, <span class="number">2.39635512e-01</span>],
+    [<span class="number">8.55992130e-01</span>, <span class="number">3.07038188e-01</span>, <span class="number">2.35132978e-01</span>],
+    [<span class="number">8.60533241e-01</span>, <span class="number">3.11892183e-01</span>, <span class="number">2.30606009e-01</span>],
+    [<span class="number">8.65005747e-01</span>, <span class="number">3.16821833e-01</span>, <span class="number">2.26055368e-01</span>],
+    [<span class="number">8.69408534e-01</span>, <span class="number">3.21826685e-01</span>, <span class="number">2.21481734e-01</span>],
+    [<span class="number">8.73740530e-01</span>, <span class="number">3.26906201e-01</span>, <span class="number">2.16885699e-01</span>],
+    [<span class="number">8.78000715e-01</span>, <span class="number">3.32059760e-01</span>, <span class="number">2.12267762e-01</span>],
+    [<span class="number">8.82188112e-01</span>, <span class="number">3.37286663e-01</span>, <span class="number">2.07628326e-01</span>],
+    [<span class="number">8.86301795e-01</span>, <span class="number">3.42586137e-01</span>, <span class="number">2.02967696e-01</span>],
+    [<span class="number">8.90340885e-01</span>, <span class="number">3.47957340e-01</span>, <span class="number">1.98286080e-01</span>],
+    [<span class="number">8.94304553e-01</span>, <span class="number">3.53399363e-01</span>, <span class="number">1.93583583e-01</span>],
+    [<span class="number">8.98192017e-01</span>, <span class="number">3.58911240e-01</span>, <span class="number">1.88860212e-01</span>],
+    [<span class="number">9.02002544e-01</span>, <span class="number">3.64491949e-01</span>, <span class="number">1.84115876e-01</span>],
+    [<span class="number">9.05735448e-01</span>, <span class="number">3.70140419e-01</span>, <span class="number">1.79350388e-01</span>],
+    [<span class="number">9.09390090e-01</span>, <span class="number">3.75855533e-01</span>, <span class="number">1.74563472e-01</span>],
+    [<span class="number">9.12965874e-01</span>, <span class="number">3.81636138e-01</span>, <span class="number">1.69754764e-01</span>],
+    [<span class="number">9.16462251e-01</span>, <span class="number">3.87481044e-01</span>, <span class="number">1.64923826e-01</span>],
+    [<span class="number">9.19878710e-01</span>, <span class="number">3.93389034e-01</span>, <span class="number">1.60070152e-01</span>],
+    [<span class="number">9.23214783e-01</span>, <span class="number">3.99358867e-01</span>, <span class="number">1.55193185e-01</span>],
+    [<span class="number">9.26470039e-01</span>, <span class="number">4.05389282e-01</span>, <span class="number">1.50292329e-01</span>],
+    [<span class="number">9.29644083e-01</span>, <span class="number">4.11479007e-01</span>, <span class="number">1.45366973e-01</span>],
+    [<span class="number">9.32736555e-01</span>, <span class="number">4.17626756e-01</span>, <span class="number">1.40416519e-01</span>],
+    [<span class="number">9.35747126e-01</span>, <span class="number">4.23831237e-01</span>, <span class="number">1.35440416e-01</span>],
+    [<span class="number">9.38675494e-01</span>, <span class="number">4.30091162e-01</span>, <span class="number">1.30438175e-01</span>],
+    [<span class="number">9.41521384e-01</span>, <span class="number">4.36405243e-01</span>, <span class="number">1.25409440e-01</span>],
+    [<span class="number">9.44284543e-01</span>, <span class="number">4.42772199e-01</span>, <span class="number">1.20354038e-01</span>],
+    [<span class="number">9.46964741e-01</span>, <span class="number">4.49190757e-01</span>, <span class="number">1.15272059e-01</span>],
+    [<span class="number">9.49561766e-01</span>, <span class="number">4.55659658e-01</span>, <span class="number">1.10163947e-01</span>],
+    [<span class="number">9.52075421e-01</span>, <span class="number">4.62177656e-01</span>, <span class="number">1.05030614e-01</span>],
+    [<span class="number">9.54505523e-01</span>, <span class="number">4.68743522e-01</span>, <span class="number">9.98735931e-02</span>],
+    [<span class="number">9.56851903e-01</span>, <span class="number">4.75356048e-01</span>, <span class="number">9.46952268e-02</span>],
+    [<span class="number">9.59114397e-01</span>, <span class="number">4.82014044e-01</span>, <span class="number">8.94989073e-02</span>],
+    [<span class="number">9.61292850e-01</span>, <span class="number">4.88716345e-01</span>, <span class="number">8.42893891e-02</span>],
+    [<span class="number">9.63387110e-01</span>, <span class="number">4.95461806e-01</span>, <span class="number">7.90731907e-02</span>],
+    [<span class="number">9.65397031e-01</span>, <span class="number">5.02249309e-01</span>, <span class="number">7.38591143e-02</span>],
+    [<span class="number">9.67322465e-01</span>, <span class="number">5.09077761e-01</span>, <span class="number">6.86589199e-02</span>],
+    [<span class="number">9.69163264e-01</span>, <span class="number">5.15946092e-01</span>, <span class="number">6.34881971e-02</span>],
+    [<span class="number">9.70919277e-01</span>, <span class="number">5.22853259e-01</span>, <span class="number">5.83674890e-02</span>],
+    [<span class="number">9.72590351e-01</span>, <span class="number">5.29798246e-01</span>, <span class="number">5.33237243e-02</span>],
+    [<span class="number">9.74176327e-01</span>, <span class="number">5.36780059e-01</span>, <span class="number">4.83920090e-02</span>],
+    [<span class="number">9.75677038e-01</span>, <span class="number">5.43797733e-01</span>, <span class="number">4.36177922e-02</span>],
+    [<span class="number">9.77092313e-01</span>, <span class="number">5.50850323e-01</span>, <span class="number">3.90500131e-02</span>],
+    [<span class="number">9.78421971e-01</span>, <span class="number">5.57936911e-01</span>, <span class="number">3.49306227e-02</span>],
+    [<span class="number">9.79665824e-01</span>, <span class="number">5.65056600e-01</span>, <span class="number">3.14091591e-02</span>],
+    [<span class="number">9.80823673e-01</span>, <span class="number">5.72208516e-01</span>, <span class="number">2.85075931e-02</span>],
+    [<span class="number">9.81895311e-01</span>, <span class="number">5.79391803e-01</span>, <span class="number">2.62497353e-02</span>],
+    [<span class="number">9.82880522e-01</span>, <span class="number">5.86605627e-01</span>, <span class="number">2.46613416e-02</span>],
+    [<span class="number">9.83779081e-01</span>, <span class="number">5.93849168e-01</span>, <span class="number">2.37702263e-02</span>],
+    [<span class="number">9.84590755e-01</span>, <span class="number">6.01121626e-01</span>, <span class="number">2.36063833e-02</span>],
+    [<span class="number">9.85315301e-01</span>, <span class="number">6.08422211e-01</span>, <span class="number">2.42021174e-02</span>],
+    [<span class="number">9.85952471e-01</span>, <span class="number">6.15750147e-01</span>, <span class="number">2.55921853e-02</span>],
+    [<span class="number">9.86502013e-01</span>, <span class="number">6.23104667e-01</span>, <span class="number">2.78139496e-02</span>],
+    [<span class="number">9.86963670e-01</span>, <span class="number">6.30485011e-01</span>, <span class="number">3.09075459e-02</span>],
+    [<span class="number">9.87337182e-01</span>, <span class="number">6.37890424e-01</span>, <span class="number">3.49160639e-02</span>],
+    [<span class="number">9.87622296e-01</span>, <span class="number">6.45320152e-01</span>, <span class="number">3.98857472e-02</span>],
+    [<span class="number">9.87818759e-01</span>, <span class="number">6.52773439e-01</span>, <span class="number">4.55808037e-02</span>],
+    [<span class="number">9.87926330e-01</span>, <span class="number">6.60249526e-01</span>, <span class="number">5.17503867e-02</span>],
+    [<span class="number">9.87944783e-01</span>, <span class="number">6.67747641e-01</span>, <span class="number">5.83286889e-02</span>],
+    [<span class="number">9.87873910e-01</span>, <span class="number">6.75267000e-01</span>, <span class="number">6.52570167e-02</span>],
+    [<span class="number">9.87713535e-01</span>, <span class="number">6.82806802e-01</span>, <span class="number">7.24892330e-02</span>],
+    [<span class="number">9.87463516e-01</span>, <span class="number">6.90366218e-01</span>, <span class="number">7.99897176e-02</span>],
+    [<span class="number">9.87123759e-01</span>, <span class="number">6.97944391e-01</span>, <span class="number">8.77314215e-02</span>],
+    [<span class="number">9.86694229e-01</span>, <span class="number">7.05540424e-01</span>, <span class="number">9.56941797e-02</span>],
+    [<span class="number">9.86174970e-01</span>, <span class="number">7.13153375e-01</span>, <span class="number">1.03863324e-01</span>],
+    [<span class="number">9.85565739e-01</span>, <span class="number">7.20782460e-01</span>, <span class="number">1.12228756e-01</span>],
+    [<span class="number">9.84865203e-01</span>, <span class="number">7.28427497e-01</span>, <span class="number">1.20784651e-01</span>],
+    [<span class="number">9.84075129e-01</span>, <span class="number">7.36086521e-01</span>, <span class="number">1.29526579e-01</span>],
+    [<span class="number">9.83195992e-01</span>, <span class="number">7.43758326e-01</span>, <span class="number">1.38453063e-01</span>],
+    [<span class="number">9.82228463e-01</span>, <span class="number">7.51441596e-01</span>, <span class="number">1.47564573e-01</span>],
+    [<span class="number">9.81173457e-01</span>, <span class="number">7.59134892e-01</span>, <span class="number">1.56863224e-01</span>],
+    [<span class="number">9.80032178e-01</span>, <span class="number">7.66836624e-01</span>, <span class="number">1.66352544e-01</span>],
+    [<span class="number">9.78806183e-01</span>, <span class="number">7.74545028e-01</span>, <span class="number">1.76037298e-01</span>],
+    [<span class="number">9.77497453e-01</span>, <span class="number">7.82258138e-01</span>, <span class="number">1.85923357e-01</span>],
+    [<span class="number">9.76108474e-01</span>, <span class="number">7.89973753e-01</span>, <span class="number">1.96017589e-01</span>],
+    [<span class="number">9.74637842e-01</span>, <span class="number">7.97691563e-01</span>, <span class="number">2.06331925e-01</span>],
+    [<span class="number">9.73087939e-01</span>, <span class="number">8.05409333e-01</span>, <span class="number">2.16876839e-01</span>],
+    [<span class="number">9.71467822e-01</span>, <span class="number">8.13121725e-01</span>, <span class="number">2.27658046e-01</span>],
+    [<span class="number">9.69783146e-01</span>, <span class="number">8.20825143e-01</span>, <span class="number">2.38685942e-01</span>],
+    [<span class="number">9.68040817e-01</span>, <span class="number">8.28515491e-01</span>, <span class="number">2.49971582e-01</span>],
+    [<span class="number">9.66242589e-01</span>, <span class="number">8.36190976e-01</span>, <span class="number">2.61533898e-01</span>],
+    [<span class="number">9.64393924e-01</span>, <span class="number">8.43848069e-01</span>, <span class="number">2.73391112e-01</span>],
+    [<span class="number">9.62516656e-01</span>, <span class="number">8.51476340e-01</span>, <span class="number">2.85545675e-01</span>],
+    [<span class="number">9.60625545e-01</span>, <span class="number">8.59068716e-01</span>, <span class="number">2.98010219e-01</span>],
+    [<span class="number">9.58720088e-01</span>, <span class="number">8.66624355e-01</span>, <span class="number">3.10820466e-01</span>],
+    [<span class="number">9.56834075e-01</span>, <span class="number">8.74128569e-01</span>, <span class="number">3.23973947e-01</span>],
+    [<span class="number">9.54997177e-01</span>, <span class="number">8.81568926e-01</span>, <span class="number">3.37475479e-01</span>],
+    [<span class="number">9.53215092e-01</span>, <span class="number">8.88942277e-01</span>, <span class="number">3.51368713e-01</span>],
+    [<span class="number">9.51546225e-01</span>, <span class="number">8.96225909e-01</span>, <span class="number">3.65627005e-01</span>],
+    [<span class="number">9.50018481e-01</span>, <span class="number">9.03409063e-01</span>, <span class="number">3.80271225e-01</span>],
+    [<span class="number">9.48683391e-01</span>, <span class="number">9.10472964e-01</span>, <span class="number">3.95289169e-01</span>],
+    [<span class="number">9.47594362e-01</span>, <span class="number">9.17399053e-01</span>, <span class="number">4.10665194e-01</span>],
+    [<span class="number">9.46809163e-01</span>, <span class="number">9.24168246e-01</span>, <span class="number">4.26373236e-01</span>],
+    [<span class="number">9.46391536e-01</span>, <span class="number">9.30760752e-01</span>, <span class="number">4.42367495e-01</span>],
+    [<span class="number">9.46402951e-01</span>, <span class="number">9.37158971e-01</span>, <span class="number">4.58591507e-01</span>],
+    [<span class="number">9.46902568e-01</span>, <span class="number">9.43347775e-01</span>, <span class="number">4.74969778e-01</span>],
+    [<span class="number">9.47936825e-01</span>, <span class="number">9.49317522e-01</span>, <span class="number">4.91426053e-01</span>],
+    [<span class="number">9.49544830e-01</span>, <span class="number">9.55062900e-01</span>, <span class="number">5.07859649e-01</span>],
+    [<span class="number">9.51740304e-01</span>, <span class="number">9.60586693e-01</span>, <span class="number">5.24203026e-01</span>],
+    [<span class="number">9.54529281e-01</span>, <span class="number">9.65895868e-01</span>, <span class="number">5.40360752e-01</span>],
+    [<span class="number">9.57896053e-01</span>, <span class="number">9.71003330e-01</span>, <span class="number">5.56275090e-01</span>],
+    [<span class="number">9.61812020e-01</span>, <span class="number">9.75924241e-01</span>, <span class="number">5.71925382e-01</span>],
+    [<span class="number">9.66248822e-01</span>, <span class="number">9.80678193e-01</span>, <span class="number">5.87205773e-01</span>],
+    [<span class="number">9.71161622e-01</span>, <span class="number">9.85282161e-01</span>, <span class="number">6.02154330e-01</span>],
+    [<span class="number">9.76510983e-01</span>, <span class="number">9.89753437e-01</span>, <span class="number">6.16760413e-01</span>],
+    [<span class="number">9.82257307e-01</span>, <span class="number">9.94108844e-01</span>, <span class="number">6.31017009e-01</span>],
+    [<span class="number">9.88362068e-01</span>, <span class="number">9.98364143e-01</span>, <span class="number">6.44924005e-01</span>],
 ];
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (69a5d2481 2022-04-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
 </body></html>

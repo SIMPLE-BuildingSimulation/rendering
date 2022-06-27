@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["MAGMA_COLOURMAP",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["MAGMA_COLOURMAP",""]]};

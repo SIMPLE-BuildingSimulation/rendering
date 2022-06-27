@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["ObjTriangle",""]]});
+window.SIDEBAR_ITEMS = {"struct":[["ObjTriangle",""]]};

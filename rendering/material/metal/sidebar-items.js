@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["Metal","Information required for modelling Radiance’s Metal and Metal"]]});
+window.SIDEBAR_ITEMS = {"struct":[["Metal","Information required for modelling Radiance’s Metal and Metal"]]};

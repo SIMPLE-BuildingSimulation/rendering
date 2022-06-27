@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["RGBSpectrum",""]],"type":[["Spectrum",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["RADIANCE_COEFFICIENTS",""],["WHITE_EFFICACY","The standard Luminious Efficacy of equal white light energy as defined in Radiance"]],"struct":[["Spectrum",""]]};

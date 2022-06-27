@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Wavelengths",""]],"struct":[["Object",""],["Scene",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Wavelengths",""]],"struct":[["Object",""],["Scene",""]]};

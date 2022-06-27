@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["ArgColourMap",""]],"fn":[["main",""]],"struct":[["Inputs",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["ArgColourMap",""]],"fn":[["main",""]],"struct":[["Inputs",""]]};

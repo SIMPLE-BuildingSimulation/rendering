@@ -1,1 +1,1 @@
-initSidebarItems({"enum":[["Colourmap","The options of Colourmap to choose from when falsecolouring an image."]],"fn":[["map_linear_colour",""]],"mod":[["inferno",""],["magma",""],["plasma",""],["radiance",""],["viridis",""]]});
+window.SIDEBAR_ITEMS = {"enum":[["Colourmap","The options of Colourmap to choose from when falsecolouring an image."]],"fn":[["map_linear_colour","Maps a linear RGB colour"],["map_linear_spectrum","Maps a Spectrum"]],"mod":[["inferno",""],["magma",""],["plasma",""],["radiance",""],["viridis",""]]};

@@ -1,1 +1,1 @@
-initSidebarItems({"fn":[["main",""]],"struct":[["Inputs","Calculates the Daylight Coefficients"]]});
+window.SIDEBAR_ITEMS = {"fn":[["main",""]],"struct":[["Inputs","Calculates the Daylight Coefficients"]]};

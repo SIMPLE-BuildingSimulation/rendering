@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/colourmap/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script src="../../../crates.js"></script><script defer src="../../../main.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/colourmap/mod.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>mod.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../../normalize.css"><link rel="stylesheet" type="text/css" href="../../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../../storage.js"></script><script defer src="../../../source-script.js"></script><script defer src="../../../source-files.js"></script><script defer src="../../../main.js"></script><noscript><link rel="stylesheet" href="../../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -37,7 +36,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../../rendering/index.html"><div class="logo-container"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rendering/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../../rendering/index.html"><img class="rust-logo" src="../../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
+                                <a href="../../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -107,6 +108,41 @@
 <span id="68">68</span>
 <span id="69">69</span>
 <span id="70">70</span>
+<span id="71">71</span>
+<span id="72">72</span>
+<span id="73">73</span>
+<span id="74">74</span>
+<span id="75">75</span>
+<span id="76">76</span>
+<span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
+<span id="81">81</span>
+<span id="82">82</span>
+<span id="83">83</span>
+<span id="84">84</span>
+<span id="85">85</span>
+<span id="86">86</span>
+<span id="87">87</span>
+<span id="88">88</span>
+<span id="89">89</span>
+<span id="90">90</span>
+<span id="91">91</span>
+<span id="92">92</span>
+<span id="93">93</span>
+<span id="94">94</span>
+<span id="95">95</span>
+<span id="96">96</span>
+<span id="97">97</span>
+<span id="98">98</span>
+<span id="99">99</span>
+<span id="100">100</span>
+<span id="101">101</span>
+<span id="102">102</span>
+<span id="103">103</span>
+<span id="104">104</span>
+<span id="105">105</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -127,39 +163,45 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
 
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">radiance</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">inferno</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">magma</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">plasma</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">radiance</span>;
 <span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">viridis</span>;
 
-<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 
 <span class="doccomment">/// The options of Colourmap to choose from when falsecolouring an image.</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Colourmap</span> {
-    <span class="doccomment">/// Emulates the default Radiance&#39;s Colourmap. </span>
+    <span class="doccomment">/// Emulates the default Radiance&#39;s Colourmap.</span>
     <span class="ident">Radiance</span>,
-    <span class="doccomment">/// One of the colourmaps that is &quot;analytically be perfectly </span>
-    <span class="doccomment">/// perceptually-uniform, both in regular form and also when </span>
+    <span class="doccomment">/// One of the colourmaps that is &quot;analytically be perfectly</span>
+    <span class="doccomment">/// perceptually-uniform, both in regular form and also when</span>
     <span class="doccomment">/// converted to black-and-white&quot; described in [here](https://bids.github.io/colormap/)</span>
     <span class="ident">Inferno</span>,
-    <span class="doccomment">/// One of the colourmaps that is &quot;analytically be perfectly </span>
-    <span class="doccomment">/// perceptually-uniform, both in regular form and also when </span>
+    <span class="doccomment">/// One of the colourmaps that is &quot;analytically be perfectly</span>
+    <span class="doccomment">/// perceptually-uniform, both in regular form and also when</span>
     <span class="doccomment">/// converted to black-and-white&quot; described in [here](https://bids.github.io/colormap/)</span>
-    <span class="ident">Magma</span>, 
-    <span class="doccomment">/// One of the colourmaps that is &quot;analytically be perfectly </span>
-    <span class="doccomment">/// perceptually-uniform, both in regular form and also when </span>
+    <span class="ident">Magma</span>,
+    <span class="doccomment">/// One of the colourmaps that is &quot;analytically be perfectly</span>
+    <span class="doccomment">/// perceptually-uniform, both in regular form and also when</span>
     <span class="doccomment">/// converted to black-and-white&quot; described in [here](https://bids.github.io/colormap/)</span>
-    <span class="ident">Plasma</span>, 
-    <span class="doccomment">/// The deafult Colourmap in this library. </span>
-    <span class="doccomment">/// Also, one of the colourmaps that is &quot;analytically be perfectly </span>
-    <span class="doccomment">/// perceptually-uniform, both in regular form and also when </span>
+    <span class="ident">Plasma</span>,
+    <span class="doccomment">/// The deafult Colourmap in this library.</span>
+    <span class="doccomment">/// Also, one of the colourmaps that is &quot;analytically be perfectly</span>
+    <span class="doccomment">/// perceptually-uniform, both in regular form and also when</span>
     <span class="doccomment">/// converted to black-and-white&quot; described in [here](https://bids.github.io/colormap/).    </span>
-    <span class="ident">Viridis</span>
+    <span class="ident">Viridis</span>,
 }
 
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_linear_colour</span>(<span class="ident">x</span>: <span class="ident">Float</span>, <span class="ident">min</span>: <span class="ident">Float</span>, <span class="ident">max</span>: <span class="ident">Float</span>, <span class="ident">map</span>: <span class="kw-2">&amp;</span>[<span class="ident">Spectrum</span>]) -&gt; <span class="ident">Spectrum</span> {
+<span class="doccomment">/// Maps a linear RGB colour</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_linear_colour</span>(
+    <span class="ident">x</span>: <span class="ident">Float</span>,
+    <span class="ident">min</span>: <span class="ident">Float</span>,
+    <span class="ident">max</span>: <span class="ident">Float</span>,
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span>[[<span class="ident"><span class="kw">crate</span>::Float</span>; <span class="number">3</span>]],
+) -&gt; [<span class="ident"><span class="kw">crate</span>::Float</span>; <span class="number">3</span>] {
     <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">min</span> {
         <span class="kw">return</span> <span class="ident">map</span>[<span class="number">0</span>];
     } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">max</span> {
@@ -168,7 +210,36 @@ SOFTWARE.
 
     <span class="kw">let</span> <span class="ident">delta</span> <span class="op">=</span> (<span class="ident">max</span> <span class="op">-</span> <span class="ident">min</span>) <span class="op">/</span> (<span class="ident">map</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">Float</span>;
     <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">map</span>.<span class="ident">len</span>() {
-        <span class="kw">let</span> <span class="ident">bin_start</span> <span class="op">=</span> <span class="ident">min</span> <span class="op">+</span> (<span class="ident">i</span><span class="op">-</span><span class="number">1</span>) <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">delta</span>;
+        <span class="kw">let</span> <span class="ident">bin_start</span> <span class="op">=</span> <span class="ident">min</span> <span class="op">+</span> (<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">delta</span>;
+        <span class="kw">let</span> <span class="ident">bin_end</span> <span class="op">=</span> <span class="ident">bin_start</span> <span class="op">+</span> <span class="ident">delta</span>;
+        <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">bin_end</span> {
+            <span class="kw">let</span> <span class="ident">lam</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">-</span> <span class="ident">bin_start</span>) <span class="op">/</span> <span class="ident">delta</span>;
+
+            <span class="kw">let</span> <span class="ident">r</span> <span class="op">=</span> <span class="ident">map</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="number">0</span>] <span class="op">+</span> (<span class="ident">map</span>[<span class="ident">i</span>][<span class="number">0</span>] <span class="op">-</span> <span class="ident">map</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="number">0</span>]) <span class="op">*</span> <span class="ident">lam</span>;
+            <span class="kw">let</span> <span class="ident">g</span> <span class="op">=</span> <span class="ident">map</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="number">1</span>] <span class="op">+</span> (<span class="ident">map</span>[<span class="ident">i</span>][<span class="number">1</span>] <span class="op">-</span> <span class="ident">map</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="number">1</span>]) <span class="op">*</span> <span class="ident">lam</span>;
+            <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">map</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="number">2</span>] <span class="op">+</span> (<span class="ident">map</span>[<span class="ident">i</span>][<span class="number">2</span>] <span class="op">-</span> <span class="ident">map</span>[<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>][<span class="number">2</span>]) <span class="op">*</span> <span class="ident">lam</span>;
+            <span class="kw">return</span> [<span class="ident">r</span>, <span class="ident">g</span>, <span class="ident">b</span>];
+        }
+    }
+    <span class="macro">unreachable!</span>()
+}
+
+<span class="doccomment">/// Maps a Spectrum</span>
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">map_linear_spectrum</span>(
+    <span class="ident">x</span>: <span class="ident">Float</span>,
+    <span class="ident">min</span>: <span class="ident">Float</span>,
+    <span class="ident">max</span>: <span class="ident">Float</span>,
+    <span class="ident">map</span>: <span class="kw-2">&amp;</span>[<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>],
+) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span> {
+    <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">min</span> {
+        <span class="kw">return</span> <span class="ident">map</span>[<span class="number">0</span>];
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">x</span> <span class="op">&gt;</span><span class="op">=</span> <span class="ident">max</span> {
+        <span class="kw">return</span> <span class="kw-2">*</span><span class="ident">map</span>.<span class="ident">last</span>().<span class="ident">expect</span>(<span class="string">&quot;Given an empty colour map&quot;</span>);
+    }
+
+    <span class="kw">let</span> <span class="ident">delta</span> <span class="op">=</span> (<span class="ident">max</span> <span class="op">-</span> <span class="ident">min</span>) <span class="op">/</span> (<span class="ident">map</span>.<span class="ident">len</span>() <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">Float</span>;
+    <span class="kw">for</span> <span class="ident">i</span> <span class="kw">in</span> <span class="number">1</span>..<span class="ident">map</span>.<span class="ident">len</span>() {
+        <span class="kw">let</span> <span class="ident">bin_start</span> <span class="op">=</span> <span class="ident">min</span> <span class="op">+</span> (<span class="ident">i</span> <span class="op">-</span> <span class="number">1</span>) <span class="kw">as</span> <span class="ident">Float</span> <span class="op">*</span> <span class="ident">delta</span>;
         <span class="kw">let</span> <span class="ident">bin_end</span> <span class="op">=</span> <span class="ident">bin_start</span> <span class="op">+</span> <span class="ident">delta</span>;
         <span class="kw">if</span> <span class="ident">x</span> <span class="op">&lt;</span><span class="op">=</span> <span class="ident">bin_end</span> {
             <span class="kw">let</span> <span class="ident">lam</span> <span class="op">=</span> (<span class="ident">x</span> <span class="op">-</span> <span class="ident">bin_start</span>) <span class="op">/</span> <span class="ident">delta</span>;
@@ -178,5 +249,5 @@ SOFTWARE.
     <span class="macro">unreachable!</span>()
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (69a5d2481 2022-04-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
 </body></html>

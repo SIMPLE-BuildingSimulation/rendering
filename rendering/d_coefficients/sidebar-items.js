@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["DCFactory","A structure meant to calculate DC matrices for Climate Daylight Simulations."]]});
+window.SIDEBAR_ITEMS = {"struct":[["DCFactory","A structure meant to calculate DC matrices for Climate Daylight Simulations."]]};

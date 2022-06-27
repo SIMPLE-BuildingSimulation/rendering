@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["RADIANCE_COLOURMAP","Radiance’s standard falsecolour colourmap"]]});
+window.SIDEBAR_ITEMS = {"constant":[["RADIANCE_COLOURMAP","Radiance’s standard falsecolour colourmap"]]};

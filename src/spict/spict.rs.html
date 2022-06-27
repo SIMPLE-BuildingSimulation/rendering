@@ -1,5 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `bin/spict.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>spict.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
-    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `bin/spict.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>spict.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -37,7 +36,9 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../spict/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../spict/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../spict/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
+                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
+                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -225,6 +226,14 @@
 <span id="186">186</span>
 <span id="187">187</span>
 <span id="188">188</span>
+<span id="189">189</span>
+<span id="190">190</span>
+<span id="191">191</span>
+<span id="192">192</span>
+<span id="193">193</span>
+<span id="194">194</span>
+<span id="195">195</span>
+<span id="196">196</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -254,44 +263,60 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident">rendering::Float</span>;
 
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Debug</span>)]</span>
-<span class="kw">struct</span> <span class="ident">Triplet</span> (<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>);
+<span class="kw">struct</span> <span class="ident">Triplet</span>(<span class="ident">Float</span>, <span class="ident">Float</span>, <span class="ident">Float</span>);
 
-<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Triplet</span>{
-    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {        
+<span class="kw">impl</span> <span class="ident">std::fmt::Display</span> <span class="kw">for</span> <span class="ident">Triplet</span> {
+    <span class="kw">fn</span> <span class="ident">fmt</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">f</span>: <span class="kw-2">&amp;mut</span> <span class="ident">std::fmt::Formatter</span>) -&gt; <span class="ident">std::fmt::Result</span> {
         <span class="macro">write!</span>(<span class="ident">f</span>, <span class="string">&quot;{} {} {}&quot;</span>, <span class="self">self</span>.<span class="number">0</span>, <span class="self">self</span>.<span class="number">1</span>, <span class="self">self</span>.<span class="number">2</span>)
     }
 }
 
-<span class="kw">impl</span> <span class="ident">std::str::FromStr</span> <span class="kw">for</span> <span class="ident">Triplet</span>{
+<span class="kw">impl</span> <span class="ident">std::str::FromStr</span> <span class="kw">for</span> <span class="ident">Triplet</span> {
     <span class="kw">type</span> <span class="prelude-val">Err</span> <span class="op">=</span> <span class="ident">String</span>;
-    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>)-&gt;<span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span>{
-        <span class="kw">let</span> <span class="ident">st</span> : <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">trim</span>().<span class="ident">split</span>(<span class="string">&quot; &quot;</span>).<span class="ident">collect</span>();
+    <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="self">Self</span>, <span class="ident"><span class="self">Self</span>::Err</span><span class="op">&gt;</span> {
+        <span class="kw">let</span> <span class="ident">st</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;</span><span class="ident">str</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">s</span>.<span class="ident">trim</span>().<span class="ident">split</span>(<span class="string">&quot; &quot;</span>).<span class="ident">collect</span>();
         <span class="kw">if</span> <span class="ident">st</span>.<span class="ident">len</span>() <span class="op">!</span><span class="op">=</span> <span class="number">3</span> {
-            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Expecting three values—e.g., &#39;1. 2. 3&#39;—... found &#39;{}&#39;&quot;</span>, <span class="ident">s</span>))
+            <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+                <span class="string">&quot;Expecting three values—e.g., &#39;1. 2. 3&#39;—... found &#39;{}&#39;&quot;</span>,
+                <span class="ident">s</span>
+            ));
         }
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">st</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>(){
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>)=&gt;<span class="ident">v</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>)=&gt;{<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>( <span class="string">&quot;Expecting value 1 in triplet to be a number... found &#39;{}&#39;&quot;</span>, <span class="ident">st</span>[<span class="number">0</span>] ))}
+        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">st</span>[<span class="number">0</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+                    <span class="string">&quot;Expecting value 1 in triplet to be a number... found &#39;{}&#39;&quot;</span>,
+                    <span class="ident">st</span>[<span class="number">0</span>]
+                ))
+            }
         };
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">st</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>(){
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>)=&gt;<span class="ident">v</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>)=&gt;{<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>( <span class="string">&quot;Expecting value 2 in triplet to be a number... found &#39;{}&#39;&quot;</span>, <span class="ident">st</span>[<span class="number">1</span>] ))}
+        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">st</span>[<span class="number">1</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+                    <span class="string">&quot;Expecting value 2 in triplet to be a number... found &#39;{}&#39;&quot;</span>,
+                    <span class="ident">st</span>[<span class="number">1</span>]
+                ))
+            }
         };
-        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">st</span>[<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>(){
-            <span class="prelude-val">Ok</span>(<span class="ident">v</span>)=&gt;<span class="ident">v</span>,
-            <span class="prelude-val">Err</span>(<span class="kw">_</span>)=&gt;{<span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>( <span class="string">&quot;Expecting value 3 in triplet to be a number... found &#39;{}&#39;&quot;</span>, <span class="ident">st</span>[<span class="number">2</span>] ))}
+        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">st</span>[<span class="number">2</span>].<span class="ident">parse</span>::<span class="op">&lt;</span><span class="ident">Float</span><span class="op">&gt;</span>() {
+            <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">v</span>,
+            <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
+                <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+                    <span class="string">&quot;Expecting value 3 in triplet to be a number... found &#39;{}&#39;&quot;</span>,
+                    <span class="ident">st</span>[<span class="number">2</span>]
+                ))
+            }
         };
         <span class="prelude-val">Ok</span>(<span class="self">Self</span>(<span class="ident">a</span>, <span class="ident">b</span>, <span class="ident">c</span>))
     }
 }
-
 
 <span class="doccomment">/// A program for Rendering an image from a .rad (i.e., Radiance) or .spl (i.e., Simple)</span>
 <span class="doccomment">/// formats</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Parser</span>)]</span>
 <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">author</span>, <span class="ident">version</span>, <span class="ident">about</span>, <span class="ident">long_about</span> <span class="op">=</span> <span class="prelude-val">None</span>)]</span>
 <span class="kw">struct</span> <span class="ident">Inputs</span> {
-
     <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span>, <span class="ident">long</span>)]</span>
     <span class="doccomment">/// The file to load the model from</span>
     <span class="kw">pub</span> <span class="ident">input</span>: <span class="ident">String</span>,
@@ -300,50 +325,48 @@ SOFTWARE.
     <span class="doccomment">/// The output of the final image (in rgbe format)</span>
     <span class="kw">pub</span> <span class="ident">output</span>: <span class="ident">String</span>,
 
-
     <span class="comment">/* Ray-tracer data */</span>
-
     <span class="doccomment">/// The number of bounces before a ray is terminated (-ab in Radiance lingo)</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;b&#39;</span>, <span class="ident">long</span><span class="op">=</span><span class="string">&quot;max_depth&quot;</span>,<span class="ident">default_value_t</span><span class="op">=</span><span class="number">2</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;b&#39;</span>, <span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;max_depth&quot;</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">2</span>)]</span>
     <span class="kw">pub</span> <span class="ident">max_depth</span>: <span class="ident">usize</span>,
 
-    <span class="doccomment">/// The number of shadow rays per light source sent from the first </span>
+    <span class="doccomment">/// The number of shadow rays per light source sent from the first</span>
     <span class="doccomment">/// interaction. From the second interaction and on, only 1 shadow</span>
     <span class="doccomment">/// ray is sent     </span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;s&#39;</span>, <span class="ident">long</span><span class="op">=</span><span class="string">&quot;shadow_samples&quot;</span>,<span class="ident">default_value_t</span><span class="op">=</span><span class="number">10</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;s&#39;</span>, <span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;shadow_samples&quot;</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">10</span>)]</span>
     <span class="kw">pub</span> <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>,
 
     <span class="doccomment">/// The number of secondary rays sent from the first interaction.</span>
     <span class="doccomment">/// From the second interaction and on, this number is reduced</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;a&#39;</span>, <span class="ident">long</span><span class="op">=</span><span class="string">&quot;ambient_samples&quot;</span>, <span class="ident">default_value_t</span><span class="op">=</span><span class="number">70</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;a&#39;</span>, <span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;ambient_samples&quot;</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">70</span>)]</span>
     <span class="kw">pub</span> <span class="ident">n_ambient_samples</span>: <span class="ident">usize</span>,
 
     <span class="doccomment">/// A lower value makes the Russian roulette less deadly</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;w&#39;</span>, <span class="ident">long</span><span class="op">=</span><span class="string">&quot;limit_weight&quot;</span>, <span class="ident">default_value_t</span><span class="op">=</span><span class="number">1e-3</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;w&#39;</span>, <span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;limit_weight&quot;</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">1e-3</span>)]</span>
     <span class="kw">pub</span> <span class="ident">limit_weight</span>: <span class="ident">Float</span>,
 
     <span class="doccomment">/// The probability of counting purely specular bounces as an actual bounce.</span>
     <span class="doccomment">/// (Specular bounces seldom count because that allows achieving caustics better...</span>
     <span class="doccomment">/// and they are cheap)</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;c&#39;</span>, <span class="ident">long</span><span class="op">=</span><span class="string">&quot;count_specular&quot;</span>, <span class="ident">default_value_t</span><span class="op">=</span><span class="number">0.3</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;c&#39;</span>, <span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;count_specular&quot;</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">0.3</span>)]</span>
     <span class="kw">pub</span> <span class="ident">count_specular_bounce</span>: <span class="ident">Float</span>,
 
     <span class="comment">/* Film */</span>
     <span class="doccomment">/// The Horizontal resolution of the final image</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;x&#39;</span>, <span class="ident">long</span>, <span class="ident">default_value_t</span><span class="op">=</span><span class="number">512</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;x&#39;</span>, <span class="ident">long</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">512</span>)]</span>
     <span class="kw">pub</span> <span class="ident">x</span>: <span class="ident">usize</span>,
 
     <span class="doccomment">/// The Vertical resolution of the final image</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;y&#39;</span>, <span class="ident">long</span>, <span class="ident">default_value_t</span><span class="op">=</span><span class="number">512</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;y&#39;</span>, <span class="ident">long</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">512</span>)]</span>
     <span class="kw">pub</span> <span class="ident">y</span>: <span class="ident">usize</span>,
 
     <span class="comment">/* VIEW */</span>
     <span class="doccomment">/// The view point (e.g., &#39;-p 0. 1. 2&#39;)</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;p&#39;</span>, <span class="ident">long</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;p&#39;</span>, <span class="ident">long</span>)]</span>
     <span class="kw">pub</span> <span class="ident">view_point</span>: <span class="ident">Triplet</span>,
 
     <span class="doccomment">/// The view direction (Does not need to be normalized. e.g., &#39;-d -3. 1. 2&#39;)</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;d&#39;</span>, <span class="ident">long</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;d&#39;</span>, <span class="ident">long</span>)]</span>
     <span class="kw">pub</span> <span class="ident">view_direction</span>: <span class="ident">Triplet</span>,
 
     <span class="doccomment">/// The view up (e.g., &#39;-u 0. 1. 0&#39;)</span>
@@ -351,30 +374,26 @@ SOFTWARE.
     <span class="kw">pub</span> <span class="ident">view_up</span>: <span class="ident">Triplet</span>,
 
     <span class="doccomment">/// The horizontal field of view, in degrees</span>
-    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span><span class="op">=</span><span class="string">&#39;h&#39;</span>, <span class="ident">long</span><span class="op">=</span><span class="string">&quot;view_horizontal&quot;</span>, <span class="ident">default_value_t</span><span class="op">=</span><span class="number">60.</span>)]</span>
+    <span class="attribute">#[<span class="ident">clap</span>(<span class="ident">short</span> <span class="op">=</span> <span class="string">&#39;h&#39;</span>, <span class="ident">long</span> <span class="op">=</span> <span class="string">&quot;view_horizontal&quot;</span>, <span class="ident">default_value_t</span> <span class="op">=</span> <span class="number">60.</span>)]</span>
     <span class="kw">pub</span> <span class="ident">field_of_view</span>: <span class="ident">Float</span>,
 }
 
-
 <span class="kw">fn</span> <span class="ident">main</span>() {
-    
     <span class="kw">let</span> <span class="ident">inputs</span> <span class="op">=</span> <span class="ident">Inputs::parse</span>();
-    
 
     <span class="kw">let</span> <span class="ident">input_file</span> <span class="op">=</span> <span class="ident">inputs</span>.<span class="ident">input</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input_file</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.rad&quot;</span>){
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">input_file</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.rad&quot;</span>) {
         <span class="ident">Scene::from_radiance</span>(<span class="ident">input_file</span>)
-    }<span class="kw">else</span> <span class="kw">if</span> <span class="ident">input_file</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.spl&quot;</span>){
+    } <span class="kw">else</span> <span class="kw">if</span> <span class="ident">input_file</span>.<span class="ident">ends_with</span>(<span class="string">&quot;.spl&quot;</span>) {
         <span class="kw">let</span> (<span class="ident">model</span>, <span class="ident">_header</span>) <span class="op">=</span> <span class="ident">simple_model::SimpleModel::from_file</span>(<span class="ident">input_file</span>).<span class="ident">unwrap</span>();
         <span class="ident">Scene::from_simple_model</span>(<span class="kw-2">&amp;</span><span class="ident">model</span>, <span class="ident">rendering::scene::Wavelengths::Visible</span>)
     }
     <span class="comment">// else if input.ends_with(&quot;.obj&quot;){</span>
     <span class="comment">//     Scene::from_simple_model(input)</span>
     <span class="comment">// }</span>
-    <span class="kw">else</span>{
+    <span class="kw">else</span> {
         <span class="macro">panic!</span>(<span class="string">&quot;Unkwown format in file {}&quot;</span>, <span class="ident">input_file</span>);
     };
-
 
     <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
 
@@ -392,9 +411,8 @@ SOFTWARE.
     <span class="kw">let</span> <span class="ident">view</span> <span class="op">=</span> <span class="ident">View</span> {
         <span class="ident">view_direction</span>: <span class="ident">Vector3D::new</span>(<span class="ident">dir</span>.<span class="number">0</span>, <span class="ident">dir</span>.<span class="number">1</span>, <span class="ident">dir</span>.<span class="number">2</span>).<span class="ident">get_normalized</span>(),
         <span class="ident">view_point</span>: <span class="ident">Point3D::new</span>(<span class="ident">p</span>.<span class="number">0</span>, <span class="ident">p</span>.<span class="number">1</span>, <span class="ident">p</span>.<span class="number">2</span>),
-        <span class="ident">view_up</span>: <span class="ident">Vector3D::new</span>(<span class="ident">up</span>.<span class="number">0</span>, <span class="ident">up</span>.<span class="number">1</span>, <span class="ident">up</span>.<span class="number">2</span>),        
+        <span class="ident">view_up</span>: <span class="ident">Vector3D::new</span>(<span class="ident">up</span>.<span class="number">0</span>, <span class="ident">up</span>.<span class="number">1</span>, <span class="ident">up</span>.<span class="number">2</span>),
         <span class="ident">field_of_view</span>: <span class="ident">inputs</span>.<span class="ident">field_of_view</span>,
-        
     };
 
     <span class="comment">// Create camera</span>
@@ -406,7 +424,6 @@ SOFTWARE.
         <span class="ident">max_depth</span>: <span class="ident">inputs</span>.<span class="ident">max_depth</span>,
         <span class="ident">limit_weight</span>: <span class="ident">inputs</span>.<span class="ident">limit_weight</span>,
         <span class="ident">count_specular_bounce</span>: <span class="ident">inputs</span>.<span class="ident">count_specular_bounce</span>,
-        
     };
 
     <span class="kw">let</span> <span class="ident">buffer</span> <span class="op">=</span> <span class="ident">integrator</span>.<span class="ident">render</span>(<span class="kw-2">&amp;</span><span class="ident">scene</span>, <span class="kw-2">&amp;</span><span class="ident">camera</span>);
@@ -414,5 +431,5 @@ SOFTWARE.
     <span class="ident">buffer</span>.<span class="ident">save_hdre</span>(<span class="ident">std::path::Path::new</span>(<span class="kw-2">&amp;</span><span class="ident">inputs</span>.<span class="ident">output</span>));
 }
 </code></pre></div>
-</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="spict" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0-nightly (69a5d2481 2022-04-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="spict" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
 </body></html>

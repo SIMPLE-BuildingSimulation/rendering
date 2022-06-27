@@ -1,1 +1,1 @@
-initSidebarItems({"constant":[["PLASMA_COLOURMAP",""]]});
+window.SIDEBAR_ITEMS = {"constant":[["PLASMA_COLOURMAP",""]]};

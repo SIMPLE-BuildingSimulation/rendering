@@ -1,1 +1,1 @@
-initSidebarItems({"struct":[["SimpleModelReader","An auxiliar structure only meant to create a Scene from a SimpleModel"]]});
+window.SIDEBAR_ITEMS = {"struct":[["SimpleModelReader","An auxiliar structure only meant to create a Scene from a SimpleModel"]]};
