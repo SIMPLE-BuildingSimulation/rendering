@@ -42,7 +42,7 @@ pub struct Ray {
 
     pub value: Float,
 
-    pub colour: Spectrum<{ crate::N_CHANELS }>,
+    pub colour: Spectrum<{ crate::N_CHANNELS }>,
 }
 
 impl std::default::Default for Ray {
@@ -56,7 +56,7 @@ impl std::default::Default for Ray {
             interaction: Interaction::default(),
             depth: 0,
             value: 1.,
-            colour: Spectrum::<{ crate::N_CHANELS }>::ONE,
+            colour: Spectrum::<{ crate::N_CHANNELS }>::ONE,
         }
     }
 }

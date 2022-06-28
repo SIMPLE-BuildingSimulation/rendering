@@ -25,7 +25,7 @@ use crate::ray::Ray;
 use crate::Float;
 use geometry3d::{Point3D, Vector3D};
 
-fn any_transmission(colour: &mut Spectrum<{ crate::N_CHANELS }>) -> bool {
+fn any_transmission(colour: &mut Spectrum<{ crate::N_CHANNELS }>) -> bool {
     const MIN_COLOUR: Float = 1e-15;
     if colour.max() < MIN_COLOUR {
         false
@@ -40,7 +40,7 @@ fn any_transmission(colour: &mut Spectrum<{ crate::N_CHANELS }>) -> bool {
 }
 
 pub struct Glass {
-    pub colour: Spectrum<{ crate::N_CHANELS }>,
+    pub colour: Spectrum<{ crate::N_CHANNELS }>,
     pub refraction_index: Float,
 }
 
@@ -51,8 +51,8 @@ impl Glass {
         direction: Vector3D,
         cos1: Float,
     ) -> (
-        Spectrum<{ crate::N_CHANELS }>,
-        Spectrum<{ crate::N_CHANELS }>,
+        Spectrum<{ crate::N_CHANNELS }>,
+        Spectrum<{ crate::N_CHANNELS }>,
     ) {
         debug_assert!(cos1 > 0.0);
 
@@ -87,7 +87,7 @@ impl Glass {
                     + (1. - ftm2).powi(2) / (1. - (d * ftm2).powi(2)))
         } else {
             // Spectrum{red: 1., green: 0., blue: 0.}
-            Spectrum::<{ crate::N_CHANELS }>::BLACK
+            Spectrum::<{ crate::N_CHANNELS }>::BLACK
         };
 
         // Process reflection
@@ -106,7 +106,7 @@ impl Glass {
         "Glass"
     }
 
-    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANNELS }> {
         let mut c = self.colour;
         _ = any_transmission(&mut c);
         c
@@ -117,7 +117,7 @@ impl Glass {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Spectrum<{ crate::N_CHANELS }>)>; 2] {
+    ) -> [Option<(Ray, Spectrum<{ crate::N_CHANNELS }>)>; 2] {
         let normal = *normal;
         // Only two possible direction:
 
@@ -210,7 +210,7 @@ impl Glass {
         _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum<{ crate::N_CHANELS }> {
+    ) -> Spectrum<{ crate::N_CHANNELS }> {
         let (_n1, cos1, _n2, cos2) = cos_and_n(ray, normal, self.refraction_index);
         let (refl, trans) = self.refl_trans(normal, ray.geometry.direction, cos1);
         let vin = ray.geometry.direction;
@@ -229,7 +229,7 @@ impl Glass {
         let mut colour = self.colour;
         if any_transmission(&mut colour) {
             // it is not refraction either
-            return Spectrum::<{ crate::N_CHANELS }>::BLACK;
+            return Spectrum::<{ crate::N_CHANNELS }>::BLACK;
         }
         // Check transmission
         if let Some(_cos2) = cos2 {
@@ -238,7 +238,7 @@ impl Glass {
             }
         }
         // panic!("Glass should never reach critical angle");
-        Spectrum::<{ crate::N_CHANELS }>::ONE / cos1
+        Spectrum::<{ crate::N_CHANNELS }>::ONE / cos1
     }
 }
 
@@ -251,7 +251,7 @@ mod tests {
     #[test]
     fn test_get_possible_paths_glass() {
         let glass = Glass {
-            colour: Spectrum::<{ crate::N_CHANELS }>([0.1, 0.2, 0.3]),
+            colour: Spectrum::<{ crate::N_CHANNELS }>([0.1, 0.2, 0.3]),
 
             refraction_index: 1.52,
         };

@@ -42,7 +42,10 @@ struct RadianceReader {
 }
 
 impl RadianceReader {
-    fn error_here(&self, msg: String) {
+
+    /// Panics, showing an error message `msg` and showing the line in 
+    /// which the error happened.
+    fn error_here(&self, msg: String) -> ! {
         panic!("Error at line {}: {}", self.line, msg)
     }
 
@@ -53,14 +56,16 @@ impl RadianceReader {
             }
         }
         self.error_here(format!(
-            "Unknown modifier '{}' in the scene ... modifiers are {:?}",
+            "Unknown modifier '{}' in the scene ... known modifiers are {:?}",
             name, self.modifiers
-        ));
-        unreachable!();
+        ));        
     }
 
+    /// Consumes the leading whitespaces in the source **only if it is an ASCII whitespace**. 
+    /// Returns a boolean indicating whether the scanner consumed something or not
     fn consume_whitespace(&mut self, source: &[u8]) -> bool {
         if source.is_empty() {
+            // nothing to consume... we are done
             self.is_done = true;
         }
 
@@ -75,7 +80,13 @@ impl RadianceReader {
         }
     }
 
+    /// Consumes a single char in the source, **only if it is not an ASCII whitespace**. Returns a boolean
+    /// indicating whether the scanner consumed something or not
     fn consume_non_white(&mut self, source: &[u8]) -> bool {
+        if source.is_empty() {
+            // nothing to consume... we are done
+            self.is_done = true;
+        }
         if self.is_done {
             return false;
         }
@@ -86,11 +97,19 @@ impl RadianceReader {
         }
     }
 
+    /// Consumes a single char. Returns a boolean indicating whether the
+    /// scanner consumed anything or not.
     fn consume_char(&mut self, source: &[u8]) -> bool {
+        if source.is_empty() {
+            // nothing to consume... we are done
+            self.is_done = true;
+        }
         if self.is_done {
+            // nothing to scan
             return false;
         }
         if source[self.current_char_index] == b'\n' {
+            // account for newline
             self.line += 1;
         }
         self.current_char_index += 1;
@@ -100,7 +119,7 @@ impl RadianceReader {
         true
     }
 
-    /// Advances until reaching the next token
+    /// Consumes whitespaces until reaching the next token
     fn reach_next_token(&mut self, source: &[u8]) {
         loop {
             if !self.consume_whitespace(source) {
@@ -109,7 +128,7 @@ impl RadianceReader {
         }
     }
 
-    /// Retrieves a token and advances.
+    /// Skips whitespaces and then consumes a single token.
     fn consume_token(&mut self, source: &[u8]) -> String {
         self.reach_next_token(source);
 
@@ -121,7 +140,7 @@ impl RadianceReader {
         }
 
         if start == self.current_char_index {
-            "".to_string()
+            "".to_string() // empty token 
         } else {
             let ret = std::str::from_utf8(&source[start..self.current_char_index])
                 .unwrap()
@@ -163,8 +182,7 @@ impl RadianceReader {
             b"source" => self.consume_source(source, scene, &modifier, &name),
             b"polygon" => self.consume_polygon(source, scene, &modifier, &name),
             _ => {
-                self.error_here(format!("Unsupported/unknown object_type '{}'", object_type));
-                unreachable!();
+                self.error_here(format!("Unsupported/unknown object_type '{}'", object_type));                
             }
         }
     }
@@ -186,7 +204,7 @@ impl RadianceReader {
         self.modifiers.push(name.to_string());
 
         let metal = Material::Metal(Metal {
-            colour: Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
+            colour: Spectrum::<{ crate::N_CHANNELS }>([red, green, blue]),
             specularity,
             roughness,
         });
@@ -210,7 +228,7 @@ impl RadianceReader {
         self.modifiers.push(name.to_string());
 
         let plastic = Material::Plastic(Plastic {
-            colour: Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
+            colour: Spectrum::<{ crate::N_CHANNELS }>([red, green, blue]),
             specularity,
             roughness,
         });
@@ -231,7 +249,7 @@ impl RadianceReader {
 
         self.modifiers.push(name.to_string());
 
-        let light = Material::Light(Light(Spectrum::<{ crate::N_CHANELS }>([red, green, blue])));
+        let light = Material::Light(Light(Spectrum::<{ crate::N_CHANNELS }>([red, green, blue])));
         scene.push_material(light);
     }
 
@@ -249,7 +267,7 @@ impl RadianceReader {
 
         self.modifiers.push(name.to_string());
 
-        let mirror = Material::Mirror(Mirror(Spectrum::<{ crate::N_CHANELS }>([red, green, blue])));
+        let mirror = Material::Mirror(Mirror(Spectrum::<{ crate::N_CHANNELS }>([red, green, blue])));
         scene.push_material(mirror);
     }
 
@@ -276,7 +294,7 @@ impl RadianceReader {
         self.modifiers.push(name.to_string());
 
         let dielectric = Material::Dielectric(Dielectric {
-            colour: Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
+            colour: Spectrum::<{ crate::N_CHANNELS }>([red, green, blue]),
             refraction_index,
         });
         scene.push_material(dielectric);
@@ -295,7 +313,7 @@ impl RadianceReader {
                 let green = self.consume_token(source).parse::<Float>().unwrap();
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = self.consume_token(source).parse::<Float>().unwrap();
-                let colour = Spectrum::<{ crate::N_CHANELS }>([red, green, blue]);
+                let colour = Spectrum::<{ crate::N_CHANNELS }>([red, green, blue]);
                 Material::Glass(Glass {
                     colour,
                     refraction_index,
@@ -306,17 +324,14 @@ impl RadianceReader {
                 let green = self.consume_token(source).parse::<Float>().unwrap();
                 let blue = self.consume_token(source).parse::<Float>().unwrap();
                 let refraction_index = 1.52;
-                let colour = Spectrum::<{ crate::N_CHANELS }>([red, green, blue]);
+                let colour = Spectrum::<{ crate::N_CHANNELS }>([red, green, blue]);
                 Material::Glass(Glass {
                     colour,
                     refraction_index,
                 })
             }
             _ => {
-                panic!(
-                    "Incorrect Glass definition... expected 3 or 4 arguments; found '{}'",
-                    t
-                )
+                self.error_here(format!("Incorrect Glass definition... expected 3 or 4 arguments; found '{}'", t));                                
             }
         };
 
@@ -424,6 +439,7 @@ impl Scene {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use validate::assert_close;
 
     #[test]
     fn test_default() {
@@ -433,8 +449,31 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected="Error at line 0: This was a terrible error")]
+    fn test_error_msg(){
+        let scanner = RadianceReader::default();
+        scanner.error_here("This was a terrible error".into());
+    }
+
+    #[test]
+    fn test_consume_whitespace_empty(){
+        let mut scanner = RadianceReader::default();
+        let source = b"";
+        assert!(!scanner.consume_whitespace(source));
+        assert!(scanner.is_done);
+    }
+
+    #[test]
+    fn test_consume_char_empty(){
+        let mut scanner = RadianceReader::default();
+        let source = b"";
+        assert!(!scanner.consume_char(source));
+        assert!(scanner.is_done);
+    }
+
+    #[test]
     fn test_token() {
-        let source: &[u8] = "car with wheels".as_bytes();
+        let source = b"car with wheels";
         let mut scanner = RadianceReader::default();
 
         scanner.reach_next_token(source);
@@ -464,16 +503,28 @@ mod tests {
     }
 
     #[test]
+    fn test_modifier_index(){
+        let scanner = RadianceReader{
+            modifiers : vec!["some_plastic".into()],
+            .. RadianceReader::default()
+        };
+        assert_eq!(scanner.get_modifier_index("some_plastic".into()), 0);        
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_unknown_modifier_index(){
+        let scanner = RadianceReader::default();
+        scanner.get_modifier_index("some_plastic".into());
+    }
+
+    #[test]
     fn test_plastic() {
         let src = b"void plastic red
         0
         0
-        5 0.3 0.05 0.05 0 0
-        
-        red sphere ball
-        0
-        0
-        4   0 0 0.5 1.5";
+        5 0.3 0.05 0.076 0.123 2.12312
+        ";
 
         let mut scene = Scene::new();
         let mut scanner = RadianceReader::default();
@@ -482,5 +533,270 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
+        if let Material::Plastic(m) = &scene.materials[0]{
+            assert_close!(m.colour.0[0], 0.3);
+            assert_close!(m.colour.0[1], 0.05);
+            assert_close!(m.colour.0[2], 0.076);
+            assert_close!(m.specularity, 0.123);
+            assert_close!(m.roughness, 2.12312);
+
+        }else{
+            panic!("Not a plastic")
+        }
     }
+
+    #[test]
+    fn test_metal() {
+        let src = b"void metal red
+        0
+        0
+        5 0.3 0.05 0.076 0.123 2.12312
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene);
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert_eq!(scanner.modifiers[0], "red".to_string());
+        assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
+        if let Material::Metal(m) = &scene.materials[0]{
+            assert_close!(m.colour.0[0], 0.3);
+            assert_close!(m.colour.0[1], 0.05);
+            assert_close!(m.colour.0[2], 0.076);
+            assert_close!(m.specularity, 0.123);
+            assert_close!(m.roughness, 2.12312);
+
+        }else{
+            panic!("Not a metal")
+        }
+    }
+
+    #[test]
+    fn test_light() {
+        let src = b"void light red
+        0
+        0
+        3 0.3 0.05 0.076
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene);
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert_eq!(scanner.modifiers[0], "red".to_string());
+        assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
+        if let Material::Light(m) = &scene.materials[0]{            
+            assert_close!(m.0.0[0], 0.3);
+            assert_close!(m.0.0[1], 0.05);
+            assert_close!(m.0.0[2], 0.076);
+            
+
+        }else{
+            panic!("Not a metal")
+        }
+    }
+
+    #[test]
+    fn test_mirror() {
+        let src = b"void mirror red
+        0
+        0
+        3 0.3 0.05 0.076
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene);
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert_eq!(scanner.modifiers[0], "red".to_string());
+        assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
+        if let Material::Mirror(m) = &scene.materials[0]{            
+            assert_close!(m.0.0[0], 0.3);
+            assert_close!(m.0.0[1], 0.05);
+            assert_close!(m.0.0[2], 0.076);
+            
+
+        }else{
+            panic!("Not a metal")
+        }
+    }
+
+    #[test]
+    fn test_dielectric() {
+        let src = b"void dielectric red
+        0
+        0
+        5 0.3 0.05 0.076 1.52 1.23
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene);
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert_eq!(scanner.modifiers[0], "red".to_string());
+        assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
+        if let Material::Dielectric(m) = &scene.materials[0]{            
+            assert_close!(m.colour.0[0], 0.3);
+            assert_close!(m.colour.0[1], 0.05);
+            assert_close!(m.colour.0[2], 0.076);
+            assert_close!(m.refraction_index, 1.52);
+            
+
+        }else{
+            panic!("Not a metal")
+        }
+    }
+
+
+    #[test]
+    fn test_glass_no_refraction() {
+        let src = b"void glass red
+        0
+        0
+        3 0.3 0.05 0.076
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene);
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert_eq!(scanner.modifiers[0], "red".to_string());
+        assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
+        if let Material::Glass(m) = &scene.materials[0]{            
+            assert_close!(m.colour.0[0], 0.3);
+            assert_close!(m.colour.0[1], 0.05);
+            assert_close!(m.colour.0[2], 0.076);
+            assert_close!(m.refraction_index, 1.52);            
+        }else{
+            panic!("Not a metal")
+        }
+    }
+
+    #[test]
+    fn test_glass_refraction() {
+        let src = b"void glass red
+        0
+        0
+        4 0.3 0.05 0.076 12.3
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene);
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert_eq!(scanner.modifiers[0], "red".to_string());
+        assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
+        if let Material::Glass(m) = &scene.materials[0]{            
+            assert_close!(m.colour.0[0], 0.3);
+            assert_close!(m.colour.0[1], 0.05);
+            assert_close!(m.colour.0[2], 0.076);
+            assert_close!(m.refraction_index, 12.3);            
+        }else{
+            panic!("Not a metal")
+        }
+    }
+
+
+    #[test]
+    fn test_sphere() {
+        let src = b"void glass red
+        0
+        0
+        4 0.3 0.05 0.076 12.3
+
+        red sphere somesphere
+        0
+        0
+        4 0.3 0.05 0.076 12.3
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene); // consume glass
+        scanner.consume_object(src, &mut scene); // consume sphere
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert!(!scene.triangles.is_empty());        
+        assert_eq!(scene.normals.len(), scene.triangles.len());        
+    }
+
+    #[test]
+    fn test_source() {
+        let src = b"void light red
+        0
+        0
+        3 0.3 0.05 0.076 
+
+        red source up
+        0
+        0
+        4 1. 2. 3. 4.
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene); // consume light
+        scanner.consume_object(src, &mut scene); // consume source
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert!(scene.triangles.is_empty());        
+        assert_eq!(1, scene.distant_lights.len());
+        assert_eq!(scene.normals.len(), scene.triangles.len());   
+        
+        if let Primitive::Source(p) = &scene.distant_lights[0].primitive{
+            let l = Vector3D::new(1., 2., 3.).get_normalized();            
+            assert_close!(p.direction.x, l.x);
+            assert_close!(p.direction.y, l.y);
+            assert_close!(p.direction.z, l.z);
+            assert_close!(p.angle, 4. * crate::PI/180.);
+        }else{
+            panic!("should have been a Sourvce")
+        }
+    }
+
+
+    #[test]
+    fn test_polygon() {
+        let src = b"void glass red
+        0
+        0
+        3 0.3 0.05 0.076 
+
+        red polygon pol
+        0
+        0
+        9
+            21. 12. 53. 
+            -4. 125. 66. 
+            75. 8.1 9.2 
+        ";
+
+        let mut scene = Scene::new();
+        let mut scanner = RadianceReader::default();
+        scanner.consume_object(src, &mut scene); // consume light
+        scanner.consume_object(src, &mut scene); // consume source
+        assert_eq!(scene.materials.len(), 1);
+        assert_eq!(scanner.modifiers.len(), 1);
+        assert_eq!(scene.triangles.len(), 1);        
+        assert!(scene.distant_lights.is_empty());
+        assert_eq!(scene.normals.len(), scene.triangles.len());   
+        
+        let exp = [21., 12.,53., -4., 125., 66., 75., 8.1, 9.2];
+        for (f, e) in scene.triangles[0].into_iter().zip(exp.iter()){
+            assert_close!(*e, f);
+        }        
+
+        
+    }
+
+
+    
+
+
 }

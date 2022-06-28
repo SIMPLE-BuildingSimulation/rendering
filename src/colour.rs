@@ -20,15 +20,19 @@ SOFTWARE.
 
 use crate::Float;
 
+
+
+
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Spectrum<const N: usize>(pub [Float; N]);
-const RADIANCE_COEFFICIENTS : [Float; crate::N_CHANELS] = [0.265, 0.67, 0.065];
+const RADIANCE_COEFFICIENTS : [Float; crate::N_CHANNELS] = [0.265, 0.67, 0.065];
 /// The standard Luminious Efficacy of equal white light energy
 /// as defined in Radiance
 pub const WHITE_EFFICACY: Float = 179.;
 
-impl<const N: usize> std::default::Default for Spectrum<N> {
+impl<const N: usize> std::default::Default for Spectrum<N> {    
     fn default() -> Self {
+
         Self::BLACK
     }
 }

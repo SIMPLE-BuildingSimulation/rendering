@@ -24,7 +24,7 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-pub type ColourMatrix = GenericMatrix<Spectrum<{ crate::N_CHANELS }>>;
+pub type ColourMatrix = GenericMatrix<Spectrum<{ crate::N_CHANNELS }>>;
 
 pub fn average_matrix(dc: &Matrix) -> Matrix {
     let (nrows, _ncols) = dc.size();
@@ -205,7 +205,7 @@ pub fn read_colour_matrix(filename: &Path) -> Result<ColourMatrix, String> {
     }
     let nrows = nrows.unwrap();
     let ncols = ncols.unwrap();
-    let mut matrix = ColourMatrix::new(Spectrum::<{ crate::N_CHANELS }>::BLACK, nrows, ncols);
+    let mut matrix = ColourMatrix::new(Spectrum::<{ crate::N_CHANNELS }>::BLACK, nrows, ncols);
 
     // Read content.
     for (nrow, line) in content.lines().skip(header_lines).enumerate() {
@@ -253,7 +253,7 @@ pub fn read_colour_matrix(filename: &Path) -> Result<ColourMatrix, String> {
                 .set(
                     nrow,
                     ncol,
-                    Spectrum::<{ crate::N_CHANELS }>([red, green, blue]),
+                    Spectrum::<{ crate::N_CHANNELS }>([red, green, blue]),
                 )
                 .unwrap();
 

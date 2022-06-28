@@ -24,14 +24,14 @@ use crate::ray::Ray;
 use geometry3d::{Point3D, Vector3D};
 
 /// A mirror material
-pub struct Mirror(pub Spectrum<{ crate::N_CHANELS }>);
+pub struct Mirror(pub Spectrum<{ crate::N_CHANNELS }>);
 
 impl Mirror {
     pub fn id(&self) -> &str {
         "Mirror"
     }
 
-    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANNELS }> {
         self.0
     }
 
@@ -40,13 +40,13 @@ impl Mirror {
         normal: &Vector3D,
         intersection_pt: &Point3D,
         ray: &Ray,
-    ) -> [Option<(Ray, Spectrum<{ crate::N_CHANELS }>)>; 2] {
+    ) -> [Option<(Ray, Spectrum<{ crate::N_CHANNELS }>)>; 2] {
         // Calculate the ray direction and BSDF
         let mut ray = *ray;
         let v = mirror_bsdf(*intersection_pt, &mut ray, *normal);
         let cos_theta = (*normal * ray.geometry.direction).abs();
         [
-            Some((ray, Spectrum::<{ crate::N_CHANELS }>::ONE * v * cos_theta)),
+            Some((ray, Spectrum::<{ crate::N_CHANNELS }>::ONE * v * cos_theta)),
             None,
         ]
     }
@@ -72,7 +72,7 @@ impl Mirror {
         _e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum<{ crate::N_CHANELS }> {
+    ) -> Spectrum<{ crate::N_CHANNELS }> {
         let vin = ray.geometry.direction;
         self.0 * eval_mirror_bsdf(normal, vin, vout)
     }
@@ -87,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_get_possible_paths_mirror() {
-        let mirror = Mirror(Spectrum::<{ crate::N_CHANELS }>([0.1, 0.2, 0.3]));
+        let mirror = Mirror(Spectrum::<{ crate::N_CHANNELS }>([0.1, 0.2, 0.3]));
 
         let mut rng = get_rng();
 

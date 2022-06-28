@@ -186,7 +186,7 @@ impl SimpleModelReader {
 
         // return
         Some(Material::Plastic(Plastic {
-            colour: Spectrum::<{ crate::N_CHANELS }>::gray(color),
+            colour: Spectrum::<{ crate::N_CHANNELS }>::gray(color),
             specularity: 0.0,
             roughness: 0.0,
         }))
@@ -213,7 +213,7 @@ mod tests {
         let mut reader = SimpleModelReader::default();
         let mut scene = reader.build_scene(&model, &Wavelengths::Solar);
 
-        let light_index = scene.push_material(Material::Light(Light(Spectrum::<{ crate::N_CHANELS },>::gray(10000.))));
+        let light_index = scene.push_material(Material::Light(Light(Spectrum::<{ crate::N_CHANNELS },>::gray(10000.))));
         scene.push_object(
             light_index,
             light_index,

@@ -109,7 +109,7 @@ impl DCFactory {
                         let new_ray_dir = Vector3D::new(x, y, z);
 
                         let mut this_ret =
-                            ColourMatrix::new(Spectrum::<{ crate::N_CHANELS }>::BLACK, 1, n_bins);
+                            ColourMatrix::new(Spectrum::<{ crate::N_CHANNELS }>::BLACK, 1, n_bins);
 
                         debug_assert!(
                             (1. - new_ray_dir.length()).abs() < 0.0000001,
@@ -124,7 +124,7 @@ impl DCFactory {
                                 direction: new_ray_dir,
                                 origin,
                             },
-                            colour: Spectrum::<{ crate::N_CHANELS }>::gray(crate::PI),
+                            colour: Spectrum::<{ crate::N_CHANNELS }>::gray(crate::PI),
                             ..Ray::default()
                         };
 
@@ -153,7 +153,7 @@ impl DCFactory {
                     })
                     .collect(); // End of iterating primary rays
 
-                let mut ret = ColourMatrix::new(Spectrum::<{ crate::N_CHANELS }>::BLACK, 1, n_bins);
+                let mut ret = ColourMatrix::new(Spectrum::<{ crate::N_CHANNELS }>::BLACK, 1, n_bins);
                 ray_contributions.iter().for_each(|v| {
                     ret += v;
                 });
@@ -164,7 +164,7 @@ impl DCFactory {
 
         // Write down the results
         let mut ret =
-            ColourMatrix::new(Spectrum::<{ crate::N_CHANELS }>::BLACK, rays.len(), n_bins);
+            ColourMatrix::new(Spectrum::<{ crate::N_CHANNELS }>::BLACK, rays.len(), n_bins);
         for (sensor_index, contribution) in dcs.iter().enumerate() {
             // add contribution
             for patch_index in 0..n_bins {
@@ -288,7 +288,7 @@ impl DCFactory {
         } else {
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
 
-            let li = Spectrum::<{ crate::N_CHANELS }>::ONE; //Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);
+            let li = Spectrum::<{ crate::N_CHANNELS }>::ONE; //Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);
             let old_value = contribution.get(0, bin_n).unwrap();
 
             contribution

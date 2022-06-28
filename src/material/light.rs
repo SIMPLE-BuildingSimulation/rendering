@@ -21,14 +21,14 @@ SOFTWARE.
 use crate::colour::Spectrum;
 
 /// A mirror material
-pub struct Light(pub Spectrum<{ crate::N_CHANELS }>);
+pub struct Light(pub Spectrum<{ crate::N_CHANNELS }>);
 
 impl Light {
     pub fn id(&self) -> &str {
         "Light"
     }
 
-    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANNELS }> {
         self.0
     }
 }

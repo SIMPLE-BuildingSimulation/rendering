@@ -84,8 +84,8 @@ pub fn map_linear_spectrum(
     x: Float,
     min: Float,
     max: Float,
-    map: &[Spectrum<{ crate::N_CHANELS }>],
-) -> Spectrum<{ crate::N_CHANELS }> {
+    map: &[Spectrum<{ crate::N_CHANNELS }>],
+) -> Spectrum<{ crate::N_CHANNELS }> {
     if x <= min {
         return map[0];
     } else if x >= max {

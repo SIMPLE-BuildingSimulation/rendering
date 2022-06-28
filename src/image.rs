@@ -78,9 +78,9 @@ fn colour_to_rgbe(red: Float, green: Float, blue: Float) -> [u8; 4] {
     }
 }
 
-fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8) -> Spectrum<{ crate::N_CHANELS }> {
+fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8) -> Spectrum<{ crate::N_CHANNELS }> {
     if e == 0 {
-        return Spectrum::<{ crate::N_CHANELS }>::BLACK;
+        return Spectrum::<{ crate::N_CHANNELS }>::BLACK;
     }
 
     let n = e as i32 - (128 + 8) as i32;
@@ -89,7 +89,7 @@ fn rgbe_to_colour(r: u8, g: u8, b: u8, e: u8) -> Spectrum<{ crate::N_CHANELS }> 
     let green = g as Float * f;
     let blue = b as Float * f;
 
-    Spectrum::<{ crate::N_CHANELS }>([red, green, blue])
+    Spectrum::<{ crate::N_CHANNELS }>([red, green, blue])
 }
 
 /// A buffer with all the physical values in the image
@@ -102,7 +102,7 @@ pub struct ImageBuffer {
     pub height: usize,
     /// All the pixels, iterating from top
     /// to bottom, left to right
-    pub pixels: Vec<Spectrum<{ crate::N_CHANELS }>>,
+    pub pixels: Vec<Spectrum<{ crate::N_CHANNELS }>>,
 }
 
 impl std::ops::IndexMut<(usize, usize)> for ImageBuffer {
@@ -114,7 +114,7 @@ impl std::ops::IndexMut<(usize, usize)> for ImageBuffer {
 }
 
 impl std::ops::Index<(usize, usize)> for ImageBuffer {
-    type Output = Spectrum<{ crate::N_CHANELS }>;
+    type Output = Spectrum<{ crate::N_CHANNELS }>;
 
     fn index(&self, pixel: (usize, usize)) -> &Self::Output {
         let (x, y) = pixel;
@@ -129,7 +129,7 @@ impl ImageBuffer {
         Self {
             width,
             height,
-            pixels: vec![Spectrum::<{ crate::N_CHANELS }>::BLACK; width * height],
+            pixels: vec![Spectrum::<{ crate::N_CHANNELS }>::BLACK; width * height],
         }
     }
 
@@ -147,7 +147,7 @@ impl ImageBuffer {
             .iter()
             .zip(other.pixels.iter())
             .map(|(a, b)| {
-                Spectrum::<{ crate::N_CHANELS }>::gray((a.radiance() - b.radiance()).abs())
+                Spectrum::<{ crate::N_CHANNELS }>::gray((a.radiance() - b.radiance()).abs())
             })
             .collect();
 
@@ -158,7 +158,7 @@ impl ImageBuffer {
     pub fn from_pixels(
         width: usize,
         height: usize,
-        pixels: Vec<Spectrum<{ crate::N_CHANELS }>>,
+        pixels: Vec<Spectrum<{ crate::N_CHANNELS }>>,
     ) -> Self {
         if pixels.len() != width * height {
             panic!("Width ({}) and Height ({}) does not match the number of pixels (n_pixels is {}... expecting width*height={})", width, height, pixels.len(), width*height)
@@ -516,8 +516,8 @@ mod tests {
 
     #[test]
     fn test_rgbe_to_colour() {
-        let check = |a: Spectrum<{ crate::N_CHANELS }>,
-                     b: Spectrum<{ crate::N_CHANELS }>|
+        let check = |a: Spectrum<{ crate::N_CHANNELS }>,
+                     b: Spectrum<{ crate::N_CHANNELS }>|
          -> Result<(), String> {
             let a_r = a.radiance();
             let b_r = b.radiance();
@@ -545,48 +545,48 @@ mod tests {
         // Produced automatically
         check(
             rgbe_to_colour(201, 62, 18, 138),
-            Spectrum::<{ crate::N_CHANELS }>([807., 249., 73.]),
+            Spectrum::<{ crate::N_CHANNELS }>([807., 249., 73.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(117, 136, 56, 159),
-            Spectrum::<{ crate::N_CHANELS }>([984943658., 1144108930., 470211272.]),
+            Spectrum::<{ crate::N_CHANNELS }>([984943658., 1144108930., 470211272.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(12, 173, 173, 159),
-            Spectrum::<{ crate::N_CHANELS }>([101027544., 1457850878., 1458777923.]),
+            Spectrum::<{ crate::N_CHANNELS }>([101027544., 1457850878., 1458777923.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(239, 98, 132, 159),
-            Spectrum::<{ crate::N_CHANELS }>([2007237709., 823564440., 1115438165.]),
+            Spectrum::<{ crate::N_CHANNELS }>([2007237709., 823564440., 1115438165.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(212, 8, 13, 159),
-            Spectrum::<{ crate::N_CHANELS }>([1784484492., 74243042., 114807987.]),
+            Spectrum::<{ crate::N_CHANNELS }>([1784484492., 74243042., 114807987.]),
         )
         .unwrap();
 
         check(
             rgbe_to_colour(196, 34, 213, 158),
-            Spectrum::<{ crate::N_CHANELS }>([823378840., 143542612., 896544303.]),
+            Spectrum::<{ crate::N_CHANNELS }>([823378840., 143542612., 896544303.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(175, 150, 238, 159),
-            Spectrum::<{ crate::N_CHANELS }>([1474833169., 1264817709., 1998097157.]),
+            Spectrum::<{ crate::N_CHANNELS }>([1474833169., 1264817709., 1998097157.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(216, 134, 23, 159),
-            Spectrum::<{ crate::N_CHANELS }>([1817129560., 1131570933., 197493099.]),
+            Spectrum::<{ crate::N_CHANNELS }>([1817129560., 1131570933., 197493099.]),
         )
         .unwrap();
         check(
             rgbe_to_colour(167, 106, 179, 159),
-            Spectrum::<{ crate::N_CHANELS }>([1404280278., 893351816., 1505795335.]),
+            Spectrum::<{ crate::N_CHANNELS }>([1404280278., 893351816., 1505795335.]),
         )
         .unwrap();
     }

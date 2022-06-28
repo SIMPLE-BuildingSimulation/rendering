@@ -61,7 +61,7 @@ pub struct Scene {
     /// The objects here are also in the objects part.
     pub lights: Vec<Object>,
 
-    /// A vector of [`Light`] objects that
+    /// A vector of distant [`Light`] objects that
     /// are considered sources of direct light
     pub distant_lights: Vec<Object>,
 
@@ -71,7 +71,7 @@ pub struct Scene {
     pub accelerator: Option<BoundingVolumeTree>,
 
     /// The colour of the sky, normalized
-    pub sky_colour: Option<Spectrum<{ crate::N_CHANELS }>>,
+    pub sky_colour: Option<Spectrum<{ crate::N_CHANNELS }>>,
 
     /// A function returning the diffuse Sky brightness (i.e., without the sun)
     /// The sun should be added separately.
@@ -175,7 +175,7 @@ impl Scene {
                 dir_illum / omega / crate::colour::WHITE_EFFICACY; 
             let sun_mat =
                 self.push_material(Material::Light(Light(
-                    Spectrum::<{ crate::N_CHANELS }>::gray(sun_brightness),
+                    Spectrum::<{ crate::N_CHANNELS }>::gray(sun_brightness),
                 )));
 
             self.push_object(

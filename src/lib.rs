@@ -33,7 +33,10 @@ pub type Float = f64;
 #[cfg(not(feature = "float"))]
 pub const PI: Float = std::f64::consts::PI;
 
-pub const N_CHANELS: usize = 3;
+/// The number of values that represent a colour. 
+/// RGB is Three... you can change this for spectral
+/// rendering
+pub const N_CHANNELS: usize = 3;
 
 // #[cfg(feature = "parallel")]
 // type RefCount<T> = std::sync::Arc<T>;

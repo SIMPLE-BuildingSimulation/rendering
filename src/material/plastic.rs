@@ -26,7 +26,7 @@ use geometry3d::{Point3D, Vector3D};
 
 /// Information required for modelling Radiance's Plastic and Plastic
 pub struct Plastic {
-    pub colour: Spectrum<{ crate::N_CHANELS }>,
+    pub colour: Spectrum<{ crate::N_CHANNELS }>,
     pub specularity: Float,
     pub roughness: Float,
 }
@@ -36,7 +36,7 @@ impl Plastic {
         "Plastic"
     }
 
-    pub fn colour(&self) -> Spectrum<{ crate::N_CHANELS }> {
+    pub fn colour(&self) -> Spectrum<{ crate::N_CHANNELS }> {
         self.colour
     }
 
@@ -48,7 +48,7 @@ impl Plastic {
         intersection_pt: Point3D,
         ray: &mut Ray,
         rng: &mut RandGen,
-    ) -> (Spectrum<{ crate::N_CHANELS }>, Float) {
+    ) -> (Spectrum<{ crate::N_CHANNELS }>, Float) {
         let (direct, diffuse, weight) = crate::material::ward::sample_ward_anisotropic(
             normal,
             e1,
@@ -61,7 +61,7 @@ impl Plastic {
             rng,
         );
 
-        let bsdf = Spectrum::<{ crate::N_CHANELS }>::gray(direct) + self.colour * diffuse;
+        let bsdf = Spectrum::<{ crate::N_CHANNELS }>::gray(direct) + self.colour * diffuse;
 
         (bsdf, weight)
     }
@@ -73,7 +73,7 @@ impl Plastic {
         e2: Vector3D,
         ray: &Ray,
         vout: Vector3D,
-    ) -> Spectrum<{ crate::N_CHANELS }> {
+    ) -> Spectrum<{ crate::N_CHANNELS }> {
         let vout = vout * -1.;
         let (direct, diffuse) = crate::material::ward::evaluate_ward_anisotropic(
             normal,
@@ -86,7 +86,7 @@ impl Plastic {
             vout,
         );
 
-        Spectrum::<{ crate::N_CHANELS }>::gray(direct) + self.colour * diffuse
+        Spectrum::<{ crate::N_CHANNELS }>::gray(direct) + self.colour * diffuse
     }
 }
 
@@ -100,7 +100,7 @@ mod tests {
     #[test]
     fn test_specular_plastic() {
         let plastic = Plastic {
-            colour: Spectrum::<{ crate::N_CHANELS }>([0.2, 0.2, 0.2]),
+            colour: Spectrum::<{ crate::N_CHANNELS }>([0.2, 0.2, 0.2]),
             specularity: 0.1,
             roughness: 0.1,
         };
