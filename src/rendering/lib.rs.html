@@ -115,6 +115,9 @@
 <span id="75">75</span>
 <span id="76">76</span>
 <span id="77">77</span>
+<span id="78">78</span>
+<span id="79">79</span>
+<span id="80">80</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -150,7 +153,10 @@ SOFTWARE.
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;float&quot;</span>))]</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">PI</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">std::f64::consts::PI</span>;
 
-<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">N_CHANELS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
+<span class="doccomment">/// The number of values that represent a colour. </span>
+<span class="doccomment">/// RGB is Three... you can change this for spectral</span>
+<span class="doccomment">/// rendering</span>
+<span class="kw">pub</span> <span class="kw">const</span> <span class="ident">N_CHANNELS</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">3</span>;
 
 <span class="comment">// #[cfg(feature = &quot;parallel&quot;)]</span>
 <span class="comment">// type RefCount&lt;T&gt; = std::sync::Arc&lt;T&gt;;</span>
@@ -193,5 +199,5 @@ SOFTWARE.
 <span class="comment">//     mutation::RestartRay, BackwardMetropolis, Mutation, MutationSet,</span>
 <span class="comment">// };</span>
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
 </body></html>

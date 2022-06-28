@@ -458,7 +458,7 @@ SOFTWARE.
 <span class="kw">use</span> <span class="ident">std::io::Write</span>;
 <span class="kw">use</span> <span class="ident">std::path::Path</span>;
 
-<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ColourMatrix</span> <span class="op">=</span> <span class="ident">GenericMatrix</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="op">&gt;</span>;
+<span class="kw">pub</span> <span class="kw">type</span> <span class="ident">ColourMatrix</span> <span class="op">=</span> <span class="ident">GenericMatrix</span><span class="op">&lt;</span><span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="op">&gt;</span>;
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">average_matrix</span>(<span class="ident">dc</span>: <span class="kw-2">&amp;</span><span class="ident">Matrix</span>) -&gt; <span class="ident">Matrix</span> {
     <span class="kw">let</span> (<span class="ident">nrows</span>, <span class="ident">_ncols</span>) <span class="op">=</span> <span class="ident">dc</span>.<span class="ident">size</span>();
@@ -639,7 +639,7 @@ SOFTWARE.
     }
     <span class="kw">let</span> <span class="ident">nrows</span> <span class="op">=</span> <span class="ident">nrows</span>.<span class="ident">unwrap</span>();
     <span class="kw">let</span> <span class="ident">ncols</span> <span class="op">=</span> <span class="ident">ncols</span>.<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matrix</span> <span class="op">=</span> <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="ident">nrows</span>, <span class="ident">ncols</span>);
+    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">matrix</span> <span class="op">=</span> <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="ident">nrows</span>, <span class="ident">ncols</span>);
 
     <span class="comment">// Read content.</span>
     <span class="kw">for</span> (<span class="ident">nrow</span>, <span class="ident">line</span>) <span class="kw">in</span> <span class="ident">content</span>.<span class="ident">lines</span>().<span class="ident">skip</span>(<span class="ident">header_lines</span>).<span class="ident">enumerate</span>() {
@@ -687,7 +687,7 @@ SOFTWARE.
                 .<span class="ident">set</span>(
                     <span class="ident">nrow</span>,
                     <span class="ident">ncol</span>,
-                    <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>([<span class="ident">red</span>, <span class="ident">green</span>, <span class="ident">blue</span>]),
+                    <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>([<span class="ident">red</span>, <span class="ident">green</span>, <span class="ident">blue</span>]),
                 )
                 .<span class="ident">unwrap</span>();
 
@@ -827,5 +827,5 @@ SOFTWARE.
     <span class="prelude-val">Ok</span>(<span class="ident">matrix</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
 </body></html>

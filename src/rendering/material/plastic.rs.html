@@ -191,7 +191,7 @@ SOFTWARE.
 
 <span class="doccomment">/// Information required for modelling Radiance&#39;s Plastic and Plastic</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Plastic</span> {
-    <span class="kw">pub</span> <span class="ident">colour</span>: <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>,
+    <span class="kw">pub</span> <span class="ident">colour</span>: <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>,
     <span class="kw">pub</span> <span class="ident">specularity</span>: <span class="ident">Float</span>,
     <span class="kw">pub</span> <span class="ident">roughness</span>: <span class="ident">Float</span>,
 }
@@ -201,7 +201,7 @@ SOFTWARE.
         <span class="string">&quot;Plastic&quot;</span>
     }
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">colour</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">colour</span>
     }
 
@@ -213,7 +213,7 @@ SOFTWARE.
         <span class="ident">intersection_pt</span>: <span class="ident">Point3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
-    ) -&gt; (<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>, <span class="ident">Float</span>) {
+    ) -&gt; (<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>, <span class="ident">Float</span>) {
         <span class="kw">let</span> (<span class="ident">direct</span>, <span class="ident">diffuse</span>, <span class="ident">weight</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::material::ward::sample_ward_anisotropic</span>(
             <span class="ident">normal</span>,
             <span class="ident">e1</span>,
@@ -226,7 +226,7 @@ SOFTWARE.
             <span class="ident">rng</span>,
         );
 
-        <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="ident">direct</span>) <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>;
+        <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="ident">direct</span>) <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>;
 
         (<span class="ident">bsdf</span>, <span class="ident">weight</span>)
     }
@@ -238,7 +238,7 @@ SOFTWARE.
         <span class="ident">e2</span>: <span class="ident">Vector3D</span>,
         <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray</span>,
         <span class="ident">vout</span>: <span class="ident">Vector3D</span>,
-    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">vout</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>;
         <span class="kw">let</span> (<span class="ident">direct</span>, <span class="ident">diffuse</span>) <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::material::ward::evaluate_ward_anisotropic</span>(
             <span class="ident">normal</span>,
@@ -251,7 +251,7 @@ SOFTWARE.
             <span class="ident">vout</span>,
         );
 
-        <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="ident">direct</span>) <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>
+        <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="ident">direct</span>) <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>
     }
 }
 
@@ -265,7 +265,7 @@ SOFTWARE.
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_specular_plastic</span>() {
         <span class="kw">let</span> <span class="ident">plastic</span> <span class="op">=</span> <span class="ident">Plastic</span> {
-            <span class="ident">colour</span>: <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>([<span class="number">0.2</span>, <span class="number">0.2</span>, <span class="number">0.2</span>]),
+            <span class="ident">colour</span>: <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>([<span class="number">0.2</span>, <span class="number">0.2</span>, <span class="number">0.2</span>]),
             <span class="ident">specularity</span>: <span class="number">0.1</span>,
             <span class="ident">roughness</span>: <span class="number">0.1</span>,
         };
@@ -289,5 +289,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
 </body></html>

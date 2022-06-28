@@ -779,6 +779,10 @@
 <span id="739">739</span>
 <span id="740">740</span>
 <span id="741">741</span>
+<span id="742">742</span>
+<span id="743">743</span>
+<span id="744">744</span>
+<span id="745">745</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -801,15 +805,19 @@ SOFTWARE.
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 
+
+
+
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">PartialEq</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Spectrum</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span>(<span class="kw">pub</span> [<span class="ident">Float</span>; <span class="ident">N</span>]);
-<span class="kw">const</span> <span class="ident">RADIANCE_COEFFICIENTS</span> : [<span class="ident">Float</span>; <span class="ident"><span class="kw">crate</span>::N_CHANELS</span>] <span class="op">=</span> [<span class="number">0.265</span>, <span class="number">0.67</span>, <span class="number">0.065</span>];
+<span class="kw">const</span> <span class="ident">RADIANCE_COEFFICIENTS</span> : [<span class="ident">Float</span>; <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span>] <span class="op">=</span> [<span class="number">0.265</span>, <span class="number">0.67</span>, <span class="number">0.065</span>];
 <span class="doccomment">/// The standard Luminious Efficacy of equal white light energy</span>
 <span class="doccomment">/// as defined in Radiance</span>
 <span class="kw">pub</span> <span class="kw">const</span> <span class="ident">WHITE_EFFICACY</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">179.</span>;
 
-<span class="kw">impl</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">std::default::Default</span> <span class="kw">for</span> <span class="ident">Spectrum</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {
+<span class="kw">impl</span><span class="op">&lt;</span><span class="kw">const</span> <span class="ident">N</span>: <span class="ident">usize</span><span class="op">&gt;</span> <span class="ident">std::default::Default</span> <span class="kw">for</span> <span class="ident">Spectrum</span><span class="op">&lt;</span><span class="ident">N</span><span class="op">&gt;</span> {    
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
+
         <span class="ident"><span class="self">Self</span>::BLACK</span>
     }
 }
@@ -1521,5 +1529,5 @@ SOFTWARE.
 
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
 </body></html>

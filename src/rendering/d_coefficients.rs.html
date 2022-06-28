@@ -503,7 +503,7 @@ SOFTWARE.
                         <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="ident">x</span>, <span class="ident">y</span>, <span class="ident">z</span>);
 
                         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">this_ret</span> <span class="op">=</span>
-                            <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">1</span>, <span class="ident">n_bins</span>);
+                            <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">1</span>, <span class="ident">n_bins</span>);
 
                         <span class="macro">debug_assert!</span>(
                             (<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_ray_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">0.0000001</span>,
@@ -518,7 +518,7 @@ SOFTWARE.
                                 <span class="ident">direction</span>: <span class="ident">new_ray_dir</span>,
                                 <span class="ident">origin</span>,
                             },
-                            <span class="ident">colour</span>: <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="ident"><span class="kw">crate</span>::PI</span>),
+                            <span class="ident">colour</span>: <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="ident"><span class="kw">crate</span>::PI</span>),
                             ..<span class="ident">Ray::default</span>()
                         };
 
@@ -547,7 +547,7 @@ SOFTWARE.
                     })
                     .<span class="ident">collect</span>(); <span class="comment">// End of iterating primary rays</span>
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">1</span>, <span class="ident">n_bins</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">1</span>, <span class="ident">n_bins</span>);
                 <span class="ident">ray_contributions</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
                     <span class="ident">ret</span> <span class="op">+</span><span class="op">=</span> <span class="ident">v</span>;
                 });
@@ -558,7 +558,7 @@ SOFTWARE.
 
         <span class="comment">// Write down the results</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span>
-            <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="ident">rays</span>.<span class="ident">len</span>(), <span class="ident">n_bins</span>);
+            <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="ident">rays</span>.<span class="ident">len</span>(), <span class="ident">n_bins</span>);
         <span class="kw">for</span> (<span class="ident">sensor_index</span>, <span class="ident">contribution</span>) <span class="kw">in</span> <span class="ident">dcs</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
             <span class="comment">// add contribution</span>
             <span class="kw">for</span> <span class="ident">patch_index</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n_bins</span> {
@@ -682,7 +682,7 @@ SOFTWARE.
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">bin_n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reinhart</span>.<span class="ident">dir_to_bin</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>);
 
-            <span class="kw">let</span> <span class="ident">li</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::ONE</span>; <span class="comment">//Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);</span>
+            <span class="kw">let</span> <span class="ident">li</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::ONE</span>; <span class="comment">//Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);</span>
             <span class="kw">let</span> <span class="ident">old_value</span> <span class="op">=</span> <span class="ident">contribution</span>.<span class="ident">get</span>(<span class="number">0</span>, <span class="ident">bin_n</span>).<span class="ident">unwrap</span>();
 
             <span class="ident">contribution</span>
@@ -747,5 +747,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
 </body></html>

@@ -582,7 +582,7 @@ SOFTWARE.
         <span class="comment">// current_depth: usize,</span>
         <span class="comment">// current_value: Float,</span>
         <span class="ident">aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RayTracerHelper</span>,
-    ) -&gt; (<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>, <span class="ident">Float</span>) {
+    ) -&gt; (<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>, <span class="ident">Float</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">triangle_index</span>) <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">cast_ray</span>(<span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">aux</span>.<span class="ident">nodes</span>) {
             <span class="kw">let</span> <span class="ident">material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">ray</span>.<span class="ident">interaction</span>.<span class="ident">geometry_shading</span>.<span class="ident">side</span> {
                 <span class="ident">SurfaceSide::Front</span> =&gt; {
@@ -592,7 +592,7 @@ SOFTWARE.
                 <span class="ident">SurfaceSide::NonApplicable</span> =&gt; {
                     <span class="comment">// Hit parallel to the surface...</span>
                     <span class="comment">// ray.colour = Spectrum::BLACK; // We won&#39;t use this, I think</span>
-                    <span class="kw">return</span> (<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>);
+                    <span class="kw">return</span> (<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>);
                 }
             };
 
@@ -613,7 +613,7 @@ SOFTWARE.
 
             <span class="comment">// Limit bounces</span>
             <span class="kw">if</span> <span class="ident">ray</span>.<span class="ident">depth</span> <span class="op">&gt;</span> <span class="self">self</span>.<span class="ident">max_depth</span> {
-                <span class="kw">return</span> (<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>);
+                <span class="kw">return</span> (<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>);
             }
 
             <span class="ident">ray</span>.<span class="ident">interaction</span>
@@ -623,7 +623,7 @@ SOFTWARE.
 
             <span class="comment">// Handle specular materials... we have 1 or 2 rays... spawn those.</span>
             <span class="kw">if</span> <span class="ident">material</span>.<span class="ident">specular_only</span>() {
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">specular_li</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">specular_li</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
 
                 <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">get_possible_paths</span>(<span class="kw-2">&amp;</span><span class="ident">normal</span>, <span class="kw-2">&amp;</span><span class="ident">intersection_pt</span>, <span class="ident">ray</span>);
 
@@ -695,11 +695,11 @@ SOFTWARE.
                 <span class="kw">let</span> <span class="ident">sky_brightness</span> <span class="op">=</span> <span class="ident">sky</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>);
                 <span class="kw">let</span> <span class="ident">colour</span> <span class="op">=</span> <span class="ident">scene</span>
                     .<span class="ident">sky_colour</span>
-                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="number">1.0</span>));
+                    .<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="number">1.0</span>));
                 <span class="ident">ray</span>.<span class="ident">colour</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">colour</span> <span class="op">*</span> <span class="ident">sky_brightness</span>;
                 (<span class="ident">colour</span> <span class="op">*</span> <span class="ident">sky_brightness</span>, <span class="number">1.</span> <span class="op">/</span> <span class="number">2.</span> <span class="op">/</span> <span class="ident"><span class="kw">crate</span>::PI</span>)
             } <span class="kw">else</span> {
-                (<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>)
+                (<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>)
             }
         }
     }
@@ -714,10 +714,10 @@ SOFTWARE.
         <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>,
         <span class="ident">lights</span>: <span class="kw-2">&amp;</span>[<span class="ident">Object</span>],
         <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="kw-2">mut</span> <span class="ident">intersection_pt</span>, <span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>) <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">get_triad</span>();
         <span class="ident">intersection_pt</span> <span class="op">+</span><span class="op">=</span> <span class="ident">normal</span> <span class="op">*</span> <span class="number">0.001</span>; <span class="comment">// prevent self-shading</span>
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_illum</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_illum</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
         <span class="kw">for</span> <span class="ident">light</span> <span class="kw">in</span> <span class="ident">lights</span>.<span class="ident">iter</span>() {
             <span class="comment">// let this_origin = this_origin + normal * 0.001;</span>
             <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">i</span> <span class="op">=</span> <span class="number">0</span>;
@@ -781,7 +781,7 @@ SOFTWARE.
         <span class="ident">n_ambient_samples</span>: <span class="ident">usize</span>,
         <span class="ident">n_shadow_samples</span>: <span class="ident">usize</span>,
         <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">close</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">sample_light_array</span>(
             <span class="ident">scene</span>,
             <span class="ident">material</span>,
@@ -816,9 +816,9 @@ SOFTWARE.
         <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
         <span class="ident">aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RayTracerHelper</span>,
-    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span> {
+    ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">intersection_pt</span>, <span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>) <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">get_triad</span>();
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">global</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">global</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
         <span class="comment">// let depth = current_depth; //ray.depth;</span>
         <span class="kw">let</span> <span class="ident">depth</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">depth</span>;
         <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
@@ -861,10 +861,10 @@ SOFTWARE.
         <span class="kw">let</span> (<span class="ident">width</span>, <span class="ident">height</span>) <span class="op">=</span> <span class="ident">camera</span>.<span class="ident">film_resolution</span>();
 
         <span class="kw">let</span> <span class="ident">total_pixels</span> <span class="op">=</span> <span class="ident">width</span> <span class="op">*</span> <span class="ident">height</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pixels</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>; <span class="ident">total_pixels</span>];
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">pixels</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>; <span class="ident">total_pixels</span>];
 
         <span class="kw">let</span> <span class="ident">chunk_len</span> <span class="op">=</span> <span class="number">128</span>;
-        <span class="kw">let</span> <span class="ident">i</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> [<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pixels</span>.<span class="ident">chunks_mut</span>(<span class="ident">chunk_len</span>).<span class="ident">collect</span>();
+        <span class="kw">let</span> <span class="ident">i</span>: <span class="ident">Vec</span><span class="op">&lt;</span><span class="kw-2">&amp;mut</span> [<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>]<span class="op">&gt;</span> <span class="op">=</span> <span class="ident">pixels</span>.<span class="ident">chunks_mut</span>(<span class="ident">chunk_len</span>).<span class="ident">collect</span>();
 
         <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">not</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;parallel&quot;</span>))]</span>
         <span class="kw">let</span> <span class="ident">i</span> <span class="op">=</span> <span class="ident">i</span>.<span class="ident">into_iter</span>();
@@ -922,7 +922,7 @@ SOFTWARE.
     <span class="ident">light</span>: <span class="kw-2">&amp;</span><span class="ident">Object</span>,
     <span class="ident">shadow_ray</span>: <span class="kw-2">&amp;</span><span class="ident">Ray3D</span>,
     <span class="ident">node_aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">usize</span><span class="op">&gt;</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span>, <span class="ident">Float</span>)<span class="op">&gt;</span> {
+) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>, <span class="ident">Float</span>)<span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">light_direction</span> <span class="op">=</span> <span class="ident">shadow_ray</span>.<span class="ident">direction</span>;
     <span class="kw">let</span> <span class="ident">origin</span> <span class="op">=</span> <span class="ident">shadow_ray</span>.<span class="ident">origin</span>;
 
@@ -936,7 +936,7 @@ SOFTWARE.
     <span class="comment">// If the light is not visible (this should not consider</span>
     <span class="comment">// transparent surfaces, yet.)</span>
     <span class="kw">if</span> <span class="op">!</span><span class="ident">scene</span>.<span class="ident">unobstructed_distance</span>(<span class="ident">shadow_ray</span>, <span class="ident">light_distance_squared</span>, <span class="ident">node_aux</span>) {
-        <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>));
+        <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>));
     }
 
     <span class="kw">let</span> <span class="ident">light_material</span> <span class="op">=</span> <span class="kw">match</span> <span class="ident">info</span>.<span class="ident">side</span> {
@@ -944,7 +944,7 @@ SOFTWARE.
         <span class="ident">SurfaceSide::Back</span> =&gt; <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">materials</span>[<span class="ident">light</span>.<span class="ident">back_material_index</span>],
         <span class="ident">SurfaceSide::NonApplicable</span> =&gt; {
             <span class="comment">// Hit parallel to the surface</span>
-            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>));
+            <span class="kw">return</span> <span class="prelude-val">Some</span>((<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">0.0</span>));
         }
     };
     <span class="comment">// let light_material = &amp;scene.materials[light.front_material_index];</span>
@@ -963,5 +963,5 @@ SOFTWARE.
     <span class="comment">// use super::*;</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (c80c4b8fd 2022-06-26)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
 </body></html>
