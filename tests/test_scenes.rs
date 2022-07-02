@@ -1,12 +1,9 @@
 use geometry3d::Point3D;
 use rendering::camera::{Film, Pinhole, View};
-use rendering::ray_tracer::RayTracer;
-
+use rendering::{RayTracer, Spectrum, Scene};
 use geometry3d::{Sphere3D, Triangle3D, Vector3D};
-use rendering::colour::Spectrum;
 use rendering::material::*;
 use rendering::primitive::Primitive;
-use rendering::scene::Scene;
 use rendering::{Float, PI};
 
 #[test]

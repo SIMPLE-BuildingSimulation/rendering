@@ -18,12 +18,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 use clap::Parser;
-use rendering::{colour_matrix::save_colour_matrix, scene::Scene};
+use rendering::{colour_matrix::save_colour_matrix, Scene};
 use solar::ReinhartSky;
 // use rendering::from_radiance::from
 use geometry3d::{Point3D, Ray3D, Vector3D};
 use rendering::d_coefficients::DCFactory;
 use rendering::Float;
+use rendering::Wavelengths;
 
 /// Calculates the Daylight Coefficients
 #[derive(Parser)]
@@ -71,7 +72,7 @@ fn main() {
         Scene::from_radiance(input_file)
     } else if input_file.ends_with(".spl") {
         let (model, _header) = simple_model::SimpleModel::from_file(input_file).unwrap();
-        Scene::from_simple_model(&model, rendering::scene::Wavelengths::Visible)
+        Scene::from_simple_model(&model, Wavelengths::Visible)
     }
     // else if input.ends_with(".obj"){
     //     Scene::from_simple_model(input)

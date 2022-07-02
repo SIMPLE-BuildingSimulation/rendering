@@ -1,21 +1,26 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use rendering::rand::Rng;
+use rendering::{
+    Scene, 
+    Ray,
+    Spectrum,
+    rand::Rng
+};
 
 // Reference targets: https://github.com/svenstaro/bvh
 pub fn criterion_benchmark(c: &mut Criterion) {
     // Setup
     let mut aux: Vec<usize> = vec![0; 10];
-    let mut ray = black_box(rendering::ray::Ray {
+    let mut ray = black_box(Ray {
         geometry: geometry3d::Ray3D {
             direction: geometry3d::Vector3D::new(0., 1., 2.).get_normalized(),
             origin: geometry3d::Point3D::new(1., 2., 1.),
         },
-        ..rendering::ray::Ray::default()
+        ..Ray::default()
     });
 
     // ROOM
 
-    let mut room = black_box(rendering::scene::Scene::from_radiance(
+    let mut room = black_box(Scene::from_radiance(
         "./test_data/room.rad".to_string(),
     ));
     room.build_accelerator();
@@ -32,7 +37,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     // CORNELL
 
-    // let mut cornell = black_box(rendering::scene::Scene::from_radiance("./test_data/cornell.rad".to_string()));
+    // let mut cornell = black_box(Scene::from_radiance("./test_data/cornell.rad".to_string()));
     // cornell.build_accelerator();
 
     // c.bench_function("intersect_cornell", |b| {
@@ -48,9 +53,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // });
 
     // TRIANGLES
-    let mut triangles = black_box(rendering::scene::Scene::new());
+    let mut triangles = black_box(Scene::new());
     let plastic = rendering::material::Material::Plastic(rendering::material::Plastic {
-        colour: rendering::colour::Spectrum::gray(0.5),
+        colour: Spectrum::gray(0.5),
         specularity: 0.05,
         roughness: 0.1,
     });
@@ -98,18 +103,18 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     // SPONZA
 
-    let mut ray = black_box(rendering::ray::Ray {
+    let mut ray = black_box(Ray {
         geometry: geometry3d::Ray3D {
             direction: geometry3d::Vector3D::new(1., 0., 0.).get_normalized(),
             origin: geometry3d::Point3D::new(0., 5., 0.),
         },
-        ..rendering::ray::Ray::default()
+        ..Ray::default()
     });
 
-    let mut scene = black_box(rendering::scene::Scene::default());
+    let mut scene = black_box(Scene::default());
     let gray = scene.push_material(rendering::material::Material::Plastic(
         rendering::material::Plastic {
-            colour: rendering::colour::Spectrum::gray(0.3),
+            colour: Spectrum::gray(0.3),
             specularity: 0.,
             roughness: 0.,
         },
@@ -123,18 +128,18 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     // DINING
 
-    let mut ray = black_box(rendering::ray::Ray {
+    let mut ray = black_box(Ray {
         geometry: geometry3d::Ray3D {
             direction: geometry3d::Vector3D::new(1., 0., 0.).get_normalized(),
             origin: geometry3d::Point3D::new(-4.0, 1., 0.),
         },
-        ..rendering::ray::Ray::default()
+        ..Ray::default()
     });
 
-    let mut scene = black_box(rendering::scene::Scene::default());
+    let mut scene = black_box(Scene::default());
     let gray = scene.push_material(rendering::material::Material::Plastic(
         rendering::material::Plastic {
-            colour: rendering::colour::Spectrum::gray(0.3),
+            colour: Spectrum::gray(0.3),
             specularity: 0.,
             roughness: 0.,
         },

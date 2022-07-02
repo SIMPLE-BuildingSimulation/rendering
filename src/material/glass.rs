@@ -79,12 +79,13 @@ impl Glass {
             self.colour
         };
 
-        // Process transmission
-
+        // Process transmission        
         let t_comp = if any_transmission {
             d * 0.5
-                * ((1. - fte2).powi(2) / (1. - (d * fte2).powi(2))
-                    + (1. - ftm2).powi(2) / (1. - (d * ftm2).powi(2)))
+                * (
+                      (1. - fte2).powi(2) / (1. - (d * fte2).powi(2))
+                    + (1. - ftm2).powi(2) / (1. - (d * ftm2).powi(2))
+                )
         } else {
             // Spectrum{red: 1., green: 0., blue: 0.}
             Spectrum::<{ crate::N_CHANNELS }>::BLACK

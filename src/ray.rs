@@ -97,29 +97,10 @@ impl Ray {
         } else if self.depth == 0 {
             max_ambient_samples
         } else {
+            
             /* Adapted From Radiance's samp_hemi() at src/rt/ambcomp.c */
-            /*
-
-
-            if (ambacc <= FTINY && wt > (d = 0.8*intens(rcol)*r->rweight/(ambdiv*minweight)))
-                wt = d;			/* avoid ray termination */
-            n = sqrt(ambdiv * wt) + 0.5;
-            i = 1 + (MINADIV-1)*(ambacc > FTINY);
-            if (n < i)			/* use minimum number of samples? */
-                n = i;
-
-            // Improve readability, assuming that ambacc == 0.0, always (we don't have ambient cache here)
-
-            d = 0.8*intens(rcol)*r->rweight/(ambdiv*minweight)
-            if ( wt > d){
-                wt = d;			/* avoid ray termination */
-            }
-            n = sqrt(ambdiv * wt) + 0.5;
-            i = 1 + (MINADIV-1);
-            if (n < i)			/* use minimum number of samples? */
-                n = i;
-            */
-            let wt = self.value; //self.colour.radiance();
+        
+            let wt = self.value; 
 
             // russian roullete
             let r: Float = rng.gen();
@@ -129,17 +110,7 @@ impl Ray {
             }
             1 // Stephen, this is on you.
 
-            // let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);
-            // if wt > d {
-            //     wt = d;
-            // }
-            // let n = ((max_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;
-            // const MIN_AMBS: usize = 1;
-            // if n < MIN_AMBS {
-            //     MIN_AMBS
-            // } else {
-            //     n
-            // }
+            
         }
     }
 }

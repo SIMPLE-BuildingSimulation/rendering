@@ -19,11 +19,10 @@ SOFTWARE.
 */
 
 use clap::Parser;
-use rendering::scene::Scene;
+use rendering::{Scene, RayTracer, Wavelengths};
 
 use geometry3d::{Point3D, Vector3D};
 use rendering::camera::{Film, Pinhole, View};
-use rendering::ray_tracer::RayTracer;
 use rendering::Float;
 
 #[derive(Debug)]
@@ -150,7 +149,7 @@ fn main() {
         Scene::from_radiance(input_file)
     } else if input_file.ends_with(".spl") {
         let (model, _header) = simple_model::SimpleModel::from_file(input_file).unwrap();
-        Scene::from_simple_model(&model, rendering::scene::Wavelengths::Visible)
+        Scene::from_simple_model(&model, Wavelengths::Visible)
     }
     // else if input.ends_with(".obj"){
     //     Scene::from_simple_model(input)

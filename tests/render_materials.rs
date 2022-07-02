@@ -1,12 +1,10 @@
 use geometry3d::Point3D;
 use geometry3d::{Sphere3D, Triangle3D};
 use rendering::camera::{Film, Pinhole, View};
-use rendering::colour::Spectrum;
 use rendering::material::Material;
 use rendering::material::*;
 use rendering::primitive::Primitive;
-use rendering::ray_tracer::RayTracer;
-use rendering::scene::Scene;
+use rendering::{RayTracer, Scene, Spectrum};
 use rendering::Float;
 
 fn render_ball(mat: Material, filename: &str) {

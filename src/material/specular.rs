@@ -31,9 +31,8 @@ use geometry3d::{Point3D, Vector3D};
 /// # Example
 /// ```
 /// use geometry3d::{Point3D,Vector3D, Ray3D};
-/// use rendering::colour::Spectrum;
+/// use rendering::{Spectrum, Ray};
 /// use rendering::material::cos_and_n;
-/// use rendering::ray::Ray;
 /// use rendering::interaction::Interaction;
 ///
 /// let mat_refraction_index = 1.52;

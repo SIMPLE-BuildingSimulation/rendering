@@ -48,7 +48,8 @@ pub const N_CHANNELS: usize = 3;
 // Core
 pub mod bvh;
 pub mod camera;
-pub mod colour;
+mod colour;
+pub use colour::Spectrum;
 pub mod colourmap;
 pub mod image;
 pub mod interaction;
@@ -58,9 +59,11 @@ pub mod primitive;
 
 pub mod primitive_samplers;
 pub mod rand;
-pub mod ray;
+mod ray;
+pub use ray::Ray;
 pub mod samplers;
-pub mod scene;
+mod scene;
+pub use scene::{Scene, Wavelengths};
 pub mod triangle;
 
 // Climate Based Daylight Model
@@ -72,7 +75,8 @@ pub mod from_radiance;
 pub mod from_simple_model;
 
 // Ray-tracer
-pub mod ray_tracer;
+mod ray_tracer;
+pub use ray_tracer::{RayTracer, RayTracerHelper};
 
 // mod backward_metropolis;
 // pub use crate::backward_metropolis::{

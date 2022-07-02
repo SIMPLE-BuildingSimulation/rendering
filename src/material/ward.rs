@@ -141,15 +141,8 @@ pub fn evaluate_ward_anisotropic(
     ray: &Ray,
     l: Vector3D,
 ) -> (Float, Float) {
-    // let l_n = l * normal;
-
-    // // Light is behind the surface
-    // if l_n < -1e-5  {
-    //     return (0.0, 0.0);
-    // }
-
-    let spec = if specularity > 1e-5
-    /*&& (alpha > 1e-5 || beta > 1e-5) */
+    
+    let spec = if specularity > 1e-5    
     {
         if alpha < LOW_ROUGHNESS {
             alpha = LOW_ROUGHNESS;
@@ -167,7 +160,7 @@ pub fn evaluate_ward_anisotropic(
 
         let h_n = h * normal;
         // Eq. 17
-        let c1 = (h * h) * specularity / (PI * alpha * beta * h_n.powi(4));
+        let c1 = specularity * (h * h) / (PI * alpha * beta * h_n.powi(4));
         let c2 = -((h * e1 / alpha).powi(2) + (h * e2 / beta).powi(2)) / (h_n.powi(2));
         c1 * c2.exp()
     } else {

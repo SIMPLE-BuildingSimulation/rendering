@@ -180,13 +180,8 @@ impl RayTracer {
                 rng,
                 aux,
             );
-
-            // global /= n as Float;
-            // global /= total_samples as Float;
-
-            // return
-            ray.colour *= local + global;
-            ((local + global), 0.0) // /total_samples as Float , 0.0)
+                        
+            (local + global, 0.0) 
         } else {
             // Did not hit... so, let's check the sky
             if let Some(sky) = &scene.sky {
@@ -229,7 +224,7 @@ impl RayTracer {
                 };
 
                 if let Some((light_colour, light_pdf)) =
-                    sample_light(scene, light, &shadow_ray, node_aux)
+                    intersect_light(scene, light, &shadow_ray, node_aux)
                 {
                     i += 1;
                     if light_pdf < 1e-18 {
@@ -316,11 +311,13 @@ impl RayTracer {
         aux: &mut RayTracerHelper,
     ) -> Spectrum<{ crate::N_CHANNELS }> {
         let (intersection_pt, normal, e1, e2) = ray.get_triad();
+        
         let mut global = Spectrum::<{ crate::N_CHANNELS }>::BLACK;
-        // let depth = current_depth; //ray.depth;
+        
         let depth = ray.depth;
         aux.rays[depth] = *ray;
 
+        
         for _ in 0..n_ambient_samples {
             // Choose a direction.
             let (bsdf_value, pdf) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
@@ -330,20 +327,19 @@ impl RayTracer {
                 "Length is {}",
                 new_ray_dir.length()
             );
-
-            // increase depth
-            // let new_depth = current_depth + 1;
+            
             ray.depth += 1;
             let cos_theta = (normal * new_ray_dir).abs();
-            // let new_value = bsdf_value.radiance() * wt * cos_theta / pdf;
-            ray.value *= bsdf_value.radiance() * cos_theta * pdf;
+            let bsdf_rad = bsdf_value.radiance();
+            ray.value *= bsdf_rad * cos_theta * pdf;
 
-            let (li, light_pdf) =
-                self.trace_ray(rng, scene, ray, /*new_depth, new_value,*/ aux);
-
-            let fx = (li * cos_theta) * bsdf_value;
-            let denominator = bsdf_value.radiance() * n_ambient_samples as Float
+            let (li, light_pdf) = self.trace_ray(rng, scene, ray, aux);
+            
+            let fx = li * cos_theta * bsdf_value * material.colour();
+            
+            let denominator = bsdf_rad * n_ambient_samples as Float
                 + n_shadow_samples as Float * light_pdf;
+            
 
             global += fx / denominator;
 
@@ -414,8 +410,7 @@ impl RayTracer {
 /// Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses
 /// the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)`
 /// if the light is hit.
-#[inline(never)]
-pub fn sample_light(
+pub fn intersect_light(
     scene: &Scene,
     light: &Object,
     shadow_ray: &Ray3D,
@@ -456,7 +451,9 @@ pub fn sample_light(
     Some((light_colour, light_pdf))
 }
 
+
 #[cfg(test)]
 mod tests {
     // use super::*;
+
 }
