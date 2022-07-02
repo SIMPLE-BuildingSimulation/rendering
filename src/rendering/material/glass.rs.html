@@ -349,6 +349,7 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
+<span id="312">312</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -430,12 +431,13 @@ SOFTWARE.
             <span class="self">self</span>.<span class="ident">colour</span>
         };
 
-        <span class="comment">// Process transmission</span>
-
+        <span class="comment">// Process transmission        </span>
         <span class="kw">let</span> <span class="ident">t_comp</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">any_transmission</span> {
             <span class="ident">d</span> <span class="op">*</span> <span class="number">0.5</span>
-                <span class="op">*</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">fte2</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">fte2</span>).<span class="ident">powi</span>(<span class="number">2</span>))
-                    <span class="op">+</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">ftm2</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">ftm2</span>).<span class="ident">powi</span>(<span class="number">2</span>)))
+                <span class="op">*</span> (
+                      (<span class="number">1.</span> <span class="op">-</span> <span class="ident">fte2</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">fte2</span>).<span class="ident">powi</span>(<span class="number">2</span>))
+                    <span class="op">+</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">ftm2</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">ftm2</span>).<span class="ident">powi</span>(<span class="number">2</span>))
+                )
         } <span class="kw">else</span> {
             <span class="comment">// Spectrum{red: 1., green: 0., blue: 0.}</span>
             <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>
@@ -661,5 +663,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (46b8c23f3 2022-07-01)" ></div>
 </body></html>

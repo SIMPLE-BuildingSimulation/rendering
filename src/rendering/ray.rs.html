@@ -154,35 +154,6 @@
 <span id="114">114</span>
 <span id="115">115</span>
 <span id="116">116</span>
-<span id="117">117</span>
-<span id="118">118</span>
-<span id="119">119</span>
-<span id="120">120</span>
-<span id="121">121</span>
-<span id="122">122</span>
-<span id="123">123</span>
-<span id="124">124</span>
-<span id="125">125</span>
-<span id="126">126</span>
-<span id="127">127</span>
-<span id="128">128</span>
-<span id="129">129</span>
-<span id="130">130</span>
-<span id="131">131</span>
-<span id="132">132</span>
-<span id="133">133</span>
-<span id="134">134</span>
-<span id="135">135</span>
-<span id="136">136</span>
-<span id="137">137</span>
-<span id="138">138</span>
-<span id="139">139</span>
-<span id="140">140</span>
-<span id="141">141</span>
-<span id="142">142</span>
-<span id="143">143</span>
-<span id="144">144</span>
-<span id="145">145</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -282,29 +253,10 @@ SOFTWARE.
         } <span class="kw">else</span> <span class="kw">if</span> <span class="self">self</span>.<span class="ident">depth</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="ident">max_ambient_samples</span>
         } <span class="kw">else</span> {
+            
             <span class="comment">/* Adapted From Radiance&#39;s samp_hemi() at src/rt/ambcomp.c */</span>
-            <span class="comment">/*
-
-
-            if (ambacc &lt;= FTINY &amp;&amp; wt &gt; (d = 0.8*intens(rcol)*r-&gt;rweight/(ambdiv*minweight)))
-                wt = d;			/* avoid ray termination */
-            n = sqrt(ambdiv * wt) + 0.5;
-            i = 1 + (MINADIV-1)*(ambacc &gt; FTINY);
-            if (n &lt; i)			/* use minimum number of samples? */
-                n = i;
-
-            // Improve readability, assuming that ambacc == 0.0, always (we don&#39;t have ambient cache here)
-
-            d = 0.8*intens(rcol)*r-&gt;rweight/(ambdiv*minweight)
-            if ( wt &gt; d){
-                wt = d;			/* avoid ray termination */
-            }
-            n = sqrt(ambdiv * wt) + 0.5;
-            i = 1 + (MINADIV-1);
-            if (n &lt; i)			/* use minimum number of samples? */
-                n = i;
-            */</span>
-            <span class="kw">let</span> <span class="ident">wt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">value</span>; <span class="comment">//self.colour.radiance();</span>
+        
+            <span class="kw">let</span> <span class="ident">wt</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">value</span>; 
 
             <span class="comment">// russian roullete</span>
             <span class="kw">let</span> <span class="ident">r</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
@@ -314,20 +266,10 @@ SOFTWARE.
             }
             <span class="number">1</span> <span class="comment">// Stephen, this is on you.</span>
 
-            <span class="comment">// let d = 0.8 * wt * self.colour.max() / (max_ambient_samples as Float * limit_weight);</span>
-            <span class="comment">// if wt &gt; d {</span>
-            <span class="comment">//     wt = d;</span>
-            <span class="comment">// }</span>
-            <span class="comment">// let n = ((max_ambient_samples as Float * wt).sqrt() + 0.5).round() as usize;</span>
-            <span class="comment">// const MIN_AMBS: usize = 1;</span>
-            <span class="comment">// if n &lt; MIN_AMBS {</span>
-            <span class="comment">//     MIN_AMBS</span>
-            <span class="comment">// } else {</span>
-            <span class="comment">//     n</span>
-            <span class="comment">// }</span>
+            
         }
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (46b8c23f3 2022-07-01)" ></div>
 </body></html>

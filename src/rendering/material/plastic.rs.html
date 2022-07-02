@@ -163,6 +163,46 @@
 <span id="123">123</span>
 <span id="124">124</span>
 <span id="125">125</span>
+<span id="126">126</span>
+<span id="127">127</span>
+<span id="128">128</span>
+<span id="129">129</span>
+<span id="130">130</span>
+<span id="131">131</span>
+<span id="132">132</span>
+<span id="133">133</span>
+<span id="134">134</span>
+<span id="135">135</span>
+<span id="136">136</span>
+<span id="137">137</span>
+<span id="138">138</span>
+<span id="139">139</span>
+<span id="140">140</span>
+<span id="141">141</span>
+<span id="142">142</span>
+<span id="143">143</span>
+<span id="144">144</span>
+<span id="145">145</span>
+<span id="146">146</span>
+<span id="147">147</span>
+<span id="148">148</span>
+<span id="149">149</span>
+<span id="150">150</span>
+<span id="151">151</span>
+<span id="152">152</span>
+<span id="153">153</span>
+<span id="154">154</span>
+<span id="155">155</span>
+<span id="156">156</span>
+<span id="157">157</span>
+<span id="158">158</span>
+<span id="159">159</span>
+<span id="160">160</span>
+<span id="161">161</span>
+<span id="162">162</span>
+<span id="163">163</span>
+<span id="164">164</span>
+<span id="165">165</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -260,7 +300,47 @@ SOFTWARE.
 
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
     <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
-    <span class="kw">use</span> <span class="ident">geometry3d::Ray3D</span>;
+    <span class="kw">use</span> <span class="ident">geometry3d::Ray3D</span>;    
+
+   
+
+    <span class="comment">// /// This test was developed by debugging RPICT in Radiance</span>
+    <span class="comment">// #[test]</span>
+    <span class="comment">// fn test_eval_plastic() {</span>
+    <span class="comment">//     let plastic = Plastic {</span>
+    <span class="comment">//         colour: Spectrum::&lt;3&gt;::from(0.5),</span>
+    <span class="comment">//         specularity: 0.05,</span>
+    <span class="comment">//         roughness: 0.1,</span>
+    <span class="comment">//     };</span>
+
+    <span class="comment">//     let origin = Point3D::new(2., 1., 1.);</span>
+    <span class="comment">//     let direction = Vector3D::new(-0.446877862357762, 0.77495819368141017, 0.4469227832418069);</span>
+    <span class="comment">//     let normal = Vector3D::new(1., 0., 0.);</span>
+    <span class="comment">//     let vout = Vector3D::new(0.446877862357762, 0.77495819368141017, 0.4469227832418069);</span>
+    <span class="comment">//     let ray = &amp;Ray {</span>
+    <span class="comment">//         geometry: Ray3D { origin, direction },</span>
+    <span class="comment">//         .. Ray::default()</span>
+    <span class="comment">//     };</span>
+    <span class="comment">//     let e1 = Vector3D::new(0., 1., 0.);</span>
+    <span class="comment">//     let e2 = Vector3D::new(0., 0., 1.);</span>
+
+    <span class="comment">//     // alpha2	double	0.0099999999988358463</span>
+    <span class="comment">//     // pdot	double	0.446877862357762</span>
+    <span class="comment">//     // rdiff	double	0.95000000000291041</span>
+    <span class="comment">//     // rspec	double	0.049999999997089616</span>
+    <span class="comment">//     // scolor = [0.5, 0.5, 0.5] in ln 295</span>
+    <span class="comment">//     // vrefl	FVECT</span>
+    <span class="comment">//     // [0]	double	0.446877862357762</span>
+    <span class="comment">//     // [1]	double	0.77495819368141017</span>
+    <span class="comment">//     // [2]	double	0.4469227832418069</span>
+    <span class="comment">//     // End of source.c / Direct</span>
+    <span class="comment">//     // rcol	COLOR</span>
+    <span class="comment">//     // [0]	COLORV	0.353318453</span>
+    <span class="comment">//     // [1]	COLORV	0.353318453</span>
+    <span class="comment">//     // [2]	COLORV	0.353318453</span>
+
+    <span class="comment">//     plastic.eval_bsdf(normal, e1, e2, ray, vout);</span>
+    <span class="comment">// }</span>
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_specular_plastic</span>() {
@@ -289,5 +369,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (46b8c23f3 2022-07-01)" ></div>
 </body></html>

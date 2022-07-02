@@ -130,6 +130,7 @@
 <span id="90">90</span>
 <span id="91">91</span>
 <span id="92">92</span>
+<span id="93">93</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -194,7 +195,8 @@ SOFTWARE.
         );
 
         <span class="comment">// Plastic differs from Metal in that the direct component is coloured</span>
-        <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">direct</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>;
+        <span class="comment">// let bsdf = self.colour * direct + self.colour * diffuse;</span>
+        <span class="kw">let</span> <span class="ident">bsdf</span> <span class="op">=</span>  <span class="self">self</span>.<span class="ident">colour</span>.<span class="ident">normalize</span>() <span class="op">*</span> <span class="ident">direct</span> <span class="op">+</span> <span class="self">self</span>.<span class="ident">colour</span> <span class="op">*</span> <span class="ident">diffuse</span>;
 
         (<span class="ident">bsdf</span>, <span class="ident">weight</span>)
     }
@@ -223,5 +225,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (2f3ddd9f5 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (46b8c23f3 2022-07-01)" ></div>
 </body></html>
