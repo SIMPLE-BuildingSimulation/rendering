@@ -40,9 +40,8 @@ pub struct RayTracerHelper {
 
 impl std::default::Default for RayTracerHelper {
     fn default() -> Self {
-        Self {
-            // rays: Vec::with_capacity(10),
-            rays: vec![Ray::default(); 15], //Vec::with_capacity(10),
+        Self {            
+            rays: vec![Ray::default(); 15], 
             nodes: Vec::with_capacity(64),
         }
     }
@@ -76,9 +75,7 @@ impl RayTracer {
         &self,
         rng: &mut RandGen,
         scene: &Scene,
-        ray: &mut Ray,
-        // current_depth: usize,
-        // current_value: Float,
+        ray: &mut Ray,        
         aux: &mut RayTracerHelper,
     ) -> (Spectrum<{ crate::N_CHANNELS }>, Float) {
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
@@ -211,11 +208,16 @@ impl RayTracer {
         let (mut intersection_pt, normal, e1, e2) = ray.get_triad();
         intersection_pt += normal * 0.001; // prevent self-shading
         let mut local_illum = Spectrum::<{ crate::N_CHANNELS }>::BLACK;
+
+        let n = n_shadow_samples;
+        let n_ambient_samples = n_ambient_samples as Float;
+        let n_shadow_samples = n_shadow_samples as Float;
+
         for light in lights.iter() {
             // let this_origin = this_origin + normal * 0.001;
             let mut i = 0;
             // let mut missed = 0;
-            while i < n_shadow_samples {
+            while i < n {
                 let direction = light.primitive.sample_direction(rng, intersection_pt);
                 // let (_,direction) = light.primitive.direction( point);
                 let shadow_ray = Ray3D {
@@ -238,10 +240,8 @@ impl RayTracer {
                     let cos_theta = (normal * direction).abs();
                     let vout = shadow_ray.direction * -1.;
 
-                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);
-                    // let denominator = mat_bsdf_value * bsdf_c + light_pdf * light_c; //light_pdf;//
-                    let denominator = light_pdf * n_shadow_samples as Float
-                        + mat_bsdf_value.radiance() * n_ambient_samples as Float; //light_pdf;//
+                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);                    
+                    let denominator = light_pdf * n_shadow_samples + mat_bsdf_value.radiance() * n_ambient_samples; 
                     let fx = (light_colour * cos_theta) * (mat_bsdf_value);
 
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
@@ -316,9 +316,11 @@ impl RayTracer {
         
         let depth = ray.depth;
         aux.rays[depth] = *ray;
-
+        let n = n_ambient_samples;
+        let n_ambient_samples = n_ambient_samples as Float;
+        let n_shadow_samples = n_shadow_samples as Float;
         
-        for _ in 0..n_ambient_samples {
+        for _ in 0..n {
             // Choose a direction.
             let (bsdf_value, pdf) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
             let new_ray_dir = ray.geometry.direction;
@@ -335,10 +337,9 @@ impl RayTracer {
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, aux);
             
-            let fx = li * cos_theta * bsdf_value * material.colour();
+            let fx = li * cos_theta * bsdf_value ;
             
-            let denominator = bsdf_rad * n_ambient_samples as Float
-                + n_shadow_samples as Float * light_pdf;
+            let denominator = bsdf_rad *  n_ambient_samples + n_shadow_samples * light_pdf;
             
 
             global += fx / denominator;

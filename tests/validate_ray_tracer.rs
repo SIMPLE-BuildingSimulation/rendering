@@ -2,7 +2,7 @@ use geometry3d::{Point3D, Ray3D, Vector3D};
 use rendering::{Float, Ray, RayTracer, RayTracerHelper, Scene};
 use validate::{valid, SeriesValidator, Validate, Validator};
 
-const MAX_DEPTH: usize = 1;
+const MAX_DEPTH: usize = 12;
 
 fn load_expected_results(filename: String) -> Vec<Float> {
     let s = std::fs::read_to_string(filename).unwrap();
@@ -32,7 +32,7 @@ fn load_rays(filename: &str) -> Vec<Ray> {
             Ray {
                 geometry: Ray3D {
                     origin: Point3D::new(a[0], a[1], a[2]),
-                    direction: Vector3D::new(a[3], a[4], a[5]),
+                    direction: Vector3D::new(a[3], a[4], a[5]).get_normalized(),
                 },
                 ..Ray::default()
             }
@@ -41,11 +41,11 @@ fn load_rays(filename: &str) -> Vec<Ray> {
 }
 
 fn get_simple_results(dir: &str, max_depth: usize) -> (Vec<Float>, Vec<Float>) {
-    let mut scene = Scene::from_radiance(format!("./tests/{dir}/box.rad"));
+    let mut scene = Scene::from_radiance(format!("./tests/ray_tracer/{dir}/box.rad"));
     scene.build_accelerator();
 
     let integrator = RayTracer {
-        n_ambient_samples: 11020,
+        n_ambient_samples: 51020,
         n_shadow_samples: 100,
         max_depth,
         limit_weight: 1e-9,
@@ -65,9 +65,9 @@ fn get_simple_results(dir: &str, max_depth: usize) -> (Vec<Float>, Vec<Float>) {
         .collect();
 
     let expected = if max_depth == 0 {
-      load_expected_results(format!("./tests/{dir}/direct_results.txt"))
+      load_expected_results(format!("./tests/ray_tracer/{dir}/direct_results.txt"))
     }else{
-        load_expected_results(format!("./tests/{dir}/global_results.txt"))
+        load_expected_results(format!("./tests/ray_tracer/{dir}/global_results.txt"))
     };
     // println!("Exp,Found");
     // for i in 0..found.len() {
@@ -398,9 +398,9 @@ fn glass(validator: &mut Validator) {
 }
 
 #[test]
-fn validate() {
-    // cargo test --release --package rendering --test validate -- validate --exact --nocapture
-    let mut validator = Validator::new("Validate Time series", "report.html");
+fn validate_ray_tracer() {
+    // cargo test --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture
+    let mut validator = Validator::new("Validate Time series", "./docs/validation/ray_tracer.html");
 
     metal(&mut validator);
     plastic(&mut validator);
