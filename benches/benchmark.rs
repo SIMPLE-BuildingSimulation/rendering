@@ -21,7 +21,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // ROOM
 
     let mut room = black_box(Scene::from_radiance(
-        "./test_data/room.rad".to_string(),
+        "./tests/scenes/room.rad".to_string(),
     ));
     room.build_accelerator();
 
@@ -37,7 +37,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     // CORNELL
 
-    // let mut cornell = black_box(Scene::from_radiance("./test_data/cornell.rad".to_string()));
+    // let mut cornell = black_box(Scene::from_radiance("./tests/scenes/cornell.rad".to_string()));
     // cornell.build_accelerator();
 
     // c.bench_function("intersect_cornell", |b| {
@@ -119,7 +119,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             roughness: 0.,
         },
     ));
-    scene.add_from_obj("./test_data/sponza.obj".to_string(), gray, gray);
+    scene.add_from_obj("./tests/scenes/sponza.obj".to_string(), gray, gray);
     scene.build_accelerator();
 
     c.bench_function("intersect_sponza", |b| {
@@ -144,7 +144,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             roughness: 0.,
         },
     ));
-    scene.add_from_obj("./test_data/sponza.obj".to_string(), gray, gray);
+    scene.add_from_obj("./tests/scenes/sponza.obj".to_string(), gray, gray);
     scene.build_accelerator();
 
     c.bench_function("intersect_dining", |b| {

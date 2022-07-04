@@ -120,7 +120,7 @@ to design tests for this, I have found)
 cargo test
 ```
 
-Render some pre-built scenes (they'll end up in `./test_data/images/`)
+Render some pre-built scenes (they'll end up in `./tests/scenes/images/`)
 
 ```bash
 cargo test --features parallel --release --package rendering --test test_scenes -- --ignored 

@@ -330,7 +330,7 @@ mod tests {
         ];
 
         // Read scene
-        let rad_file = "./test_data/room.rad";
+        let rad_file = "./tests/scenes/room.rad";
         let mut scene = Scene::from_radiance(rad_file.to_string());
         scene.build_accelerator();
         eprintln!("Ready to calc!... # Surface = {}", scene.triangles.len());
@@ -347,7 +347,7 @@ mod tests {
         let dc_matrix = crate::colour_matrix::colour_matrix_to_luminance(&dc_matrix);
         crate::colour_matrix::save_matrix(
             &dc_matrix,
-            std::path::Path::new("./test_data/full_dc_rust.mtx"),
+            std::path::Path::new("./tests/scenes/full_dc_rust.mtx"),
         )
         .unwrap();
     }

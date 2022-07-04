@@ -275,6 +275,12 @@ pub fn read_matrix(filename: &Path) -> Result<Matrix, String> {
             ))
         }
     };
+    if content.is_empty(){
+        return Err(format!(
+            "file '{}' is empty",
+            filename.to_str().unwrap()
+        ))
+    }
     // Read header
     let filename = filename.to_str().unwrap();
     let mut nrows: Option<usize> = None;

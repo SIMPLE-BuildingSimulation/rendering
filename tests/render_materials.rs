@@ -170,7 +170,7 @@ fn test_render_specular_plastic() {
         roughness: 0.05,
     });
 
-    render_ball(plastic, "./test_data/images/specular_plastic.hdr")
+    render_ball(plastic, "./tests/scenes/images/specular_plastic.hdr")
 }
 
 #[test]
@@ -184,7 +184,7 @@ fn test_render_specular_metal() {
         roughness: 0.05,
     });
 
-    render_ball(metal, "./test_data/images/specular_metal.hdr")
+    render_ball(metal, "./tests/scenes/images/specular_metal.hdr")
 }
 
 #[test]
@@ -196,7 +196,7 @@ fn test_render_glass() {
         refraction_index: 1.52,
     });
 
-    render_ball(metal, "./test_data/images/glass.hdr")
+    render_ball(metal, "./tests/scenes/images/glass.hdr")
 }
 
 #[test]
@@ -206,7 +206,7 @@ fn test_render_mirror() {
 
     let plastic = Material::Mirror(Mirror(Spectrum::gray(0.5)));
 
-    render_ball(plastic, "./test_data/images/mirror.hdr")
+    render_ball(plastic, "./tests/scenes/images/mirror.hdr")
 }
 
 #[test]
@@ -219,5 +219,5 @@ fn test_render_dielectric() {
         refraction_index: 1.6,
     });
 
-    render_ball(dielectric, "./test_data/images/dielectric.hdr")
+    render_ball(dielectric, "./tests/scenes/images/dielectric.hdr")
 }

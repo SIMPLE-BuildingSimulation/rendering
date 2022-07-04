@@ -281,7 +281,7 @@ fn laptop() {
     };
 
     let buffer = integrator.render(&scene, &camera);
-    buffer.save_hdre(std::path::Path::new("./test_data/images/laptop.hdr"));
+    buffer.save_hdre(std::path::Path::new("./tests/scenes//images/laptop.hdr"));
 }
 
 #[test]
@@ -296,7 +296,7 @@ fn sponza() {
         roughness: 0.,
     }));
 
-    scene.add_from_obj("./test_data/sponza.obj".to_string(), gray, gray);
+    scene.add_from_obj("./tests/scenes//sponza.obj".to_string(), gray, gray);
 
     scene.add_perez_sky(
         calendar::Date {
@@ -339,7 +339,7 @@ fn sponza() {
     };
 
     let buffer = integrator.render(&scene, &camera);
-    buffer.save_hdre(std::path::Path::new("./test_data/images/sponza.hdr"));
+    buffer.save_hdre(std::path::Path::new("./tests/scenes//images/sponza.hdr"));
 }
 
 #[test]
@@ -348,7 +348,7 @@ fn cornell() {
     // cargo test --features parallel --release --package rendering --test test_scenes -- --ignored cornell --exact --nocapture
     // RUSTFLAGS="-C target-cpu=native -C target-feature=+neon" cargo test --features parallel --release --package rendering --test test_scenes -- --ignored cornell --exact --nocapture
 
-    let mut scene = Scene::from_radiance("./test_data/cornell.rad".to_string());
+    let mut scene = Scene::from_radiance("./tests/scenes//cornell.rad".to_string());
 
     scene.build_accelerator();
 
@@ -380,7 +380,7 @@ fn cornell() {
     };
 
     let buffer = integrator.render(&scene, &camera);
-    buffer.save_hdre(std::path::Path::new("./test_data/images/cornell.hdr"));
+    buffer.save_hdre(std::path::Path::new("./tests/scenes//images/cornell.hdr"));
 }
 
 #[test]
@@ -390,7 +390,7 @@ fn room() {
     // cargo test --features parallel --release --package rendering --test test_scenes -- room --exact --nocapture --ignored
     // oconv ../room.rad ../white_sky.rad > room.oct ;time rpict -x 512 -y 512 -vv 60 -vh 60 -ab 3 -ad 220 -aa 0 -vp 2 1 1 -vd 0 1 0 ./room.oct > rad_room.hdr
 
-    let mut scene = Scene::from_radiance("./test_data/room.rad".to_string());
+    let mut scene = Scene::from_radiance("./tests/scenes//room.rad".to_string());
     // scene.add_perez_sky(
     //     calendar::Date {
     //         month: 6,
@@ -428,7 +428,7 @@ fn room() {
     };
 
     let buffer = integrator.render(&scene, &camera);
-    buffer.save_hdre(std::path::Path::new("./test_data/images/room.hdr"));
+    buffer.save_hdre(std::path::Path::new("./tests/scenes//images/room.hdr"));
 }
 
 #[test]
@@ -443,7 +443,7 @@ fn dining() {
         roughness: 0.,
     }));
 
-    scene.add_from_obj("./test_data/casa2.obj".to_string(), gray, gray);
+    scene.add_from_obj("./tests/scenes//casa2.obj".to_string(), gray, gray);
 
     scene.add_perez_sky(
         calendar::Date {
@@ -488,5 +488,5 @@ fn dining() {
     };
 
     let buffer = integrator.render(&scene, &camera);
-    buffer.save_hdre(std::path::Path::new("./test_data/images/dining.hdr"));
+    buffer.save_hdre(std::path::Path::new("./tests/scenes//images/dining.hdr"));
 }

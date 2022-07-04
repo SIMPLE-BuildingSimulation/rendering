@@ -591,31 +591,31 @@ mod tests {
         .unwrap();
     }
 
-    #[test]
-    #[ignore]
-    fn test_from_file() {
-        let buffer =
-            ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
-        assert_eq!(buffer.width, 512);
-        assert_eq!(buffer.height, 367);
-        // assert_eq!(buffer.pixels.len(), 1024*768);
-        buffer.save_hdre(Path::new("./test_data/images/cornell_COPIED.hdr"))
-    }
+    // #[test]
+    // #[ignore]
+    // fn test_from_file() {
+    //     let buffer =
+    //         ImageBuffer::from_file(Path::new("./tests/scenes/images/rad_cornell.hdr")).unwrap();
+    //     assert_eq!(buffer.width, 512);
+    //     assert_eq!(buffer.height, 367);
+    //     // assert_eq!(buffer.pixels.len(), 1024*768);
+    //     buffer.save_hdre(Path::new("./tests/scenes/images/cornell_COPIED.hdr"))
+    // }
 
-    #[test]
-    #[ignore]
-    fn test_falsecolor() {
-        let buffer =
-            ImageBuffer::from_file(Path::new("./test_data/images/rad_cornell.hdr")).unwrap();
-        // assert_eq!(buffer.width, 512);
-        // assert_eq!(buffer.height, 367);
-        // assert_eq!(buffer.pixels.len(), 1024*768);
-        buffer.save_falsecolour(
-            None,
-            Some(100.),
-            Colourmap::Radiance,
-            Path::new("./test_data/images/cornell_fc.jpeg"),
-        );
-        // buffer.save_hdre(Path::new("./test_data/images/cornell_fc.hdr"))
-    }
+    // #[test]
+    // #[ignore]
+    // fn test_falsecolor() {
+    //     let buffer =
+    //         ImageBuffer::from_file(Path::new("./tests/scenes/images/rad_cornell.hdr")).unwrap();
+    //     // assert_eq!(buffer.width, 512);
+    //     // assert_eq!(buffer.height, 367);
+    //     // assert_eq!(buffer.pixels.len(), 1024*768);
+    //     buffer.save_falsecolour(
+    //         None,
+    //         Some(100.),
+    //         Colourmap::Radiance,
+    //         Path::new("./tests/scenes/images/cornell_fc.jpeg"),
+    //     );
+    //     // buffer.save_hdre(Path::new("./tests/scenes/images/cornell_fc.hdr"))
+    // }
 }

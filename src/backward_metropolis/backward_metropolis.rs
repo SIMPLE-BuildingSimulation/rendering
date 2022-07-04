@@ -162,8 +162,8 @@ mod tests {
     #[test]
     fn basic_test() {
         // cargo test --features parallel --release  -- --ignored --nocapture basic_test
-        let file = "./test_data/exterior_0_diffuse_plastic.rad";
-        // let file = "./test_data/room.rad";
+        let file = "./tests/scenes/exterior_0_diffuse_plastic.rad";
+        // let file = "./tests/scenes/room.rad";
 
         let mut scene = Scene::from_radiance(file.to_string());
 
@@ -201,7 +201,7 @@ mod tests {
         let buffer = integrator.render(&scene, &camera);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
         buffer.save_hdre(std::path::Path::new(
-            "./test_data/images/room_METROPOLIS.hdr",
+            "./tests/scenes/images/room_METROPOLIS.hdr",
         ));
     }
 }
