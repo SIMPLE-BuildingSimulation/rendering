@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"enum":[["Node",""]],"fn":[["get_bucket_index",""]],"struct":[["BoundingVolumeTree",""],["BucketInfo",""],["FlatNode",""],["Interior",""],["Leaf",""],["ObjectInfo","A struct that is instrumental for building the  `BoundingVolumeTree`"]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Light","A mirror material"]]};

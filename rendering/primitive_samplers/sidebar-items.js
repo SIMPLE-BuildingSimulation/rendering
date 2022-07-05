@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["sample_sphere_surface",""],["sample_triangle_surface",""],["source_direction","It is always in the same direction"],["source_solid_angle_pdf",""],["sphere_direction",""],["sphere_solid_angle_pdf",""],["triangle_direction",""],["triangle_solid_angle_pdf",""],["uniform_cone_pdf","Calculates the probability of hitting a"]]};

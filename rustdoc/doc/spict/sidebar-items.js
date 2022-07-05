@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":[["main",""]],"struct":[["Inputs","A program for Rendering an image from a .rad (i.e., Radiance) or .spl (i.e., Simple) formats"],["Triplet",""]]};

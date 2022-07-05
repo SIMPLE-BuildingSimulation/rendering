@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"struct":[["CameraSample","Used for getting a sample ray from the [`Camera`]"]]};

@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"struct":[["Plastic","Information required for modelling Radiance’s Plastic and Plastic"]]};

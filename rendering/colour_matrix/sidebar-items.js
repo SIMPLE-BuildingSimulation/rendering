@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["average_matrix",""],["colour_matrix_to_luminance",""],["colour_matrix_to_radiance",""],["read_colour_matrix",""],["read_matrix",""],["save_colour_matrix",""],["save_matrix",""]],"type":[["ColourMatrix",""]]};

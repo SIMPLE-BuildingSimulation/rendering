@@ -1,1 +1,0 @@
-window.SIDEBAR_ITEMS = {"fn":[["intersect_light","Sends a `shadow_ray` towards a `light`. Returns `None` if the ray misses the light, returns `Some(Black, 0)` if obstructed; returns `Some(Color, pdf)` if the light is hit."]],"struct":[["RayTracer",""],["RayTracerHelper",""]]};
