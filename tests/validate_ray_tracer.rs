@@ -397,9 +397,10 @@ fn glass(validator: &mut Validator) {
     validator.push(glass_full());
 }
 
+#[ignore]
 #[test]
 fn validate_ray_tracer() {
-    // cargo test --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture
+    // cargo test --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture --ignored
     let mut validator = Validator::new("Validate Time series", "./docs/validation/ray_tracer.html");
 
     metal(&mut validator);

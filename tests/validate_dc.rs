@@ -94,9 +94,10 @@ fn room_direct()->Box<dyn Validate>{
     Box::new(v)
 }
 
+#[ignore]
 #[test]
 fn validate_dc(){
-    // cargo test --release --features parallel --package rendering --test validate_dc -- validate_dc --exact --nocapture
+    // cargo test --release --features parallel --package rendering --test validate_dc -- validate_dc --exact --nocapture --ignored
     let mut validator = Validator::new("Validate Time series", "./docs/validation/daylight_coefficient.html");
 
     validator.push(room_global());
