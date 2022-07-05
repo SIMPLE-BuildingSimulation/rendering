@@ -18,9 +18,10 @@ jobs:
         run: rustup default nightly    
       - name: Update
         run: rustup update 
-      - name: Build Validation
-        run: cargo test --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture --ignored
-        run: cargo test --release --package rendering --test validate_dc -- validate_dc --exact --nocapture  --ignored
+      - name: Validate
+        run: |
+          cargo test --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture --ignored
+          cargo test --release --package rendering --test validate_dc -- validate_dc --exact --nocapture  --ignored
       - name: Build doc
         run: RUSTDOCFLAGS="--html-in-header katex.html" cargo doc --document-private-items --no-deps --target-dir ./docs/rustdoc      
       - name: Deploy
