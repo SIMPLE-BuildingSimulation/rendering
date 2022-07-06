@@ -171,8 +171,7 @@ impl Scene {
             let dir_illum = direct_normal_irrad
                 * solar::PerezSky::direct_illuminance_ratio(apwc, zenith, sky_brightness, index);
 
-            let sun_brightness =
-                dir_illum / omega / crate::colour::WHITE_EFFICACY; 
+            let sun_brightness = dir_illum / omega / crate::colour::WHITE_EFFICACY;
             let sun_mat =
                 self.push_material(Material::Light(Light(
                     Spectrum::<{ crate::N_CHANNELS }>::gray(sun_brightness),

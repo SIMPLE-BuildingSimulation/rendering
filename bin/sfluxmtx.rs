@@ -22,7 +22,7 @@ use rendering::{colour_matrix::save_colour_matrix, Scene};
 use solar::ReinhartSky;
 // use rendering::from_radiance::from
 use geometry3d::{Point3D, Ray3D, Vector3D};
-use rendering::d_coefficients::DCFactory;
+use rendering::daylight_coefficients::DCFactory;
 use rendering::Float;
 use rendering::Wavelengths;
 

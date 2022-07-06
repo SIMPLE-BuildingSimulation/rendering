@@ -33,7 +33,7 @@ pub type Float = f64;
 #[cfg(not(feature = "float"))]
 pub const PI: Float = std::f64::consts::PI;
 
-/// The number of values that represent a colour. 
+/// The number of values that represent a colour.
 /// RGB is Three... you can change this for spectral
 /// rendering
 pub const N_CHANNELS: usize = 3;
@@ -70,8 +70,8 @@ pub mod triangle;
 pub mod colour_matrix;
 pub use colour_matrix::ColourMatrix;
 
-pub mod d_coefficients;
-pub use d_coefficients::DCFactory;
+pub mod daylight_coefficients;
+pub use daylight_coefficients::DCFactory;
 // Readers
 pub mod from_obj;
 pub mod from_radiance;

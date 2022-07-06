@@ -19,7 +19,7 @@ SOFTWARE.
 */
 
 use clap::Parser;
-use rendering::{Scene, RayTracer, Wavelengths};
+use rendering::{RayTracer, Scene, Wavelengths};
 
 use geometry3d::{Point3D, Vector3D};
 use rendering::camera::{Film, Pinhole, View};

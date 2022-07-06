@@ -1,10 +1,10 @@
 use geometry3d::Point3D;
-use rendering::camera::{Film, Pinhole, View};
-use rendering::{RayTracer, Spectrum, Scene};
 use geometry3d::{Sphere3D, Triangle3D, Vector3D};
+use rendering::camera::{Film, Pinhole, View};
 use rendering::material::*;
 use rendering::primitive::Primitive;
 use rendering::{Float, PI};
+use rendering::{RayTracer, Scene, Spectrum};
 
 #[test]
 #[ignore]
@@ -21,28 +21,24 @@ fn laptop() {
     const OFFSET: Float = 0.002;
 
     // Add light
-    let glow = scene.push_material(Material::Light(Light(
-        Spectrum ([1., 1., 1.]) * 500.,
-    )));
+    let glow = scene.push_material(Material::Light(Light(Spectrum([1., 1., 1.]) * 500.)));
 
     let s = Sphere3D::new(0.1, Point3D::new(0., 0., 5.));
     scene.push_object(glow, glow, Primitive::Sphere(s));
 
     // Materials
     let plastic = Material::Plastic(Plastic {
-        colour: Spectrum ([0.5,0.8,0.5,]),             
+        colour: Spectrum([0.5, 0.8, 0.5]),
         specularity: 0.0,
         roughness: 0.0,
     });
     let plastic = scene.push_material(plastic);
 
-    let screen = Material::Light(Light(
-        Spectrum([145.,7.,205.]) * 0.03,
-    ));
+    let screen = Material::Light(Light(Spectrum([145., 7., 205.]) * 0.03));
     let screen = scene.push_material(screen);
 
     let ground = Material::Plastic(Plastic {
-        colour: Spectrum([0.2,0.2,0.2]),
+        colour: Spectrum([0.2, 0.2, 0.2]),
         specularity: 0.0,
         roughness: 0.01,
     });

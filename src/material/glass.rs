@@ -18,7 +18,6 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-
 use crate::colour::Spectrum;
 use crate::material::specular::*;
 use crate::ray::Ray;
@@ -45,6 +44,8 @@ pub struct Glass {
 }
 
 impl Glass {
+    /// Returns the Reflection and Transmission values for a glass. These values
+    /// have already been modified by the colour of the glass
     pub fn refl_trans(
         &self,
         normal: Vector3D,
@@ -68,10 +69,10 @@ impl Glass {
         .sqrt();
 
         let rindex = self.refraction_index;
-        let mut fte2 = (pdot - rindex * cos2) / (pdot + rindex * cos2);
-        fte2 *= fte2;
-        let mut ftm2 = (1.0 / pdot - rindex / cos2) / (1.0 / pdot + rindex / cos2);
-        ftm2 *= ftm2;
+        let mut r1e = (pdot - rindex * cos2) / (pdot + rindex * cos2);
+        r1e *= r1e;
+        let mut r1m = (1.0 / pdot - rindex / cos2) / (1.0 / pdot + rindex / cos2);
+        r1m *= r1m;
 
         let d = if any_transmission {
             self.colour.powf(1. / cos2)
@@ -79,23 +80,21 @@ impl Glass {
             self.colour
         };
 
-        // Process transmission        
+        // Process transmission
         let t_comp = if any_transmission {
             d * 0.5
-                * (
-                      (1. - fte2).powi(2) / (1. - (d * fte2).powi(2))
-                    + (1. - ftm2).powi(2) / (1. - (d * ftm2).powi(2))
-                )
+                * ((1. - r1e).powi(2) / (1. - (d * r1e).powi(2))
+                    + (1. - r1m).powi(2) / (1. - (d * r1m).powi(2)))
         } else {
             // Spectrum{red: 1., green: 0., blue: 0.}
             Spectrum::<{ crate::N_CHANNELS }>::BLACK
         };
 
         // Process reflection
-        let ct = d.powi(2);
+        let d = d.powi(2);
         let refl_comp = 0.5
-            * ((1. + ct * (1. - 2. * fte2)) * fte2 / (1. - ct * fte2)
-                + (1. + (1. - 2. * ftm2) * ct) * ftm2 / (1. - ct * ftm2));
+            * (r1e * (1.0 + (1.0 - 2.0 * r1e) * d) / (1.0 - r1e * r1e * d)
+                + r1m * (1.0 + (1.0 - 2.0 * r1m) * d) / (1.0 - r1m * r1m * d));
 
         // return
         (refl_comp, t_comp)

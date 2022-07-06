@@ -153,7 +153,8 @@ impl DCFactory {
                     })
                     .collect(); // End of iterating primary rays
 
-                let mut ret = ColourMatrix::new(Spectrum::<{ crate::N_CHANNELS }>::BLACK, 1, n_bins);
+                let mut ret =
+                    ColourMatrix::new(Spectrum::<{ crate::N_CHANNELS }>::BLACK, 1, n_bins);
                 ray_contributions.iter().for_each(|v| {
                     ret += v;
                 });
@@ -193,7 +194,6 @@ impl DCFactory {
             return;
         }
 
-        // let one_over_samples = 1./ self.n_ambient_samples as Float;
         // If hits an object
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
             // NEARLY copied... except from the return statement
@@ -225,8 +225,8 @@ impl DCFactory {
 
                     let new_ray_dir = new_ray.geometry.direction;
                     let cos_theta = (normal * new_ray_dir).abs();
-                    // new_ray.colour *= bsdf_value * cos_theta * pdf;
-                    new_ray.value *= bsdf_value.radiance() * cos_theta * 1.5;
+                    new_ray.colour *= *bsdf_value * cos_theta;
+                    new_ray.value *= bsdf_value.radiance() * cos_theta;
 
                     // avoid infinite interior bouncing
                     let q: Float = rng.gen();
@@ -234,7 +234,6 @@ impl DCFactory {
                         ray.depth += 1
                     }
 
-                    // self.trace_ray(rng, scene, &mut new_ray, new_depth, new_value, aux);
                     self.trace_ray(
                         scene,
                         &mut new_ray,
@@ -259,7 +258,7 @@ impl DCFactory {
             aux.rays[depth] = *ray;
             let (_pt, normal, e1, e2, ..) = ray.get_triad();
             (0..n_ambient_samples).for_each(|_| {
-                let (bsdf_value, _pdf) =
+                let (bsdf_value, weight) =
                     material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
                 let new_ray_dir = ray.geometry.direction;
                 debug_assert!(
@@ -270,11 +269,8 @@ impl DCFactory {
 
                 // increase depth
                 let cos_theta = (normal * new_ray_dir).abs();
-                // dbg!(pdf);
-                ray.colour *= bsdf_value * cos_theta * crate::PI * 2.; // (crate::PI * 2.);// * cos_theta * 1.5; // / pdf;
-                                                                       // ray.value *= bsdf_value.radiance() * cos_theta * pdf;
+                ray.colour *= bsdf_value * cos_theta / weight;
                 ray.depth += 1;
-                // ray.colour *= material.colour() * cos_theta * _bsdf_value * 1.5 / n_ambient_samples as Float ;
 
                 self.trace_ray(
                     scene,
@@ -288,9 +284,10 @@ impl DCFactory {
         } else {
             let bin_n = self.reinhart.dir_to_bin(ray.geometry.direction);
 
-            let li = Spectrum::<{ crate::N_CHANNELS }>::ONE; //Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);
-            let old_value = contribution.get(0, bin_n).unwrap();
+            // if ray.depth > 0 {
 
+            let li = Spectrum::ONE;
+            let old_value = contribution.get(0, bin_n).unwrap();
             contribution
                 .set(
                     0,
@@ -298,57 +295,18 @@ impl DCFactory {
                     old_value + li * ray.colour / self.n_ambient_samples as Float, // accum_denom_samples as Float,
                 )
                 .unwrap();
+            // }else{
+            //     contribution
+            //         .set(
+            //             0,
+            //             bin_n,
+            //             Spectrum::gray(1./0.),
+            //         )
+            //         .unwrap();
+            // }
         }
     }
 }
 
 #[cfg(test)]
-mod tests {
-
-    use super::*;
-    use geometry3d::{Point3D, Vector3D};
-    #[test]
-    #[ignore]
-    fn test_calc_dc() {
-        assert!(true);
-        // return;
-        // Setup sensors
-        let up = Vector3D::new(0., 0., 1.);
-        let rays = vec![
-            Ray3D {
-                origin: Point3D::new(2., 0.5, 0.8),
-                direction: up,
-            },
-            Ray3D {
-                origin: Point3D::new(2., 2.5, 0.8),
-                direction: up,
-            },
-            Ray3D {
-                origin: Point3D::new(2., 5.5, 0.8),
-                direction: up,
-            },
-        ];
-
-        // Read scene
-        let rad_file = "./tests/scenes/room.rad";
-        let mut scene = Scene::from_radiance(rad_file.to_string());
-        scene.build_accelerator();
-        eprintln!("Ready to calc!... # Surface = {}", scene.triangles.len());
-
-        // Initialize DC Factory
-        let factory = DCFactory {
-            max_depth: 4,
-            n_ambient_samples: 2700,
-            reinhart: ReinhartSky::new(1),
-            ..DCFactory::default()
-        };
-
-        let dc_matrix = factory.calc_dc(&rays, &scene);
-        let dc_matrix = crate::colour_matrix::colour_matrix_to_luminance(&dc_matrix);
-        crate::colour_matrix::save_matrix(
-            &dc_matrix,
-            std::path::Path::new("./tests/scenes/full_dc_rust.mtx"),
-        )
-        .unwrap();
-    }
-}
+mod tests {}

@@ -65,8 +65,8 @@ fn get_simple_results(dir: &str, max_depth: usize) -> (Vec<Float>, Vec<Float>) {
         .collect();
 
     let expected = if max_depth == 0 {
-      load_expected_results(format!("./tests/ray_tracer/{dir}/direct_results.txt"))
-    }else{
+        load_expected_results(format!("./tests/ray_tracer/{dir}/direct_results.txt"))
+    } else {
         load_expected_results(format!("./tests/ray_tracer/{dir}/global_results.txt"))
     };
     // println!("Exp,Found");
@@ -83,7 +83,6 @@ fn plastic(validator: &mut Validator) {
     fn plastic_diffuse_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_diffuse", MAX_DEPTH);
 
-        
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
             y_label: Some("Luminance".into()),
@@ -94,14 +93,13 @@ fn plastic(validator: &mut Validator) {
         };
         Box::new(v)
     }
-    
+
     /// Contrasts the results of SIMPLE and Radiance, in a box made of diffuse plastic,
     /// without specularity or roughness. It only takes into account direct lighting (no bounces)
     #[valid(Diffuse Plastic - Direct illumination)]
     fn plastic_diffuse_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_diffuse", 0);
 
-        
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
             y_label: Some("Luminance".into()),
@@ -118,7 +116,6 @@ fn plastic(validator: &mut Validator) {
     fn plastic_rough_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_rough", MAX_DEPTH);
 
-        
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
             y_label: Some("Luminance".into()),
@@ -136,7 +133,6 @@ fn plastic(validator: &mut Validator) {
     fn plastic_rough_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_rough", 0);
 
-
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
             y_label: Some("Luminance".into()),
@@ -152,7 +148,6 @@ fn plastic(validator: &mut Validator) {
     #[valid(Specular Plastic - Global illumination)]
     fn plastic_specular_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", MAX_DEPTH);
-
 
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
@@ -171,7 +166,6 @@ fn plastic(validator: &mut Validator) {
     fn plastic_specular_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", 0);
 
-
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
             y_label: Some("Luminance".into()),
@@ -187,7 +181,6 @@ fn plastic(validator: &mut Validator) {
     #[valid(Full Plastic - Global illumination)]
     fn plastic_full_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", MAX_DEPTH);
-
 
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
@@ -205,7 +198,6 @@ fn plastic(validator: &mut Validator) {
     #[valid(Full Plastic - Direct illumination)]
     fn plastic_full_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", 0);
-
 
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
@@ -353,7 +345,7 @@ fn metal(validator: &mut Validator) {
     #[valid(Full Metal - Direct illumination)]
     fn metal_full_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_specular", 0);
-        
+
         let v = SeriesValidator {
             x_label: Some("Sensor".into()),
             y_label: Some("Luminance".into()),
@@ -400,7 +392,7 @@ fn glass(validator: &mut Validator) {
 #[ignore]
 #[test]
 fn validate_ray_tracer() {
-    // cargo test --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture --ignored
+    // cargo test --release  --features parallel --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture --ignored
     let mut validator = Validator::new("Validate Time series", "./docs/validation/ray_tracer.html");
 
     metal(&mut validator);

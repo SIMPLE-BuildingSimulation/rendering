@@ -42,8 +42,7 @@ struct RadianceReader {
 }
 
 impl RadianceReader {
-
-    /// Panics, showing an error message `msg` and showing the line in 
+    /// Panics, showing an error message `msg` and showing the line in
     /// which the error happened.
     fn error_here(&self, msg: String) -> ! {
         panic!("Error at line {}: {}", self.line, msg)
@@ -58,10 +57,10 @@ impl RadianceReader {
         self.error_here(format!(
             "Unknown modifier '{}' in the scene ... known modifiers are {:?}",
             name, self.modifiers
-        ));        
+        ));
     }
 
-    /// Consumes the leading whitespaces in the source **only if it is an ASCII whitespace**. 
+    /// Consumes the leading whitespaces in the source **only if it is an ASCII whitespace**.
     /// Returns a boolean indicating whether the scanner consumed something or not
     fn consume_whitespace(&mut self, source: &[u8]) -> bool {
         if source.is_empty() {
@@ -140,7 +139,7 @@ impl RadianceReader {
         }
 
         if start == self.current_char_index {
-            "".to_string() // empty token 
+            "".to_string() // empty token
         } else {
             let ret = std::str::from_utf8(&source[start..self.current_char_index])
                 .unwrap()
@@ -182,7 +181,7 @@ impl RadianceReader {
             b"source" => self.consume_source(source, scene, &modifier, &name),
             b"polygon" => self.consume_polygon(source, scene, &modifier, &name),
             _ => {
-                self.error_here(format!("Unsupported/unknown object_type '{}'", object_type));                
+                self.error_here(format!("Unsupported/unknown object_type '{}'", object_type));
             }
         }
     }
@@ -267,7 +266,9 @@ impl RadianceReader {
 
         self.modifiers.push(name.to_string());
 
-        let mirror = Material::Mirror(Mirror(Spectrum::<{ crate::N_CHANNELS }>([red, green, blue])));
+        let mirror = Material::Mirror(Mirror(Spectrum::<{ crate::N_CHANNELS }>([
+            red, green, blue,
+        ])));
         scene.push_material(mirror);
     }
 
@@ -331,7 +332,10 @@ impl RadianceReader {
                 })
             }
             _ => {
-                self.error_here(format!("Incorrect Glass definition... expected 3 or 4 arguments; found '{}'", t));                                
+                self.error_here(format!(
+                    "Incorrect Glass definition... expected 3 or 4 arguments; found '{}'",
+                    t
+                ));
             }
         };
 
@@ -449,14 +453,14 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected="Error at line 0: This was a terrible error")]
-    fn test_error_msg(){
+    #[should_panic(expected = "Error at line 0: This was a terrible error")]
+    fn test_error_msg() {
         let scanner = RadianceReader::default();
         scanner.error_here("This was a terrible error".into());
     }
 
     #[test]
-    fn test_consume_whitespace_empty(){
+    fn test_consume_whitespace_empty() {
         let mut scanner = RadianceReader::default();
         let source = b"";
         assert!(!scanner.consume_whitespace(source));
@@ -464,7 +468,7 @@ mod tests {
     }
 
     #[test]
-    fn test_consume_char_empty(){
+    fn test_consume_char_empty() {
         let mut scanner = RadianceReader::default();
         let source = b"";
         assert!(!scanner.consume_char(source));
@@ -503,17 +507,17 @@ mod tests {
     }
 
     #[test]
-    fn test_modifier_index(){
-        let scanner = RadianceReader{
-            modifiers : vec!["some_plastic".into()],
-            .. RadianceReader::default()
+    fn test_modifier_index() {
+        let scanner = RadianceReader {
+            modifiers: vec!["some_plastic".into()],
+            ..RadianceReader::default()
         };
-        assert_eq!(scanner.get_modifier_index("some_plastic".into()), 0);        
+        assert_eq!(scanner.get_modifier_index("some_plastic".into()), 0);
     }
 
     #[test]
     #[should_panic]
-    fn test_unknown_modifier_index(){
+    fn test_unknown_modifier_index() {
         let scanner = RadianceReader::default();
         scanner.get_modifier_index("some_plastic".into());
     }
@@ -533,14 +537,13 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
-        if let Material::Plastic(m) = &scene.materials[0]{
+        if let Material::Plastic(m) = &scene.materials[0] {
             assert_close!(m.colour.0[0], 0.3);
             assert_close!(m.colour.0[1], 0.05);
             assert_close!(m.colour.0[2], 0.076);
             assert_close!(m.specularity, 0.123);
             assert_close!(m.roughness, 2.12312);
-
-        }else{
+        } else {
             panic!("Not a plastic")
         }
     }
@@ -560,14 +563,13 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
-        if let Material::Metal(m) = &scene.materials[0]{
+        if let Material::Metal(m) = &scene.materials[0] {
             assert_close!(m.colour.0[0], 0.3);
             assert_close!(m.colour.0[1], 0.05);
             assert_close!(m.colour.0[2], 0.076);
             assert_close!(m.specularity, 0.123);
             assert_close!(m.roughness, 2.12312);
-
-        }else{
+        } else {
             panic!("Not a metal")
         }
     }
@@ -587,13 +589,11 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
-        if let Material::Light(m) = &scene.materials[0]{            
-            assert_close!(m.0.0[0], 0.3);
-            assert_close!(m.0.0[1], 0.05);
-            assert_close!(m.0.0[2], 0.076);
-            
-
-        }else{
+        if let Material::Light(m) = &scene.materials[0] {
+            assert_close!(m.0 .0[0], 0.3);
+            assert_close!(m.0 .0[1], 0.05);
+            assert_close!(m.0 .0[2], 0.076);
+        } else {
             panic!("Not a metal")
         }
     }
@@ -613,13 +613,11 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
-        if let Material::Mirror(m) = &scene.materials[0]{            
-            assert_close!(m.0.0[0], 0.3);
-            assert_close!(m.0.0[1], 0.05);
-            assert_close!(m.0.0[2], 0.076);
-            
-
-        }else{
+        if let Material::Mirror(m) = &scene.materials[0] {
+            assert_close!(m.0 .0[0], 0.3);
+            assert_close!(m.0 .0[1], 0.05);
+            assert_close!(m.0 .0[2], 0.076);
+        } else {
             panic!("Not a metal")
         }
     }
@@ -639,18 +637,15 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
-        if let Material::Dielectric(m) = &scene.materials[0]{            
+        if let Material::Dielectric(m) = &scene.materials[0] {
             assert_close!(m.colour.0[0], 0.3);
             assert_close!(m.colour.0[1], 0.05);
             assert_close!(m.colour.0[2], 0.076);
             assert_close!(m.refraction_index, 1.52);
-            
-
-        }else{
+        } else {
             panic!("Not a metal")
         }
     }
-
 
     #[test]
     fn test_glass_no_refraction() {
@@ -667,12 +662,12 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
-        if let Material::Glass(m) = &scene.materials[0]{            
+        if let Material::Glass(m) = &scene.materials[0] {
             assert_close!(m.colour.0[0], 0.3);
             assert_close!(m.colour.0[1], 0.05);
             assert_close!(m.colour.0[2], 0.076);
-            assert_close!(m.refraction_index, 1.52);            
-        }else{
+            assert_close!(m.refraction_index, 1.52);
+        } else {
             panic!("Not a metal")
         }
     }
@@ -692,16 +687,15 @@ mod tests {
         assert_eq!(scanner.modifiers.len(), 1);
         assert_eq!(scanner.modifiers[0], "red".to_string());
         assert_eq!(0, scanner.get_modifier_index(&"red".to_string()));
-        if let Material::Glass(m) = &scene.materials[0]{            
+        if let Material::Glass(m) = &scene.materials[0] {
             assert_close!(m.colour.0[0], 0.3);
             assert_close!(m.colour.0[1], 0.05);
             assert_close!(m.colour.0[2], 0.076);
-            assert_close!(m.refraction_index, 12.3);            
-        }else{
+            assert_close!(m.refraction_index, 12.3);
+        } else {
             panic!("Not a metal")
         }
     }
-
 
     #[test]
     fn test_sphere() {
@@ -722,8 +716,8 @@ mod tests {
         scanner.consume_object(src, &mut scene); // consume sphere
         assert_eq!(scene.materials.len(), 1);
         assert_eq!(scanner.modifiers.len(), 1);
-        assert!(!scene.triangles.is_empty());        
-        assert_eq!(scene.normals.len(), scene.triangles.len());        
+        assert!(!scene.triangles.is_empty());
+        assert_eq!(scene.normals.len(), scene.triangles.len());
     }
 
     #[test]
@@ -745,21 +739,20 @@ mod tests {
         scanner.consume_object(src, &mut scene); // consume source
         assert_eq!(scene.materials.len(), 1);
         assert_eq!(scanner.modifiers.len(), 1);
-        assert!(scene.triangles.is_empty());        
+        assert!(scene.triangles.is_empty());
         assert_eq!(1, scene.distant_lights.len());
-        assert_eq!(scene.normals.len(), scene.triangles.len());   
-        
-        if let Primitive::Source(p) = &scene.distant_lights[0].primitive{
-            let l = Vector3D::new(1., 2., 3.).get_normalized();            
+        assert_eq!(scene.normals.len(), scene.triangles.len());
+
+        if let Primitive::Source(p) = &scene.distant_lights[0].primitive {
+            let l = Vector3D::new(1., 2., 3.).get_normalized();
             assert_close!(p.direction.x, l.x);
             assert_close!(p.direction.y, l.y);
             assert_close!(p.direction.z, l.z);
-            assert_close!(p.angle, 4. * crate::PI/180.);
-        }else{
+            assert_close!(p.angle, 4. * crate::PI / 180.);
+        } else {
             panic!("should have been a Sourvce")
         }
     }
-
 
     #[test]
     fn test_polygon() {
@@ -783,20 +776,13 @@ mod tests {
         scanner.consume_object(src, &mut scene); // consume source
         assert_eq!(scene.materials.len(), 1);
         assert_eq!(scanner.modifiers.len(), 1);
-        assert_eq!(scene.triangles.len(), 1);        
+        assert_eq!(scene.triangles.len(), 1);
         assert!(scene.distant_lights.is_empty());
-        assert_eq!(scene.normals.len(), scene.triangles.len());   
-        
-        let exp = [21., 12.,53., -4., 125., 66., 75., 8.1, 9.2];
-        for (f, e) in scene.triangles[0].into_iter().zip(exp.iter()){
+        assert_eq!(scene.normals.len(), scene.triangles.len());
+
+        let exp = [21., 12., 53., -4., 125., 66., 75., 8.1, 9.2];
+        for (f, e) in scene.triangles[0].into_iter().zip(exp.iter()) {
             assert_close!(*e, f);
-        }        
-
-        
+        }
     }
-
-
-    
-
-
 }

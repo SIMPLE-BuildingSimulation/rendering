@@ -1,10 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use rendering::{
-    Scene, 
-    Ray,
-    Spectrum,
-    rand::Rng
-};
+use rendering::{rand::Rng, Ray, Scene, Spectrum};
 
 // Reference targets: https://github.com/svenstaro/bvh
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -20,9 +15,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     // ROOM
 
-    let mut room = black_box(Scene::from_radiance(
-        "./tests/scenes/room.rad".to_string(),
-    ));
+    let mut room = black_box(Scene::from_radiance("./tests/scenes/room.rad".to_string()));
     room.build_accelerator();
 
     c.bench_function("intersect_room", |b| {

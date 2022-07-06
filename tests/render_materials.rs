@@ -4,8 +4,8 @@ use rendering::camera::{Film, Pinhole, View};
 use rendering::material::Material;
 use rendering::material::*;
 use rendering::primitive::Primitive;
-use rendering::{RayTracer, Scene, Spectrum};
 use rendering::Float;
+use rendering::{RayTracer, Scene, Spectrum};
 
 fn render_ball(mat: Material, filename: &str) {
     let mut scene = Scene::new();
@@ -28,7 +28,7 @@ fn render_ball(mat: Material, filename: &str) {
     let red = scene.push_material(red);
 
     let blue = Material::Plastic(Plastic {
-        colour: Spectrum([0.36, 0.36, 0.9]),        
+        colour: Spectrum([0.36, 0.36, 0.9]),
         specularity: 0.0,
         roughness: 0.0,
     });
@@ -165,7 +165,7 @@ fn test_render_specular_plastic() {
     // cargo test --package rendering --test render_materials -- test_render_specular_plastic --exact --nocapture --ignored
 
     let plastic = Material::Plastic(Plastic {
-        colour:  Spectrum([0.9, 0.5, 0.5]),        
+        colour: Spectrum([0.9, 0.5, 0.5]),
         specularity: 0.09,
         roughness: 0.05,
     });
@@ -179,7 +179,7 @@ fn test_render_specular_metal() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_specular_metal --ignored --exact --nocapture
 
     let metal = Material::Metal(Metal {
-        colour: Spectrum([0.0, 0.5, 0.5]),        
+        colour: Spectrum([0.0, 0.5, 0.5]),
         specularity: 0.28,
         roughness: 0.05,
     });
@@ -192,7 +192,7 @@ fn test_render_specular_metal() {
 fn test_render_glass() {
     // cargo test --features parallel --release --package rendering --test render_materials -- test_render_glass --ignored --exact --nocapture
     let metal = Material::Glass(Glass {
-        colour: Spectrum([0.9, 0.9, 0.9]),        
+        colour: Spectrum([0.9, 0.9, 0.9]),
         refraction_index: 1.52,
     });
 

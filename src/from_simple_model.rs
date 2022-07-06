@@ -213,7 +213,9 @@ mod tests {
         let mut reader = SimpleModelReader::default();
         let mut scene = reader.build_scene(&model, &Wavelengths::Solar);
 
-        let light_index = scene.push_material(Material::Light(Light(Spectrum::<{ crate::N_CHANNELS },>::gray(10000.))));
+        let light_index = scene.push_material(Material::Light(Light(Spectrum::<
+            { crate::N_CHANNELS },
+        >::gray(10000.))));
         scene.push_object(
             light_index,
             light_index,
@@ -251,6 +253,8 @@ mod tests {
 
         let buffer = integrator.render(&scene, &camera);
         println!("Room took {} seconds to render", now.elapsed().as_secs());
-        buffer.save_hdre(std::path::Path::new("./tests/scenes/images/simple_room.hdr"));
+        buffer.save_hdre(std::path::Path::new(
+            "./tests/scenes/images/simple_room.hdr",
+        ));
     }
 }

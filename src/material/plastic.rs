@@ -95,9 +95,7 @@ mod tests {
 
     use super::*;
     use crate::colour::Spectrum;
-    use geometry3d::Ray3D;    
-
-   
+    use geometry3d::Ray3D;
 
     // /// This test was developed by debugging RPICT in Radiance
     // #[test]

@@ -141,9 +141,7 @@ pub fn evaluate_ward_anisotropic(
     ray: &Ray,
     l: Vector3D,
 ) -> (Float, Float) {
-    
-    let spec = if specularity > 1e-5    
-    {
+    let spec = if specularity > 1e-5 {
         if alpha < LOW_ROUGHNESS {
             alpha = LOW_ROUGHNESS;
         }

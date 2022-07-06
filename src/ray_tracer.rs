@@ -40,8 +40,8 @@ pub struct RayTracerHelper {
 
 impl std::default::Default for RayTracerHelper {
     fn default() -> Self {
-        Self {            
-            rays: vec![Ray::default(); 15], 
+        Self {
+            rays: vec![Ray::default(); 15],
             nodes: Vec::with_capacity(64),
         }
     }
@@ -75,7 +75,7 @@ impl RayTracer {
         &self,
         rng: &mut RandGen,
         scene: &Scene,
-        ray: &mut Ray,        
+        ray: &mut Ray,
         aux: &mut RayTracerHelper,
     ) -> (Spectrum<{ crate::N_CHANNELS }>, Float) {
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
@@ -177,8 +177,8 @@ impl RayTracer {
                 rng,
                 aux,
             );
-                        
-            (local + global, 0.0) 
+
+            (local + global, 0.0)
         } else {
             // Did not hit... so, let's check the sky
             if let Some(sky) = &scene.sky {
@@ -240,8 +240,9 @@ impl RayTracer {
                     let cos_theta = (normal * direction).abs();
                     let vout = shadow_ray.direction * -1.;
 
-                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);                    
-                    let denominator = light_pdf * n_shadow_samples + mat_bsdf_value.radiance() * n_ambient_samples; 
+                    let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);
+                    let denominator = light_pdf * n_shadow_samples
+                        + mat_bsdf_value.radiance() * n_ambient_samples;
                     let fx = (light_colour * cos_theta) * (mat_bsdf_value);
 
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
@@ -311,36 +312,36 @@ impl RayTracer {
         aux: &mut RayTracerHelper,
     ) -> Spectrum<{ crate::N_CHANNELS }> {
         let (intersection_pt, normal, e1, e2) = ray.get_triad();
-        
+
         let mut global = Spectrum::<{ crate::N_CHANNELS }>::BLACK;
-        
+
         let depth = ray.depth;
         aux.rays[depth] = *ray;
         let n = n_ambient_samples;
         let n_ambient_samples = n_ambient_samples as Float;
         let n_shadow_samples = n_shadow_samples as Float;
-        
+
         for _ in 0..n {
             // Choose a direction.
-            let (bsdf_value, pdf) = material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
+            let (bsdf_value, weight) =
+                material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
             let new_ray_dir = ray.geometry.direction;
             debug_assert!(
                 (1. - new_ray_dir.length()).abs() < 1e-2,
                 "Length is {}",
                 new_ray_dir.length()
             );
-            
+
             ray.depth += 1;
             let cos_theta = (normal * new_ray_dir).abs();
             let bsdf_rad = bsdf_value.radiance();
-            ray.value *= bsdf_rad * cos_theta * pdf;
+            ray.value *= bsdf_rad * cos_theta;
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, aux);
-            
-            let fx = li * cos_theta * bsdf_value ;
-            
-            let denominator = bsdf_rad *  n_ambient_samples + n_shadow_samples * light_pdf;
-            
+
+            let fx = li * cos_theta * bsdf_value; // / weight ;
+
+            let denominator = bsdf_rad * n_ambient_samples + n_shadow_samples * light_pdf;
 
             global += fx / denominator;
 
@@ -452,9 +453,7 @@ pub fn intersect_light(
     Some((light_colour, light_pdf))
 }
 
-
 #[cfg(test)]
 mod tests {
     // use super::*;
-
 }
