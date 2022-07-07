@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/d_coefficients.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>d_coefficients.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/daylight_coefficients.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>daylight_coefficients.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -347,51 +347,6 @@
 <span id="307">307</span>
 <span id="308">308</span>
 <span id="309">309</span>
-<span id="310">310</span>
-<span id="311">311</span>
-<span id="312">312</span>
-<span id="313">313</span>
-<span id="314">314</span>
-<span id="315">315</span>
-<span id="316">316</span>
-<span id="317">317</span>
-<span id="318">318</span>
-<span id="319">319</span>
-<span id="320">320</span>
-<span id="321">321</span>
-<span id="322">322</span>
-<span id="323">323</span>
-<span id="324">324</span>
-<span id="325">325</span>
-<span id="326">326</span>
-<span id="327">327</span>
-<span id="328">328</span>
-<span id="329">329</span>
-<span id="330">330</span>
-<span id="331">331</span>
-<span id="332">332</span>
-<span id="333">333</span>
-<span id="334">334</span>
-<span id="335">335</span>
-<span id="336">336</span>
-<span id="337">337</span>
-<span id="338">338</span>
-<span id="339">339</span>
-<span id="340">340</span>
-<span id="341">341</span>
-<span id="342">342</span>
-<span id="343">343</span>
-<span id="344">344</span>
-<span id="345">345</span>
-<span id="346">346</span>
-<span id="347">347</span>
-<span id="348">348</span>
-<span id="349">349</span>
-<span id="350">350</span>
-<span id="351">351</span>
-<span id="352">352</span>
-<span id="353">353</span>
-<span id="354">354</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -547,7 +502,8 @@ SOFTWARE.
                     })
                     .<span class="ident">collect</span>(); <span class="comment">// End of iterating primary rays</span>
 
-                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span> <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">1</span>, <span class="ident">n_bins</span>);
+                <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ret</span> <span class="op">=</span>
+                    <span class="ident">ColourMatrix::new</span>(<span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>, <span class="number">1</span>, <span class="ident">n_bins</span>);
                 <span class="ident">ray_contributions</span>.<span class="ident">iter</span>().<span class="ident">for_each</span>(<span class="op">|</span><span class="ident">v</span><span class="op">|</span> {
                     <span class="ident">ret</span> <span class="op">+</span><span class="op">=</span> <span class="ident">v</span>;
                 });
@@ -587,7 +543,6 @@ SOFTWARE.
             <span class="kw">return</span>;
         }
 
-        <span class="comment">// let one_over_samples = 1./ self.n_ambient_samples as Float;</span>
         <span class="comment">// If hits an object</span>
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">triangle_index</span>) <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">cast_ray</span>(<span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">aux</span>.<span class="ident">nodes</span>) {
             <span class="comment">// NEARLY copied... except from the return statement</span>
@@ -616,11 +571,8 @@ SOFTWARE.
                 <span class="kw">let</span> <span class="ident">paths</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">get_possible_paths</span>(<span class="kw-2">&amp;</span><span class="ident">normal</span>, <span class="kw-2">&amp;</span><span class="ident">intersection_pt</span>, <span class="ident">ray</span>);
                 <span class="kw">for</span> (<span class="ident">new_ray</span>, <span class="ident">bsdf_value</span>) <span class="kw">in</span> <span class="ident">paths</span>.<span class="ident">iter</span>().<span class="ident">flatten</span>() {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">new_ray</span>;
-
-                    <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">new_ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
-                    <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">new_ray_dir</span>).<span class="ident">abs</span>();
-                    <span class="comment">// new_ray.colour *= bsdf_value * cos_theta * pdf;</span>
-                    <span class="ident">new_ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_value</span>.<span class="ident">radiance</span>() <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="number">1.5</span>;
+                    <span class="ident">new_ray</span>.<span class="ident">colour</span> <span class="kw-2">*</span><span class="op">=</span> <span class="kw-2">*</span><span class="ident">bsdf_value</span>;                    
+                    <span class="ident">new_ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_value</span>.<span class="ident">radiance</span>();
 
                     <span class="comment">// avoid infinite interior bouncing</span>
                     <span class="kw">let</span> <span class="ident">q</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
@@ -628,7 +580,6 @@ SOFTWARE.
                         <span class="ident">ray</span>.<span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>
                     }
 
-                    <span class="comment">// self.trace_ray(rng, scene, &amp;mut new_ray, new_depth, new_value, aux);</span>
                     <span class="self">self</span>.<span class="ident">trace_ray</span>(
                         <span class="ident">scene</span>,
                         <span class="kw-2">&amp;mut</span> <span class="ident">new_ray</span>,
@@ -653,7 +604,7 @@ SOFTWARE.
             <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
             <span class="kw">let</span> (<span class="ident">_pt</span>, <span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, ..) <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">get_triad</span>();
             (<span class="number">0</span>..<span class="ident">n_ambient_samples</span>).<span class="ident">for_each</span>(<span class="op">|</span><span class="kw">_</span><span class="op">|</span> {
-                <span class="kw">let</span> (<span class="ident">bsdf_value</span>, <span class="ident">_pdf</span>) <span class="op">=</span>
+                <span class="kw">let</span> (<span class="ident">bsdf_value</span>, <span class="ident">weight</span>) <span class="op">=</span>
                     <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>);
                 <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
                 <span class="macro">debug_assert!</span>(
@@ -664,11 +615,8 @@ SOFTWARE.
 
                 <span class="comment">// increase depth</span>
                 <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">new_ray_dir</span>).<span class="ident">abs</span>();
-                <span class="comment">// dbg!(pdf);</span>
-                <span class="ident">ray</span>.<span class="ident">colour</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_value</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="ident"><span class="kw">crate</span>::PI</span> <span class="op">*</span> <span class="number">2.</span>; <span class="comment">// (crate::PI * 2.);// * cos_theta * 1.5; // / pdf;</span>
-                                                                       <span class="comment">// ray.value *= bsdf_value.radiance() * cos_theta * pdf;</span>
+                <span class="ident">ray</span>.<span class="ident">colour</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_value</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">/</span> <span class="ident">weight</span>;
                 <span class="ident">ray</span>.<span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-                <span class="comment">// ray.colour *= material.colour() * cos_theta * _bsdf_value * 1.5 / n_ambient_samples as Float ;</span>
 
                 <span class="self">self</span>.<span class="ident">trace_ray</span>(
                     <span class="ident">scene</span>,
@@ -682,9 +630,10 @@ SOFTWARE.
         } <span class="kw">else</span> {
             <span class="kw">let</span> <span class="ident">bin_n</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">reinhart</span>.<span class="ident">dir_to_bin</span>(<span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>);
 
-            <span class="kw">let</span> <span class="ident">li</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::ONE</span>; <span class="comment">//Spectrum::gray(crate::PI);//*self.reinhart.bin_solid_angle(bin_n);</span>
-            <span class="kw">let</span> <span class="ident">old_value</span> <span class="op">=</span> <span class="ident">contribution</span>.<span class="ident">get</span>(<span class="number">0</span>, <span class="ident">bin_n</span>).<span class="ident">unwrap</span>();
+            <span class="comment">// if ray.depth &gt; 0 {</span>
 
+            <span class="kw">let</span> <span class="ident">li</span> <span class="op">=</span> <span class="ident">Spectrum::ONE</span>;
+            <span class="kw">let</span> <span class="ident">old_value</span> <span class="op">=</span> <span class="ident">contribution</span>.<span class="ident">get</span>(<span class="number">0</span>, <span class="ident">bin_n</span>).<span class="ident">unwrap</span>();
             <span class="ident">contribution</span>
                 .<span class="ident">set</span>(
                     <span class="number">0</span>,
@@ -692,60 +641,21 @@ SOFTWARE.
                     <span class="ident">old_value</span> <span class="op">+</span> <span class="ident">li</span> <span class="op">*</span> <span class="ident">ray</span>.<span class="ident">colour</span> <span class="op">/</span> <span class="self">self</span>.<span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span>, <span class="comment">// accum_denom_samples as Float,</span>
                 )
                 .<span class="ident">unwrap</span>();
+            <span class="comment">// }else{</span>
+            <span class="comment">//     contribution</span>
+            <span class="comment">//         .set(</span>
+            <span class="comment">//             0,</span>
+            <span class="comment">//             bin_n,</span>
+            <span class="comment">//             Spectrum::gray(1./0.),</span>
+            <span class="comment">//         )</span>
+            <span class="comment">//         .unwrap();</span>
+            <span class="comment">// }</span>
         }
     }
 }
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
-<span class="kw">mod</span> <span class="ident">tests</span> {
-
-    <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
-    <span class="kw">use</span> <span class="ident">geometry3d</span>::{<span class="ident">Point3D</span>, <span class="ident">Vector3D</span>};
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="attribute">#[<span class="ident">ignore</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_calc_dc</span>() {
-        <span class="macro">assert!</span>(<span class="bool-val">true</span>);
-        <span class="comment">// return;</span>
-        <span class="comment">// Setup sensors</span>
-        <span class="kw">let</span> <span class="ident">up</span> <span class="op">=</span> <span class="ident">Vector3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>);
-        <span class="kw">let</span> <span class="ident">rays</span> <span class="op">=</span> <span class="macro">vec!</span>[
-            <span class="ident">Ray3D</span> {
-                <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">0.5</span>, <span class="number">0.8</span>),
-                <span class="ident">direction</span>: <span class="ident">up</span>,
-            },
-            <span class="ident">Ray3D</span> {
-                <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">2.5</span>, <span class="number">0.8</span>),
-                <span class="ident">direction</span>: <span class="ident">up</span>,
-            },
-            <span class="ident">Ray3D</span> {
-                <span class="ident">origin</span>: <span class="ident">Point3D::new</span>(<span class="number">2.</span>, <span class="number">5.5</span>, <span class="number">0.8</span>),
-                <span class="ident">direction</span>: <span class="ident">up</span>,
-            },
-        ];
-
-        <span class="comment">// Read scene</span>
-        <span class="kw">let</span> <span class="ident">rad_file</span> <span class="op">=</span> <span class="string">&quot;./tests/scenes/room.rad&quot;</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">scene</span> <span class="op">=</span> <span class="ident">Scene::from_radiance</span>(<span class="ident">rad_file</span>.<span class="ident">to_string</span>());
-        <span class="ident">scene</span>.<span class="ident">build_accelerator</span>();
-        <span class="macro">eprintln!</span>(<span class="string">&quot;Ready to calc!... # Surface = {}&quot;</span>, <span class="ident">scene</span>.<span class="ident">triangles</span>.<span class="ident">len</span>());
-
-        <span class="comment">// Initialize DC Factory</span>
-        <span class="kw">let</span> <span class="ident">factory</span> <span class="op">=</span> <span class="ident">DCFactory</span> {
-            <span class="ident">max_depth</span>: <span class="number">4</span>,
-            <span class="ident">n_ambient_samples</span>: <span class="number">2700</span>,
-            <span class="ident">reinhart</span>: <span class="ident">ReinhartSky::new</span>(<span class="number">1</span>),
-            ..<span class="ident">DCFactory::default</span>()
-        };
-
-        <span class="kw">let</span> <span class="ident">dc_matrix</span> <span class="op">=</span> <span class="ident">factory</span>.<span class="ident">calc_dc</span>(<span class="kw-2">&amp;</span><span class="ident">rays</span>, <span class="kw-2">&amp;</span><span class="ident">scene</span>);
-        <span class="kw">let</span> <span class="ident">dc_matrix</span> <span class="op">=</span> <span class="ident"><span class="kw">crate</span>::colour_matrix::colour_matrix_to_luminance</span>(<span class="kw-2">&amp;</span><span class="ident">dc_matrix</span>);
-        <span class="ident"><span class="kw">crate</span>::colour_matrix::save_matrix</span>(
-            <span class="kw-2">&amp;</span><span class="ident">dc_matrix</span>,
-            <span class="ident">std::path::Path::new</span>(<span class="string">&quot;./tests/scenes/full_dc_rust.mtx&quot;</span>),
-        )
-        .<span class="ident">unwrap</span>();
-    }
-}
+<span class="kw">mod</span> <span class="ident">tests</span> {}
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (27eb6d701 2022-07-04)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (7665c3543 2022-07-06)" ></div>
 </body></html>

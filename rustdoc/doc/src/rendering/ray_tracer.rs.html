@@ -497,7 +497,6 @@
 <span id="457">457</span>
 <span id="458">458</span>
 <span id="459">459</span>
-<span id="460">460</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -540,8 +539,8 @@ SOFTWARE.
 
 <span class="kw">impl</span> <span class="ident">std::default::Default</span> <span class="kw">for</span> <span class="ident">RayTracerHelper</span> {
     <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="self">Self</span> {
-        <span class="self">Self</span> {            
-            <span class="ident">rays</span>: <span class="macro">vec!</span>[<span class="ident">Ray::default</span>(); <span class="number">15</span>], 
+        <span class="self">Self</span> {
+            <span class="ident">rays</span>: <span class="macro">vec!</span>[<span class="ident">Ray::default</span>(); <span class="number">15</span>],
             <span class="ident">nodes</span>: <span class="ident">Vec::with_capacity</span>(<span class="number">64</span>),
         }
     }
@@ -575,7 +574,7 @@ SOFTWARE.
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
         <span class="ident">scene</span>: <span class="kw-2">&amp;</span><span class="ident">Scene</span>,
-        <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,        
+        <span class="ident">ray</span>: <span class="kw-2">&amp;mut</span> <span class="ident">Ray</span>,
         <span class="ident">aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RayTracerHelper</span>,
     ) -&gt; (<span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span>, <span class="ident">Float</span>) {
         <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">triangle_index</span>) <span class="op">=</span> <span class="ident">scene</span>.<span class="ident">cast_ray</span>(<span class="ident">ray</span>, <span class="kw-2">&amp;mut</span> <span class="ident">aux</span>.<span class="ident">nodes</span>) {
@@ -677,8 +676,8 @@ SOFTWARE.
                 <span class="ident">rng</span>,
                 <span class="ident">aux</span>,
             );
-                        
-            (<span class="ident">local</span> <span class="op">+</span> <span class="ident">global</span>, <span class="number">0.0</span>) 
+
+            (<span class="ident">local</span> <span class="op">+</span> <span class="ident">global</span>, <span class="number">0.0</span>)
         } <span class="kw">else</span> {
             <span class="comment">// Did not hit... so, let&#39;s check the sky</span>
             <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">sky</span>) <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">scene</span>.<span class="ident">sky</span> {
@@ -740,8 +739,9 @@ SOFTWARE.
                     <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">direction</span>).<span class="ident">abs</span>();
                     <span class="kw">let</span> <span class="ident">vout</span> <span class="op">=</span> <span class="ident">shadow_ray</span>.<span class="ident">direction</span> <span class="op">*</span> <span class="op">-</span><span class="number">1.</span>;
 
-                    <span class="kw">let</span> <span class="ident">mat_bsdf_value</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);                    
-                    <span class="kw">let</span> <span class="ident">denominator</span> <span class="op">=</span> <span class="ident">light_pdf</span> <span class="op">*</span> <span class="ident">n_shadow_samples</span> <span class="op">+</span> <span class="ident">mat_bsdf_value</span>.<span class="ident">radiance</span>() <span class="op">*</span> <span class="ident">n_ambient_samples</span>; 
+                    <span class="kw">let</span> <span class="ident">mat_bsdf_value</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);
+                    <span class="kw">let</span> <span class="ident">denominator</span> <span class="op">=</span> <span class="ident">light_pdf</span> <span class="op">*</span> <span class="ident">n_shadow_samples</span>
+                        <span class="op">+</span> <span class="ident">mat_bsdf_value</span>.<span class="ident">radiance</span>() <span class="op">*</span> <span class="ident">n_ambient_samples</span>;
                     <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> (<span class="ident">light_colour</span> <span class="op">*</span> <span class="ident">cos_theta</span>) <span class="op">*</span> (<span class="ident">mat_bsdf_value</span>);
 
                     <span class="comment">// Return... light sources have a pdf equal to their 1/Omega (i.e. their size)</span>
@@ -811,36 +811,36 @@ SOFTWARE.
         <span class="ident">aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RayTracerHelper</span>,
     ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span> {
         <span class="kw">let</span> (<span class="ident">intersection_pt</span>, <span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>) <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">get_triad</span>();
-        
+
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">global</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
-        
+
         <span class="kw">let</span> <span class="ident">depth</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">depth</span>;
         <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n_ambient_samples</span>;
         <span class="kw">let</span> <span class="ident">n_ambient_samples</span> <span class="op">=</span> <span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
         <span class="kw">let</span> <span class="ident">n_shadow_samples</span> <span class="op">=</span> <span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
-        
+
         <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">n</span> {
             <span class="comment">// Choose a direction.</span>
-            <span class="kw">let</span> (<span class="ident">bsdf_value</span>, <span class="ident">pdf</span>) <span class="op">=</span> <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>);
+            <span class="kw">let</span> (<span class="ident">bsdf_value</span>, <span class="ident">weight</span>) <span class="op">=</span>
+                <span class="ident">material</span>.<span class="ident">sample_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">intersection_pt</span>, <span class="ident">ray</span>, <span class="ident">rng</span>);
             <span class="kw">let</span> <span class="ident">new_ray_dir</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">geometry</span>.<span class="ident">direction</span>;
             <span class="macro">debug_assert!</span>(
                 (<span class="number">1.</span> <span class="op">-</span> <span class="ident">new_ray_dir</span>.<span class="ident">length</span>()).<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="number">1e-2</span>,
                 <span class="string">&quot;Length is {}&quot;</span>,
                 <span class="ident">new_ray_dir</span>.<span class="ident">length</span>()
             );
-            
+
             <span class="ident">ray</span>.<span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
             <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">new_ray_dir</span>).<span class="ident">abs</span>();
             <span class="kw">let</span> <span class="ident">bsdf_rad</span> <span class="op">=</span> <span class="ident">bsdf_value</span>.<span class="ident">radiance</span>();
-            <span class="ident">ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_rad</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="ident">pdf</span>;
+            <span class="ident">ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_rad</span> <span class="op">*</span> <span class="ident">cos_theta</span>;
 
             <span class="kw">let</span> (<span class="ident">li</span>, <span class="ident">light_pdf</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">trace_ray</span>(<span class="ident">rng</span>, <span class="ident">scene</span>, <span class="ident">ray</span>, <span class="ident">aux</span>);
-            
-            <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> <span class="ident">li</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="ident">bsdf_value</span> ;
-            
-            <span class="kw">let</span> <span class="ident">denominator</span> <span class="op">=</span> <span class="ident">bsdf_rad</span> <span class="op">*</span>  <span class="ident">n_ambient_samples</span> <span class="op">+</span> <span class="ident">n_shadow_samples</span> <span class="op">*</span> <span class="ident">light_pdf</span>;
-            
+
+            <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> <span class="ident">li</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="ident">bsdf_value</span>; <span class="comment">// / weight ;</span>
+
+            <span class="kw">let</span> <span class="ident">denominator</span> <span class="op">=</span> <span class="ident">bsdf_rad</span> <span class="op">*</span> <span class="ident">n_ambient_samples</span> <span class="op">+</span> <span class="ident">n_shadow_samples</span> <span class="op">*</span> <span class="ident">light_pdf</span>;
 
             <span class="ident">global</span> <span class="op">+</span><span class="op">=</span> <span class="ident">fx</span> <span class="op">/</span> <span class="ident">denominator</span>;
 
@@ -952,12 +952,10 @@ SOFTWARE.
     <span class="prelude-val">Some</span>((<span class="ident">light_colour</span>, <span class="ident">light_pdf</span>))
 }
 
-
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="comment">// use super::*;</span>
-
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (27eb6d701 2022-07-04)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (7665c3543 2022-07-06)" ></div>
 </body></html>

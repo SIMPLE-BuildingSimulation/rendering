@@ -349,7 +349,6 @@
 <span id="309">309</span>
 <span id="310">310</span>
 <span id="311">311</span>
-<span id="312">312</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -369,7 +368,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */</span>
-
 
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::colour::Spectrum</span>;
 <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::material::specular</span>::<span class="kw-2">*</span>;
@@ -397,6 +395,8 @@ SOFTWARE.
 }
 
 <span class="kw">impl</span> <span class="ident">Glass</span> {
+    <span class="doccomment">/// Returns the Reflection and Transmission values for a glass. These values</span>
+    <span class="doccomment">/// have already been modified by the colour of the glass</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">refl_trans</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="ident">normal</span>: <span class="ident">Vector3D</span>,
@@ -420,10 +420,10 @@ SOFTWARE.
         .<span class="ident">sqrt</span>();
 
         <span class="kw">let</span> <span class="ident">rindex</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">refraction_index</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">fte2</span> <span class="op">=</span> (<span class="ident">pdot</span> <span class="op">-</span> <span class="ident">rindex</span> <span class="op">*</span> <span class="ident">cos2</span>) <span class="op">/</span> (<span class="ident">pdot</span> <span class="op">+</span> <span class="ident">rindex</span> <span class="op">*</span> <span class="ident">cos2</span>);
-        <span class="ident">fte2</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">fte2</span>;
-        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ftm2</span> <span class="op">=</span> (<span class="number">1.0</span> <span class="op">/</span> <span class="ident">pdot</span> <span class="op">-</span> <span class="ident">rindex</span> <span class="op">/</span> <span class="ident">cos2</span>) <span class="op">/</span> (<span class="number">1.0</span> <span class="op">/</span> <span class="ident">pdot</span> <span class="op">+</span> <span class="ident">rindex</span> <span class="op">/</span> <span class="ident">cos2</span>);
-        <span class="ident">ftm2</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">ftm2</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r1e</span> <span class="op">=</span> (<span class="ident">pdot</span> <span class="op">-</span> <span class="ident">rindex</span> <span class="op">*</span> <span class="ident">cos2</span>) <span class="op">/</span> (<span class="ident">pdot</span> <span class="op">+</span> <span class="ident">rindex</span> <span class="op">*</span> <span class="ident">cos2</span>);
+        <span class="ident">r1e</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">r1e</span>;
+        <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">r1m</span> <span class="op">=</span> (<span class="number">1.0</span> <span class="op">/</span> <span class="ident">pdot</span> <span class="op">-</span> <span class="ident">rindex</span> <span class="op">/</span> <span class="ident">cos2</span>) <span class="op">/</span> (<span class="number">1.0</span> <span class="op">/</span> <span class="ident">pdot</span> <span class="op">+</span> <span class="ident">rindex</span> <span class="op">/</span> <span class="ident">cos2</span>);
+        <span class="ident">r1m</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">r1m</span>;
 
         <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">any_transmission</span> {
             <span class="self">self</span>.<span class="ident">colour</span>.<span class="ident">powf</span>(<span class="number">1.</span> <span class="op">/</span> <span class="ident">cos2</span>)
@@ -431,23 +431,21 @@ SOFTWARE.
             <span class="self">self</span>.<span class="ident">colour</span>
         };
 
-        <span class="comment">// Process transmission        </span>
+        <span class="comment">// Process transmission</span>
         <span class="kw">let</span> <span class="ident">t_comp</span> <span class="op">=</span> <span class="kw">if</span> <span class="ident">any_transmission</span> {
             <span class="ident">d</span> <span class="op">*</span> <span class="number">0.5</span>
-                <span class="op">*</span> (
-                      (<span class="number">1.</span> <span class="op">-</span> <span class="ident">fte2</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">fte2</span>).<span class="ident">powi</span>(<span class="number">2</span>))
-                    <span class="op">+</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">ftm2</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">ftm2</span>).<span class="ident">powi</span>(<span class="number">2</span>))
-                )
+                <span class="op">*</span> ((<span class="number">1.</span> <span class="op">-</span> <span class="ident">r1e</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">r1e</span>).<span class="ident">powi</span>(<span class="number">2</span>))
+                    <span class="op">+</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">r1m</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> (<span class="ident">d</span> <span class="op">*</span> <span class="ident">r1m</span>).<span class="ident">powi</span>(<span class="number">2</span>)))
         } <span class="kw">else</span> {
             <span class="comment">// Spectrum{red: 1., green: 0., blue: 0.}</span>
             <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>
         };
 
         <span class="comment">// Process reflection</span>
-        <span class="kw">let</span> <span class="ident">ct</span> <span class="op">=</span> <span class="ident">d</span>.<span class="ident">powi</span>(<span class="number">2</span>);
+        <span class="kw">let</span> <span class="ident">d</span> <span class="op">=</span> <span class="ident">d</span>.<span class="ident">powi</span>(<span class="number">2</span>);
         <span class="kw">let</span> <span class="ident">refl_comp</span> <span class="op">=</span> <span class="number">0.5</span>
-            <span class="op">*</span> ((<span class="number">1.</span> <span class="op">+</span> <span class="ident">ct</span> <span class="op">*</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">2.</span> <span class="op">*</span> <span class="ident">fte2</span>)) <span class="op">*</span> <span class="ident">fte2</span> <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">ct</span> <span class="op">*</span> <span class="ident">fte2</span>)
-                <span class="op">+</span> (<span class="number">1.</span> <span class="op">+</span> (<span class="number">1.</span> <span class="op">-</span> <span class="number">2.</span> <span class="op">*</span> <span class="ident">ftm2</span>) <span class="op">*</span> <span class="ident">ct</span>) <span class="op">*</span> <span class="ident">ftm2</span> <span class="op">/</span> (<span class="number">1.</span> <span class="op">-</span> <span class="ident">ct</span> <span class="op">*</span> <span class="ident">ftm2</span>));
+            <span class="op">*</span> (<span class="ident">r1e</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">+</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">r1e</span>) <span class="op">*</span> <span class="ident">d</span>) <span class="op">/</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">r1e</span> <span class="op">*</span> <span class="ident">r1e</span> <span class="op">*</span> <span class="ident">d</span>)
+                <span class="op">+</span> <span class="ident">r1m</span> <span class="op">*</span> (<span class="number">1.0</span> <span class="op">+</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="number">2.0</span> <span class="op">*</span> <span class="ident">r1m</span>) <span class="op">*</span> <span class="ident">d</span>) <span class="op">/</span> (<span class="number">1.0</span> <span class="op">-</span> <span class="ident">r1m</span> <span class="op">*</span> <span class="ident">r1m</span> <span class="op">*</span> <span class="ident">d</span>));
 
         <span class="comment">// return</span>
         (<span class="ident">refl_comp</span>, <span class="ident">t_comp</span>)
@@ -663,5 +661,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (27eb6d701 2022-07-04)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (7665c3543 2022-07-06)" ></div>
 </body></html>

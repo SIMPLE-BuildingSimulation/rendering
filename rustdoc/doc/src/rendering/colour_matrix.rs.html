@@ -435,9 +435,6 @@
 <span id="395">395</span>
 <span id="396">396</span>
 <span id="397">397</span>
-<span id="398">398</span>
-<span id="399">399</span>
-<span id="400">400</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -715,11 +712,8 @@ SOFTWARE.
             ))
         }
     };
-    <span class="kw">if</span> <span class="ident">content</span>.<span class="ident">is_empty</span>(){
-        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-            <span class="string">&quot;file &#39;{}&#39; is empty&quot;</span>,
-            <span class="ident">filename</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>()
-        ))
+    <span class="kw">if</span> <span class="ident">content</span>.<span class="ident">is_empty</span>() {
+        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;file &#39;{}&#39; is empty&quot;</span>, <span class="ident">filename</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>()));
     }
     <span class="comment">// Read header</span>
     <span class="kw">let</span> <span class="ident">filename</span> <span class="op">=</span> <span class="ident">filename</span>.<span class="ident">to_str</span>().<span class="ident">unwrap</span>();
@@ -839,5 +833,5 @@ SOFTWARE.
     <span class="prelude-val">Ok</span>(<span class="ident">matrix</span>)
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (27eb6d701 2022-07-04)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (7665c3543 2022-07-06)" ></div>
 </body></html>

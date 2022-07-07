@@ -358,7 +358,6 @@
 <span id="318">318</span>
 <span id="319">319</span>
 <span id="320">320</span>
-<span id="321">321</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -532,8 +531,7 @@ SOFTWARE.
             <span class="kw">let</span> <span class="ident">dir_illum</span> <span class="op">=</span> <span class="ident">direct_normal_irrad</span>
                 <span class="op">*</span> <span class="ident">solar::PerezSky::direct_illuminance_ratio</span>(<span class="ident">apwc</span>, <span class="ident">zenith</span>, <span class="ident">sky_brightness</span>, <span class="ident">index</span>);
 
-            <span class="kw">let</span> <span class="ident">sun_brightness</span> <span class="op">=</span>
-                <span class="ident">dir_illum</span> <span class="op">/</span> <span class="ident">omega</span> <span class="op">/</span> <span class="ident"><span class="kw">crate</span>::colour::WHITE_EFFICACY</span>; 
+            <span class="kw">let</span> <span class="ident">sun_brightness</span> <span class="op">=</span> <span class="ident">dir_illum</span> <span class="op">/</span> <span class="ident">omega</span> <span class="op">/</span> <span class="ident"><span class="kw">crate</span>::colour::WHITE_EFFICACY</span>;
             <span class="kw">let</span> <span class="ident">sun_mat</span> <span class="op">=</span>
                 <span class="self">self</span>.<span class="ident">push_material</span>(<span class="ident">Material::Light</span>(<span class="ident">Light</span>(
                     <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::gray</span>(<span class="ident">sun_brightness</span>),
@@ -681,5 +679,5 @@ SOFTWARE.
     <span class="comment">// }</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (27eb6d701 2022-07-04)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (7665c3543 2022-07-06)" ></div>
 </body></html>
