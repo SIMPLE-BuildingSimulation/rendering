@@ -1,11 +1,11 @@
-; ModuleID = 'probe3.bf85be04-cgu.0'
-source_filename = "probe3.bf85be04-cgu.0"
+; ModuleID = 'probe3.499fc99c-cgu.0'
+source_filename = "probe3.499fc99c-cgu.0"
 target datalayout = "e-m:e-p270:32:32-p271:32:32-p272:64:64-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
 ; probe3::probe
 ; Function Attrs: nonlazybind uwtable
-define void @_ZN6probe35probe17h582d5ffc769b8257E() unnamed_addr #0 {
+define void @_ZN6probe35probe17he4e377a7d6192049E() unnamed_addr #0 {
 start:
   %0 = alloca i32, align 4
   store i32 -2147483648, i32* %0, align 4
