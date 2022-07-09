@@ -38,6 +38,8 @@ This implies that Spheres are triangulated, becoming more than 2000 triangles.  
 
 Check the Rust documentation [HERE](https://simple-buildingsimulation.github.io/rendering/rustdoc/doc/rendering/index.html).
 
+Also, check the [validation report](https://simple-buildingsimulation.github.io/rendering/) (We need some help)
+
 
 # What is included
 

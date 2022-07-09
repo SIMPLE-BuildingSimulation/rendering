@@ -167,7 +167,7 @@ impl RayTracer {
                 n_shadow_samples,
                 &mut aux.nodes,
             );
-
+            
             /* INDIRECT */
             let global = self.get_global_illumination(
                 scene,
@@ -177,7 +177,7 @@ impl RayTracer {
                 ray,
                 rng,
                 aux,
-            );
+            );            
 
             (local + global, 0.0)
         } else {
@@ -211,7 +211,7 @@ impl RayTracer {
         let mut local_illum = Spectrum::<{ crate::N_CHANNELS }>::BLACK;
 
         let n = n_shadow_samples;
-        let n_ambient_samples = n_ambient_samples as Float;
+        // let n_ambient_samples = n_ambient_samples as Float;
         let n_shadow_samples = n_shadow_samples as Float;
 
         for light in lights.iter() {
@@ -322,10 +322,10 @@ impl RayTracer {
         let mut global = Spectrum::<{ crate::N_CHANNELS }>::BLACK;
 
         let depth = ray.depth;
-        aux.rays[depth] = *ray;
+        aux.rays[depth] = *ray; // store a copy.
         let n = n_ambient_samples;
         let n_ambient_samples = n_ambient_samples as Float;
-        let n_shadow_samples = n_shadow_samples as Float;
+        // let n_shadow_samples = n_shadow_samples as Float;
 
         // for _ in 0..n {
         let mut count = 0;
@@ -344,28 +344,20 @@ impl RayTracer {
             let cos_theta = (normal * new_ray_dir).abs();
             let bsdf_rad = bsdf_value.radiance();
             ray.depth += 1;
-            ray.value *= bsdf_rad * cos_theta;
+            ray.value *= bsdf_rad * cos_theta/ray_pdf;
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, aux);
 
             if light_pdf > 0.{
-                // hit a light... reset and try again
+                // ray hit a light... reset and try again
                 *ray = aux.rays[depth];
                 continue;
             }
             count += 1;
 
-            // let weight = if light_pdf > 0.0 {
-            //     n_shadow_samples * light_pdf / ( n_ambient_samples * weight  + n_shadow_samples * light_pdf )
-            // }else{
-            //     n_ambient_samples * weight / ( n_ambient_samples * weight  + n_shadow_samples * light_pdf )
-            // };
 
-            let fx = li * bsdf_value * cos_theta;// * weight ;
+            let fx = li * bsdf_value * cos_theta;
 
-            // let denominator =  n_ambient_samples * weight  + n_shadow_samples * light_pdf;
-
-            // global += fx * weight; // denominator;
             global += fx / ray_pdf  ;
 
             // restore ray, because it was modified by trace_ray executions

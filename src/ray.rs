@@ -105,11 +105,11 @@ impl Ray {
             let wt = self.value;
 
             // russian roullete
-            // let r: Float = rng.gen();
-            // if r > wt / limit_weight {
-            //     self.value = limit_weight;
-            //     return 0; // kill it!
-            // }
+            let r: Float = rng.gen();
+            if r > wt / limit_weight {
+                self.value = limit_weight;
+                return 0; // kill it!
+            }
             1 // Stephen, this is on you.
         }
     }
