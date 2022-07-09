@@ -38,10 +38,13 @@ pub struct Ray {
     /// Contains the information about the last hit.
     pub interaction: Interaction,
 
+    /// The number of times this ray has bounced already
     pub depth: usize,
 
+    /// Sort of the colour, but turned into a number
     pub value: Float,
 
+    /// The colour of this ray
     pub colour: Spectrum<{ crate::N_CHANNELS }>,
 }
 
@@ -102,11 +105,11 @@ impl Ray {
             let wt = self.value;
 
             // russian roullete
-            let r: Float = rng.gen();
-            if r > wt / limit_weight {
-                self.value = limit_weight;
-                return 0; // kill it!
-            }
+            // let r: Float = rng.gen();
+            // if r > wt / limit_weight {
+            //     self.value = limit_weight;
+            //     return 0; // kill it!
+            // }
             1 // Stephen, this is on you.
         }
     }

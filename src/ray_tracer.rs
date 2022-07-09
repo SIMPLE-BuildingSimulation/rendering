@@ -125,7 +125,7 @@ impl RayTracer {
                 for (new_ray, bsdf_value) in paths.iter().flatten() {
                     let mut new_ray = *new_ray;
 
-                    ray.value *= bsdf_value.radiance(); // * cos_theta;
+                    ray.value *= bsdf_value.radiance(); 
 
                     let q: Float = rng.gen();
                     if q < self.count_specular_bounce {
@@ -153,6 +153,7 @@ impl RayTracer {
                 self.n_shadow_samples
             } else {
                 1
+                // self.n_shadow_samples
             };
 
             /* DIRECT LIGHT */
@@ -241,12 +242,12 @@ impl RayTracer {
                     let vout = shadow_ray.direction * -1.;
 
                     let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);
-                    let denominator = light_pdf * n_shadow_samples
-                        + mat_bsdf_value.radiance() * n_ambient_samples;
-                    let fx = (light_colour * cos_theta) * (mat_bsdf_value);
+                    // let denominator = light_pdf * n_shadow_samples
+                        // + mat_bsdf_value.radiance() * n_ambient_samples;
+                    let fx = light_colour * cos_theta * mat_bsdf_value;
 
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
-                    local_illum += fx / denominator;
+                    local_illum += fx / (n_shadow_samples * light_pdf); //denominator;
                 } else {
                     #[cfg(debug_assertions)]
                     {
@@ -311,6 +312,11 @@ impl RayTracer {
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
     ) -> Spectrum<{ crate::N_CHANNELS }> {
+        
+        if n_ambient_samples == 0{
+            return Spectrum::BLACK;
+        }
+
         let (intersection_pt, normal, e1, e2) = ray.get_triad();
 
         let mut global = Spectrum::<{ crate::N_CHANNELS }>::BLACK;
@@ -321,9 +327,11 @@ impl RayTracer {
         let n_ambient_samples = n_ambient_samples as Float;
         let n_shadow_samples = n_shadow_samples as Float;
 
-        for _ in 0..n {
+        // for _ in 0..n {
+        let mut count = 0;
+        while count < n {
             // Choose a direction.
-            let (bsdf_value, weight) =
+            let (bsdf_value, ray_pdf) =
                 material.sample_bsdf(normal, e1, e2, intersection_pt, ray, rng);
             let new_ray_dir = ray.geometry.direction;
             debug_assert!(
@@ -332,24 +340,40 @@ impl RayTracer {
                 new_ray_dir.length()
             );
 
-            ray.depth += 1;
+            
             let cos_theta = (normal * new_ray_dir).abs();
             let bsdf_rad = bsdf_value.radiance();
+            ray.depth += 1;
             ray.value *= bsdf_rad * cos_theta;
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, aux);
 
-            let fx = li * cos_theta * bsdf_value; // / weight ;
+            if light_pdf > 0.{
+                // hit a light... reset and try again
+                *ray = aux.rays[depth];
+                continue;
+            }
+            count += 1;
 
-            let denominator = bsdf_rad * n_ambient_samples + n_shadow_samples * light_pdf;
+            // let weight = if light_pdf > 0.0 {
+            //     n_shadow_samples * light_pdf / ( n_ambient_samples * weight  + n_shadow_samples * light_pdf )
+            // }else{
+            //     n_ambient_samples * weight / ( n_ambient_samples * weight  + n_shadow_samples * light_pdf )
+            // };
 
-            global += fx / denominator;
+            let fx = li * bsdf_value * cos_theta;// * weight ;
+
+            // let denominator =  n_ambient_samples * weight  + n_shadow_samples * light_pdf;
+
+            // global += fx * weight; // denominator;
+            global += fx / ray_pdf  ;
 
             // restore ray, because it was modified by trace_ray executions
             *ray = aux.rays[depth];
         }
         // return
-        global
+        global/n_ambient_samples
+        
     }
 
     #[allow(clippy::needless_collect)]

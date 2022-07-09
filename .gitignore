@@ -4,7 +4,7 @@ tests/scenes/images/*.hdr
 tests/scenes/**/*.mtx
 tests/scenes/**/*.oct
 tests/scenes/images/*.tiff
-docs/validation/*.html
+# docs/validation/*.html
 .DS_Store
 .vscode
 check.txt

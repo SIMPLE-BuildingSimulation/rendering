@@ -7,8 +7,8 @@
 ![style badge](https://github.com/SIMPLE-BuildingSimulation/rendering/actions/workflows/style.yaml/badge.svg)
 
 
-This is a library that intends to help developing Physically Based rendering engines **that can be used for daylight simulation**. The results seem to be OK when comparing
-against [Radiance](https://www.radiance-online.org), but it is still slower than it.
+This is a library that intends to help developing Physically Based rendering engines **that can be used for daylight simulation**. Some results seem to be OK when comparing
+against [Radiance](https://www.radiance-online.org), but it is still slower than it. If you can help 
 
 ![Vs Rad](./readme_img/vsRad.png "Vs Radiance")
 
@@ -27,15 +27,19 @@ Also, during the past decade, we have witnessed the gaming and animation industr
 Don’t be mistaken, though, I am not proposing to reinvent the wheel. The wheel—i.e., the knowledge of physics and rendering and computer sciences—is all available… what we need to do is to build a wheel with new materials and methods.
 
 
+## A note on performance
 
-## Contribute!
+This library could surely use some optimization (CONTRIBUTE!). However, it is also
+worth mentioning that—internally—all raycasting is done by using Triangles 
+as the single primitive (the reason for this is that SIMPLE is, first and foremost, an architectural tool, and buildings do not tend to be sphere). 
+This implies that Spheres are triangulated, becoming more than 2000 triangles.  **So, do not just compare the performance of this library with a nother package using simls made out of just triangles, please**
+
+# Contribute!
+
+Check the Rust documentation [HERE](https://simple-buildingsimulation.github.io/rendering/rustdoc/doc/rendering/index.html).
 
 
-Check the Rust documentation [HERE](https://simple-buildingsimulation.github.io/rendering/)
-
-
-
-## What is included
+# What is included
 
 
 ### Rendering
@@ -93,7 +97,7 @@ scompare -a ./rad_cornell.hdr -b ./cornell.hdr -o ./diff.hdr
 
 ## Building and testing
 
-At present, some bits are using [`std::simd::Simd`](https://doc.rust-lang.org/nightly/std/simd/struct.Simd.html), so you need to setup the `nightly` toolchain for this.
+At present, some bits are using [`std::simd::Simd`](https://doc.rust-lang.org/nightly/std/simd/struct.Simd.html), so you need to setup the `nightly` toolchain for this... **I am unsure of whether this is helping at all.**
 
 
 

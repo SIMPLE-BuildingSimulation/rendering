@@ -2,6 +2,18 @@ use geometry3d::{Point3D, Ray3D, Vector3D};
 use rendering::{colour_matrix, ColourMatrix, DCFactory, Float, Scene};
 use validate::{valid, ScatterValidator, Validate, Validator};
 
+
+fn get_validator(expected: Vec<f64>, found: Vec<f64>) -> Box<ScatterValidator>{
+    Box::new(ScatterValidator {
+        units: Some("cd/m2"),
+        expected,
+        found,
+        expected_legend: Some("Radiance"),
+        found_legend: Some("SIMPLE"),
+        ..validate::ScatterValidator::default()
+    })
+}
+
 fn flatten_matrix(m: &ColourMatrix) -> Vec<Float> {
     let (nrows, ncols) = m.size();
     let mut v: Vec<Float> = Vec::with_capacity(nrows * ncols);
@@ -94,71 +106,35 @@ fn get_simple_results(dir: &str, max_depth: usize, with_glass: bool) -> (Vec<Flo
 #[valid(Room With Glass - With Bounces)]
 fn room_global_with_glass() -> Box<dyn Validate> {
     let (expected, found) = get_simple_results("room", 12, true);
-
-    let v = ScatterValidator {
-        units: Some("cd/m2"),
-        expected,
-        found,
-        expected_legend: Some("Radiance"),
-        found_legend: Some("SIMPLE"),
-        ..validate::ScatterValidator::default()
-    };
-    Box::new(v)
+    get_validator(expected, found)
 }
 
 /// Calculate the Daylight Coefficients in a room with a window with no glass, considering ambient bounces
 #[valid(Room With No Glass - With Bounces)]
 fn room_global_with_no_glass() -> Box<dyn Validate> {
     let (expected, found) = get_simple_results("room", 12, false);
-
-    let v = ScatterValidator {
-        units: Some("cd/m2"),
-        expected,
-        found,
-        expected_legend: Some("Radiance"),
-        found_legend: Some("SIMPLE"),
-        ..validate::ScatterValidator::default()
-    };
-    Box::new(v)
+    get_validator(expected, found)
 }
 
 /// Calculate the Daylight Coefficients in a room with a Glass window, with zero bounces
 #[valid(Room With Glass - Direct)]
 fn room_direct_with_glass() -> Box<dyn Validate> {
     let (expected, found) = get_simple_results("room", 0, true);
-
-    let v = ScatterValidator {
-        units: Some("cd/m2"),
-        expected,
-        found,
-        expected_legend: Some("Radiance"),
-        found_legend: Some("SIMPLE"),
-        ..validate::ScatterValidator::default()
-    };
-    Box::new(v)
+    get_validator(expected, found)
 }
 
 /// Calculate the Daylight Coefficients in a room, with zero bounces
 #[valid(Room With No Glass - Direct)]
 fn room_direct_with_no_glass() -> Box<dyn Validate> {
     let (expected, found) = get_simple_results("room", 0, false);
-
-    let v = ScatterValidator {
-        units: Some("cd/m2"),
-        expected,
-        found,
-        expected_legend: Some("Radiance"),
-        found_legend: Some("SIMPLE"),
-        ..validate::ScatterValidator::default()
-    };
-    Box::new(v)
+    get_validator(expected, found)
 }
 
 fn room(validator: &mut Validator) {
     validator.push(room_direct_with_no_glass());
     validator.push(room_direct_with_glass());
-    // validator.push(room_global_with_no_glass());
-    // validator.push(room_global_with_glass());
+    validator.push(room_global_with_no_glass());
+    validator.push(room_global_with_glass());
 }
 
 #[ignore]

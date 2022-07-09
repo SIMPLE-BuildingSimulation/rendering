@@ -20,7 +20,7 @@ lamp sphere thelamp
 4 2. 4. 3.8 0.1
 
 
-void plastic wall_mat 0 0 5 0.500000 0.500000 0.500000 0 0
+void plastic wall_mat 0 0 5 0.900000 0.900000 0.900000 0 0
 
 wall_mat polygon floor 0 0 12 4.000000 8.000000 0.000000 4.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 8.000000 0.000000
 wall_mat polygon roof 0 0 12 

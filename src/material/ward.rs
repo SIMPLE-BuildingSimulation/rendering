@@ -107,9 +107,11 @@ pub fn sample_ward_anisotropic(
     } else {
         // Probability
 
+        // let local_dir = uniform_sample_hemisphere(rng, e1, e2, normal);
+        // let (x, y, z) = (local_dir.x, local_dir.y, local_dir.z);
         let local_dir = sample_cosine_weighted_horizontal_hemisphere(rng);
-        let diffuse = (1. - specularity) / PI;
-        // let weight = PI;
+        let diffuse = (1. - specularity)/ PI;
+        
 
         let (x, y, z) = local_to_world(
             e1,
@@ -120,9 +122,11 @@ pub fn sample_ward_anisotropic(
             local_dir.y,
             local_dir.z,
         );
-
-        ray.geometry.direction = Vector3D::new(x, y, z).get_normalized();
-        (0.0, diffuse, 1. / PI)
+        let new_dir = Vector3D::new(x, y, z).get_normalized();
+        let pdf = normal * new_dir/PI;
+        // let pdf = 1./(2.*PI);
+        ray.geometry.direction = new_dir;
+        (0.0, diffuse, pdf)
     }
 }
 
