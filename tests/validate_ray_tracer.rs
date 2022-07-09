@@ -4,7 +4,7 @@ use validate::{valid, SeriesValidator, Validate, Validator};
 
 const MAX_DEPTH: usize = 13;
 
-fn get_validator(expected: Vec<f64>, found: Vec<f64>) -> Box<SeriesValidator>{
+fn get_validator(expected: Vec<f64>, found: Vec<f64>) -> Box<SeriesValidator> {
     Box::new(SeriesValidator {
         x_label: Some("Sensor".into()),
         y_label: Some("Luminance".into()),
@@ -96,7 +96,7 @@ fn plastic(validator: &mut Validator) {
     fn plastic_diffuse_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_diffuse", MAX_DEPTH);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
         // let v = validate::ScatterValidator {
         //     expected_legend: Some("Radiance".into()),
         //     found_legend: Some("SIMPLE".into()),
@@ -113,14 +113,14 @@ fn plastic(validator: &mut Validator) {
     #[valid(Diffuse Plastic - Direct illumination)]
     fn plastic_diffuse_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_diffuse", 0);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of diffuse plastic with some roughness
     #[valid(Rough Plastic - Global illumination)]
     fn plastic_rough_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_rough", MAX_DEPTH);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of diffuse plastic with some roughness.
@@ -128,14 +128,14 @@ fn plastic(validator: &mut Validator) {
     #[valid(Rough Plastic - Direct illumination)]
     fn plastic_rough_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_rough", 0);
-        get_validator(expected,found)        
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular plastic with no roughness
     #[valid(Specular Plastic - Global illumination)]
     fn plastic_specular_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", MAX_DEPTH);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular plastic with no roughness.
@@ -143,14 +143,14 @@ fn plastic(validator: &mut Validator) {
     #[valid(Specular Plastic - Direct illumination)]
     fn plastic_specular_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", 0);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular plastic with some roughness
     #[valid(Full Plastic - Global illumination)]
     fn plastic_full_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", MAX_DEPTH);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular plastic with some roughness.
@@ -158,7 +158,7 @@ fn plastic(validator: &mut Validator) {
     #[valid(Full Plastic - Direct illumination)]
     fn plastic_full_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("plastic_box_specular", 0);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     validator.push(plastic_diffuse_global());
@@ -180,7 +180,7 @@ fn metal(validator: &mut Validator) {
     #[valid(Diffuse Metal - Global illumination)]
     fn metal_diffuse_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_diffuse", MAX_DEPTH);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of diffuse metal,
@@ -188,7 +188,7 @@ fn metal(validator: &mut Validator) {
     #[valid(Diffuse Metal - Direct illumination)]
     fn metal_diffuse_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_diffuse", 0);
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of diffuse metal with some roughness
@@ -196,7 +196,7 @@ fn metal(validator: &mut Validator) {
     fn metal_rough_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_rough", MAX_DEPTH);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of diffuse metal with some roughness.
@@ -205,7 +205,7 @@ fn metal(validator: &mut Validator) {
     fn metal_rough_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_rough", 0);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular metal with no roughness
@@ -213,7 +213,7 @@ fn metal(validator: &mut Validator) {
     fn metal_specular_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_specular", MAX_DEPTH);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular metal with no roughness.
@@ -222,7 +222,7 @@ fn metal(validator: &mut Validator) {
     fn metal_specular_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_specular", 0);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular metal with some roughness
@@ -230,7 +230,7 @@ fn metal(validator: &mut Validator) {
     fn metal_full_global() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_specular", MAX_DEPTH);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     /// Contrasts the results of SIMPLE and Radiance, in a box made of a partially specular metal with some roughness.
@@ -239,7 +239,7 @@ fn metal(validator: &mut Validator) {
     fn metal_full_direct() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("metal_box_specular", 0);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
 
     validator.push(metal_diffuse_global());
@@ -261,7 +261,7 @@ fn glass(validator: &mut Validator) {
     fn glass_full() -> Box<dyn Validate> {
         let (expected, found) = get_simple_results("glass_box", MAX_DEPTH);
 
-        get_validator(expected,found)
+        get_validator(expected, found)
     }
     validator.push(glass_full());
 }

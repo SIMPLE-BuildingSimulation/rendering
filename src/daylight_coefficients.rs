@@ -222,7 +222,7 @@ impl DCFactory {
                 let paths = material.get_possible_paths(&normal, &intersection_pt, ray);
                 for (new_ray, bsdf_value) in paths.iter().flatten() {
                     let mut new_ray = *new_ray;
-                    new_ray.colour *= *bsdf_value;                    
+                    new_ray.colour *= *bsdf_value;
                     new_ray.value *= bsdf_value.radiance();
 
                     // avoid infinite interior bouncing

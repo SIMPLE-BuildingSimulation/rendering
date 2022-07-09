@@ -125,7 +125,7 @@ impl RayTracer {
                 for (new_ray, bsdf_value) in paths.iter().flatten() {
                     let mut new_ray = *new_ray;
 
-                    ray.value *= bsdf_value.radiance(); 
+                    ray.value *= bsdf_value.radiance();
 
                     let q: Float = rng.gen();
                     if q < self.count_specular_bounce {
@@ -167,7 +167,7 @@ impl RayTracer {
                 n_shadow_samples,
                 &mut aux.nodes,
             );
-            
+
             /* INDIRECT */
             let global = self.get_global_illumination(
                 scene,
@@ -177,7 +177,7 @@ impl RayTracer {
                 ray,
                 rng,
                 aux,
-            );            
+            );
 
             (local + global, 0.0)
         } else {
@@ -243,7 +243,7 @@ impl RayTracer {
 
                     let mat_bsdf_value = material.eval_bsdf(normal, e1, e2, ray, vout);
                     // let denominator = light_pdf * n_shadow_samples
-                        // + mat_bsdf_value.radiance() * n_ambient_samples;
+                    // + mat_bsdf_value.radiance() * n_ambient_samples;
                     let fx = light_colour * cos_theta * mat_bsdf_value;
 
                     // Return... light sources have a pdf equal to their 1/Omega (i.e. their size)
@@ -312,8 +312,7 @@ impl RayTracer {
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
     ) -> Spectrum<{ crate::N_CHANNELS }> {
-        
-        if n_ambient_samples == 0{
+        if n_ambient_samples == 0 {
             return Spectrum::BLACK;
         }
 
@@ -340,32 +339,29 @@ impl RayTracer {
                 new_ray_dir.length()
             );
 
-            
             let cos_theta = (normal * new_ray_dir).abs();
             let bsdf_rad = bsdf_value.radiance();
             ray.depth += 1;
-            ray.value *= bsdf_rad * cos_theta/ray_pdf;
+            ray.value *= bsdf_rad * cos_theta / ray_pdf;
 
             let (li, light_pdf) = self.trace_ray(rng, scene, ray, aux);
 
-            if light_pdf > 0.{
+            if light_pdf > 0. {
                 // ray hit a light... reset and try again
                 *ray = aux.rays[depth];
                 continue;
             }
             count += 1;
 
-
             let fx = li * bsdf_value * cos_theta;
 
-            global += fx / ray_pdf  ;
+            global += fx / ray_pdf;
 
             // restore ray, because it was modified by trace_ray executions
             *ray = aux.rays[depth];
         }
         // return
-        global/n_ambient_samples
-        
+        global / n_ambient_samples
     }
 
     #[allow(clippy::needless_collect)]
