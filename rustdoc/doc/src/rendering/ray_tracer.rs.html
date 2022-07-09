@@ -509,18 +509,6 @@
 <span id="469">469</span>
 <span id="470">470</span>
 <span id="471">471</span>
-<span id="472">472</span>
-<span id="473">473</span>
-<span id="474">474</span>
-<span id="475">475</span>
-<span id="476">476</span>
-<span id="477">477</span>
-<span id="478">478</span>
-<span id="479">479</span>
-<span id="480">480</span>
-<span id="481">481</span>
-<span id="482">482</span>
-<span id="483">483</span>
 </pre><pre class="rust"><code><span class="comment">/*
 MIT License
 Copyright (c) 2021 Germán Molina
@@ -648,7 +636,7 @@ SOFTWARE.
                 <span class="kw">for</span> (<span class="ident">new_ray</span>, <span class="ident">bsdf_value</span>) <span class="kw">in</span> <span class="ident">paths</span>.<span class="ident">iter</span>().<span class="ident">flatten</span>() {
                     <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">new_ray</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">new_ray</span>;
 
-                    <span class="ident">ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_value</span>.<span class="ident">radiance</span>(); 
+                    <span class="ident">ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_value</span>.<span class="ident">radiance</span>();
 
                     <span class="kw">let</span> <span class="ident">q</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="ident">rng</span>.<span class="ident">gen</span>();
                     <span class="kw">if</span> <span class="ident">q</span> <span class="op">&lt;</span> <span class="self">self</span>.<span class="ident">count_specular_bounce</span> {
@@ -734,7 +722,7 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">local_illum</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
 
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n_shadow_samples</span>;
-        <span class="kw">let</span> <span class="ident">n_ambient_samples</span> <span class="op">=</span> <span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
+        <span class="comment">// let n_ambient_samples = n_ambient_samples as Float;</span>
         <span class="kw">let</span> <span class="ident">n_shadow_samples</span> <span class="op">=</span> <span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
 
         <span class="kw">for</span> <span class="ident">light</span> <span class="kw">in</span> <span class="ident">lights</span>.<span class="ident">iter</span>() {
@@ -766,7 +754,7 @@ SOFTWARE.
 
                     <span class="kw">let</span> <span class="ident">mat_bsdf_value</span> <span class="op">=</span> <span class="ident">material</span>.<span class="ident">eval_bsdf</span>(<span class="ident">normal</span>, <span class="ident">e1</span>, <span class="ident">e2</span>, <span class="ident">ray</span>, <span class="ident">vout</span>);
                     <span class="comment">// let denominator = light_pdf * n_shadow_samples</span>
-                        <span class="comment">// + mat_bsdf_value.radiance() * n_ambient_samples;</span>
+                    <span class="comment">// + mat_bsdf_value.radiance() * n_ambient_samples;</span>
                     <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> <span class="ident">light_colour</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">*</span> <span class="ident">mat_bsdf_value</span>;
 
                     <span class="comment">// Return... light sources have a pdf equal to their 1/Omega (i.e. their size)</span>
@@ -835,8 +823,7 @@ SOFTWARE.
         <span class="ident">rng</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RandGen</span>,
         <span class="ident">aux</span>: <span class="kw-2">&amp;mut</span> <span class="ident">RayTracerHelper</span>,
     ) -&gt; <span class="ident">Spectrum</span><span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span> {
-        
-        <span class="kw">if</span> <span class="ident">n_ambient_samples</span> <span class="op">==</span> <span class="number">0</span>{
+        <span class="kw">if</span> <span class="ident">n_ambient_samples</span> <span class="op">==</span> <span class="number">0</span> {
             <span class="kw">return</span> <span class="ident">Spectrum::BLACK</span>;
         }
 
@@ -845,10 +832,10 @@ SOFTWARE.
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">global</span> <span class="op">=</span> <span class="ident">Spectrum</span>::<span class="op">&lt;</span>{ <span class="ident"><span class="kw">crate</span>::N_CHANNELS</span> }<span class="op">&gt;</span><span class="ident">::BLACK</span>;
 
         <span class="kw">let</span> <span class="ident">depth</span> <span class="op">=</span> <span class="ident">ray</span>.<span class="ident">depth</span>;
-        <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>;
+        <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>] <span class="op">=</span> <span class="kw-2">*</span><span class="ident">ray</span>; <span class="comment">// store a copy.</span>
         <span class="kw">let</span> <span class="ident">n</span> <span class="op">=</span> <span class="ident">n_ambient_samples</span>;
         <span class="kw">let</span> <span class="ident">n_ambient_samples</span> <span class="op">=</span> <span class="ident">n_ambient_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
-        <span class="kw">let</span> <span class="ident">n_shadow_samples</span> <span class="op">=</span> <span class="ident">n_shadow_samples</span> <span class="kw">as</span> <span class="ident">Float</span>;
+        <span class="comment">// let n_shadow_samples = n_shadow_samples as Float;</span>
 
         <span class="comment">// for _ in 0..n {</span>
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">count</span> <span class="op">=</span> <span class="number">0</span>;
@@ -863,40 +850,29 @@ SOFTWARE.
                 <span class="ident">new_ray_dir</span>.<span class="ident">length</span>()
             );
 
-            
             <span class="kw">let</span> <span class="ident">cos_theta</span> <span class="op">=</span> (<span class="ident">normal</span> <span class="op">*</span> <span class="ident">new_ray_dir</span>).<span class="ident">abs</span>();
             <span class="kw">let</span> <span class="ident">bsdf_rad</span> <span class="op">=</span> <span class="ident">bsdf_value</span>.<span class="ident">radiance</span>();
             <span class="ident">ray</span>.<span class="ident">depth</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
-            <span class="ident">ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_rad</span> <span class="op">*</span> <span class="ident">cos_theta</span>;
+            <span class="ident">ray</span>.<span class="ident">value</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bsdf_rad</span> <span class="op">*</span> <span class="ident">cos_theta</span> <span class="op">/</span> <span class="ident">ray_pdf</span>;
 
             <span class="kw">let</span> (<span class="ident">li</span>, <span class="ident">light_pdf</span>) <span class="op">=</span> <span class="self">self</span>.<span class="ident">trace_ray</span>(<span class="ident">rng</span>, <span class="ident">scene</span>, <span class="ident">ray</span>, <span class="ident">aux</span>);
 
-            <span class="kw">if</span> <span class="ident">light_pdf</span> <span class="op">&gt;</span> <span class="number">0.</span>{
-                <span class="comment">// hit a light... reset and try again</span>
+            <span class="kw">if</span> <span class="ident">light_pdf</span> <span class="op">&gt;</span> <span class="number">0.</span> {
+                <span class="comment">// ray hit a light... reset and try again</span>
                 <span class="kw-2">*</span><span class="ident">ray</span> <span class="op">=</span> <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>];
                 <span class="kw">continue</span>;
             }
             <span class="ident">count</span> <span class="op">+</span><span class="op">=</span> <span class="number">1</span>;
 
-            <span class="comment">// let weight = if light_pdf &gt; 0.0 {</span>
-            <span class="comment">//     n_shadow_samples * light_pdf / ( n_ambient_samples * weight  + n_shadow_samples * light_pdf )</span>
-            <span class="comment">// }else{</span>
-            <span class="comment">//     n_ambient_samples * weight / ( n_ambient_samples * weight  + n_shadow_samples * light_pdf )</span>
-            <span class="comment">// };</span>
+            <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> <span class="ident">li</span> <span class="op">*</span> <span class="ident">bsdf_value</span> <span class="op">*</span> <span class="ident">cos_theta</span>;
 
-            <span class="kw">let</span> <span class="ident">fx</span> <span class="op">=</span> <span class="ident">li</span> <span class="op">*</span> <span class="ident">bsdf_value</span> <span class="op">*</span> <span class="ident">cos_theta</span>;<span class="comment">// * weight ;</span>
-
-            <span class="comment">// let denominator =  n_ambient_samples * weight  + n_shadow_samples * light_pdf;</span>
-
-            <span class="comment">// global += fx * weight; // denominator;</span>
-            <span class="ident">global</span> <span class="op">+</span><span class="op">=</span> <span class="ident">fx</span> <span class="op">/</span> <span class="ident">ray_pdf</span>  ;
+            <span class="ident">global</span> <span class="op">+</span><span class="op">=</span> <span class="ident">fx</span> <span class="op">/</span> <span class="ident">ray_pdf</span>;
 
             <span class="comment">// restore ray, because it was modified by trace_ray executions</span>
             <span class="kw-2">*</span><span class="ident">ray</span> <span class="op">=</span> <span class="ident">aux</span>.<span class="ident">rays</span>[<span class="ident">depth</span>];
         }
         <span class="comment">// return</span>
-        <span class="ident">global</span><span class="op">/</span><span class="ident">n_ambient_samples</span>
-        
+        <span class="ident">global</span> <span class="op">/</span> <span class="ident">n_ambient_samples</span>
     }
 
     <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">clippy::needless_collect</span>)]</span>
