@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Interaction","The data for a SurfaceInteraction]"]]};
+initSidebarItems({"struct":[["Interaction","The data for a SurfaceInteraction]"]]});

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["Mirror","A mirror material"]]};
+initSidebarItems({"struct":[["Mirror","A mirror material"]]});

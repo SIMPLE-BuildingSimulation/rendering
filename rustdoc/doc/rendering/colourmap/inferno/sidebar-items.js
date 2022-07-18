@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["INFERNO_COLOURMAP",""]]};
+initSidebarItems({"constant":[["INFERNO_COLOURMAP",""]]});

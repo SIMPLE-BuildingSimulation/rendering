@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"fn":[["any_transmission",""]],"struct":[["Glass",""]]};
+initSidebarItems({"fn":[["any_transmission",""]],"struct":[["Glass",""]]});

@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"constant":[["VIRIDIS_COLOURMAP",""]]};
+initSidebarItems({"constant":[["VIRIDIS_COLOURMAP",""]]});

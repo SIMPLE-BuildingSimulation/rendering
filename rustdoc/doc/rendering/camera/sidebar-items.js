@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"mod":[["camera_trait",""],["film",""],["pinhole",""],["sample",""],["view",""]],"struct":[["CameraSample","Used for getting a sample ray from the [`Camera`]"],["Film",""],["View",""]],"trait":[["Camera",""]]};
+initSidebarItems({"mod":[["camera_trait",""],["film",""],["pinhole",""],["sample",""],["view",""]],"struct":[["CameraSample","Used for getting a sample ray from the [`Camera`]"],["Film",""],["View",""]],"trait":[["Camera",""]]});

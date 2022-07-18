@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"trait":[["Camera",""]]};
+initSidebarItems({"trait":[["Camera",""]]});

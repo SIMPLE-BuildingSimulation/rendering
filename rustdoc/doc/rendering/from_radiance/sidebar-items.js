@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["RadianceReader",""]]};
+initSidebarItems({"struct":[["RadianceReader",""]]});

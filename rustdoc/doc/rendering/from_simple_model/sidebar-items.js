@@ -1,1 +1,1 @@
-window.SIDEBAR_ITEMS = {"struct":[["SimpleModelReader","An auxiliar structure only meant to create a Scene from a SimpleModel"]]};
+initSidebarItems({"fn":[["transmittance_to_transmissivity",""]],"struct":[["SimpleModelReader","An auxiliar structure only meant to create a Scene from a SimpleModel"]]});

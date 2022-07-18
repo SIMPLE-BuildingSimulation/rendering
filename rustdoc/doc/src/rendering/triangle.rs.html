@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/triangle.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>triangle.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script><script defer src="../../main.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src/triangle.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>triangle.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.css" integrity="sha384-TEMocfGvRuD1rIAacqrknm5BQZ7W7uWitoih+jMNFXQIbNl16bO8OZmylH/Vi/Ei" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/katex@0.9.0/dist/katex.min.js" integrity="sha384-jmxIlussZWB7qCuB+PgKG1uLjjxbVVIayPJwi6cG6Zb4YKq0JIw+OMnkkEC7kYCq" crossorigin="anonymous"></script>
 <script>
   "use strict";
@@ -36,9 +37,7 @@
         </a><h2 class="location"></h2>
     </nav>
     <nav class="sidebar"><a class="sidebar-logo" href="../../rendering/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></div>
-        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../rendering/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><button type="button">?</button></div><div id="settings-menu" tabindex="-1">
-                                <a href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div>
-                        </div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../rendering/index.html"><img class="rust-logo" src="../../rust-logo.svg" alt="logo"></a><nav class="sub"><div class="theme-picker hidden"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="22" height="22" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><span></span><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">1</span>
 <span id="2">2</span>
 <span id="3">3</span>
 <span id="4">4</span>
@@ -956,6 +955,36 @@
 <span id="916">916</span>
 <span id="917">917</span>
 <span id="918">918</span>
+<span id="919">919</span>
+<span id="920">920</span>
+<span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
+<span id="924">924</span>
+<span id="925">925</span>
+<span id="926">926</span>
+<span id="927">927</span>
+<span id="928">928</span>
+<span id="929">929</span>
+<span id="930">930</span>
+<span id="931">931</span>
+<span id="932">932</span>
+<span id="933">933</span>
+<span id="934">934</span>
+<span id="935">935</span>
+<span id="936">936</span>
+<span id="937">937</span>
+<span id="938">938</span>
+<span id="939">939</span>
+<span id="940">940</span>
+<span id="941">941</span>
+<span id="942">942</span>
+<span id="943">943</span>
+<span id="944">944</span>
+<span id="945">945</span>
+<span id="946">946</span>
+<span id="947">947</span>
+<span id="948">948</span>
 </pre><pre class="rust"><code><span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::Float</span>;
 <span class="kw">use</span> <span class="ident">geometry3d</span>::{
     <span class="ident">intersection</span>::{<span class="ident">IntersectionInfo</span>, <span class="ident">SurfaceSide</span>},
@@ -966,21 +995,26 @@
 <span class="kw">pub</span> <span class="kw">type</span> <span class="ident">Triangle</span> <span class="op">=</span> [<span class="ident">Float</span>; <span class="number">9</span>];
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">triangle_area</span>(<span class="ident">triangle</span>: <span class="kw-2">&amp;</span><span class="ident">Triangle</span>) -&gt; <span class="ident">Float</span> {
-    <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from_array</span>([<span class="ident">triangle</span>[<span class="number">0</span>], <span class="ident">triangle</span>[<span class="number">1</span>], <span class="ident">triangle</span>[<span class="number">2</span>], <span class="number">0.0</span>]);
-    <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from_array</span>([<span class="ident">triangle</span>[<span class="number">3</span>], <span class="ident">triangle</span>[<span class="number">4</span>], <span class="ident">triangle</span>[<span class="number">5</span>], <span class="number">0.0</span>]);
-    <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from_array</span>([<span class="ident">triangle</span>[<span class="number">6</span>], <span class="ident">triangle</span>[<span class="number">7</span>], <span class="ident">triangle</span>[<span class="number">8</span>], <span class="number">0.0</span>]);
+    <span class="comment">// let a = std::simd::Simd::from_array([triangle[0], triangle[1], triangle[2], 0.0]);</span>
+    <span class="comment">// let b = std::simd::Simd::from_array([triangle[3], triangle[4], triangle[5], 0.0]);</span>
+    <span class="comment">// let c = std::simd::Simd::from_array([triangle[6], triangle[7], triangle[8], 0.0]);</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ab</span> <span class="op">=</span> <span class="ident">b</span> <span class="op">-</span> <span class="ident">a</span>;
-    <span class="ident">ab</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">ab</span>;
-    <span class="kw">let</span> <span class="ident">ab</span> <span class="op">=</span> <span class="ident">ab</span>.<span class="ident">reduce_sum</span>().<span class="ident">sqrt</span>();
+    <span class="comment">// let mut ab = b - a;</span>
+    <span class="comment">// ab *= ab;</span>
+    <span class="comment">// let ab = ab.reduce_sum().sqrt();</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">bc</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">-</span> <span class="ident">b</span>;
-    <span class="ident">bc</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">bc</span>;
-    <span class="kw">let</span> <span class="ident">bc</span> <span class="op">=</span> <span class="ident">bc</span>.<span class="ident">reduce_sum</span>().<span class="ident">sqrt</span>();
+    <span class="comment">// let mut bc = c - b;</span>
+    <span class="comment">// bc *= bc;</span>
+    <span class="comment">// let bc = bc.reduce_sum().sqrt();</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">c</span> <span class="op">-</span> <span class="ident">a</span>;
-    <span class="ident">ca</span> <span class="kw-2">*</span><span class="op">=</span> <span class="ident">ca</span>;
-    <span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> <span class="ident">ca</span>.<span class="ident">reduce_sum</span>().<span class="ident">sqrt</span>();
+    <span class="comment">// let mut ca = c - a;</span>
+    <span class="comment">// ca *= ca;</span>
+    <span class="comment">// let ca = ca.reduce_sum().sqrt();</span>
+
+    <span class="kw">let</span> [<span class="ident">ax</span>, <span class="ident">ay</span>, <span class="ident">az</span>, <span class="ident">bx</span>, <span class="ident">by</span>, <span class="ident">bz</span>, <span class="ident">cx</span>, <span class="ident">cy</span>, <span class="ident">cz</span>] <span class="op">=</span> <span class="ident">triangle</span>;
+    <span class="kw">let</span> <span class="ident">ab</span> <span class="op">=</span> ((<span class="ident">bx</span> <span class="op">-</span> <span class="ident">ax</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="ident">by</span> <span class="op">-</span> <span class="ident">ay</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="ident">bz</span> <span class="op">-</span> <span class="ident">az</span>).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">sqrt</span>();
+    <span class="kw">let</span> <span class="ident">bc</span> <span class="op">=</span> ((<span class="ident">cx</span> <span class="op">-</span> <span class="ident">bx</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="ident">cy</span> <span class="op">-</span> <span class="ident">by</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="ident">cz</span> <span class="op">-</span> <span class="ident">bz</span>).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">sqrt</span>();
+    <span class="kw">let</span> <span class="ident">ca</span> <span class="op">=</span> ((<span class="ident">ax</span> <span class="op">-</span> <span class="ident">cx</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="ident">ay</span> <span class="op">-</span> <span class="ident">cy</span>).<span class="ident">powi</span>(<span class="number">2</span>) <span class="op">+</span> (<span class="ident">az</span> <span class="op">-</span> <span class="ident">cz</span>).<span class="ident">powi</span>(<span class="number">2</span>)).<span class="ident">sqrt</span>();
 
     ((<span class="ident">ca</span> <span class="op">+</span> <span class="ident">bc</span> <span class="op">+</span> <span class="ident">ab</span>)
         <span class="op">*</span> ((<span class="ident">ca</span> <span class="op">+</span> <span class="ident">bc</span> <span class="op">+</span> <span class="ident">ab</span>) <span class="op">/</span> <span class="number">2.</span> <span class="op">-</span> <span class="ident">ab</span>)
@@ -1019,109 +1053,109 @@
     <span class="ident">BBox3D::from_union_point</span>(<span class="kw-2">&amp;</span><span class="ident">bbox</span>, <span class="ident">c</span>)
 }
 
-<span class="doccomment">/// Tests the intersection between a `Ray3D` and a pack (i.e., `&amp;[]`)</span>
-<span class="doccomment">/// of [`Triangle`]. Returns the index of the intersected triangle within the</span>
-<span class="doccomment">/// pack, the point of intersection, and the `u` and `v` baricentric coordinates</span>
-<span class="doccomment">/// of the intersection point.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">triangle_pack_baricentric_coorinates</span>(
-    <span class="ident">ts</span>: <span class="kw-2">&amp;</span>[<span class="ident">Triangle</span>],
-    <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">geometry3d::Ray3D</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">geometry3d::Point3D</span>, <span class="ident">Float</span>, <span class="ident">Float</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> <span class="ident">ax</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">0</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">0</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">0</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">0</span>]]);
-    <span class="kw">let</span> <span class="ident">ay</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">1</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">1</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">1</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">1</span>]]);
-    <span class="kw">let</span> <span class="ident">az</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">2</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">2</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">2</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">2</span>]]);
+<span class="comment">// /// Tests the intersection between a `Ray3D` and a pack (i.e., `&amp;[]`)</span>
+<span class="comment">// /// of [`Triangle`]. Returns the index of the intersected triangle within the</span>
+<span class="comment">// /// pack, the point of intersection, and the `u` and `v` baricentric coordinates</span>
+<span class="comment">// /// of the intersection point.</span>
+<span class="comment">// pub fn triangle_pack_baricentric_coorinates(</span>
+<span class="comment">//     ts: &amp;[Triangle],</span>
+<span class="comment">//     ray: &amp;geometry3d::Ray3D,</span>
+<span class="comment">// ) -&gt; Option&lt;(usize, geometry3d::Point3D, Float, Float)&gt; {</span>
+<span class="comment">//     let ax = std::simd::Simd::from([ts[0][0], ts[1][0], ts[2][0], ts[3][0]]);</span>
+<span class="comment">//     let ay = std::simd::Simd::from([ts[0][1], ts[1][1], ts[2][1], ts[3][1]]);</span>
+<span class="comment">//     let az = std::simd::Simd::from([ts[0][2], ts[1][2], ts[2][2], ts[3][2]]);</span>
 
-    <span class="kw">let</span> <span class="ident">bx</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">3</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">3</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">3</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">3</span>]]);
-    <span class="kw">let</span> <span class="ident">by</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">4</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">4</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">4</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">4</span>]]);
-    <span class="kw">let</span> <span class="ident">bz</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">5</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">5</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">5</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">5</span>]]);
+<span class="comment">//     let bx = std::simd::Simd::from([ts[0][3], ts[1][3], ts[2][3], ts[3][3]]);</span>
+<span class="comment">//     let by = std::simd::Simd::from([ts[0][4], ts[1][4], ts[2][4], ts[3][4]]);</span>
+<span class="comment">//     let bz = std::simd::Simd::from([ts[0][5], ts[1][5], ts[2][5], ts[3][5]]);</span>
 
-    <span class="kw">let</span> <span class="ident">cx</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">6</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">6</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">6</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">6</span>]]);
-    <span class="kw">let</span> <span class="ident">cy</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">7</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">7</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">7</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">7</span>]]);
-    <span class="kw">let</span> <span class="ident">cz</span> <span class="op">=</span> <span class="ident">std::simd::Simd::from</span>([<span class="ident">ts</span>[<span class="number">0</span>][<span class="number">8</span>], <span class="ident">ts</span>[<span class="number">1</span>][<span class="number">8</span>], <span class="ident">ts</span>[<span class="number">2</span>][<span class="number">8</span>], <span class="ident">ts</span>[<span class="number">3</span>][<span class="number">8</span>]]);
+<span class="comment">//     let cx = std::simd::Simd::from([ts[0][6], ts[1][6], ts[2][6], ts[3][6]]);</span>
+<span class="comment">//     let cy = std::simd::Simd::from([ts[0][7], ts[1][7], ts[2][7], ts[3][7]]);</span>
+<span class="comment">//     let cz = std::simd::Simd::from([ts[0][8], ts[1][8], ts[2][8], ts[3][8]]);</span>
 
-    <span class="comment">// Calculate baricentric coordinates</span>
-    <span class="kw">let</span> <span class="ident">ox</span>: <span class="ident">std::simd::Simd</span><span class="op">&lt;</span><span class="ident">Float</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::simd::Simd::splat</span>(<span class="ident">ray</span>.<span class="ident">origin</span>.<span class="ident">x</span>);
-    <span class="kw">let</span> <span class="ident">oy</span>: <span class="ident">std::simd::Simd</span><span class="op">&lt;</span><span class="ident">Float</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::simd::Simd::splat</span>(<span class="ident">ray</span>.<span class="ident">origin</span>.<span class="ident">y</span>);
-    <span class="kw">let</span> <span class="ident">oz</span>: <span class="ident">std::simd::Simd</span><span class="op">&lt;</span><span class="ident">Float</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::simd::Simd::splat</span>(<span class="ident">ray</span>.<span class="ident">origin</span>.<span class="ident">z</span>);
+<span class="comment">//     // Calculate baricentric coordinates</span>
+<span class="comment">//     let ox: std::simd::Simd&lt;Float, 4&gt; = std::simd::Simd::splat(ray.origin.x);</span>
+<span class="comment">//     let oy: std::simd::Simd&lt;Float, 4&gt; = std::simd::Simd::splat(ray.origin.y);</span>
+<span class="comment">//     let oz: std::simd::Simd&lt;Float, 4&gt; = std::simd::Simd::splat(ray.origin.z);</span>
 
-    <span class="kw">let</span> <span class="ident">dx</span>: <span class="ident">std::simd::Simd</span><span class="op">&lt;</span><span class="ident">Float</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::simd::Simd::splat</span>(<span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">x</span>);
-    <span class="kw">let</span> <span class="ident">dy</span>: <span class="ident">std::simd::Simd</span><span class="op">&lt;</span><span class="ident">Float</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::simd::Simd::splat</span>(<span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">y</span>);
-    <span class="kw">let</span> <span class="ident">dz</span>: <span class="ident">std::simd::Simd</span><span class="op">&lt;</span><span class="ident">Float</span>, <span class="number">4</span><span class="op">&gt;</span> <span class="op">=</span> <span class="ident">std::simd::Simd::splat</span>(<span class="ident">ray</span>.<span class="ident">direction</span>.<span class="ident">z</span>);
+<span class="comment">//     let dx: std::simd::Simd&lt;Float, 4&gt; = std::simd::Simd::splat(ray.direction.x);</span>
+<span class="comment">//     let dy: std::simd::Simd&lt;Float, 4&gt; = std::simd::Simd::splat(ray.direction.y);</span>
+<span class="comment">//     let dz: std::simd::Simd&lt;Float, 4&gt; = std::simd::Simd::splat(ray.direction.z);</span>
 
-    <span class="comment">// let a_rox = ax - ox;</span>
-    <span class="comment">// let a_roy = ay - oy;</span>
-    <span class="comment">// let a_roz = az - oz;</span>
+<span class="comment">//     // let a_rox = ax - ox;</span>
+<span class="comment">//     // let a_roy = ay - oy;</span>
+<span class="comment">//     // let a_roz = az - oz;</span>
 
-    <span class="kw">let</span> <span class="ident">edge1_x</span> <span class="op">=</span> <span class="ident">bx</span> <span class="op">-</span> <span class="ident">ax</span>;
-    <span class="kw">let</span> <span class="ident">edge1_y</span> <span class="op">=</span> <span class="ident">by</span> <span class="op">-</span> <span class="ident">ay</span>;
-    <span class="kw">let</span> <span class="ident">edge1_z</span> <span class="op">=</span> <span class="ident">bz</span> <span class="op">-</span> <span class="ident">az</span>;
+<span class="comment">//     let edge1_x = bx - ax;</span>
+<span class="comment">//     let edge1_y = by - ay;</span>
+<span class="comment">//     let edge1_z = bz - az;</span>
 
-    <span class="kw">let</span> <span class="ident">edge2_x</span> <span class="op">=</span> <span class="ident">cx</span> <span class="op">-</span> <span class="ident">ax</span>;
-    <span class="kw">let</span> <span class="ident">edge2_y</span> <span class="op">=</span> <span class="ident">cy</span> <span class="op">-</span> <span class="ident">ay</span>;
-    <span class="kw">let</span> <span class="ident">edge2_z</span> <span class="op">=</span> <span class="ident">cz</span> <span class="op">-</span> <span class="ident">az</span>;
+<span class="comment">//     let edge2_x = cx - ax;</span>
+<span class="comment">//     let edge2_y = cy - ay;</span>
+<span class="comment">//     let edge2_z = cz - az;</span>
 
-    <span class="kw">let</span> <span class="ident">edge1</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="ident">edge1_x</span>, <span class="ident">edge1_y</span>, <span class="ident">edge1_z</span>];
-    <span class="kw">let</span> <span class="ident">edge2</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="ident">edge2_x</span>, <span class="ident">edge2_y</span>, <span class="ident">edge2_z</span>];
-    <span class="kw">let</span> <span class="ident">ray_direction</span> <span class="op">=</span> <span class="kw-2">&amp;</span>[<span class="ident">dx</span>, <span class="ident">dy</span>, <span class="ident">dz</span>];
-    <span class="kw">const</span> <span class="ident">TINY</span>: <span class="ident">Float</span> <span class="op">=</span> <span class="number">1e-5</span>;
-    <span class="kw">let</span> <span class="ident">h</span> <span class="op">=</span> <span class="ident">cross</span>(<span class="ident">ray_direction</span>, <span class="ident">edge2</span>);
-    <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">dot</span>(<span class="ident">edge1</span>, <span class="kw-2">&amp;</span><span class="ident">h</span>);
-    <span class="kw">if</span> <span class="ident">a</span>.<span class="ident">reduce_min</span>().<span class="ident">abs</span>() <span class="op">&lt;</span> <span class="ident">TINY</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
-    <span class="kw">let</span> <span class="ident">f</span> <span class="op">=</span> <span class="ident">std::simd::Simd::splat</span>(<span class="number">1.</span>) <span class="op">/</span> <span class="ident">a</span>;
-    <span class="kw">let</span> <span class="ident">s</span> <span class="op">=</span> [<span class="ident">ox</span> <span class="op">-</span> <span class="ident">ax</span>, <span class="ident">oy</span> <span class="op">-</span> <span class="ident">ay</span>, <span class="ident">oz</span> <span class="op">-</span> <span class="ident">az</span>];
-    <span class="kw">let</span> <span class="ident">u</span> <span class="op">=</span> <span class="ident">f</span> <span class="op">*</span> <span class="ident">dot</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="kw-2">&amp;</span><span class="ident">h</span>);
-    <span class="kw">if</span> <span class="ident">u</span>.<span class="ident">reduce_min</span>() <span class="op">&gt;</span> <span class="number">1.</span> <span class="op">+</span> <span class="ident">Float::EPSILON</span> <span class="op">|</span><span class="op">|</span> <span class="ident">u</span>.<span class="ident">reduce_max</span>() <span class="op">&lt;</span> <span class="op">-</span><span class="ident">Float::EPSILON</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
-    <span class="kw">let</span> <span class="ident">q</span> <span class="op">=</span> <span class="ident">cross</span>(<span class="kw-2">&amp;</span><span class="ident">s</span>, <span class="ident">edge1</span>);
-    <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">f</span> <span class="op">*</span> <span class="ident">dot</span>(<span class="ident">ray_direction</span>, <span class="kw-2">&amp;</span><span class="ident">q</span>);
-    <span class="kw">let</span> <span class="ident">uv</span> <span class="op">=</span> <span class="ident">u</span> <span class="op">+</span> <span class="ident">v</span>;
-    <span class="kw">if</span> <span class="ident">uv</span>.<span class="ident">reduce_min</span>() <span class="op">&gt;</span> <span class="number">1.0</span> <span class="op">+</span> <span class="ident">Float::EPSILON</span> <span class="op">|</span><span class="op">|</span> <span class="ident">uv</span>.<span class="ident">reduce_max</span>() <span class="op">&lt;</span> <span class="op">-</span><span class="ident">Float::EPSILON</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
-    <span class="kw">let</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">f</span> <span class="op">*</span> <span class="ident">dot</span>(<span class="ident">edge2</span>, <span class="kw-2">&amp;</span><span class="ident">q</span>);
-    <span class="kw">if</span> <span class="ident">t</span>.<span class="ident">reduce_max</span>() <span class="op">&lt;</span> <span class="ident">TINY</span> {
-        <span class="kw">return</span> <span class="prelude-val">None</span>;
-    }
+<span class="comment">//     let edge1 = &amp;[edge1_x, edge1_y, edge1_z];</span>
+<span class="comment">//     let edge2 = &amp;[edge2_x, edge2_y, edge2_z];</span>
+<span class="comment">//     let ray_direction = &amp;[dx, dy, dz];</span>
+<span class="comment">//     const TINY: Float = 1e-5;</span>
+<span class="comment">//     let h = cross(ray_direction, edge2);</span>
+<span class="comment">//     let a = dot(edge1, &amp;h);</span>
+<span class="comment">//     if a.reduce_min().abs() &lt; TINY {</span>
+<span class="comment">//         return None;</span>
+<span class="comment">//     }</span>
+<span class="comment">//     let f = std::simd::Simd::splat(1.) / a;</span>
+<span class="comment">//     let s = [ox - ax, oy - ay, oz - az];</span>
+<span class="comment">//     let u = f * dot(&amp;s, &amp;h);</span>
+<span class="comment">//     if u.reduce_min() &gt; 1. + Float::EPSILON || u.reduce_max() &lt; -Float::EPSILON {</span>
+<span class="comment">//         return None;</span>
+<span class="comment">//     }</span>
+<span class="comment">//     let q = cross(&amp;s, edge1);</span>
+<span class="comment">//     let v = f * dot(ray_direction, &amp;q);</span>
+<span class="comment">//     let uv = u + v;</span>
+<span class="comment">//     if uv.reduce_min() &gt; 1.0 + Float::EPSILON || uv.reduce_max() &lt; -Float::EPSILON {</span>
+<span class="comment">//         return None;</span>
+<span class="comment">//     }</span>
+<span class="comment">//     let t = f * dot(edge2, &amp;q);</span>
+<span class="comment">//     if t.reduce_max() &lt; TINY {</span>
+<span class="comment">//         return None;</span>
+<span class="comment">//     }</span>
 
-    <span class="comment">// t must be positive, and alpha, beta and gamma must add to 1 and</span>
-    <span class="comment">// be positive</span>
-    <span class="kw">let</span> <span class="ident">us</span> <span class="op">=</span> <span class="ident">u</span>.<span class="ident">as_array</span>();
-    <span class="kw">let</span> <span class="ident">vs</span> <span class="op">=</span> <span class="ident">v</span>.<span class="ident">as_array</span>();
-    <span class="kw">let</span> <span class="ident">ts</span> <span class="op">=</span> <span class="ident">t</span>.<span class="ident">as_array</span>();
+<span class="comment">//     // t must be positive, and alpha, beta and gamma must add to 1 and</span>
+<span class="comment">//     // be positive</span>
+<span class="comment">//     let us = u.as_array();</span>
+<span class="comment">//     let vs = v.as_array();</span>
+<span class="comment">//     let ts = t.as_array();</span>
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">any_intersect</span> <span class="op">=</span> <span class="bool-val">false</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">t</span> <span class="op">=</span> <span class="ident">Float::MAX</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">v</span> <span class="op">=</span> <span class="ident">Float::MAX</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">u</span> <span class="op">=</span> <span class="ident">Float::MAX</span>;
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">which_tri</span> <span class="op">=</span> <span class="ident">usize::MAX</span>;
+<span class="comment">//     let mut any_intersect = false;</span>
+<span class="comment">//     let mut t = Float::MAX;</span>
+<span class="comment">//     let mut v = Float::MAX;</span>
+<span class="comment">//     let mut u = Float::MAX;</span>
+<span class="comment">//     let mut which_tri = usize::MAX;</span>
 
-    <span class="kw">for</span> (<span class="ident">i</span>, <span class="ident">found_t</span>) <span class="kw">in</span> <span class="ident">ts</span>.<span class="ident">iter</span>().<span class="ident">enumerate</span>() {
-        <span class="kw">let</span> <span class="ident">found_u</span> <span class="op">=</span> <span class="ident">us</span>[<span class="ident">i</span>];
-        <span class="kw">let</span> <span class="ident">found_v</span> <span class="op">=</span> <span class="ident">vs</span>[<span class="ident">i</span>];
+<span class="comment">//     for (i, found_t) in ts.iter().enumerate() {</span>
+<span class="comment">//         let found_u = us[i];</span>
+<span class="comment">//         let found_v = vs[i];</span>
 
-        <span class="comment">// If it is valid AND is closer than the other</span>
-        <span class="kw">let</span> <span class="ident">is_valid</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">found_t</span> <span class="op">&gt;</span> <span class="ident">TINY</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">found_u</span> <span class="op">+</span> <span class="ident">found_v</span> <span class="op">&lt;</span><span class="op">=</span> <span class="number">1.</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">found_u</span> <span class="op">&gt;</span> <span class="op">-</span><span class="ident">Float::EPSILON</span>
-            <span class="op">&amp;&amp;</span> <span class="ident">found_v</span> <span class="op">&gt;</span> <span class="op">-</span><span class="ident">Float::EPSILON</span>;
-        <span class="kw">if</span> <span class="ident">is_valid</span> <span class="op">&amp;&amp;</span> <span class="kw-2">*</span><span class="ident">found_t</span> <span class="op">&lt;</span> <span class="ident">t</span> {
-            <span class="ident">any_intersect</span> <span class="op">=</span> <span class="bool-val">true</span>; <span class="comment">// mark as found</span>
-            <span class="ident">t</span> <span class="op">=</span> <span class="kw-2">*</span><span class="ident">found_t</span>;
-            <span class="ident">u</span> <span class="op">=</span> <span class="ident">found_u</span>;
-            <span class="ident">v</span> <span class="op">=</span> <span class="ident">found_v</span>;
-            <span class="ident">which_tri</span> <span class="op">=</span> <span class="ident">i</span>;
-        }
-    }
+<span class="comment">//         // If it is valid AND is closer than the other</span>
+<span class="comment">//         let is_valid = *found_t &gt; TINY</span>
+<span class="comment">//             &amp;&amp; found_u + found_v &lt;= 1.</span>
+<span class="comment">//             &amp;&amp; found_u &gt; -Float::EPSILON</span>
+<span class="comment">//             &amp;&amp; found_v &gt; -Float::EPSILON;</span>
+<span class="comment">//         if is_valid &amp;&amp; *found_t &lt; t {</span>
+<span class="comment">//             any_intersect = true; // mark as found</span>
+<span class="comment">//             t = *found_t;</span>
+<span class="comment">//             u = found_u;</span>
+<span class="comment">//             v = found_v;</span>
+<span class="comment">//             which_tri = i;</span>
+<span class="comment">//         }</span>
+<span class="comment">//     }</span>
 
-    <span class="kw">if</span> <span class="ident">any_intersect</span> {
-        <span class="prelude-val">Some</span>((<span class="ident">which_tri</span>, <span class="ident">ray</span>.<span class="ident">project</span>(<span class="ident">t</span>), <span class="ident">u</span>, <span class="ident">v</span>))
-    } <span class="kw">else</span> {
-        <span class="prelude-val">None</span>
-    }
-}
+<span class="comment">//     if any_intersect {</span>
+<span class="comment">//         Some((which_tri, ray.project(t), u, v))</span>
+<span class="comment">//     } else {</span>
+<span class="comment">//         None</span>
+<span class="comment">//     }</span>
+<span class="comment">// }</span>
 
 <span class="comment">// /// Calculates the determinant of a 3x3 matrix</span>
 <span class="comment">// fn det_3x3&lt;T&gt;(col0: &amp;[T; 3], col1: &amp;[T; 3], col2: &amp;[T; 3]) -&gt; T</span>
@@ -1264,28 +1298,28 @@
     <span class="prelude-val">Some</span>(<span class="ident">pt</span>)
 }
 
-<span class="doccomment">/// Intersects a `Ray3D` and a pack (i.e., `&amp;[]`) of [`Triangle`], returning the</span>
-<span class="doccomment">/// index of the intersected [`Triangle`] within the pack, and its [`IntersectionInfo`]</span>
-<span class="doccomment">/// (or `None` if they don&#39;t intersect)</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">triangle_intersect_pack</span>(
-    <span class="ident">t</span>: <span class="kw-2">&amp;</span>[<span class="ident">Triangle</span>],
-    <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">geometry3d::Ray3D</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">IntersectionInfo</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">tri_index</span>, <span class="ident">p</span>, <span class="ident">u</span>, <span class="ident">v</span>) <span class="op">=</span> <span class="ident">triangle_pack_baricentric_coorinates</span>(<span class="ident">t</span>, <span class="ident">ray</span>)<span class="question-mark">?</span>;
-    <span class="kw">let</span> <span class="ident">triangle</span> <span class="op">=</span> <span class="kw-2">&amp;</span><span class="ident">t</span>[<span class="ident">tri_index</span>];
-    <span class="prelude-val">Some</span>((<span class="ident">tri_index</span>, <span class="ident">new_info</span>(<span class="ident">triangle</span>, <span class="ident">p</span>, <span class="ident">u</span>, <span class="ident">v</span>, <span class="ident">ray</span>.<span class="ident">direction</span>)))
-}
+<span class="comment">// /// Intersects a `Ray3D` and a pack (i.e., `&amp;[]`) of [`Triangle`], returning the</span>
+<span class="comment">// /// index of the intersected [`Triangle`] within the pack, and its [`IntersectionInfo`]</span>
+<span class="comment">// /// (or `None` if they don&#39;t intersect)</span>
+<span class="comment">// pub fn triangle_intersect_pack(</span>
+<span class="comment">//     t: &amp;[Triangle],</span>
+<span class="comment">//     ray: &amp;geometry3d::Ray3D,</span>
+<span class="comment">// ) -&gt; Option&lt;(usize, IntersectionInfo)&gt; {</span>
+<span class="comment">//     let (tri_index, p, u, v) = triangle_pack_baricentric_coorinates(t, ray)?;</span>
+<span class="comment">//     let triangle = &amp;t[tri_index];</span>
+<span class="comment">//     Some((tri_index, new_info(triangle, p, u, v, ray.direction)))</span>
+<span class="comment">// }</span>
 
-<span class="doccomment">/// Intersects a `Ray3D` and a pack (i.e., `&amp;[]`) of [`Triangle`], returning the</span>
-<span class="doccomment">/// index of the intersected [`Triangle`] within the pack, and the `Point3D` of</span>
-<span class="doccomment">/// intersection</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">simple_triangle_intersect_pack</span>(
-    <span class="ident">t</span>: <span class="kw-2">&amp;</span>[<span class="ident">Triangle</span>],
-    <span class="ident">ray</span>: <span class="kw-2">&amp;</span><span class="ident">geometry3d::Ray3D</span>,
-) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span>(<span class="ident">usize</span>, <span class="ident">geometry3d::Point3D</span>)<span class="op">&gt;</span> {
-    <span class="kw">let</span> (<span class="ident">tri_index</span>, <span class="ident">pt</span>, ..) <span class="op">=</span> <span class="ident">triangle_pack_baricentric_coorinates</span>(<span class="ident">t</span>, <span class="ident">ray</span>)<span class="question-mark">?</span>;
-    <span class="prelude-val">Some</span>((<span class="ident">tri_index</span>, <span class="ident">pt</span>))
-}
+<span class="comment">// /// Intersects a `Ray3D` and a pack (i.e., `&amp;[]`) of [`Triangle`], returning the</span>
+<span class="comment">// /// index of the intersected [`Triangle`] within the pack, and the `Point3D` of</span>
+<span class="comment">// /// intersection</span>
+<span class="comment">// pub fn simple_triangle_intersect_pack(</span>
+<span class="comment">//     t: &amp;[Triangle],</span>
+<span class="comment">//     ray: &amp;geometry3d::Ray3D,</span>
+<span class="comment">// ) -&gt; Option&lt;(usize, geometry3d::Point3D)&gt; {</span>
+<span class="comment">//     let (tri_index, pt, ..) = triangle_pack_baricentric_coorinates(t, ray)?;</span>
+<span class="comment">//     Some((tri_index, pt))</span>
+<span class="comment">// }</span>
 
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Intersection</span> {
     <span class="kw">pub</span> <span class="ident">e1</span>: <span class="ident">Vector3D</span>,
@@ -1492,6 +1526,31 @@
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">testing</span> {
     <span class="kw">use</span> <span class="kw">super</span>::<span class="kw-2">*</span>;
+    <span class="kw">use</span> <span class="ident">validate::assert_close</span>;
+
+    <span class="attribute">#[<span class="ident">test</span>]</span>
+    <span class="kw">fn</span> <span class="ident">test_triangle_area</span>() {
+        <span class="comment">// in XY</span>
+        <span class="kw">let</span> <span class="ident">t</span>: <span class="ident">Triangle</span> <span class="op">=</span> [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>];
+        <span class="macro">assert_close!</span>(<span class="number">0.5</span>, <span class="ident">triangle_area</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+
+        <span class="kw">let</span> <span class="ident">t</span>: <span class="ident">Triangle</span> <span class="op">=</span> [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>, <span class="number">0.</span>];
+        <span class="macro">assert_close!</span>(<span class="number">2.</span>, <span class="ident">triangle_area</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+
+        <span class="comment">// in XZ</span>
+        <span class="kw">let</span> <span class="ident">t</span>: <span class="ident">Triangle</span> <span class="op">=</span> [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>];
+        <span class="macro">assert_close!</span>(<span class="number">0.5</span>, <span class="ident">triangle_area</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+
+        <span class="kw">let</span> <span class="ident">t</span>: <span class="ident">Triangle</span> <span class="op">=</span> [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>];
+        <span class="macro">assert_close!</span>(<span class="number">2.</span>, <span class="ident">triangle_area</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+
+        <span class="comment">// in YZ</span>
+        <span class="kw">let</span> <span class="ident">t</span>: <span class="ident">Triangle</span> <span class="op">=</span> [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">1.</span>];
+        <span class="macro">assert_close!</span>(<span class="number">0.5</span>, <span class="ident">triangle_area</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+
+        <span class="kw">let</span> <span class="ident">t</span>: <span class="ident">Triangle</span> <span class="op">=</span> [<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>, <span class="number">2.</span>];
+        <span class="macro">assert_close!</span>(<span class="number">2.</span>, <span class="ident">triangle_area</span>(<span class="kw-2">&amp;</span><span class="ident">t</span>));
+    }
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">test_mesh_triangle</span>() {
@@ -1676,204 +1735,204 @@
         <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
     }
 
-    <span class="attribute">#[<span class="ident">test</span>]</span>
-    <span class="kw">fn</span> <span class="ident">test_triangle_intersect_pack</span>() {
-        <span class="kw">let</span> <span class="ident">a</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
-        <span class="kw">let</span> <span class="ident">b</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">1.</span>, <span class="number">0.</span>, <span class="number">0.</span>);
-        <span class="kw">let</span> <span class="ident">c</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">1.</span>, <span class="number">0.</span>);
+    <span class="comment">// #[test]</span>
+    <span class="comment">// fn test_triangle_intersect_pack() {</span>
+    <span class="comment">//     let a = Point3D::new(0., 0., 0.);</span>
+    <span class="comment">//     let b = Point3D::new(1., 0., 0.);</span>
+    <span class="comment">//     let c = Point3D::new(0., 1., 0.);</span>
 
-        <span class="kw">let</span> <span class="ident">triangle</span>: [<span class="ident">Triangle</span>; <span class="number">4</span>] <span class="op">=</span> [
-            [<span class="ident">a</span>.<span class="ident">x</span>, <span class="ident">a</span>.<span class="ident">y</span>, <span class="number">0.0</span>, <span class="ident">b</span>.<span class="ident">x</span>, <span class="ident">b</span>.<span class="ident">y</span>, <span class="number">0.0</span>, <span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>, <span class="number">0.0</span>],
-            [<span class="ident">a</span>.<span class="ident">x</span>, <span class="ident">a</span>.<span class="ident">y</span>, <span class="number">0.1</span>, <span class="ident">b</span>.<span class="ident">x</span>, <span class="ident">b</span>.<span class="ident">y</span>, <span class="number">0.1</span>, <span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>, <span class="number">0.1</span>],
-            [<span class="ident">a</span>.<span class="ident">x</span>, <span class="ident">a</span>.<span class="ident">y</span>, <span class="number">0.2</span>, <span class="ident">b</span>.<span class="ident">x</span>, <span class="ident">b</span>.<span class="ident">y</span>, <span class="number">0.2</span>, <span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>, <span class="number">0.2</span>],
-            [<span class="ident">a</span>.<span class="ident">x</span>, <span class="ident">a</span>.<span class="ident">y</span>, <span class="number">0.3</span>, <span class="ident">b</span>.<span class="ident">x</span>, <span class="ident">b</span>.<span class="ident">y</span>, <span class="number">0.3</span>, <span class="ident">c</span>.<span class="ident">x</span>, <span class="ident">c</span>.<span class="ident">y</span>, <span class="number">0.3</span>],
-        ];
+    <span class="comment">//     let triangle: [Triangle; 4] = [</span>
+    <span class="comment">//         [a.x, a.y, 0.0, b.x, b.y, 0.0, c.x, c.y, 0.0],</span>
+    <span class="comment">//         [a.x, a.y, 0.1, b.x, b.y, 0.1, c.x, c.y, 0.1],</span>
+    <span class="comment">//         [a.x, a.y, 0.2, b.x, b.y, 0.2, c.x, c.y, 0.2],</span>
+    <span class="comment">//         [a.x, a.y, 0.3, b.x, b.y, 0.3, c.x, c.y, 0.3],</span>
+    <span class="comment">//     ];</span>
 
-        <span class="kw">let</span> <span class="ident">test_hit</span> <span class="op">=</span> <span class="op">|</span><span class="ident">pt</span>: <span class="ident">Point3D</span>,
-                        <span class="ident">dir</span>: <span class="ident">Vector3D</span>,
-                        <span class="ident">exp_index</span>: <span class="ident">usize</span>,
-                        <span class="ident">expect_pt</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Point3D</span><span class="op">&gt;</span>,
-                        <span class="ident">exp_side</span>: <span class="ident">SurfaceSide</span><span class="op">|</span>
-         -&gt; <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">String</span><span class="op">&gt;</span> {
-            <span class="kw">let</span> <span class="ident">ray</span> <span class="op">=</span> <span class="ident">Ray3D</span> {
-                <span class="ident">origin</span>: <span class="ident">pt</span>,
-                <span class="ident">direction</span>: <span class="ident">dir</span>,
-            };
+    <span class="comment">//     let test_hit = |pt: Point3D,</span>
+    <span class="comment">//                     dir: Vector3D,</span>
+    <span class="comment">//                     exp_index: usize,</span>
+    <span class="comment">//                     expect_pt: Option&lt;Point3D&gt;,</span>
+    <span class="comment">//                     exp_side: SurfaceSide|</span>
+    <span class="comment">//      -&gt; Result&lt;(), String&gt; {</span>
+    <span class="comment">//         let ray = Ray3D {</span>
+    <span class="comment">//             origin: pt,</span>
+    <span class="comment">//             direction: dir,</span>
+    <span class="comment">//         };</span>
 
-            <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>((<span class="ident">index</span>, <span class="ident">info</span>)) <span class="op">=</span> <span class="ident">triangle_intersect_pack</span>(<span class="kw-2">&amp;</span><span class="ident">triangle</span>, <span class="kw-2">&amp;</span><span class="ident">ray</span>) {
-                <span class="kw">let</span> <span class="ident">phit</span> <span class="op">=</span> <span class="ident">info</span>.<span class="ident">p</span>;
+    <span class="comment">//         if let Some((index, info)) = triangle_intersect_pack(&amp;triangle, &amp;ray) {</span>
+    <span class="comment">//             let phit = info.p;</span>
 
-                <span class="kw">if</span> <span class="kw">let</span> <span class="prelude-val">Some</span>(<span class="ident">exp_p</span>) <span class="op">=</span> <span class="ident">expect_pt</span> {
-                    <span class="kw">if</span> <span class="op">!</span><span class="ident">phit</span>.<span class="ident">compare</span>(<span class="ident">exp_p</span>) {
-                        <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                            <span class="string">&quot;Hit in incorrect point...: pt = {}, dir = {}, phit = {}&quot;</span>,
-                            <span class="ident">pt</span>, <span class="ident">dir</span>, <span class="ident">phit</span>
-                        ));
-                    }
-                } <span class="kw">else</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;Was NOT expecting hit: pt = {}, dir = {}&quot;</span>, <span class="ident">pt</span>, <span class="ident">dir</span>));
-                }
-                <span class="kw">if</span> <span class="ident">exp_side</span> <span class="op">!</span><span class="op">=</span> <span class="ident">info</span>.<span class="ident">side</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;Expecing a hit at the {:?} (dir = {}, pt = {})&quot;</span>,
-                        <span class="ident">exp_side</span>, <span class="ident">dir</span>, <span class="ident">pt</span>
-                    ));
-                }
-                <span class="kw">if</span> <span class="ident">exp_index</span> <span class="op">!</span><span class="op">=</span> <span class="ident">index</span> {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(
-                        <span class="string">&quot;Expecing a hit at triangle {} (dir = {}, pt = {})&quot;</span>,
-                        <span class="ident">index</span>, <span class="ident">dir</span>, <span class="ident">pt</span>
-                    ));
-                }
-            } <span class="kw">else</span> {
-                <span class="kw">if</span> <span class="ident">expect_pt</span>.<span class="ident">is_some</span>() {
-                    <span class="kw">return</span> <span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">&quot;WAS expecting hit: pt = {}, dir = {}&quot;</span>, <span class="ident">pt</span>, <span class="ident">dir</span>));
-                }
-            }
+    <span class="comment">//             if let Some(exp_p) = expect_pt {</span>
+    <span class="comment">//                 if !phit.compare(exp_p) {</span>
+    <span class="comment">//                     return Err(format!(</span>
+    <span class="comment">//                         &quot;Hit in incorrect point...: pt = {}, dir = {}, phit = {}&quot;,</span>
+    <span class="comment">//                         pt, dir, phit</span>
+    <span class="comment">//                     ));</span>
+    <span class="comment">//                 }</span>
+    <span class="comment">//             } else {</span>
+    <span class="comment">//                 return Err(format!(&quot;Was NOT expecting hit: pt = {}, dir = {}&quot;, pt, dir));</span>
+    <span class="comment">//             }</span>
+    <span class="comment">//             if exp_side != info.side {</span>
+    <span class="comment">//                 return Err(format!(</span>
+    <span class="comment">//                     &quot;Expecing a hit at the {:?} (dir = {}, pt = {})&quot;,</span>
+    <span class="comment">//                     exp_side, dir, pt</span>
+    <span class="comment">//                 ));</span>
+    <span class="comment">//             }</span>
+    <span class="comment">//             if exp_index != index {</span>
+    <span class="comment">//                 return Err(format!(</span>
+    <span class="comment">//                     &quot;Expecing a hit at triangle {} (dir = {}, pt = {})&quot;,</span>
+    <span class="comment">//                     index, dir, pt</span>
+    <span class="comment">//                 ));</span>
+    <span class="comment">//             }</span>
+    <span class="comment">//         } else {</span>
+    <span class="comment">//             if expect_pt.is_some() {</span>
+    <span class="comment">//                 return Err(format!(&quot;WAS expecting hit: pt = {}, dir = {}&quot;, pt, dir));</span>
+    <span class="comment">//             }</span>
+    <span class="comment">//         }</span>
 
-            <span class="prelude-val">Ok</span>(())
-        }; <span class="comment">// end of closure</span>
+    <span class="comment">//         Ok(())</span>
+    <span class="comment">//     }; // end of closure</span>
 
-        <span class="comment">/* FROM THE BOTTOM, GOING UP */</span>
-        <span class="comment">// Vertex A</span>
-        <span class="ident">test_hit</span>(<span class="ident">a</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">a</span>), <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     /* FROM THE BOTTOM, GOING UP */</span>
+    <span class="comment">//     // Vertex A</span>
+    <span class="comment">//     test_hit(a + DOWN, UP, 0, Some(a), SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">// Vertex B.</span>
-        <span class="ident">test_hit</span>(<span class="ident">b</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">b</span>), <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Vertex B.</span>
+    <span class="comment">//     test_hit(b + DOWN, UP, 0, Some(b), SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">// Vertex C.</span>
-        <span class="ident">test_hit</span>(<span class="ident">c</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">c</span>), <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Vertex C.</span>
+    <span class="comment">//     test_hit(c + DOWN, UP, 0, Some(c), SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">// Segment AB.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.5</span>, <span class="number">0.</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span>), <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment AB.</span>
+    <span class="comment">//     let p = Point3D::new(0.5, 0., 0.);</span>
+    <span class="comment">//     test_hit(p + DOWN, UP, 0, Some(p), SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">// Segment AC.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.5</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span>), <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment AC.</span>
+    <span class="comment">//     let p = Point3D::new(0., 0.5, 0.);</span>
+    <span class="comment">//     test_hit(p + DOWN, UP, 0, Some(p), SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">// Segment BC.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span>), <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment BC.</span>
+    <span class="comment">//     let p = Point3D::new(0.5, 0.5, 0.);</span>
+    <span class="comment">//     test_hit(p + DOWN, UP, 0, Some(p), SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">// Point outside</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">None</span>, <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Point outside</span>
+    <span class="comment">//     let p = Point3D::new(0., -1., 0.);</span>
+    <span class="comment">//     test_hit(p + DOWN, UP, 0, None, SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">// Point inside</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">DOWN</span>, <span class="ident">UP</span>, <span class="number">0</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span>), <span class="ident">SurfaceSide::Back</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Point inside</span>
+    <span class="comment">//     let p = Point3D::new(0.1, 0.1, 0.);</span>
+    <span class="comment">//     test_hit(p + DOWN, UP, 0, Some(p), SurfaceSide::Back).unwrap();</span>
 
-        <span class="comment">/* FROM THE TOP, GOING DOWN */</span>
-        <span class="comment">// Vertex A</span>
-        <span class="ident">test_hit</span>(<span class="ident">a</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="ident">a</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.3</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     /* FROM THE TOP, GOING DOWN */</span>
+    <span class="comment">//     // Vertex A</span>
+    <span class="comment">//     test_hit(a + UP, DOWN, 3, Some(a + UP * 0.3), SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Vertex B.</span>
-        <span class="ident">test_hit</span>(<span class="ident">b</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="ident">b</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.3</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Vertex B.</span>
+    <span class="comment">//     test_hit(b + UP, DOWN, 3, Some(b + UP * 0.3), SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Vertex C.</span>
-        <span class="ident">test_hit</span>(<span class="ident">c</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="ident">c</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.3</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Vertex C.</span>
+    <span class="comment">//     test_hit(c + UP, DOWN, 3, Some(c + UP * 0.3), SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Segment AB.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.5</span>, <span class="number">0.</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.3</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment AB.</span>
+    <span class="comment">//     let p = Point3D::new(0.5, 0., 0.);</span>
+    <span class="comment">//     test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Segment AC.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.5</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.3</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment AC.</span>
+    <span class="comment">//     let p = Point3D::new(0., 0.5, 0.);</span>
+    <span class="comment">//     test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Segment BC.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.3</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment BC.</span>
+    <span class="comment">//     let p = Point3D::new(0.5, 0.5, 0.);</span>
+    <span class="comment">//     test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Point outside</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">None</span>, <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Point outside</span>
+    <span class="comment">//     let p = Point3D::new(0., -1., 0.);</span>
+    <span class="comment">//     test_hit(p + UP, DOWN, 3, None, SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Point inside</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span>, <span class="ident">DOWN</span>, <span class="number">3</span>, <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.3</span>), <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Point inside</span>
+    <span class="comment">//     let p = Point3D::new(0.1, 0.1, 0.);</span>
+    <span class="comment">//     test_hit(p + UP, DOWN, 3, Some(p + UP * 0.3), SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">/* FROM THE TOP, GOING DOWN... BUT STARTING BETWEEN TRIANGLES */</span>
-        <span class="comment">// Vertex A</span>
-        <span class="ident">test_hit</span>(
-            <span class="ident">a</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>,
-            <span class="ident">DOWN</span>,
-            <span class="number">1</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">a</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.1</span>),
-            <span class="ident">SurfaceSide::Front</span>,
-        )
-        .<span class="ident">unwrap</span>();
+    <span class="comment">//     /* FROM THE TOP, GOING DOWN... BUT STARTING BETWEEN TRIANGLES */</span>
+    <span class="comment">//     // Vertex A</span>
+    <span class="comment">//     test_hit(</span>
+    <span class="comment">//         a + UP * 0.15,</span>
+    <span class="comment">//         DOWN,</span>
+    <span class="comment">//         1,</span>
+    <span class="comment">//         Some(a + UP * 0.1),</span>
+    <span class="comment">//         SurfaceSide::Front,</span>
+    <span class="comment">//     )</span>
+    <span class="comment">//     .unwrap();</span>
 
-        <span class="comment">// Vertex B.</span>
-        <span class="ident">test_hit</span>(
-            <span class="ident">b</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>,
-            <span class="ident">DOWN</span>,
-            <span class="number">1</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">b</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.1</span>),
-            <span class="ident">SurfaceSide::Front</span>,
-        )
-        .<span class="ident">unwrap</span>();
+    <span class="comment">//     // Vertex B.</span>
+    <span class="comment">//     test_hit(</span>
+    <span class="comment">//         b + UP * 0.15,</span>
+    <span class="comment">//         DOWN,</span>
+    <span class="comment">//         1,</span>
+    <span class="comment">//         Some(b + UP * 0.1),</span>
+    <span class="comment">//         SurfaceSide::Front,</span>
+    <span class="comment">//     )</span>
+    <span class="comment">//     .unwrap();</span>
 
-        <span class="comment">// Vertex C.</span>
-        <span class="ident">test_hit</span>(
-            <span class="ident">c</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>,
-            <span class="ident">DOWN</span>,
-            <span class="number">1</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">c</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.1</span>),
-            <span class="ident">SurfaceSide::Front</span>,
-        )
-        .<span class="ident">unwrap</span>();
+    <span class="comment">//     // Vertex C.</span>
+    <span class="comment">//     test_hit(</span>
+    <span class="comment">//         c + UP * 0.15,</span>
+    <span class="comment">//         DOWN,</span>
+    <span class="comment">//         1,</span>
+    <span class="comment">//         Some(c + UP * 0.1),</span>
+    <span class="comment">//         SurfaceSide::Front,</span>
+    <span class="comment">//     )</span>
+    <span class="comment">//     .unwrap();</span>
 
-        <span class="comment">// Segment AB.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.5</span>, <span class="number">0.</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(
-            <span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>,
-            <span class="ident">DOWN</span>,
-            <span class="number">1</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.1</span>),
-            <span class="ident">SurfaceSide::Front</span>,
-        )
-        .<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment AB.</span>
+    <span class="comment">//     let p = Point3D::new(0.5, 0., 0.);</span>
+    <span class="comment">//     test_hit(</span>
+    <span class="comment">//         p + UP * 0.15,</span>
+    <span class="comment">//         DOWN,</span>
+    <span class="comment">//         1,</span>
+    <span class="comment">//         Some(p + UP * 0.1),</span>
+    <span class="comment">//         SurfaceSide::Front,</span>
+    <span class="comment">//     )</span>
+    <span class="comment">//     .unwrap();</span>
 
-        <span class="comment">// Segment AC.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="number">0.5</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(
-            <span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>,
-            <span class="ident">DOWN</span>,
-            <span class="number">1</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.1</span>),
-            <span class="ident">SurfaceSide::Front</span>,
-        )
-        .<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment AC.</span>
+    <span class="comment">//     let p = Point3D::new(0., 0.5, 0.);</span>
+    <span class="comment">//     test_hit(</span>
+    <span class="comment">//         p + UP * 0.15,</span>
+    <span class="comment">//         DOWN,</span>
+    <span class="comment">//         1,</span>
+    <span class="comment">//         Some(p + UP * 0.1),</span>
+    <span class="comment">//         SurfaceSide::Front,</span>
+    <span class="comment">//     )</span>
+    <span class="comment">//     .unwrap();</span>
 
-        <span class="comment">// Segment BC.</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.5</span>, <span class="number">0.5</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(
-            <span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>,
-            <span class="ident">DOWN</span>,
-            <span class="number">1</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.1</span>),
-            <span class="ident">SurfaceSide::Front</span>,
-        )
-        .<span class="ident">unwrap</span>();
+    <span class="comment">//     // Segment BC.</span>
+    <span class="comment">//     let p = Point3D::new(0.5, 0.5, 0.);</span>
+    <span class="comment">//     test_hit(</span>
+    <span class="comment">//         p + UP * 0.15,</span>
+    <span class="comment">//         DOWN,</span>
+    <span class="comment">//         1,</span>
+    <span class="comment">//         Some(p + UP * 0.1),</span>
+    <span class="comment">//         SurfaceSide::Front,</span>
+    <span class="comment">//     )</span>
+    <span class="comment">//     .unwrap();</span>
 
-        <span class="comment">// Point outside</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.</span>, <span class="op">-</span><span class="number">1.</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>, <span class="ident">DOWN</span>, <span class="number">1</span>, <span class="prelude-val">None</span>, <span class="ident">SurfaceSide::Front</span>).<span class="ident">unwrap</span>();
+    <span class="comment">//     // Point outside</span>
+    <span class="comment">//     let p = Point3D::new(0., -1., 0.);</span>
+    <span class="comment">//     test_hit(p + UP * 0.15, DOWN, 1, None, SurfaceSide::Front).unwrap();</span>
 
-        <span class="comment">// Point inside</span>
-        <span class="kw">let</span> <span class="ident">p</span> <span class="op">=</span> <span class="ident">Point3D::new</span>(<span class="number">0.1</span>, <span class="number">0.1</span>, <span class="number">0.</span>);
-        <span class="ident">test_hit</span>(
-            <span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.15</span>,
-            <span class="ident">DOWN</span>,
-            <span class="number">1</span>,
-            <span class="prelude-val">Some</span>(<span class="ident">p</span> <span class="op">+</span> <span class="ident">UP</span> <span class="op">*</span> <span class="number">0.1</span>),
-            <span class="ident">SurfaceSide::Front</span>,
-        )
-        .<span class="ident">unwrap</span>();
-    }
+    <span class="comment">//     // Point inside</span>
+    <span class="comment">//     let p = Point3D::new(0.1, 0.1, 0.);</span>
+    <span class="comment">//     test_hit(</span>
+    <span class="comment">//         p + UP * 0.15,</span>
+    <span class="comment">//         DOWN,</span>
+    <span class="comment">//         1,</span>
+    <span class="comment">//         Some(p + UP * 0.1),</span>
+    <span class="comment">//         SurfaceSide::Front,</span>
+    <span class="comment">//     )</span>
+    <span class="comment">//     .unwrap();</span>
+    <span class="comment">// }</span>
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.64.0-nightly (06754d885 2022-07-08)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
 </body></html>
