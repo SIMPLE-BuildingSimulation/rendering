@@ -83,6 +83,7 @@ impl DCFactory {
                 // Run each spawned ray in parallel or series, depending on
                 // the compilation options
                 let mut rng = get_rng();
+                #[allow(clippy::needless_collect)]
                 let aux_iter: Vec<Vector3D> = (0..self.n_ambient_samples)
                     .into_iter()
                     .map(|_| sample_cosine_weighted_horizontal_hemisphere(&mut rng))
@@ -189,13 +190,12 @@ impl DCFactory {
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
     ) {
-        // Limit bounces
-        if ray.depth > self.max_depth {
-            return;
-        }
-
         // If hits an object
         if let Some(triangle_index) = scene.cast_ray(ray, &mut aux.nodes) {
+            // Limit bounces
+            if ray.depth > self.max_depth {
+                return;
+            }
             // NEARLY copied... except from the return statement
             let material = match ray.interaction.geometry_shading.side {
                 SurfaceSide::Front => {
@@ -225,10 +225,9 @@ impl DCFactory {
                     new_ray.colour *= *bsdf_value;
                     new_ray.value *= bsdf_value.radiance();
 
-                    // avoid infinite interior bouncing
                     let q: Float = rng.gen();
                     if q < self.count_specular_bounce {
-                        ray.depth += 1
+                        new_ray.depth += 1
                     }
 
                     self.trace_ray(

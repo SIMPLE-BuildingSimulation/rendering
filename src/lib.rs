@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#![feature(portable_simd)]
+// #![deny(missing_docs)]
 
 /// The kind of Floating point number used in the
 /// library... the `"float"` feature means it becomes `f32`
@@ -37,13 +37,6 @@ pub const PI: Float = std::f64::consts::PI;
 /// RGB is Three... you can change this for spectral
 /// rendering
 pub const N_CHANNELS: usize = 3;
-
-// #[cfg(feature = "parallel")]
-// type RefCount<T> = std::sync::Arc<T>;
-// #[cfg(not(feature = "parallel"))]
-// type RefCount<T> = std::rc::Rc<T>;
-
-// #[warn(missing_docs)]
 
 // Core
 pub mod bvh;

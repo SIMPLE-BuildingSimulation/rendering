@@ -95,7 +95,7 @@ impl Ray {
         limit_weight: Float,
         rng: &mut RandGen,
     ) -> usize {
-        if max_depth == 0 || max_ambient_samples <= 0 {
+        if max_depth == 0 || max_ambient_samples == 0 {
             0 // No ambient samples required
         } else if self.depth == 0 {
             max_ambient_samples

@@ -163,21 +163,13 @@ impl RayTracer {
                 material,
                 ray,
                 rng,
-                n_ambient_samples,
                 n_shadow_samples,
                 &mut aux.nodes,
             );
 
             /* INDIRECT */
-            let global = self.get_global_illumination(
-                scene,
-                n_ambient_samples,
-                n_shadow_samples,
-                material,
-                ray,
-                rng,
-                aux,
-            );
+            let global =
+                self.get_global_illumination(scene, n_ambient_samples, material, ray, rng, aux);
 
             (local + global, 0.0)
         } else {
@@ -195,13 +187,13 @@ impl RayTracer {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn sample_light_array(
         &self,
         scene: &Scene,
         material: &Material,
         ray: &Ray,
         rng: &mut RandGen,
-        n_ambient_samples: usize,
         n_shadow_samples: usize,
         lights: &[Object],
         node_aux: &mut Vec<usize>,
@@ -273,7 +265,6 @@ impl RayTracer {
         material: &Material, //&impl Material,
         ray: &Ray,
         rng: &mut RandGen,
-        n_ambient_samples: usize,
         n_shadow_samples: usize,
         node_aux: &mut Vec<usize>,
     ) -> Spectrum<{ crate::N_CHANNELS }> {
@@ -282,7 +273,6 @@ impl RayTracer {
             material,
             ray,
             rng,
-            n_ambient_samples,
             n_shadow_samples,
             &scene.lights,
             node_aux,
@@ -292,7 +282,6 @@ impl RayTracer {
             material,
             ray,
             rng,
-            n_ambient_samples,
             n_shadow_samples,
             &scene.distant_lights,
             node_aux,
@@ -306,7 +295,6 @@ impl RayTracer {
         &self,
         scene: &Scene,
         n_ambient_samples: usize,
-        n_shadow_samples: usize,
         material: &Material,
         ray: &mut Ray,
         rng: &mut RandGen,

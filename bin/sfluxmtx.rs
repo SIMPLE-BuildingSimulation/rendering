@@ -73,11 +73,7 @@ fn main() {
     } else if input_file.ends_with(".spl") {
         let (model, _header) = simple_model::SimpleModel::from_file(input_file).unwrap();
         Scene::from_simple_model(&model, Wavelengths::Visible)
-    }
-    // else if input.ends_with(".obj"){
-    //     Scene::from_simple_model(input)
-    // }
-    else {
+    } else {
         panic!("Unkwown format in file {}", input_file);
     };
 
@@ -93,7 +89,7 @@ fn main() {
         }
         ln += 1;
         {
-            let st: Vec<&str> = buffer.trim().split(" ").collect();
+            let st: Vec<&str> = buffer.trim().split(' ').collect();
             // let st : Vec<&str> = buffer.split_ascii_whitespace().collect();
 
             if st.len() != 6 {
@@ -180,7 +176,7 @@ fn main() {
     };
 
     let dc_matrix = factory.calc_dc(&rays, &scene);
-    save_colour_matrix(&dc_matrix, &std::path::Path::new(&inputs.output)).unwrap()
+    save_colour_matrix(&dc_matrix, std::path::Path::new(&inputs.output)).unwrap()
     // let dc_matrix = rendering::colour_matrix::colour_matrix_to_luminance(&dc_matrix);
     // rendering::colour_matrix::save_matrix(&dc_matrix, &std::path::Path::new(&inputs.output)).unwrap()
 }

@@ -514,39 +514,14 @@ impl BoundingVolumeTree {
                 if node.is_leaf() {
                     let offset = node.next;
 
-                    // Check all the objects in this Node
-                    const PACK_SIZE: usize = 4;
+                    // // Check all the objects in this Node
+                    // const PACK_SIZE: usize = 4;
                     let ini = offset as usize;
                     let fin = ini + node.n_prims as usize;
                     let this_prims: &[Triangle] = &primitives[ini..fin];
 
-                    let mut n_packs = 0; // I need to know how many packs went through
-                    let mut iterator = this_prims.chunks_exact(PACK_SIZE);
-
-                    for pack in iterator.by_ref() {
-                        if let Some((i, intersect_info)) =
-                            triangle_intersect_pack(pack, &ray.geometry)
-                        {
-                            let this_t_squared =
-                                (intersect_info.p - ray.geometry.origin).length_squared();
-                            // if the distance is less than the prevous one, update the info
-                            if this_t_squared > MIN_T && this_t_squared < t_squared {
-                                // If the distance is less than what we had, update return data
-                                t_squared = this_t_squared;
-                                prim_index =
-                                    Some(offset as usize + PACK_SIZE * n_packs + i as usize);
-                                ray.interaction.geometry_shading = intersect_info;
-                            }
-                        }
-                        n_packs += 1;
-                    }
-
-                    // let mut i = 0;
-                    let mut iterator = iterator.remainder().iter();
-
-                    // let mut iterator = this_prims.iter();
-                    // let n_packs = 0;
-                    for (i, tri) in iterator.by_ref().enumerate() {
+                    /* NON_SIMD */
+                    for (i, tri) in this_prims.iter().enumerate() {
                         if let Some(intersect_info) = triangle_intersect(tri, &ray.geometry) {
                             // If hit, check the distance.
                             let this_t_squared =
@@ -555,13 +530,62 @@ impl BoundingVolumeTree {
                             if this_t_squared > MIN_T && this_t_squared < t_squared {
                                 // If the distance is less than what we had, update return data
                                 t_squared = this_t_squared;
-                                let n = offset as usize + PACK_SIZE * n_packs + i as usize;
+                                // let n = offset as usize + PACK_SIZE * n_packs + i as usize;
+                                let n = ini + i;
                                 prim_index = Some(n);
                                 ray.interaction.geometry_shading = intersect_info;
                             }
                         }
                         // i += 1;
                     }
+
+                    /* END OF NON-SIMD */
+
+                    /* SIMD INTEGRATION */
+                    // let mut n_packs = 0; // I need to know how many packs went through
+                    // let mut iterator = this_prims.chunks_exact(PACK_SIZE);
+
+                    // for pack in iterator.by_ref() {
+                    //     if let Some((i, intersect_info)) =
+                    //         triangle_intersect_pack(pack, &ray.geometry)
+                    //     {
+                    //         let this_t_squared =
+                    //             (intersect_info.p - ray.geometry.origin).length_squared();
+                    //         // if the distance is less than the prevous one, update the info
+                    //         if this_t_squared > MIN_T && this_t_squared < t_squared {
+                    //             // If the distance is less than what we had, update return data
+                    //             t_squared = this_t_squared;
+                    //             prim_index =
+                    //                 Some(offset as usize + PACK_SIZE * n_packs + i as usize);
+                    //             ray.interaction.geometry_shading = intersect_info;
+                    //         }
+                    //     }
+                    //     n_packs += 1;
+                    // }
+
+                    // // let mut i = 0;
+                    // let mut iterator = iterator.remainder().iter();
+
+                    // // let mut iterator = this_prims.iter();
+                    // // let n_packs = 0;
+                    // for (i, tri) in iterator.by_ref().enumerate() {
+                    //     if let Some(intersect_info) = triangle_intersect(tri, &ray.geometry) {
+                    //         // If hit, check the distance.
+                    //         let this_t_squared =
+                    //             (intersect_info.p - ray.geometry.origin).length_squared();
+                    //         // if the distance is less than the prevous one, update the info
+                    //         if this_t_squared > MIN_T && this_t_squared < t_squared {
+                    //             // If the distance is less than what we had, update return data
+                    //             t_squared = this_t_squared;
+                    //             let n = offset as usize + PACK_SIZE * n_packs + i as usize;
+                    //             prim_index = Some(n);
+                    //             ray.interaction.geometry_shading = intersect_info;
+                    //         }
+                    //     }
+                    //     // i += 1;
+                    // }
+
+                    /* END OF SIMD */
 
                     // update node we need to visit next, if any... otherwise, finish
                     if let Some(i) = nodes_to_visit.pop() {
@@ -634,33 +658,16 @@ impl BoundingVolumeTree {
                     let offset = node.next;
 
                     // Check all the objects in this Node
-                    const PACK_SIZE: usize = 4;
                     let ini = offset as usize;
                     let fin = ini + node.n_prims as usize;
                     let this_prims: &[Triangle] = &primitives[ini..fin];
-                    let mut iterator = this_prims.chunks_exact(PACK_SIZE);
 
-                    for pack in iterator.by_ref() {
-                        if let Some((_i, p)) = simple_triangle_intersect_pack(pack, ray) {
-                            let this_t_squared = (p - ray.origin).length_squared();
-
-                            // Is it a valid hit and it is earlier than the rest?
-                            if this_t_squared > MIN_T
-                                && this_t_squared + MIN_T < distance_squared
-                                && (distance_squared - this_t_squared).abs() > 0.0001
-                            {
-                                return false;
-                            }
-                        }
-                    }
-
-                    let iterator = iterator.remainder().iter();
-                    for tri in iterator {
+                    /* NON_SIMD */
+                    for tri in this_prims.iter() {
                         if let Some(p) = simple_triangle_intersect(tri, ray) {
                             // If hit, check the distance.
                             let this_t_squared = (p - ray.origin).length_squared();
 
-                            // Is it a valid hit and it is earlier than the rest?
                             if this_t_squared > MIN_T
                                 && this_t_squared + MIN_T < distance_squared
                                 && (distance_squared - this_t_squared).abs() > 0.0001
@@ -668,7 +675,43 @@ impl BoundingVolumeTree {
                                 return false;
                             }
                         }
+                        // i += 1;
                     }
+
+                    /* SIMD */
+                    // const PACK_SIZE: usize = 4;
+                    // let mut iterator = this_prims.chunks_exact(PACK_SIZE);
+
+                    // for pack in iterator.by_ref() {
+                    //     if let Some((_i, p)) = simple_triangle_intersect_pack(pack, ray) {
+                    //         let this_t_squared = (p - ray.origin).length_squared();
+
+                    //         // Is it a valid hit and it is earlier than the rest?
+                    //         if this_t_squared > MIN_T
+                    //             && this_t_squared + MIN_T < distance_squared
+                    //             && (distance_squared - this_t_squared).abs() > 0.0001
+                    //         {
+                    //             return false;
+                    //         }
+                    //     }
+                    // }
+
+                    // let iterator = iterator.remainder().iter();
+                    // for tri in iterator {
+                    //     if let Some(p) = simple_triangle_intersect(tri, ray) {
+                    //         // If hit, check the distance.
+                    //         let this_t_squared = (p - ray.origin).length_squared();
+
+                    //         // Is it a valid hit and it is earlier than the rest?
+                    //         if this_t_squared > MIN_T
+                    //             && this_t_squared + MIN_T < distance_squared
+                    //             && (distance_squared - this_t_squared).abs() > 0.0001
+                    //         {
+                    //             return false;
+                    //         }
+                    //     }
+                    // }
+                    /* END OF SIMD */
 
                     if let Some(i) = nodes_to_visit.pop() {
                         current_node = i;

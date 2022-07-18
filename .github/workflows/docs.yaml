@@ -1,11 +1,10 @@
 name: Docs
 
 on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
+  workflow_run:
+    workflows: ["Tests"]
+    types:
+      - completed
 
 env:
   CARGO_TERM_COLOR: always
@@ -14,16 +13,14 @@ jobs:
   docs:    
     runs-on: ubuntu-latest    
     steps:
-      - uses: actions/checkout@v3     
-      - name: Set Toolchain
-        run: rustup default nightly    
+      - uses: actions/checkout@v3      
       - name: Update
         run: rustup update 
       # THIS VALIDATION TAKES TOO LONG... I AM PUSHING IT
       # - name: Validate
       #   run: |
-      #     cargo test --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture --ignored
-      #     cargo test --release --package rendering --test validate_dc -- validate_dc --exact --nocapture  --ignored
+      #     cargo test --features parallel --release --package rendering --test validate_ray_tracer -- validate_ray_tracer --exact --nocapture --ignored
+      #     cargo test --features parallel --release --package rendering --test validate_dc -- validate_dc --exact --nocapture  --ignored
       - name: Build doc
         run: RUSTDOCFLAGS="--html-in-header katex.html" cargo doc --document-private-items --no-deps --target-dir ./docs/rustdoc      
       - name: Deploy

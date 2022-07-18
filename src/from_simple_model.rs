@@ -22,7 +22,7 @@ use geometry3d::Triangulation3D;
 use simple_model::{SimpleModel, Substance};
 
 use crate::colour::Spectrum;
-use crate::material::{Material, Plastic};
+use crate::material::{Glass, Material, Plastic};
 use crate::primitive::Primitive;
 use crate::scene::{Scene, Wavelengths};
 
@@ -31,6 +31,10 @@ use crate::scene::{Scene, Wavelengths};
 pub struct SimpleModelReader {
     /// A list of the modifiers already in the model
     modifiers: Vec<String>,
+}
+
+fn transmittance_to_transmissivity(tau: crate::Float) -> crate::Float {
+    ((0.8402528435 + 0.0072522239 * tau.powi(2)).sqrt() - 0.9166530661) / 0.0036261119 / tau
 }
 
 impl SimpleModelReader {
@@ -55,17 +59,21 @@ impl SimpleModelReader {
             let front_substance = &construction.materials[0].substance;
             let front_mat_index = self
                 .push_substance(&mut scene, front_substance, wavelength)
-                .expect(&format!(
+                .unwrap_or_else(|| {
+                    panic!(
                     "Front material of  Construction '{}' seems to be a gas. This is not supported",
                     construction.name()
-                ));
+                )
+                });
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
             let back_mat_index = self
                 .push_substance(&mut scene, back_substance, wavelength)
-                .expect(&format!(
+                .unwrap_or_else(|| {
+                    panic!(
                     "Back material of  Construction '{}' seems to be a gas. This is not supported",
                     construction.name()
-                ));
+                )
+                });
 
             // Add all the triangles necessary
             let triangles = Triangulation3D::from_polygon(polygon)
@@ -90,17 +98,21 @@ impl SimpleModelReader {
             let front_substance = &construction.materials[0].substance;
             let front_mat_index = self
                 .push_substance(&mut scene, front_substance, wavelength)
-                .expect(&format!(
+                .unwrap_or_else(|| {
+                    panic!(
                     "Front material of  Construction '{}' seems to be a gas. This is not supported",
                     construction.name()
-                ));
+                )
+                });
             let back_substance = &construction.materials.last().unwrap().substance; // again, this would have been checked.
             let back_mat_index = self
                 .push_substance(&mut scene, back_substance, wavelength)
-                .expect(&format!(
+                .unwrap_or_else(|| {
+                    panic!(
                     "Back material of  Construction '{}' seems to be a gas. This is not supported",
                     construction.name()
-                ));
+                )
+                });
 
             // Add all the triangles necessary
             let triangles = Triangulation3D::from_polygon(polygon)
@@ -147,49 +159,62 @@ impl SimpleModelReader {
 
     /// Transformsa a SimpleModel Substance into a Material
     fn substance_to_material(substance: &Substance, wavelength: &Wavelengths) -> Option<Material> {
-        let color = match wavelength {
-            &Wavelengths::Solar => {
-                match substance {
-                    Substance::Normal(s) => {
-                        let alpha = match s.front_solar_absorbtance() {
-                            Ok(v) => *v,
-                            Err(_) => {
-                                let v = 0.7;
-                                eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
-                                v
-                            }
-                        };
-                        // return solar reflection
-                        1. - alpha
-                    }
-                    Substance::Gas(_) => return None,
-                }
-            }
-            &Wavelengths::Visible => {
-                match substance {
-                    Substance::Normal(s) => {
-                        let alpha = match s.front_visible_reflectance() {
-                            Ok(v) => *v,
-                            Err(_) => {
-                                let v = 0.7;
-                                eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
-                                v
-                            }
-                        };
-                        // return solar reflection
-                        1. - alpha
-                    }
-                    Substance::Gas(_) => return None,
-                }
-            }
-        };
+        match substance {
+            Substance::Normal(s) => {
+                let alpha = match *wavelength {
+                    Wavelengths::Solar => match s.front_solar_absorbtance() {
+                        Ok(v) => *v,
+                        Err(_) => {
+                            let v = 0.7;
+                            eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
+                            v
+                        }
+                    },
+                    Wavelengths::Visible => match s.front_visible_reflectance() {
+                        Ok(v) => *v,
+                        Err(_) => {
+                            let v = 0.7;
+                            eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
+                            v
+                        }
+                    },
+                };
+                let rho = 1. - alpha;
+                let tau = match *wavelength {
+                    Wavelengths::Solar => match s.solar_transmittance() {
+                        Ok(v) => transmittance_to_transmissivity(*v),
+                        Err(_) => {
+                            let v = 0.7;
+                            eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
+                            v
+                        }
+                    },
+                    Wavelengths::Visible => match s.visible_transmissivity() {
+                        Ok(v) => *v,
+                        Err(_) => {
+                            let v = 0.7;
+                            eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
+                            v
+                        }
+                    },
+                };
 
-        // return
-        Some(Material::Plastic(Plastic {
-            colour: Spectrum::<{ crate::N_CHANNELS }>::gray(color),
-            specularity: 0.0,
-            roughness: 0.0,
-        }))
+                // return
+                if tau > 0.0 {
+                    Some(Material::Glass(Glass {
+                        colour: Spectrum::<{ crate::N_CHANNELS }>::gray(tau),
+                        refraction_index: 1.52,
+                    }))
+                } else {
+                    Some(Material::Plastic(Plastic {
+                        colour: Spectrum::<{ crate::N_CHANNELS }>::gray(rho),
+                        specularity: 0.0,
+                        roughness: 0.0,
+                    }))
+                }
+            }
+            Substance::Gas(_) => None,
+        }
     }
 }
 
@@ -203,6 +228,12 @@ mod tests {
     use crate::Float;
     use geometry3d::{DistantSource3D, Point3D, Vector3D};
     use std::time::Instant;
+    use validate::assert_close;
+
+    #[test]
+    fn test_transmittance_to_transmissivity() {
+        assert_close!(0.96, transmittance_to_transmissivity(0.88), 1e-2)
+    }
 
     #[test]
     #[ignore]

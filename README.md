@@ -99,19 +99,6 @@ scompare -a ./rad_cornell.hdr -b ./cornell.hdr -o ./diff.hdr
 
 ## Building and testing
 
-At present, some bits are using [`std::simd::Simd`](https://doc.rust-lang.org/nightly/std/simd/struct.Simd.html), so you need to setup the `nightly` toolchain for this... **I am unsure of whether this is helping at all.**
-
-
-
-
-
-```bash
-# Just for this project
-rustup override set nightly
-
-# Or, for all your projects
-rustup default nightly
-```
 
 I recommend using this command for building, which enables parallelism.
 

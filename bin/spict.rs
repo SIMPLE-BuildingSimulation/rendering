@@ -37,7 +37,7 @@ impl std::fmt::Display for Triplet {
 impl std::str::FromStr for Triplet {
     type Err = String;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let st: Vec<&str> = s.trim().split(" ").collect();
+        let st: Vec<&str> = s.trim().split(' ').collect();
         if st.len() != 3 {
             return Err(format!(
                 "Expecting three values—e.g., '1. 2. 3'—... found '{}'",
