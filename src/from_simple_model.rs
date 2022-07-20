@@ -184,7 +184,7 @@ impl SimpleModelReader {
                     Wavelengths::Solar => match s.solar_transmittance() {
                         Ok(v) => transmittance_to_transmissivity(*v),
                         Err(_) => {
-                            let v = 0.7;
+                            let v = 0.;
                             eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
                             v
                         }
@@ -192,7 +192,7 @@ impl SimpleModelReader {
                     Wavelengths::Visible => match s.visible_transmissivity() {
                         Ok(v) => *v,
                         Err(_) => {
-                            let v = 0.7;
+                            let v = 0.;
                             eprintln!("Substance '{}' does not have a Solar Absorbtance... assuming value of {}", s.name, v);
                             v
                         }

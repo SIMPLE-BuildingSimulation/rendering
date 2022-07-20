@@ -133,8 +133,7 @@ impl DCFactory {
                         // let current_weight = cos_theta;
                         self.trace_ray(
                             scene,
-                            &mut new_ray,
-                            self.n_ambient_samples,
+                            &mut new_ray,                            
                             &mut this_ret,
                             &mut rng,
                             &mut aux,
@@ -184,8 +183,7 @@ impl DCFactory {
     fn trace_ray(
         &self,
         scene: &Scene,
-        ray: &mut Ray,
-        accum_denom_samples: usize,
+        ray: &mut Ray,        
         contribution: &mut ColourMatrix,
         rng: &mut RandGen,
         aux: &mut RayTracerHelper,
@@ -232,8 +230,7 @@ impl DCFactory {
 
                     self.trace_ray(
                         scene,
-                        &mut new_ray,
-                        accum_denom_samples,
+                        &mut new_ray,                        
                         contribution,
                         rng,
                         aux,
@@ -270,8 +267,7 @@ impl DCFactory {
 
                 self.trace_ray(
                     scene,
-                    ray,
-                    accum_denom_samples * n_ambient_samples,
+                    ray,                    
                     contribution,
                     rng,
                     aux,
