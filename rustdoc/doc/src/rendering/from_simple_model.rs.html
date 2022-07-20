@@ -514,7 +514,7 @@ SOFTWARE.
                     <span class="ident">Wavelengths::Solar</span> =&gt; <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">solar_transmittance</span>() {
                         <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="ident">transmittance_to_transmissivity</span>(<span class="kw-2">*</span><span class="ident">v</span>),
                         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="number">0.7</span>;
+                            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="number">0.</span>;
                             <span class="macro">eprintln!</span>(<span class="string">&quot;Substance &#39;{}&#39; does not have a Solar Absorbtance... assuming value of {}&quot;</span>, <span class="ident">s</span>.<span class="ident">name</span>, <span class="ident">v</span>);
                             <span class="ident">v</span>
                         }
@@ -522,7 +522,7 @@ SOFTWARE.
                     <span class="ident">Wavelengths::Visible</span> =&gt; <span class="kw">match</span> <span class="ident">s</span>.<span class="ident">visible_transmissivity</span>() {
                         <span class="prelude-val">Ok</span>(<span class="ident">v</span>) =&gt; <span class="kw-2">*</span><span class="ident">v</span>,
                         <span class="prelude-val">Err</span>(<span class="kw">_</span>) =&gt; {
-                            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="number">0.7</span>;
+                            <span class="kw">let</span> <span class="ident">v</span> <span class="op">=</span> <span class="number">0.</span>;
                             <span class="macro">eprintln!</span>(<span class="string">&quot;Substance &#39;{}&#39; does not have a Solar Absorbtance... assuming value of {}&quot;</span>, <span class="ident">s</span>.<span class="ident">name</span>, <span class="ident">v</span>);
                             <span class="ident">v</span>
                         }
@@ -620,5 +620,5 @@ SOFTWARE.
     }
 }
 </code></pre></div>
-</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.0 (a8314ef7d 2022-06-27)" ></div>
+</section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="rendering" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.62.1 (e092d0b6b 2022-07-16)" ></div>
 </body></html>
